@@ -2,6 +2,10 @@
 
 L'obiettivo è trasformare l'applicazione in una dashboard più pulita, focalizzata sulle azioni rapide e una navigazione intuitiva "a cascata" per la ricerca degli utensili.
 
+**Interfaccia responsive**
+  -Tutti gli elementi devono adattarsi ai diversi schermi
+  -Se necessario crea un layout apposito per mobile
+
 ## 🎨 Nuova Architettura Visiva
 
 ### 1. Header (Info Bar)
