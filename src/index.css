@@ -1,0 +1,183 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-main: #020617;
+  --color-bg-card: rgba(15, 23, 42, 0.4);
+  --color-accent-indigo: #6366f1;
+  --color-accent-emerald: #10b981;
+  --color-accent-rose: #f43f5e;
+  --color-accent-cyan: #06b6d4;
+
+  --font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-premium: 0 20px 50px -12px rgba(0, 0, 0, 0.5);
+  --shadow-carica: 0 0 30px rgba(16, 185, 129, 0.15);
+  --shadow-scarica: 0 0 30px rgba(244, 63, 94, 0.15);
+  --shadow-barcode: 0 0 40px rgba(6, 182, 212, 0.25);
+  --shadow-scan: 0 0 20px #06b6d4;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-main text-slate-200 min-h-screen overflow-hidden font-inter antialiased;
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.05) 0%, transparent 40%),
+      url("https://www.transparenttextures.com/patterns/dark-matter.png");
+  }
+
+  /* Style select option dropdowns for dark theme */
+  select option {
+    background-color: #0f172a;
+    color: #e2e8f0;
+    padding: 8px;
+  }
+}
+
+@utility glass-panel {
+  @apply backdrop-blur-2xl border border-white/[0.08] bg-white/[0.02] shadow-premium;
+}
+
+@utility glass-button {
+  @apply backdrop-blur-xl border border-white/[0.1] bg-white/[0.05] hover:bg-white/[0.1] transition-all duration-300;
+}
+
+@layer components {
+
+  /* Header spacing fix */
+  .header-bar {
+    @apply relative mb-6;
+    flex-shrink: 0;
+  }
+
+  .carousel-card {
+    @apply glass-panel rounded-[48px] flex flex-col items-center justify-center cursor-pointer p-10 relative overflow-hidden;
+    aspect-ratio: 1/1;
+    min-width: 320px;
+  }
+
+  .carousel-card::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent opacity-0 transition-opacity duration-700;
+  }
+
+  .carousel-card:hover::before {
+    @apply opacity-100;
+  }
+
+  .carousel-card.active {
+    @apply scale-100 opacity-100 border-accent-indigo/40 ring-1 ring-accent-indigo/20 bg-accent-indigo/[0.03];
+  }
+
+  .carousel-card.inactive {
+    @apply scale-90 opacity-20 blur-[2px];
+  }
+
+  /* Status Badges */
+  .badge {
+    @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter;
+  }
+
+  .badge-emerald {
+    @apply bg-emerald-500/10 text-emerald-400 border border-emerald-500/20;
+  }
+
+  .badge-rose {
+    @apply bg-rose-500/10 text-rose-400 border border-rose-500/20;
+  }
+
+  .badge-indigo {
+    @apply bg-indigo-500/10 text-indigo-400 border border-indigo-500/20;
+  }
+
+  /* Footer Action Buttons */
+  .action-btn-container {
+    @apply grid grid-cols-3 gap-6 px-8 pb-4;
+    flex-shrink: 0;
+  }
+
+  .action-btn {
+    @apply flex flex-col items-center justify-center gap-2 rounded-[28px] font-black uppercase tracking-[0.2em] transition-all duration-500 relative overflow-hidden;
+    height: 100px;
+    min-height: 90px;
+  }
+
+  .action-btn-carica {
+    @apply glass-panel text-accent-emerald hover:border-accent-emerald/40 hover:shadow-carica;
+  }
+
+  .action-btn-scarica {
+    @apply glass-panel text-accent-rose hover:border-accent-rose/40 hover:shadow-scarica;
+  }
+
+  .action-btn-barcode {
+    @apply glass-panel bg-accent-cyan/[0.08] text-accent-cyan border-accent-cyan/30 shadow-barcode hover:bg-accent-cyan/[0.15] hover:border-accent-cyan/60 hover:scale-[1.03] active:scale-95;
+  }
+
+  .scan-line {
+    @apply absolute left-[10%] w-[80%] h-[1px] bg-accent-cyan shadow-scan z-20;
+    animation: scanMove 3s infinite ease-in-out;
+  }
+
+  /* Table Customization */
+  .premium-table tr {
+    @apply transition-colors duration-200;
+  }
+
+  .premium-table td {
+    @apply py-5 px-6;
+  }
+
+  /* Custom scrollbar for lists */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.3);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.5);
+    background-clip: padding-box;
+  }
+
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 102, 241, 0.3) rgba(255, 255, 255, 0.02);
+  }
+}
+
+@keyframes scanMove {
+  0% {
+    top: 20%;
+    opacity: 0.2;
+  }
+
+  50% {
+    top: 80%;
+    opacity: 1;
+  }
+
+  100% {
+    top: 20%;
+    opacity: 0.2;
+  }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
