@@ -20,6 +20,7 @@ const ToolsGrid = lazy(() => import('./components/ToolsGrid'));
 const DropdownFilterView = lazy(() => import('./components/DropdownFilterView'));
 const SearchOverlay = lazy(() => import('./components/SearchOverlay'));
 const UserSelectionModal = lazy(() => import('./components/UserSelectionModal'));
+const ToolDetailCard = lazy(() => import('./components/ToolDetailCard'));
 
 // Helper for date
 const getTodayString = () => new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -35,6 +36,7 @@ function AppContent() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
+  const [showDetailCard, setShowDetailCard] = useState(false);
 
   const [filterStack, setFilterStack] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -136,11 +138,11 @@ function AppContent() {
     }
     if (filterStack.length === 1) {
       const shapes = [...new Set(filteredByStack.map(t => t['Forma']))].filter(Boolean);
-      if (shapes.length === 0) return null;
+      if (shapes.length === 0) return []; // Return empty array instead of null
       shapes.sort((a, b) => a.localeCompare(b));
       return shapes.map(v => ({ label: v, type: 'Forma', category: 'FORMA' }));
     }
-    return null;
+    return [];
   }, [tools, filterStack, filteredByStack]);
 
   const diameters = useMemo(() => {
@@ -159,7 +161,20 @@ function AppContent() {
 
   useEffect(() => {
     if (currentLevel < 3) setIsSelectionMode(false);
-  }, [currentLevel]);
+
+    // Auto-skip levels if no options are available
+    if (currentLevel === 1) {
+      const shapes = [...new Set(filteredByStack.map(t => t['Forma']))].filter(Boolean);
+      if (shapes.length === 0) {
+        setFilterStack(prev => [...prev, { type: 'Forma', value: 'N/A', skipped: true }]);
+      }
+    } else if (currentLevel === 2) {
+      const diams = [...new Set(filteredByStack.map(t => t['Diametro']))].filter(Boolean);
+      if (diams.length === 0) {
+        setFilterStack(prev => [...prev, { type: 'Diametro', value: 'N/A', skipped: true }]);
+      }
+    }
+  }, [currentLevel, filteredByStack]);
 
   const handleSelectOption = useCallback((opt) => {
     setFilterStack(prev => {
@@ -208,7 +223,7 @@ function AppContent() {
     setSelectedTool(tool);
     setOpType('scarico');
     setModalQty(1);
-    setShowMoveModal(true);
+    setShowDetailCard(true);
   }, []);
 
   const showToastNotification = useCallback((msg) => {
@@ -218,12 +233,22 @@ function AppContent() {
 
   const handleMovement = useCallback(async (forcedType) => {
     const activeType = forcedType || opType;
-    const change = parseInt(modalQty);
-    const targets = isBulkMode ? tools.filter(t => selectedToolsIds.includes(t.id)) : [selectedTool];
+    const change = parseInt(modalQty) || 1;
+    const targets = isBulkMode 
+      ? tools.filter(t => selectedToolsIds.includes(t.id)) 
+      : (selectedTool ? [selectedTool] : []);
     
+    if (targets.length === 0) {
+      console.warn("Nessun articolo selezionato per il movimento");
+      return;
+    }
+
     if (activeType === 'scarico') {
-      const insufficient = targets.filter(t => (t['Quantità'] || 0) < change);
-      if (insufficient.length > 0) return alert(`Quantità insufficiente per: ${insufficient.map(t => t.Tipologia).join(', ')}`);
+      const insufficient = targets.filter(t => (t ? (t['Quantità'] || 0) : 0) < change);
+      if (insufficient.length > 0) {
+        alert(`Quantità insufficiente per: ${insufficient.map(t => t?.Tipologia || 'Articolo').join(', ')}`);
+        return;
+      }
     }
 
     // --- OPTIMISTIC UPDATE ---
@@ -248,6 +273,7 @@ function AppContent() {
 
       showToastNotification(`MAGAZZINO AGGIORNATO: ${activeType.toUpperCase()} (${targets.length} articoli)`);
       setShowMoveModal(false);
+      setShowDetailCard(false);
       setSelectedToolsIds([]);
       setIsBulkMode(false);
     } catch (err) { 
@@ -264,12 +290,22 @@ function AppContent() {
   const breadcrumbText = filterStack.filter(f => !f.skipped).map(f => f.value).join(' / ');
 
   const renderCarouselHome = () => {
-    if (currentLevel >= 2 && currentLevel < 3) return <DiameterList diameters={diameters} onSelect={handleSelectDiameter} />;
+    if (currentLevel === 2) return <DiameterList diameters={diameters} onSelect={handleSelectDiameter} />;
     if (currentLevel >= 3) return (
       <ToolsGrid tools={finalTools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} 
         selectedIds={selectedToolsIds} onToggleSelect={toggleToolSelection} isSelectionMode={isSelectionMode} setIsSelectionMode={setIsSelectionMode} />
     );
-    if (!options || options.length === 0) return null;
+    
+    if (!options || options.length === 0) {
+      if (isLoading) return <div className="h-40 flex items-center justify-center"><div className="w-10 h-10 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>;
+      return (
+        <div className="h-40 flex flex-col items-center justify-center text-slate-500 gap-4">
+          <AlertTriangle size={32} className="opacity-20" />
+          <p className="text-xs font-black uppercase tracking-widest">Nessuna opzione disponibile</p>
+          <button onClick={resetFilters} className="text-[10px] text-accent-orange underline uppercase">Torna alle Categorie</button>
+        </div>
+      );
+    }
 
     return (
       <div className="relative w-full flex flex-col items-center my-auto">
@@ -410,6 +446,18 @@ function AppContent() {
       </main>
 
       <Suspense fallback={null}>
+        <AnimatePresence>
+          {showDetailCard && (
+            <ToolDetailCard 
+              tool={selectedTool} 
+              onClose={() => setShowDetailCard(false)} 
+              modalQty={modalQty} 
+              setModalQty={setModalQty} 
+              handleMovement={handleMovement}
+              isLoading={isLoading}
+            />
+          )}
+        </AnimatePresence>
         <AnimatePresence>
           {showSelectionDrawer && (
             <>
