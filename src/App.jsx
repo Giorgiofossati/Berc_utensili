@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
+import { AuthProvider, useAuth } from './lib/AuthContext';
 
 // Lazy load components
 const SelectionDrawer = lazy(() => import('./components/SelectionDrawer'));
@@ -18,11 +19,13 @@ const DiameterList = lazy(() => import('./components/DiameterList'));
 const ToolsGrid = lazy(() => import('./components/ToolsGrid'));
 const DropdownFilterView = lazy(() => import('./components/DropdownFilterView'));
 const SearchOverlay = lazy(() => import('./components/SearchOverlay'));
+const UserSelectionModal = lazy(() => import('./components/UserSelectionModal'));
 
 // Helper for date
 const getTodayString = () => new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-function App() {
+function AppContent() {
+  const { currentUser, logout } = useAuth();
   const [view, setView] = useState('home');
   const [tools, setTools] = useState([]);
   const [history, setHistory] = useState([]);
@@ -31,6 +34,7 @@ function App() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showMoveModal, setShowMoveModal] = useState(false);
+  const [showUserModal, setShowUserModal] = useState(false);
 
   const [filterStack, setFilterStack] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -45,6 +49,42 @@ function App() {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [showSelectionDrawer, setShowSelectionDrawer] = useState(false);
   const [showSearchOverlay, setShowSearchOverlay] = useState(false);
+
+  // IDLE TIMEOUT: 120 secondi
+  useEffect(() => {
+    if (!currentUser) return;
+
+    let timeoutId;
+    const IDLE_TIME = 120000; // 120 secondi
+
+    const resetTimer = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        console.log("Sessione scaduta per inattività");
+        logout();
+        setView('home');
+        resetFilters();
+      }, IDLE_TIME);
+    };
+
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    events.forEach(event => document.addEventListener(event, resetTimer));
+
+    resetTimer();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      events.forEach(event => document.removeEventListener(event, resetTimer));
+    };
+  }, [currentUser, logout]);
+
+  useEffect(() => {
+    if (!currentUser) {
+      setShowUserModal(true);
+    } else {
+      setShowUserModal(false);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
@@ -176,11 +216,12 @@ function App() {
     setTimeout(() => setToast(null), 4000);
   }, []);
 
-  const handleMovement = useCallback(async () => {
+  const handleMovement = useCallback(async (forcedType) => {
+    const activeType = forcedType || opType;
     const change = parseInt(modalQty);
     const targets = isBulkMode ? tools.filter(t => selectedToolsIds.includes(t.id)) : [selectedTool];
     
-    if (opType === 'scarico') {
+    if (activeType === 'scarico') {
       const insufficient = targets.filter(t => (t['Quantità'] || 0) < change);
       if (insufficient.length > 0) return alert(`Quantità insufficiente per: ${insufficient.map(t => t.Tipologia).join(', ')}`);
     }
@@ -189,7 +230,7 @@ function App() {
     const previousTools = [...tools];
     setTools(prev => prev.map(t => {
       if (targets.some(target => target.id === t.id)) {
-        return { ...t, 'Quantità': opType === 'carico' ? (t['Quantità'] || 0) + change : (t['Quantità'] || 0) - change };
+        return { ...t, 'Quantità': activeType === 'carico' ? (t['Quantità'] || 0) + change : (t['Quantità'] || 0) - change };
       }
       return t;
     }));
@@ -198,14 +239,14 @@ function App() {
     try {
       const { error: rpcErr } = await supabase.rpc('handle_bulk_movement', {
         p_tool_ids: targets.map(t => t.id),
-        p_op_type: opType,
+        p_op_type: activeType,
         p_change: change,
-        p_operator: 'Admin'
+        p_operator: currentUser ? `${currentUser.nome} ${currentUser.cognome}` : 'System'
       });
 
       if (rpcErr) throw rpcErr;
 
-      showToastNotification(`MAGAZZINO AGGIORNATO: ${opType.toUpperCase()} (${targets.length} articoli)`);
+      showToastNotification(`MAGAZZINO AGGIORNATO: ${activeType.toUpperCase()} (${targets.length} articoli)`);
       setShowMoveModal(false);
       setSelectedToolsIds([]);
       setIsBulkMode(false);
@@ -218,7 +259,7 @@ function App() {
       setIsLoading(false); 
       fetchTools(); // Final sync
     }
-  }, [modalQty, selectedTool, opType, showToastNotification, isBulkMode, selectedToolsIds, tools, fetchTools]);
+  }, [modalQty, selectedTool, opType, showToastNotification, isBulkMode, selectedToolsIds, tools, fetchTools, currentUser]);
 
   const breadcrumbText = filterStack.filter(f => !f.skipped).map(f => f.value).join(' / ');
 
@@ -277,7 +318,7 @@ function App() {
 
       <main className="flex-1 flex flex-col items-center justify-start relative mt-2 md:mt-4 overflow-hidden">
         <AnimatePresence mode="wait">
-          {view === 'home' && (
+          {view === 'home' ? (
             <motion.div key="home" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 1.05 }} className="w-full h-full flex flex-col items-center">
               <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-7xl mb-4 md:mb-12 px-4 gap-4 md:gap-6 shrink-0">
                 <div className="flex items-center justify-between w-full md:w-auto">
@@ -359,11 +400,12 @@ function App() {
                 </div>
               </div>
             </motion.div>
+          ) : (
+            <Suspense key="other-views" fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+              {view === 'history' && <HistoryView history={history} setView={setView} />}
+              {view === 'scanner' && <ScannerView setView={setView} tools={tools} setSelectedTool={setSelectedTool} setModalQty={setModalQty} setShowMoveModal={setShowMoveModal} setOpType={setOpType} isMobile={isMobile} />}
+            </Suspense>
           )}
-          <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
-            {view === 'history' && <HistoryView history={history} setView={setView} />}
-            {view === 'scanner' && <ScannerView setView={setView} tools={tools} setSelectedTool={setSelectedTool} setModalQty={setModalQty} setShowMoveModal={setShowMoveModal} setOpType={setOpType} isMobile={isMobile} />}
-          </Suspense>
         </AnimatePresence>
       </main>
 
@@ -377,7 +419,7 @@ function App() {
           )}
         </AnimatePresence>
         <AnimatePresence>
-          {showMoveModal && <MovementModal opType={opType} selectedTool={isBulkMode ? selectedToolsIds.length : selectedTool} modalQty={modalQty} setModalQty={setModalQty} setShowMoveModal={(val) => { setShowMoveModal(val); if (!val) setIsBulkMode(false); }} handleMovement={handleMovement} isBulkMode={isBulkMode} />}
+          {showMoveModal && <MovementModal opType={opType} setOpType={setOpType} selectedTool={isBulkMode ? selectedToolsIds.length : selectedTool} modalQty={modalQty} setModalQty={setModalQty} setShowMoveModal={(val) => { setShowMoveModal(val); if (!val) setIsBulkMode(false); }} handleMovement={handleMovement} isBulkMode={isBulkMode} />}
         </AnimatePresence>
       </Suspense>
 
@@ -401,7 +443,22 @@ function App() {
           isMobile={isMobile}
         />
       </Suspense>
+
+      <Suspense fallback={null}>
+        <UserSelectionModal 
+          isOpen={showUserModal} 
+          onClose={() => currentUser && setShowUserModal(false)} 
+        />
+      </Suspense>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
