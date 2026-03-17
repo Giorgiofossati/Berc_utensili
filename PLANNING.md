@@ -7,6 +7,7 @@ App React per gestione magazzino utensili CNC con:
 - Lettura Barcode/QR code
 - Storico movimenti
 - Admin panel protetto da password
+- Gestione utenti e privilegi (Operatore vs Admin)
 
 **Stack**: React + Tailwind + Supabase + Vercel
 
@@ -40,6 +41,7 @@ App React per gestione magazzino utensili CNC con:
 - **Target**: 01/04/2026
 - Admin panel con password
 - Gestione utensili (add/edit)
+- Gestione Utenti e Privilegi (Login, RBAC Operatore/Admin)
 - Responsive design finalizzato
 - **Deliverables**: App completa
 

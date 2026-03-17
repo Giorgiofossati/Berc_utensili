@@ -3,10 +3,11 @@
 @theme {
   --color-bg-main: #020617;
   --color-bg-card: rgba(15, 23, 42, 0.4);
-  --color-accent-indigo: #6366f1;
+  --color-accent-blue: #0ea5e9;
   --color-accent-emerald: #10b981;
   --color-accent-rose: #f43f5e;
   --color-accent-cyan: #06b6d4;
+  --color-accent-orange: #f97316;
 
   --font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;
 
@@ -19,9 +20,9 @@
 
 @layer base {
   body {
-    @apply bg-bg-main text-slate-200 min-h-screen overflow-hidden font-inter antialiased;
+    @apply bg-bg-main text-slate-200 h-screen overflow-hidden font-inter antialiased;
     background-image:
-      radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 0% 0%, rgba(14, 165, 233, 0.08) 0%, transparent 40%),
       radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.05) 0%, transparent 40%),
       url("https://www.transparenttextures.com/patterns/dark-matter.png");
   }
@@ -35,25 +36,34 @@
 }
 
 @utility glass-panel {
-  @apply backdrop-blur-2xl border border-white/[0.08] bg-white/[0.02] shadow-premium;
+  @apply relative bg-slate-900/40 backdrop-blur-2xl border border-white/[0.12] shadow-2xl;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
 @utility glass-button {
-  @apply backdrop-blur-xl border border-white/[0.1] bg-white/[0.05] hover:bg-white/[0.1] transition-all duration-300;
+  @apply relative bg-white/[0.04] backdrop-blur-xl border border-white/[0.1] hover:bg-white/[0.08] hover:border-white/[0.15] active:bg-white/[0.12] transition-all duration-300;
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
 }
 
 @layer components {
 
   /* Header spacing fix */
   .header-bar {
-    @apply relative mb-6;
+    @apply relative mb-1 md:mb-2;
     flex-shrink: 0;
   }
 
   .carousel-card {
-    @apply glass-panel rounded-[48px] flex flex-col items-center justify-center cursor-pointer p-10 relative overflow-hidden;
+    @apply glass-panel rounded-[32px] md:rounded-[48px] flex flex-col items-center justify-center cursor-pointer p-6 md:p-10 relative overflow-hidden;
     aspect-ratio: 1/1;
-    min-width: 320px;
+    min-width: 260px;
+    max-width: 90vw;
+  }
+
+  @media (min-width: 768px) {
+    .carousel-card {
+      min-width: 320px;
+    }
   }
 
   .carousel-card::before {
@@ -66,7 +76,7 @@
   }
 
   .carousel-card.active {
-    @apply scale-100 opacity-100 border-accent-indigo/40 ring-1 ring-accent-indigo/20 bg-accent-indigo/[0.03];
+    @apply scale-100 opacity-100 border-accent-blue/50 ring-2 ring-accent-blue/30 bg-accent-blue/[0.08];
   }
 
   .carousel-card.inactive {
@@ -86,32 +96,25 @@
     @apply bg-rose-500/10 text-rose-400 border border-rose-500/20;
   }
 
-  .badge-indigo {
-    @apply bg-indigo-500/10 text-indigo-400 border border-indigo-500/20;
+  .badge-blue {
+    @apply bg-blue-500/10 text-blue-400 border border-blue-500/20;
   }
 
-  /* Footer Action Buttons */
-  .action-btn-container {
-    @apply grid grid-cols-3 gap-6 px-8 pb-4;
-    flex-shrink: 0;
-  }
-
+  /* Inline Action Buttons */
   .action-btn {
-    @apply flex flex-col items-center justify-center gap-2 rounded-[28px] font-black uppercase tracking-[0.2em] transition-all duration-500 relative overflow-hidden;
-    height: 100px;
-    min-height: 90px;
+    @apply flex flex-row items-center justify-center gap-2 md:gap-3 rounded-[18px] md:rounded-[22px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] transition-all duration-300 relative overflow-hidden px-4 md:px-7 py-3 md:py-4.5;
   }
 
   .action-btn-carica {
-    @apply glass-panel text-accent-emerald hover:border-accent-emerald/40 hover:shadow-carica;
+    @apply glass-panel bg-accent-emerald/[0.05] text-accent-emerald border-accent-emerald/20 hover:bg-accent-emerald/[0.1] hover:border-accent-emerald/40 hover:shadow-carica;
   }
 
   .action-btn-scarica {
-    @apply glass-panel text-accent-rose hover:border-accent-rose/40 hover:shadow-scarica;
+    @apply glass-panel bg-accent-rose/[0.05] text-accent-rose border-accent-rose/20 hover:bg-accent-rose/[0.1] hover:border-accent-rose/40 hover:shadow-scarica;
   }
 
   .action-btn-barcode {
-    @apply glass-panel bg-accent-cyan/[0.08] text-accent-cyan border-accent-cyan/30 shadow-barcode hover:bg-accent-cyan/[0.15] hover:border-accent-cyan/60 hover:scale-[1.03] active:scale-95;
+    @apply glass-panel bg-accent-cyan/[0.1] text-accent-cyan border-accent-cyan/30 shadow-barcode hover:bg-accent-cyan/[0.15] hover:border-accent-cyan/60 hover:scale-[1.03] active:scale-95;
   }
 
   .scan-line {
@@ -139,20 +142,20 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(99, 102, 241, 0.3);
+    background: rgba(14, 165, 233, 0.3);
     border-radius: 10px;
     border: 2px solid transparent;
     background-clip: padding-box;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(99, 102, 241, 0.5);
+    background: rgba(14, 165, 233, 0.5);
     background-clip: padding-box;
   }
 
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgba(99, 102, 241, 0.3) rgba(255, 255, 255, 0.02);
+    scrollbar-color: rgba(14, 165, 233, 0.3) rgba(255, 255, 255, 0.02);
   }
 }
 
