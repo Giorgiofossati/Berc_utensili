@@ -21,16 +21,6 @@ const ALL_DETAIL_KEYS = [
   { key: 'Quantità', label: 'Quantità', minWidth: '70px', align: 'center' },
   { key: 'Stato', label: 'Stato', minWidth: '100px' },
   { key: 'Codice', label: 'Codice', minWidth: '100px' },
-  { key: 'SerialNumber', label: 'S/N', minWidth: '90px' },
-  { key: 'Materiale', label: 'Materiale', minWidth: '100px' },
-  { key: 'Lunghezza', label: 'Lunghezza', minWidth: '100px' },
-  { key: 'Passo', label: 'Passo', minWidth: '80px' },
-  { key: 'Tolleranza', label: 'Tolleranza', minWidth: '90px' },
-  { key: 'Angolo', label: 'Angolo', minWidth: '80px' },
-  { key: 'Rivestimento', label: 'Rivestimento', minWidth: '110px' },
-  { key: 'Fornitore', label: 'Fornitore', minWidth: '110px' },
-  { key: 'Lavorazione', label: 'Lavorazione', minWidth: '110px' },
-  { key: 'Sistema di misura', label: 'Sis. Misura', minWidth: '90px' },
 ];
 
 const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds = [], onToggleSelect, isSelectionMode, setIsSelectionMode }) => {
@@ -121,7 +111,7 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-7xl flex flex-col gap-4"
+      className="w-full max-w-[1600px] flex flex-col flex-1 gap-2 md:gap-4 min-h-0"
     >
       {availableFilters.length > 0 && (
         <div className="flex flex-wrap gap-2 px-2">
@@ -158,7 +148,7 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
         </div>
       )}
 
-      <div className="glass-panel rounded-[32px] overflow-hidden flex flex-col">
+      <div className="glass-panel rounded-[32px] overflow-hidden flex flex-col flex-1 min-h-0">
         <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-orange">
             Utensili — {filtered.length} risultat{filtered.length === 1 ? 'o' : 'i'}
@@ -184,7 +174,7 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
           </div>
         )}
 
-        <div className={`overflow-y-auto custom-scrollbar overflow-x-auto ${isMobile ? 'max-h-[45vh]' : 'max-h-[60vh]'}`}>
+        <div className={`overflow-y-auto custom-scrollbar overflow-x-auto flex-1 min-h-0 pb-4`}>
           <div className="min-w-max md:min-w-full">
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-slate-400">
@@ -193,11 +183,8 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
               </div>
             ) : (
               filtered.map((tool, i) => (
-                <motion.div
+                <div
                   key={tool.id || i}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.02 }}
                   className={`flex items-center gap-4 px-6 py-3.5 hover:bg-white/[0.04] cursor-pointer transition-all border-b border-white/[0.03] last:border-b-0 group ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
                 >
                   <div className="flex items-center gap-3 flex-shrink-0">
@@ -232,7 +219,7 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
                   <div className="flex-shrink-0 px-2" onClick={() => onSelectTool(tool)}>
                     <ChevronRight size={14} className="text-slate-700 group-hover:text-accent-blue transition-colors" />
                   </div>
-                </motion.div>
+                </div>
               ))
             )}
           </div>

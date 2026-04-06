@@ -63,14 +63,14 @@ const SelectionDrawer = memo(({ selectedIds, tools, onToggleSelect, onBulkAction
             onClick={() => onBulkAction('carico')}
             className="flex-1 py-5 rounded-[20px] bg-accent-emerald text-slate-950 font-black uppercase tracking-widest text-xs hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:grayscale"
           >
-            Bulk Carico
+            Bulk Deposita
           </button>
           <button 
             disabled={selectedTools.length === 0}
             onClick={() => onBulkAction('scarico')}
             className="flex-1 py-5 rounded-[20px] bg-accent-rose text-white font-black uppercase tracking-widest text-xs hover:bg-rose-400 transition-colors disabled:opacity-50 disabled:grayscale"
           >
-            Bulk Scarico
+            Bulk Preleva
           </button>
         </div>
         <button 

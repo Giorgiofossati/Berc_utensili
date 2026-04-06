@@ -25,9 +25,10 @@ const ScannerView = memo(({ setView, tools, setSelectedTool, setModalQty, setSho
 
   const handleSelectResult = useCallback((tool) => {
     setSelectedTool(tool);
+    setOpType(null); // Ensure detail modal opens first
     setModalQty(1);
     setShowMoveModal(true);
-  }, [setSelectedTool, setModalQty, setShowMoveModal]);
+  }, [setSelectedTool, setOpType, setModalQty, setShowMoveModal]);
 
   const handleScan = (decodedText) => {
     setManualCode(decodedText);

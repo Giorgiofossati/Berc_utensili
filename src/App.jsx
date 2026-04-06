@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy, useRef } from 'react';
 import {
   ArrowLeft, ChevronRight,
   ChevronLeft, ArrowUp, ArrowDown, X,
@@ -18,12 +18,14 @@ const DiameterList = lazy(() => import('./components/DiameterList'));
 const ToolsGrid = lazy(() => import('./components/ToolsGrid'));
 const DropdownFilterView = lazy(() => import('./components/DropdownFilterView'));
 const SearchOverlay = lazy(() => import('./components/SearchOverlay'));
+const LoginScreen = lazy(() => import('./components/LoginScreen'));
 
 // Helper for date
 const getTodayString = () => new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
 function App() {
   const [view, setView] = useState('home');
+  const [currentUser, setCurrentUser] = useState(null);
   const [tools, setTools] = useState([]);
   const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,6 +47,9 @@ function App() {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [showSelectionDrawer, setShowSelectionDrawer] = useState(false);
   const [showSearchOverlay, setShowSearchOverlay] = useState(false);
+  const [showActionButtons, setShowActionButtons] = useState(true);
+  const scrollTimeoutRef = useRef(null);
+  const mainRef = useRef(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
@@ -52,6 +57,25 @@ function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const handleScroll = useCallback(() => {
+    setShowActionButtons(prev => {
+      if (!prev) return false;
+      return false;
+    });
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => {
+      setShowActionButtons(true);
+    }, 15000);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, true);
+    return () => {
+      window.removeEventListener('scroll', handleScroll, true);
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    };
+  }, [handleScroll]);
 
   const today = useMemo(() => getTodayString(), []);
 
@@ -166,7 +190,7 @@ function App() {
 
   const handleSelectToolFromGrid = useCallback((tool) => {
     setSelectedTool(tool);
-    setOpType('scarico');
+    setOpType(null); // Wait for user to decide Carico/Scarico in Modal
     setModalQty(1);
     setShowMoveModal(true);
   }, []);
@@ -200,7 +224,7 @@ function App() {
         p_tool_ids: targets.map(t => t.id),
         p_op_type: opType,
         p_change: change,
-        p_operator: 'Admin'
+        p_operator: currentUser ? `${currentUser.nome} ${currentUser.cognome}` : 'Admin'
       });
 
       if (rpcErr) throw rpcErr;
@@ -261,10 +285,20 @@ function App() {
     );
   };
 
+  if (!currentUser) {
+    return (
+      <Suspense fallback={<div className="h-screen w-screen bg-slate-950 flex items-center justify-center text-accent-blue"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+        <LoginScreen onLogin={setCurrentUser} />
+      </Suspense>
+    );
+  }
+
   return (
-    <div className="h-screen w-screen flex flex-col p-3 md:p-5 lg:p-6 relative overflow-y-auto overflow-x-hidden text-slate-200 custom-scrollbar">
+    <div ref={mainRef} className="h-screen w-screen flex flex-col p-3 md:p-5 lg:p-6 relative overflow-y-auto overflow-x-hidden text-slate-200 custom-scrollbar">
       <Suspense fallback={<div className="h-10 animate-pulse bg-white/5 rounded-xl" />}>
         <Header 
+          currentUser={currentUser}
+          onLogout={() => setCurrentUser(null)}
           showUserMenu={showUserMenu} 
           setShowUserMenu={setShowUserMenu} 
           setView={setView} 
@@ -279,7 +313,7 @@ function App() {
         <AnimatePresence mode="wait">
           {view === 'home' && (
             <motion.div key="home" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 1.05 }} className="w-full h-full flex flex-col items-center">
-              <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-7xl mb-4 md:mb-12 px-4 gap-4 md:gap-6 shrink-0">
+              <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-[1600px] mb-2 md:mb-6 px-4 gap-4 md:gap-6 shrink-0">
                 <div className="flex items-center justify-between w-full md:w-auto">
                   {filterStack.length > 0 ? (
                     <button onClick={() => { setFilterStack(prev => {
@@ -314,7 +348,7 @@ function App() {
                   )}
                 </div>
               </div>
-              <div className="flex-1 w-full flex flex-col items-center justify-center">
+              <div className="flex-1 w-full flex flex-col items-center justify-start min-h-0">
                 <Suspense fallback={<div className="h-64 flex items-center justify-center"><div className="w-12 h-12 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
                   <AnimatePresence mode="wait">
                     {viewMode === 'carousel' ? (
@@ -342,22 +376,31 @@ function App() {
                   </motion.button>
                 )}
               </AnimatePresence>
-              <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-8 mt-auto pt-4 pb-6 w-full max-w-7xl px-4 z-50">
-                <div className="flex items-center justify-center gap-3 w-full md:w-auto">
-                  {selectedToolsIds.length > 0 ? (
-                    <>
-                      <button onClick={() => handleBulkAction('carico')} className="action-btn action-btn-carica group whitespace-nowrap flex-1 md:min-w-[180px] py-3.5 md:py-6 animate-pulse"><ArrowUp size={20} /><span className="text-xs md:text-base font-black tracking-widest">BULK CARICO ({selectedToolsIds.length})</span></button>
-                      <button onClick={() => handleBulkAction('scarico')} className="action-btn action-btn-scarica group whitespace-nowrap flex-1 md:min-w-[180px] py-3.5 md:py-6 animate-pulse"><ArrowDown size={20} /><span className="text-xs md:text-base font-black tracking-widest">BULK SCARICO ({selectedToolsIds.length})</span></button>
-                      <button onClick={() => setSelectedToolsIds([])} className="glass-button p-4 rounded-xl text-rose-400 hover:bg-rose-400/10"><X size={20} /></button>
-                    </>
-                  ) : (
-                    <>
-                      <button onClick={() => { setOpType('carico'); setView('scanner'); }} className="action-btn action-btn-carica group whitespace-nowrap flex-1 md:min-w-[180px] py-3.5 md:py-6"><ArrowUp size={20} /><span className="text-xs md:text-base font-black tracking-widest">CARICO</span></button>
-                      <button onClick={() => { setOpType('scarico'); setView('scanner'); }} className="action-btn action-btn-scarica group whitespace-nowrap flex-1 md:min-w-[180px] py-3.5 md:py-6"><ArrowDown size={20} /><span className="text-xs md:text-base font-black tracking-widest">SCARICO</span></button>
-                    </>
-                  )}
-                </div>
-              </div>
+              <AnimatePresence>
+                {showActionButtons && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 50 }}
+                    className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-8 mt-auto pt-4 pb-4 md:pb-6 w-full max-w-[1600px] px-4 z-50 shrink-0"
+                  >
+                    <div className="flex items-center justify-center gap-3 w-full md:w-auto">
+                      {selectedToolsIds.length > 0 ? (
+                        <>
+                          <button onClick={() => handleBulkAction('carico')} className="action-btn action-btn-carica group whitespace-nowrap flex-1 md:min-w-[180px] py-3.5 md:py-6 animate-pulse"><ArrowUp size={20} /><span className="text-xs md:text-base font-black tracking-widest">BULK DEPOSITA ({selectedToolsIds.length})</span></button>
+                          <button onClick={() => handleBulkAction('scarico')} className="action-btn action-btn-scarica group whitespace-nowrap flex-1 md:min-w-[180px] py-3.5 md:py-6 animate-pulse"><ArrowDown size={20} /><span className="text-xs md:text-base font-black tracking-widest">BULK PRELEVA ({selectedToolsIds.length})</span></button>
+                          <button onClick={() => setSelectedToolsIds([])} className="glass-button p-4 rounded-xl text-rose-400 hover:bg-rose-400/10"><X size={20} /></button>
+                        </>
+                      ) : (
+                        <div className="flex w-full gap-2 md:gap-4 flex-wrap">
+                          <button onClick={() => { setOpType('carico'); setView('scanner'); }} className="action-btn action-btn-carica group whitespace-nowrap flex-1 md:min-w-[180px] py-3.5 md:py-6"><ArrowUp size={20} /><span className="text-xs md:text-base font-black tracking-widest">DEPOSITA</span></button>
+                          <button onClick={() => { setOpType('scarico'); setView('scanner'); }} className="action-btn action-btn-scarica group whitespace-nowrap flex-1 md:min-w-[180px] py-3.5 md:py-6"><ArrowDown size={20} /><span className="text-xs md:text-base font-black tracking-widest">PRELEVA</span></button>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
           <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
@@ -377,7 +420,7 @@ function App() {
           )}
         </AnimatePresence>
         <AnimatePresence>
-          {showMoveModal && <MovementModal opType={opType} selectedTool={isBulkMode ? selectedToolsIds.length : selectedTool} modalQty={modalQty} setModalQty={setModalQty} setShowMoveModal={(val) => { setShowMoveModal(val); if (!val) setIsBulkMode(false); }} handleMovement={handleMovement} isBulkMode={isBulkMode} />}
+          {showMoveModal && <MovementModal opType={opType} setOpType={setOpType} selectedTool={isBulkMode ? selectedToolsIds.length : selectedTool} modalQty={modalQty} setModalQty={setModalQty} setShowMoveModal={(val) => { setShowMoveModal(val); if (!val) setIsBulkMode(false); }} handleMovement={handleMovement} isBulkMode={isBulkMode} />}
         </AnimatePresence>
       </Suspense>
 

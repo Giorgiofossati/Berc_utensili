@@ -28,7 +28,7 @@ export const getToolIconConfig = (type) => {
   if (t.includes('MASCHIO')) return { icon: Hash, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' };
   if (t.includes('ALESATORE')) return { icon: Circle, color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20' };
   if (t.includes('TASTATORE')) return { icon: Scan, color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/20' };
-  if (t.includes('SVASATORE')) return { icon: Triangle, color: 'text-indigo-400', bg: 'bg-indigo-500/10', border: 'border-indigo-500/20' };
+  if (t.includes('SVASATORE')) return { icon: Triangle, color: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/20' };
   if (t.includes('SMUSSATORE')) return { icon: Scissors, color: 'text-slate-400', bg: 'bg-slate-500/10', border: 'border-slate-500/20' };
   if (t.includes('INSERTO')) return { icon: Diamond, color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' };
   

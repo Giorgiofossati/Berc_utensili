@@ -69,19 +69,33 @@
 - [x] Creare una barra di scorrimento laterale ben visibile e cliccabile per scorrere la lista se gli elementi non stanno nella schermata.
 
 ### 7. Gestione Colori (Look Industriale Professionale)
-- [ ] Rimuovere l'utilizzo del colore `indigo` dal CSS globale e dai componenti (es. `accent-indigo`).
-- [ ] Creare e utilizzare un nuovo `accent-blue` o focalizzarsi su `accent-cyan` per bottoni, selezioni e highlight primari.
-- [ ] Aggiungere `accent-orange` per contrasti e comandi secondari di reset/avviso.
-- [ ] Aggiornare in `App.jsx` e `index.css` ogni riferimento ai vecchi colori per completare il restyle.
+- [x] Rimuovere l'utilizzo del colore `indigo` dal CSS globale e dai componenti (es. `accent-indigo`).
+- [x] Creare e utilizzare un nuovo `accent-blue` o focalizzarsi su `accent-cyan` per bottoni, selezioni e highlight primari.
+- [x] Aggiungere `accent-orange` per contrasti e comandi secondari di reset/avviso.
+- [x] Aggiornare in `App.jsx` e `index.css` ogni riferimento ai vecchi colori per completare il restyle.
 
 ---
 
 ## 🔵 Funzionalità Future (Sessione di Domani)
 
 ### 8. Utenti e Privilegi
-- [ ] Creare la tabella `utenti` su Supabase (Nome, Cognome, Codice ID, Ruolo, Password).
-- [ ] Implementare la selezione utente con ricerca per nome o ID nella UI.
-- [ ] Gestione permessi:
-  - **Operatore**: Solo filtri e operazioni di carico/scarica.
-  - **Admin**: Tutti i privilegi + accesso protetto da password (carica/scarica/nuovi utensili).
-- [ ] Tracciare l'utente nei movimenti di magazzino.
+- [x] Creare la tabella `utenti` su Supabase (Nome, Cognome, Codice ID, Ruolo, Password).
+- [x] Implementare la selezione utente con ricerca per nome o ID nella UI.
+- [x] Gestione permessi:
+  - **Operatore**: Solo filtri e operazioni di carico/scarica (senza password).
+- [x] Admin: Tutti i privilegi + accesso protetto da password (carica/scarica).
+### 9. UX: Dettaglio Utensile Modal (Prima dei movimenti)
+- [x] Quando si clicca un utensile riga dalla griglia, aprire un Modal di **Dettaglio Utensile** invece che passare direttamente all'operazione.
+- [x] Il modale non deve avere preselezionata "Operazione: Scarico". Deve mostrare un riepilogo pulito di tutte le informazioni utili dell'utensile (es. Ubicazione, Materiale e ogni campo non `null` nel DB per quell'oggetto).
+- [x] Rimuovere temporaneamente il selettore di quantità dalla prima schermata. Sostituirlo con due pulsanti dedicati: **"Carico"** e **"Scarico"**.
+- [x] Cliccando "Carico" o "Scarico", l'UI si "riformatta" (o passa allo step 2) mostrando il selettore di Quantità e il tasto di **Conferma Transazione**.
+- [x] Confermare l'operazione aggiorna la giacenza in `Utensili_B1` e salva il log nella `movements_history`.
+
+### 10. Ottimizzazione UX Griglia e Pulsanti Action
+- [x] **Pulsanti a scomparsa intelligente**: Implementare un listener che rilevi lo scrolling della pagina o della griglia in `App.jsx`. Durante lo scrolling, nascondere i pulsantoni grossi in basso ("Deposita" e "Preleva"). Impostare un timer (es. 15 secondi) di inattività dello scroll per farli ricomparire automaticamente (utile per non coprire le ultime righe).
+- [x] **Risoluzione Scrolling Orizzontale Griglia**: Attualmente la griglia mostra troppe colonne orizzontali (Materiale, Passo, Tolleranza, ecc.). Per risolvere:
+  - [x] Ridurre le colonne visibili nella griglia alle sole fondamentali: `Descrizione`, `Ubicazione`, `Quantità`, `Stato` e `Codice`.
+  - [x] Nascondere del tutto le colonne tecniche accessorie dalla tabella principale.
+  - [x] Sfruttare il neonato **"Dettaglio Utensile Modal"** (cliccando sulla riga) come unico punto per visionare tutte le specifiche tecniche avanzate. In questo modo la tabella diventa responsiva, non richiede scroll orizzontale e l'interfaccia resta modernissima e pulita.
+
+- [x] Tracciare l'utente nei movimenti di magazzino.

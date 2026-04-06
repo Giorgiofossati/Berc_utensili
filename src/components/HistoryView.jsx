@@ -31,8 +31,8 @@ const HistoryView = memo(({ history, setView }) => (
               <tr key={item.id} className="glass-panel hover:bg-white/[0.04]">
                 <td className="px-10 rounded-l-[24px] text-slate-400 text-sm font-mono">{new Date(item.created_at).toLocaleString('it-IT')}</td>
                 <td className="px-6 font-bold text-lg">{item.Utensili_B1?.Tipologia} Ø{item.Utensili_B1?.Diametro} <span className="text-[10px] text-slate-400 block">ID: {item.Utensili_B1?.Codice}</span></td>
-                <td className="px-6">
-                  <span className={`badge ${item.tipo_operazione === 'carico' ? 'badge-emerald' : 'badge-rose'}`}>{item.tipo_operazione}</span>
+                <td className="px-6 py-4">
+                  <span className={`badge ${item.tipo_operazione === 'carico' ? 'badge-emerald' : 'badge-rose'}`}>{item.tipo_operazione === 'carico' ? 'deposita' : 'preleva'}</span>
                 </td>
                 <td className={`px-6 font-black text-2xl tabular-nums ${item.tipo_operazione === 'carico' ? 'text-accent-emerald' : 'text-accent-rose'}`}>
                   {item.tipo_operazione === 'carico' ? '+' : '-'}{item.quantita}
