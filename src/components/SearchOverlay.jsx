@@ -50,7 +50,7 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose} 
-            className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl" 
+            className="absolute inset-0 dark:bg-slate-950/80 bg-slate-50/80 backdrop-blur-xl" 
           />
           
           <motion.div
@@ -60,7 +60,7 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
             className="w-full max-w-4xl z-10 flex flex-col gap-6"
           >
             <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-black uppercase italic tracking-tighter text-white">Ricerca Globale</h2>
+              <h2 className="text-3xl font-black uppercase italic tracking-tighter dark:text-white text-slate-900">Ricerca Globale</h2>
               <button 
                 onClick={onClose} 
                 className="glass-button p-4 rounded-full text-accent-orange"
@@ -71,7 +71,7 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
 
             <div className="relative flex items-center gap-4">
               <div className="relative flex-1 flex items-center">
-                <Search size={24} className="absolute left-6 text-slate-400 pointer-events-none z-10" />
+                <Search size={24} className="absolute left-6 dark:text-slate-400 text-slate-600 pointer-events-none z-10" />
                 <input
                   ref={inputRef}
                   value={manualCode}
@@ -82,7 +82,7 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
                 {manualCode && (
                   <button 
                     onClick={() => setManualCode('')} 
-                    className="absolute right-6 text-slate-400 hover:text-white transition-colors"
+                    className="absolute right-6 dark:text-slate-400 text-slate-600 hover:text-white transition-colors"
                   >
                     <X size={20} />
                   </button>
@@ -148,16 +148,16 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
                                 <ToolIcon type={tool['Tipologia']} size={48} />
                               </div>
                               <div className="flex-1 min-w-0 text-left">
-                                <p className="font-black text-base text-white truncate uppercase tracking-tight">
+                                <p className="font-black text-base dark:text-white text-slate-900 truncate uppercase tracking-tight">
                                   {tool['Tipologia']} {tool['Forma'] ? `— ${tool['Forma']}` : ''} Ø{tool['Diametro']}
                                 </p>
-                                <p className="text-[11px] font-bold text-slate-400 truncate mt-1 uppercase tracking-wider">
+                                <p className="text-[11px] font-bold dark:text-slate-400 text-slate-600 truncate mt-1 uppercase tracking-wider">
                                   {tool['Descrizione'] || `${tool['Tipologia']} ${tool['Forma'] || ''}`}
                                 </p>
                               </div>
                             </div>
                             <div className="flex items-center gap-4 flex-shrink-0 ml-6">
-                              <span className="text-[10px] text-slate-300 font-mono">{tool['Ubicazione']}</span>
+                              <span className="text-[10px] dark:text-slate-300 text-slate-700 font-mono">{tool['Ubicazione']}</span>
                               {!isMobile && <span className="badge badge-blue">{tool['Codice']}</span>}
                               <span className={`font-black text-sm tabular-nums ${(tool['Quantità'] || 0) > 0 ? 'text-accent-emerald' : 'text-accent-rose'}`}>
                                 {tool['Quantità'] || 0}

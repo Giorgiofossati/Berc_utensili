@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
-  --color-bg-main: #020617;
-  --color-bg-card: rgba(15, 23, 42, 0.4);
+  --color-bg-main: var(--theme-bg-main);
+  --color-bg-card: var(--theme-bg-card);
+  --color-text-main: var(--theme-text-main);
   --color-accent-blue: #0ea5e9;
   --color-accent-emerald: #10b981;
   --color-accent-rose: #f43f5e;
@@ -19,30 +22,82 @@
 }
 
 @layer base {
-  body {
-    @apply bg-bg-main text-slate-200 h-screen overflow-hidden font-inter antialiased;
-    background-image:
+  :root {
+    /* LIGHT THEME VARIABLES */
+    --theme-bg-main: #f8fafc;
+    --theme-bg-card: rgba(255, 255, 255, 0.7);
+    --theme-text-main: #0f172a;
+    --theme-bg-gradient: 
+      radial-gradient(circle at 0% 0%, rgba(14, 165, 233, 0.12) 0%, transparent 40%),
+      radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
+  }
+
+  :root.dark {
+    /* DARK THEME VARIABLES */
+    --theme-bg-main: #020617;
+    --theme-bg-card: rgba(15, 23, 42, 0.4);
+    --theme-text-main: #e2e8f0;
+    --theme-bg-gradient:
       radial-gradient(circle at 0% 0%, rgba(14, 165, 233, 0.08) 0%, transparent 40%),
       radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.05) 0%, transparent 40%),
       url("https://www.transparenttextures.com/patterns/dark-matter.png");
   }
 
+  body {
+    @apply bg-bg-main text-text-main h-screen overflow-hidden font-inter antialiased transition-colors duration-500;
+    background-image: var(--theme-bg-gradient);
+  }
+
   /* Style select option dropdowns for dark theme */
   select option {
-    background-color: #0f172a;
-    color: #e2e8f0;
+    background-color: var(--theme-bg-main);
+    color: var(--theme-text-main);
     padding: 8px;
   }
 }
 
 @utility glass-panel {
-  @apply relative bg-slate-900/40 backdrop-blur-2xl border border-white/[0.12] shadow-2xl;
+  @apply relative backdrop-blur-2xl border transition-colors duration-300 shadow-2xl;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+}
+
+:root.dark .glass-panel {
+  background-color: rgba(15, 23, 42, 0.4);
+  border-color: rgba(255, 255, 255, 0.12);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
 @utility glass-button {
-  @apply relative bg-white/[0.04] backdrop-blur-xl border border-white/[0.1] hover:bg-white/[0.08] hover:border-white/[0.15] active:bg-white/[0.12] transition-all duration-300;
+  @apply relative backdrop-blur-xl border transition-all duration-300;
+  background-color: rgba(255, 255, 255, 0.6);
+  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.05);
+}
+
+.glass-button:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.glass-button:active {
+  background-color: rgba(255, 255, 255, 1);
+}
+
+:root.dark .glass-button {
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+:root.dark .glass-button:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+:root.dark .glass-button:active {
+  background-color: rgba(255, 255, 255, 0.12);
 }
 
 @layer components {
@@ -52,52 +107,21 @@
     @apply relative mb-1 md:mb-2;
     flex-shrink: 0;
   }
-
-  .carousel-card {
-    @apply glass-panel rounded-[32px] md:rounded-[48px] flex flex-col items-center justify-center cursor-pointer p-6 md:p-10 relative overflow-hidden;
-    aspect-ratio: 1/1;
-    min-width: 260px;
-    max-width: 90vw;
-  }
-
-  @media (min-width: 768px) {
-    .carousel-card {
-      min-width: 320px;
-    }
-  }
-
-  .carousel-card::before {
-    content: '';
-    @apply absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent opacity-0 transition-opacity duration-700;
-  }
-
-  .carousel-card:hover::before {
-    @apply opacity-100;
-  }
-
-  .carousel-card.active {
-    @apply scale-100 opacity-100 border-accent-blue/50 ring-2 ring-accent-blue/30 bg-accent-blue/[0.08];
-  }
-
-  .carousel-card.inactive {
-    @apply scale-90 opacity-20 blur-[2px];
-  }
-
   /* Status Badges */
   .badge {
-    @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter;
+    @apply px-3.5 py-1 rounded-full text-[11px] font-black uppercase tracking-normal inline-flex items-center justify-center whitespace-nowrap;
   }
 
   .badge-emerald {
-    @apply bg-emerald-500/10 text-emerald-400 border border-emerald-500/20;
+    @apply dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 bg-emerald-100 text-emerald-700 border-emerald-200;
   }
 
   .badge-rose {
-    @apply bg-rose-500/10 text-rose-400 border border-rose-500/20;
+    @apply dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20 bg-rose-100 text-rose-700 border-rose-200;
   }
 
   .badge-blue {
-    @apply bg-blue-500/10 text-blue-400 border border-blue-500/20;
+    @apply dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 bg-blue-100 text-blue-700 border-blue-200;
   }
 
   /* Inline Action Buttons */

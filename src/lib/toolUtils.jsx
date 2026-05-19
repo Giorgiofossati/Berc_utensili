@@ -57,3 +57,14 @@ export const ToolIcon = ({ type, size = 24, className = "", mode = 'icon' }) => 
     </div>
   );
 };
+
+export const buildDesc = (t) => {
+  if (!t) return '';
+  const parts = [
+    t['Tipologia'], 
+    t['Forma'], 
+    t['Diametro'] ? `Ø${t['Diametro']}` : null,
+    t['Fornitore']
+  ];
+  return parts.filter(Boolean).join(' · ');
+};

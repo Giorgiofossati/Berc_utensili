@@ -11,14 +11,14 @@ const SelectionDrawer = memo(({ selectedIds, tools, onToggleSelect, onBulkAction
       animate={{ x: 0 }} 
       exit={{ x: '100%' }}
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      className="fixed top-0 right-0 h-screen w-full md:w-[450px] glass-panel bg-slate-950/90 backdrop-blur-2xl z-[2000] flex flex-col shadow-2xl border-l border-white/5"
+      className="fixed top-0 right-0 h-screen w-full md:w-[450px] glass-panel dark:bg-slate-950/90 bg-slate-50/90 backdrop-blur-2xl z-[2000] flex flex-col shadow-2xl border-l border-white/5"
     >
       <div className="p-8 border-b border-white/5 flex items-center justify-between">
         <div>
           <p className="text-[10px] font-black text-accent-cyan uppercase tracking-[0.4em] mb-1">Queue Manager</p>
-          <h3 className="text-3xl font-black uppercase italic tracking-tighter text-white">Selezione Bulk</h3>
+          <h3 className="text-3xl font-black uppercase italic tracking-tighter dark:text-white text-slate-900">Selezione Bulk</h3>
         </div>
-        <button onClick={onClose} className="glass-button p-4 rounded-full text-slate-400 hover:text-white transition-colors">
+        <button onClick={onClose} className="glass-button p-4 rounded-full dark:text-slate-400 text-slate-600 hover:text-white transition-colors">
           <X size={24} />
         </button>
       </div>
@@ -41,8 +41,8 @@ const SelectionDrawer = memo(({ selectedIds, tools, onToggleSelect, onBulkAction
                   <Activity size={16} className="text-accent-blue" />
                 </div>
                 <div>
-                  <p className="font-bold text-sm text-white">{tool['Tipologia']} Ø{tool['Diametro']}</p>
-                  <p className="text-[10px] text-slate-400 font-mono">{tool['Codice']}</p>
+                  <p className="font-bold text-sm dark:text-white text-slate-900">{tool['Tipologia']} Ø{tool['Diametro']}</p>
+                  <p className="text-[10px] dark:text-slate-400 text-slate-600 font-mono">{tool['Codice']}</p>
                 </div>
               </div>
               <button 

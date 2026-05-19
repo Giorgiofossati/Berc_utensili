@@ -18,7 +18,7 @@ const HistoryView = memo(({ history, setView }) => (
       <div className="overflow-y-auto scrollbar-hide flex-1 px-4">
         <table className="w-full premium-table border-separate border-spacing-y-4">
           <thead className="sticky top-0 z-10 glass-panel bg-bg-main/95">
-            <tr className="text-[9px] font-black text-slate-300 uppercase tracking-[0.4em]">
+            <tr className="text-[9px] font-black dark:text-slate-300 text-slate-700 uppercase tracking-[0.4em]">
               <th className="py-6 px-10 rounded-l-[24px]">Data / Ora Operazione</th>
               <th className="py-6 px-6">Identificativo Utensile</th>
               <th className="py-6 px-6">Flusso</th>
@@ -29,15 +29,15 @@ const HistoryView = memo(({ history, setView }) => (
           <tbody>
             {(history || []).map(item => (
               <tr key={item.id} className="glass-panel hover:bg-white/[0.04]">
-                <td className="px-10 rounded-l-[24px] text-slate-400 text-sm font-mono">{new Date(item.created_at).toLocaleString('it-IT')}</td>
-                <td className="px-6 font-bold text-lg">{item.Utensili_B1?.Tipologia} Ø{item.Utensili_B1?.Diametro} <span className="text-[10px] text-slate-400 block">ID: {item.Utensili_B1?.Codice}</span></td>
+                <td className="px-10 rounded-l-[24px] dark:text-slate-400 text-slate-600 text-sm font-mono">{new Date(item.created_at).toLocaleString('it-IT')}</td>
+                <td className="px-6 font-bold text-lg">{item.Utensili_B1?.Tipologia} Ø{item.Utensili_B1?.Diametro} <span className="text-[10px] dark:text-slate-400 text-slate-600 block">ID: {item.Utensili_B1?.Codice}</span></td>
                 <td className="px-6 py-4">
                   <span className={`badge ${item.tipo_operazione === 'carico' ? 'badge-emerald' : 'badge-rose'}`}>{item.tipo_operazione === 'carico' ? 'deposita' : 'preleva'}</span>
                 </td>
                 <td className={`px-6 font-black text-2xl tabular-nums ${item.tipo_operazione === 'carico' ? 'text-accent-emerald' : 'text-accent-rose'}`}>
                   {item.tipo_operazione === 'carico' ? '+' : '-'}{item.quantita}
                 </td>
-                <td className="px-10 rounded-r-[24px] text-slate-300 font-bold uppercase text-xs tracking-widest">{item.operatore}</td>
+                <td className="px-10 rounded-r-[24px] dark:text-slate-300 text-slate-700 font-bold uppercase text-xs tracking-widest">{item.operatore}</td>
               </tr>
             ))}
           </tbody>

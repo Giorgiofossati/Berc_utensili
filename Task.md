@@ -91,11 +91,19 @@
 - [x] Cliccando "Carico" o "Scarico", l'UI si "riformatta" (o passa allo step 2) mostrando il selettore di Quantità e il tasto di **Conferma Transazione**.
 - [x] Confermare l'operazione aggiorna la giacenza in `Utensili_B1` e salva il log nella `movements_history`.
 
-### 10. Ottimizzazione UX Griglia e Pulsanti Action
-- [x] **Pulsanti a scomparsa intelligente**: Implementare un listener che rilevi lo scrolling della pagina o della griglia in `App.jsx`. Durante lo scrolling, nascondere i pulsantoni grossi in basso ("Deposita" e "Preleva"). Impostare un timer (es. 15 secondi) di inattività dello scroll per farli ricomparire automaticamente (utile per non coprire le ultime righe).
+- [x] **Risoluzione Sovrapposizione Pulsanti Action**: Invece di nascondere i pulsanti al bottom dello schermo, spostarli direttamente nell'header ai lati del titolo, rimuovendo definitivamente il pannello bottom e qualsiasi sovrapposizione visiva.
 - [x] **Risoluzione Scrolling Orizzontale Griglia**: Attualmente la griglia mostra troppe colonne orizzontali (Materiale, Passo, Tolleranza, ecc.). Per risolvere:
   - [x] Ridurre le colonne visibili nella griglia alle sole fondamentali: `Descrizione`, `Ubicazione`, `Quantità`, `Stato` e `Codice`.
   - [x] Nascondere del tutto le colonne tecniche accessorie dalla tabella principale.
   - [x] Sfruttare il neonato **"Dettaglio Utensile Modal"** (cliccando sulla riga) come unico punto per visionare tutte le specifiche tecniche avanzate. In questo modo la tabella diventa responsiva, non richiede scroll orizzontale e l'interfaccia resta modernissima e pulita.
 
 - [x] Tracciare l'utente nei movimenti di magazzino.
+
+### 10. Gestione Ordini (Workflow Caso 1)
+- [ ] Pianificare e implementare una funzione per gestire gli ordini quando un utensile ha quantità insufficiente o nulla.
+- [ ] Predisporre eventuale tabella Supabase `ordini` se necessaria, o definire il formato delle richieste.
+
+### 11. Creazione Nuovo Articolo (Workflow Caso 2)
+- [ ] Implementare un modale (`AddToolModal`) per aggiungere un nuovo articolo non presente a magazzino.
+- [ ] Creare il form con tutti i campi del database `Utensili_B1` richiesti.
+- [ ] Collegare l'azione al pulsante "Nuovi Utensili" attualmente disconnesso nell'Header.

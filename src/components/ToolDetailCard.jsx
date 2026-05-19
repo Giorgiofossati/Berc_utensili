@@ -26,14 +26,14 @@ const ToolDetailCard = memo(({ tool, onClose, modalQty, setModalQty, handleMovem
         animate={{ opacity: 1 }} 
         exit={{ opacity: 0 }} 
         onClick={onClose} 
-        className="absolute inset-0 bg-slate-950/90 backdrop-blur-2xl"
+        className="absolute inset-0 dark:bg-slate-950/90 bg-slate-50/90 backdrop-blur-2xl"
       />
       
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }} 
         animate={{ opacity: 1, scale: 1, y: 0 }} 
         exit={{ opacity: 0, scale: 0.9, y: 20 }} 
-        className="glass-panel w-full max-w-4xl max-h-[90vh] p-6 md:p-10 rounded-[40px] md:rounded-[56px] z-[1001] relative flex flex-col gap-6 md:gap-8 overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] border-white/10"
+        className="glass-panel w-full max-w-4xl max-h-[90vh] p-6 md:p-10 rounded-[40px] md:rounded-[56px] z-[1001] relative flex flex-col gap-6 md:gap-8 overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] dark:border-white/10 border-slate-900/10"
       >
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
@@ -44,16 +44,16 @@ const ToolDetailCard = memo(({ tool, onClose, modalQty, setModalQty, handleMovem
             </div>
             <div className="flex flex-col">
               <p className="text-[10px] md:text-[12px] font-black text-accent-orange tracking-[0.4em] uppercase mb-1">Dettaglio Utensile</p>
-              <h3 className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic text-white leading-tight">
+              <h3 className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic dark:text-white text-slate-900 leading-tight">
                 {tool['Tipologia']} <span className="text-accent-blue">Ø{tool['Diametro']}</span>
               </h3>
               <div className="flex items-center gap-2 mt-2">
                 <span className="badge badge-blue text-[10px] px-3">{tool['Codice']}</span>
-                {tool['Forma'] && <span className="badge bg-white/5 text-slate-400 text-[10px] border-white/5">{tool['Forma']}</span>}
+                {tool['Forma'] && <span className="badge dark:bg-white/5 bg-slate-900/5 dark:text-slate-400 text-slate-600 text-[10px] border-white/5">{tool['Forma']}</span>}
               </div>
             </div>
           </div>
-          <button onClick={onClose} className="glass-button w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center hover:rotate-90 transition-transform border-white/10 shrink-0 self-start md:self-center">
+          <button onClick={onClose} className="glass-button w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center hover:rotate-90 transition-transform dark:border-white/10 border-slate-900/10 shrink-0 self-start md:self-center">
             <X size={28} />
           </button>
         </div>
@@ -65,19 +65,19 @@ const ToolDetailCard = memo(({ tool, onClose, modalQty, setModalQty, handleMovem
             <div className="bg-accent-blue/5 border border-accent-blue/20 p-5 rounded-[28px] flex flex-col items-center justify-center text-center">
               <Package size={20} className="text-accent-blue mb-2" />
               <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">Giacenza</p>
-              <p className="text-3xl font-black text-white tabular-nums">{tool['Quantità'] || 0}</p>
+              <p className="text-3xl font-black dark:text-white text-slate-900 tabular-nums">{tool['Quantità'] || 0}</p>
             </div>
-            <div className="bg-white/5 border border-white/5 p-5 rounded-[28px] flex flex-col items-center justify-center text-center">
+            <div className="dark:bg-white/5 bg-slate-900/5 border border-white/5 p-5 rounded-[28px] flex flex-col items-center justify-center text-center">
               <MapPin size={20} className="text-accent-orange mb-2" />
               <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">Ubicazione</p>
-              <p className="text-xl font-black text-white truncate w-full px-2">{tool['Ubicazione'] || 'MAGAZZINO'}</p>
+              <p className="text-xl font-black dark:text-white text-slate-900 truncate w-full px-2">{tool['Ubicazione'] || 'MAGAZZINO'}</p>
             </div>
-            <div className="bg-white/5 border border-white/5 p-5 rounded-[28px] flex flex-col items-center justify-center text-center">
+            <div className="dark:bg-white/5 bg-slate-900/5 border border-white/5 p-5 rounded-[28px] flex flex-col items-center justify-center text-center">
               <Target size={20} className="text-accent-emerald mb-2" />
               <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">Materiale</p>
-              <p className="text-xl font-black text-white truncate w-full px-2">{tool['Materiale'] || 'N/D'}</p>
+              <p className="text-xl font-black dark:text-white text-slate-900 truncate w-full px-2">{tool['Materiale'] || 'N/D'}</p>
             </div>
-            <div className="bg-white/5 border border-white/5 p-5 rounded-[28px] flex flex-col items-center justify-center text-center">
+            <div className="dark:bg-white/5 bg-slate-900/5 border border-white/5 p-5 rounded-[28px] flex flex-col items-center justify-center text-center">
               <Layers size={20} className="text-accent-rose mb-2" />
               <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-1">Stato</p>
               <p className={`text-xl font-black truncate w-full px-2 ${tool['Stato'] === 'Disponibile' ? 'text-accent-emerald' : 'text-accent-rose'}`}>
@@ -99,7 +99,7 @@ const ToolDetailCard = memo(({ tool, onClose, modalQty, setModalQty, handleMovem
           </div>
 
           {/* Action Section */}
-          <div className="mt-8 glass-panel p-6 md:p-8 rounded-[40px] border-white/10 bg-white/[0.02] relative overflow-hidden group">
+          <div className="mt-8 glass-panel p-6 md:p-8 rounded-[40px] dark:border-white/10 border-slate-900/10 bg-white/[0.02] relative overflow-hidden group">
              <div className="absolute top-0 right-0 w-64 h-64 bg-accent-orange/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
              
              <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 relative z-10">
@@ -117,7 +117,7 @@ const ToolDetailCard = memo(({ tool, onClose, modalQty, setModalQty, handleMovem
                         type="number" 
                         value={modalQty} 
                         onChange={(e) => setModalQty(Math.max(1, parseInt(e.target.value) || 1))} 
-                        className="w-24 bg-transparent text-center text-5xl md:text-6xl font-black outline-none text-white tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+                        className="w-24 bg-transparent text-center text-5xl md:text-6xl font-black outline-none dark:text-white text-slate-900 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                       />
                       <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-accent-orange/40 rounded-full" />
                     </div>

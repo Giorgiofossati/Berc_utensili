@@ -87,15 +87,15 @@ const BarcodeScanner = ({ onScan }) => {
   }, [onScan]);
 
   return (
-    <div className="w-full bg-slate-900/60 p-4 md:p-6 flex flex-col items-center">
+    <div className="w-full dark:bg-slate-900/60 bg-slate-200/60 p-4 md:p-6 flex flex-col items-center">
       <div 
         id={scannerId.current} 
-        className="w-full rounded-[32px] overflow-hidden border-2 border-white/10 bg-black min-h-[250px] shadow-2xl relative"
+        className="w-full rounded-[32px] overflow-hidden border-2 dark:border-white/10 border-slate-900/10 bg-black min-h-[250px] shadow-2xl relative"
       >
         {error && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-950/90 z-20">
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center dark:bg-slate-950/90 bg-slate-50/90 z-20">
             <p className="text-rose-400 font-bold uppercase tracking-tighter mb-2">Errore Camera</p>
-            <p className="text-xs text-slate-400 font-medium uppercase tracking-widest leading-relaxed">{error}</p>
+            <p className="text-xs dark:text-slate-400 text-slate-600 font-medium uppercase tracking-widest leading-relaxed">{error}</p>
           </div>
         )}
       </div>

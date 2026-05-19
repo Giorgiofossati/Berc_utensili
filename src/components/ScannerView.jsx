@@ -79,7 +79,7 @@ const ScannerView = memo(({ setView, tools, setSelectedTool, setModalQty, setSho
       <div className="w-full relative">
         <div className="relative flex items-center gap-4">
           <div className="relative flex-1 flex items-center">
-            <Search size={20} className="absolute left-6 text-slate-300 pointer-events-none z-10" />
+            <Search size={20} className="absolute left-6 dark:text-slate-300 text-slate-700 pointer-events-none z-10" />
             <input
               ref={inputRef}
               autoFocus
@@ -89,7 +89,7 @@ const ScannerView = memo(({ setView, tools, setSelectedTool, setModalQty, setSho
               className="w-full glass-panel py-5 pl-14 pr-14 rounded-[24px] font-bold text-lg outline-none border-accent-blue/20 focus:border-accent-blue/60 transition-all placeholder:text-slate-700 tracking-wider"
             />
             {manualCode && (
-              <button onClick={() => setManualCode('')} className="absolute right-5 text-slate-300 hover:text-white transition-colors">
+              <button onClick={() => setManualCode('')} className="absolute right-5 dark:text-slate-300 text-slate-700 hover:text-white transition-colors">
                 <X size={18} />
               </button>
             )}
@@ -131,7 +131,7 @@ const ScannerView = memo(({ setView, tools, setSelectedTool, setModalQty, setSho
             </div>
             <div className="max-h-[45vh] overflow-y-auto custom-scrollbar">
               {filteredTools.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+                <div className="flex flex-col items-center justify-center py-16 dark:text-slate-400 text-slate-600">
                   <AlertTriangle size={32} className="mb-4 text-slate-700" />
                   <p className="font-bold text-sm uppercase tracking-widest">Nessun risultato trovato</p>
                   <p className="text-xs text-slate-700 mt-2">Prova con un altro codice o descrizione</p>
@@ -151,10 +151,10 @@ const ScannerView = memo(({ setView, tools, setSelectedTool, setModalQty, setSho
                         <Activity size={16} className="text-accent-blue" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-sm text-white truncate">
+                        <p className="font-bold text-sm dark:text-white text-slate-900 truncate">
                           {tool['Tipologia']} {tool['Forma'] ? `— ${tool['Forma']}` : ''} Ø{tool['Diametro']}
                         </p>
-                        <p className="text-[10px] text-slate-300 truncate mt-0.5">
+                        <p className="text-[10px] dark:text-slate-300 text-slate-700 truncate mt-0.5">
                           {tool['Descrizione'] || `${tool['Tipologia']} ${tool['Forma'] || ''} ${tool['Materiale'] || ''}`}
                         </p>
                       </div>
@@ -164,7 +164,7 @@ const ScannerView = memo(({ setView, tools, setSelectedTool, setModalQty, setSho
                       <span className={`badge text-[9px] ${(tool['Quantità'] || 0) > 0 ? 'badge-emerald' : 'badge-rose'}`}>
                         QTY: {tool['Quantità'] || 0}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-mono">{tool['Ubicazione']}</span>
+                      <span className="text-[10px] dark:text-slate-400 text-slate-600 font-mono">{tool['Ubicazione']}</span>
                       <ChevronRight size={14} className="text-slate-700 group-hover:text-accent-blue transition-colors" />
                     </div>
                   </motion.div>
