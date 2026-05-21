@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, User, History, Database, LogOut, ChevronRight, Search, Sun, Moon } from 'lucide-react';
+import { Calendar, User, History, Database, LogOut, ChevronRight, Search, Sun, Moon, Users } from 'lucide-react';
 import { useTheme } from '../lib/ThemeContext';
 
 const NavSubItem = memo(({ icon, label, onClick, className = "" }) => (
@@ -76,7 +76,10 @@ const Header = memo(({ currentUser, onLogout, showUserMenu, setShowUserMenu, set
           >
             <NavSubItem icon={<History size={16} />} label="Storico Log" onClick={() => { setView('history'); fetchHistory(); setShowUserMenu(false); }} />
             {currentUser?.ruolo === 'Admin' && (
-               <NavSubItem icon={<Database size={16} />} label="Nuovi Utensili" onClick={() => { setShowAddModal(true); setShowUserMenu(false); }} />
+               <>
+                 <NavSubItem icon={<Users size={16} />} label="Gestione Operatori" onClick={() => { setView('operators'); setShowUserMenu(false); }} />
+                 <NavSubItem icon={<Database size={16} />} label="Nuovi Utensili" onClick={() => { setShowAddModal(true); setShowUserMenu(false); }} />
+               </>
             )}
             <div className="h-[1px] dark:bg-white/5 bg-slate-900/5 my-2" />
             <NavSubItem icon={<LogOut size={16} />} label="Logout Sistema" onClick={() => { onLogout(); setShowUserMenu(false); }} className="text-rose-400 group-hover:text-rose-300" />

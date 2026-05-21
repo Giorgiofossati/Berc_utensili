@@ -88,6 +88,8 @@ const ToolDetailCard = memo(({ tool, onClose, modalQty, setModalQty, handleMovem
 
           {/* Extended Details Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            <DetailItem icon={Hash} label="Codice Aziendale" value={tool['Codice']} />
+            <DetailItem icon={Package} label="Codice Produttore" value={tool['Serial Number'] || tool['SerialNumber']} />
             <DetailItem icon={Ruler} label="Lunghezza" value={tool['Lunghezza']} />
             <DetailItem icon={Hash} label="Passo" value={tool['Passo']} />
             <DetailItem icon={Info} label="Tolleranza" value={tool['Tolleranza']} />
@@ -95,7 +97,6 @@ const ToolDetailCard = memo(({ tool, onClose, modalQty, setModalQty, handleMovem
             <DetailItem icon={Layers} label="Rivestimento" value={tool['Rivestimento']} />
             <DetailItem icon={Warehouse} label="Fornitore" value={tool['Fornitore']} />
             <DetailItem icon={Activity} label="Lavorazione" value={tool['Lavorazione']} />
-            <DetailItem icon={Package} label="S/N" value={tool['SerialNumber']} />
           </div>
 
           {/* Action Section */}

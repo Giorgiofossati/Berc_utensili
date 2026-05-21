@@ -25,7 +25,7 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
       const codice = (t['Codice'] || '').toLowerCase();
       const desc = (t['Descrizione'] || '').toLowerCase();
       const tipologia = (t['Tipologia'] || '').toLowerCase();
-      const serialnumber = (t['SerialNumber'] || '').toLowerCase();
+      const serialnumber = (t['Serial Number'] || t['SerialNumber'] || '').toLowerCase();
       const diametro = String(t['Diametro'] || '').toLowerCase();
       return codice.includes(q) || desc.includes(q) || tipologia.includes(q) || serialnumber.includes(q) || diametro.includes(q);
     }).slice(0, 50);
@@ -76,7 +76,7 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
                   ref={inputRef}
                   value={manualCode}
                   onChange={(e) => setManualCode(e.target.value)}
-                  placeholder="CERCA PER CODICE, DESCRIZIONE, TIPO..."
+                  placeholder="CERCA PER CODICE AZIENDALE/PRODUTTORE, DESCRIZIONE..."
                   className="w-full glass-panel py-6 pl-16 pr-14 rounded-[32px] font-bold text-xl outline-none border-accent-blue/20 focus:border-accent-blue/60 transition-all placeholder:text-slate-700 tracking-wider"
                 />
                 {manualCode && (

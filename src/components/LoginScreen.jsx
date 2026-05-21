@@ -76,7 +76,7 @@ export default function LoginScreen({ onLogin }) {
                 />
              </div>
              
-             <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+             <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto p-1 pb-4 pr-2 custom-scrollbar">
                 {loading ? (
                   <p className="text-center text-sm dark:text-slate-400 text-slate-600 font-bold p-4">Caricamento...</p>
                 ) : filteredUsers.length === 0 ? (
@@ -86,7 +86,7 @@ export default function LoginScreen({ onLogin }) {
                     <button 
                       key={u.id}
                       onClick={() => handleSelectUser(u)}
-                      className="flex items-center justify-between p-4 rounded-xl border border-white/5 hover:border-accent-blue/40 dark:bg-white/5 bg-slate-900/5 hover:bg-accent-blue/10 transition-all text-left group"
+                      className="flex items-center justify-between p-4 rounded-xl border border-white/5 hover:border-accent-blue/40 dark:bg-white/5 bg-slate-900/5 hover:bg-accent-blue/10 transition-all text-left group shrink-0"
                     >
                       <div>
                         <p className="font-bold dark:text-white text-slate-900 text-lg group-hover:text-accent-blue transition-colors">{u.nome} {u.cognome}</p>

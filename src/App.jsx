@@ -21,6 +21,7 @@ const SearchOverlay = lazy(() => import('./components/SearchOverlay'));
 const LoginScreen = lazy(() => import('./components/LoginScreen'));
 const AddToolModal = lazy(() => import('./components/AddToolModal'));
 const OrderModal = lazy(() => import('./components/OrderModal'));
+const OperatorsView = lazy(() => import('./components/OperatorsView'));
 
 // Helper for date
 const getTodayString = () => new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -297,174 +298,178 @@ function App() {
       </Suspense>
 
       <main className="flex-1 w-full flex flex-col items-center justify-start relative mt-2 md:mt-4">
-        <AnimatePresence mode="wait">
-          {view === 'home' && (
-            <motion.div key="home" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 1.05 }} className="w-full flex flex-col items-center">
-              <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-[1600px] mb-2 md:mb-6 px-4 gap-4 md:gap-6 shrink-0">
-                <div className="flex items-center w-10 md:w-12 shrink-0">
-                  {filterStack.length > 0 && (
-                    <button onClick={() => { setFilterStack(prev => {
-                        let nextStack = prev.slice(0, -1);
-                        if (nextStack.length > 0 && nextStack[nextStack.length - 1].skipped) nextStack = nextStack.slice(0, -1);
-                        return nextStack;
-                      }); 
-                    }} className="p-2.5 md:p-3 glass-button rounded-full text-accent-orange hover:scale-110 transition-all flex-shrink-0"
-                    ><ArrowLeft size={isMobile ? 18 : 20} /></button>
-                  )}
+        <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+          <AnimatePresence mode="wait">
+            {view === 'home' && (
+              <motion.div key="home" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 1.05 }} className="w-full flex flex-col items-center">
+                <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-[1600px] mb-2 md:mb-6 px-4 gap-4 md:gap-6 shrink-0">
+                  <div className="flex items-center w-10 md:w-12 shrink-0">
+                    {filterStack.length > 0 && (
+                      <button onClick={() => { setFilterStack(prev => {
+                          let nextStack = [...prev];
+                          while (nextStack.length > 0) {
+                            const popped = nextStack.pop();
+                            if (!popped.skipped) break;
+                          }
+                          return nextStack;
+                        }); 
+                      }} className="p-2.5 md:p-3 glass-button rounded-full text-accent-orange hover:scale-110 transition-all flex-shrink-0"
+                      ><ArrowLeft size={isMobile ? 18 : 20} /></button>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-center text-center flex-1 min-w-0">
+                    <p className="text-[8px] md:text-[11px] font-black uppercase tracking-[0.3em] md:tracking-[0.6em] text-accent-orange mb-0.5 md:mb-1 opacity-80">Sfoglia Catalogo</p>
+                    <h2 className="text-base sm:text-lg md:text-5xl lg:text-6xl font-black uppercase italic tracking-tighter dark:text-white text-slate-900 px-2 leading-tight truncate w-full">
+                      {filterStack.length === 0 ? "Categorie" : breadcrumbText}
+                    </h2>
+                  </div>
+                  <div className="hidden md:flex items-center justify-end shrink-0 gap-4">
+                    {/* Desktop action toolbar */}
+                    <div className="flex items-center gap-2.5">
+                      {selectedToolsIds.length > 0 ? (
+                        <>
+                          <button onClick={() => handleBulkAction('carico')} className="action-btn action-btn-carica py-2.5 px-4 flex items-center gap-2">
+                            <ArrowUp size={16} />
+                            <span className="text-xs font-black tracking-wider">BULK DEPOSITA ({selectedToolsIds.length})</span>
+                          </button>
+                          <button onClick={() => handleBulkAction('scarico')} className="action-btn action-btn-scarica py-2.5 px-4 flex items-center gap-2">
+                            <ArrowDown size={16} />
+                            <span className="text-xs font-black tracking-wider">BULK PRELEVA ({selectedToolsIds.length})</span>
+                          </button>
+                          <button onClick={() => setSelectedToolsIds([])} className="glass-button p-2.5 rounded-xl text-rose-400 hover:bg-rose-400/10" title="Deseleziona tutto">
+                            <X size={16} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => { setOpType('carico'); setView('scanner'); }} className="action-btn action-btn-carica py-2.5 px-4 flex items-center gap-2">
+                            <ArrowUp size={16} />
+                            <span className="text-xs font-black tracking-wider">DEPOSITA</span>
+                          </button>
+                          <button onClick={() => { setOpType('scarico'); setView('scanner'); }} className="action-btn action-btn-scarica py-2.5 px-4 flex items-center gap-2">
+                            <ArrowDown size={16} />
+                            <span className="text-xs font-black tracking-wider">PRELEVA</span>
+                          </button>
+                          {currentUser?.ruolo === 'Admin' && (
+                            <button onClick={() => setShowAddModal(true)} className="glass-button px-4 py-2.5 rounded-xl text-accent-blue hover:bg-accent-blue/10 flex items-center gap-2 border border-accent-blue/20">
+                              <span className="text-xs font-black uppercase tracking-widest">+ Nuovo Articolo</span>
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+
+                    {filterStack.length > 0 && (
+                      <button onClick={resetFilters} className="glass-button px-6 py-4 rounded-[24px] flex items-center gap-3 text-accent-orange border-accent-orange/20"><X size={18} /><span className="text-xs font-black uppercase tracking-widest">Cancella Filtri</span></button>
+                    )}
+                    {currentLevel < 3 && (
+                      <button onClick={() => setViewMode(prev => prev === 'grid' ? 'dropdown' : 'grid')} className="glass-button px-8 py-4 rounded-[24px] flex items-center gap-3" title={viewMode === 'grid' ? 'Passa a elenco' : 'Passa a griglia'}>
+                        {viewMode === 'grid' ? <List size={22} className="text-accent-blue" /> : <LayoutGrid size={22} className="text-accent-blue" />}
+                        <span className="text-xs font-black uppercase tracking-widest dark:text-slate-200 text-slate-800">{viewMode === 'grid' ? 'Elenco' : 'Griglia'}</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex flex-col items-center text-center flex-1 min-w-0">
-                  <p className="text-[8px] md:text-[11px] font-black uppercase tracking-[0.3em] md:tracking-[0.6em] text-accent-orange mb-0.5 md:mb-1 opacity-80">Sfoglia Catalogo</p>
-                  <h2 className="text-base sm:text-lg md:text-5xl lg:text-6xl font-black uppercase italic tracking-tighter dark:text-white text-slate-900 px-2 leading-tight truncate w-full">
-                    {filterStack.length === 0 ? "Categorie" : breadcrumbText}
-                  </h2>
-                </div>
-                <div className="hidden md:flex items-center justify-end shrink-0 gap-4">
-                  {/* Desktop action toolbar */}
-                  <div className="flex items-center gap-2.5">
+                <div className="flex-1 w-full flex flex-col items-center justify-start min-h-0">
+                  {/* Mobile action toolbar */}
+                  <div className="md:hidden flex items-center justify-center gap-2 mb-4 px-4 w-full flex-wrap">
                     {selectedToolsIds.length > 0 ? (
                       <>
-                        <button onClick={() => handleBulkAction('carico')} className="action-btn action-btn-carica py-2.5 px-4 flex items-center gap-2">
-                          <ArrowUp size={16} />
-                          <span className="text-xs font-black tracking-wider">BULK DEPOSITA ({selectedToolsIds.length})</span>
+                        <button onClick={() => handleBulkAction('carico')} className="action-btn action-btn-carica py-2 px-3.5 flex items-center gap-1.5 text-[10px]">
+                          <ArrowUp size={14} />
+                          <span className="font-black">BULK DEPOSITA ({selectedToolsIds.length})</span>
                         </button>
-                        <button onClick={() => handleBulkAction('scarico')} className="action-btn action-btn-scarica py-2.5 px-4 flex items-center gap-2">
-                          <ArrowDown size={16} />
-                          <span className="text-xs font-black tracking-wider">BULK PRELEVA ({selectedToolsIds.length})</span>
+                        <button onClick={() => handleBulkAction('scarico')} className="action-btn action-btn-scarica py-2 px-3.5 flex items-center gap-1.5 text-[10px]">
+                          <ArrowDown size={14} />
+                          <span className="font-black">BULK PRELEVA ({selectedToolsIds.length})</span>
                         </button>
-                        <button onClick={() => setSelectedToolsIds([])} className="glass-button p-2.5 rounded-xl text-rose-400 hover:bg-rose-400/10" title="Deseleziona tutto">
-                          <X size={16} />
+                        <button onClick={() => setSelectedToolsIds([])} className="glass-button p-2 rounded-xl text-rose-400 hover:bg-rose-400/10">
+                          <X size={14} />
                         </button>
                       </>
                     ) : (
                       <>
-                        <button onClick={() => { setOpType('carico'); setView('scanner'); }} className="action-btn action-btn-carica py-2.5 px-4 flex items-center gap-2">
-                          <ArrowUp size={16} />
-                          <span className="text-xs font-black tracking-wider">DEPOSITA</span>
+                        <button onClick={() => { setOpType('carico'); setView('scanner'); }} className="action-btn action-btn-carica py-2 px-3.5 flex items-center gap-1.5 text-[10px]">
+                          <ArrowUp size={14} />
+                          <span className="font-black">DEPOSITA</span>
                         </button>
-                        <button onClick={() => { setOpType('scarico'); setView('scanner'); }} className="action-btn action-btn-scarica py-2.5 px-4 flex items-center gap-2">
-                          <ArrowDown size={16} />
-                          <span className="text-xs font-black tracking-wider">PRELEVA</span>
+                        <button onClick={() => { setOpType('scarico'); setView('scanner'); }} className="action-btn action-btn-scarica py-2 px-3.5 flex items-center gap-1.5 text-[10px]">
+                          <ArrowDown size={14} />
+                          <span className="font-black">PRELEVA</span>
                         </button>
                         {currentUser?.ruolo === 'Admin' && (
-                          <button onClick={() => setShowAddModal(true)} className="glass-button px-4 py-2.5 rounded-xl text-accent-blue hover:bg-accent-blue/10 flex items-center gap-2 border border-accent-blue/20">
-                            <span className="text-xs font-black uppercase tracking-widest">+ Nuovo Articolo</span>
+                          <button onClick={() => setShowAddModal(true)} className="glass-button py-2 px-3.5 rounded-xl text-accent-blue flex items-center gap-1.5 text-[10px] border border-accent-blue/20">
+                            <span className="font-black">+ NUOVO ART.</span>
                           </button>
                         )}
                       </>
                     )}
-                  </div>
 
-                  {filterStack.length > 0 && (
-                    <button onClick={resetFilters} className="glass-button px-6 py-4 rounded-[24px] flex items-center gap-3 text-accent-orange border-accent-orange/20"><X size={18} /><span className="text-xs font-black uppercase tracking-widest">Cancella Filtri</span></button>
-                  )}
-                  {currentLevel < 3 && (
-                    <button onClick={() => setViewMode(prev => prev === 'grid' ? 'dropdown' : 'grid')} className="glass-button px-8 py-4 rounded-[24px] flex items-center gap-3" title={viewMode === 'grid' ? 'Passa a elenco' : 'Passa a griglia'}>
-                      {viewMode === 'grid' ? <List size={22} className="text-accent-blue" /> : <LayoutGrid size={22} className="text-accent-blue" />}
-                      <span className="text-xs font-black uppercase tracking-widest dark:text-slate-200 text-slate-800">{viewMode === 'grid' ? 'Elenco' : 'Griglia'}</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-              <div className="flex-1 w-full flex flex-col items-center justify-start min-h-0">
-                {/* Mobile action toolbar */}
-                <div className="md:hidden flex items-center justify-center gap-2 mb-4 px-4 w-full flex-wrap">
-                  {selectedToolsIds.length > 0 ? (
-                    <>
-                      <button onClick={() => handleBulkAction('carico')} className="action-btn action-btn-carica py-2 px-3.5 flex items-center gap-1.5 text-[10px]">
-                        <ArrowUp size={14} />
-                        <span className="font-black">BULK DEPOSITA ({selectedToolsIds.length})</span>
-                      </button>
-                      <button onClick={() => handleBulkAction('scarico')} className="action-btn action-btn-scarica py-2 px-3.5 flex items-center gap-1.5 text-[10px]">
-                        <ArrowDown size={14} />
-                        <span className="font-black">BULK PRELEVA ({selectedToolsIds.length})</span>
-                      </button>
-                      <button onClick={() => setSelectedToolsIds([])} className="glass-button p-2 rounded-xl text-rose-400 hover:bg-rose-400/10">
+                    {filterStack.length > 0 && (
+                      <button onClick={resetFilters} className="glass-button px-3.5 py-2 rounded-xl flex items-center gap-1.5 text-accent-orange border-accent-orange/20 text-[10px]">
                         <X size={14} />
+                        <span className="font-black uppercase tracking-wider">RESET FILTRI</span>
                       </button>
-                    </>
-                  ) : (
-                    <>
-                      <button onClick={() => { setOpType('carico'); setView('scanner'); }} className="action-btn action-btn-carica py-2 px-3.5 flex items-center gap-1.5 text-[10px]">
-                        <ArrowUp size={14} />
-                        <span className="font-black">DEPOSITA</span>
-                      </button>
-                      <button onClick={() => { setOpType('scarico'); setView('scanner'); }} className="action-btn action-btn-scarica py-2 px-3.5 flex items-center gap-1.5 text-[10px]">
-                        <ArrowDown size={14} />
-                        <span className="font-black">PRELEVA</span>
-                      </button>
-                      {currentUser?.ruolo === 'Admin' && (
-                        <button onClick={() => setShowAddModal(true)} className="glass-button py-2 px-3.5 rounded-xl text-accent-blue flex items-center gap-1.5 text-[10px] border border-accent-blue/20">
-                          <span className="font-black">+ NUOVO ART.</span>
-                        </button>
-                      )}
-                    </>
-                  )}
-
-                  {filterStack.length > 0 && (
-                    <button onClick={resetFilters} className="glass-button px-3.5 py-2 rounded-xl flex items-center gap-1.5 text-accent-orange border-accent-orange/20 text-[10px]">
-                      <X size={14} />
-                      <span className="font-black uppercase tracking-wider">RESET FILTRI</span>
-                    </button>
-                  )}
-
-                  {currentLevel < 3 && (
-                    <button onClick={() => setViewMode(prev => prev === 'grid' ? 'dropdown' : 'grid')} className="glass-button px-3.5 py-2 rounded-xl flex items-center gap-1.5 text-[10px]">
-                      {viewMode === 'grid' ? <List size={14} className="text-accent-blue" /> : <LayoutGrid size={14} className="text-accent-blue" />}
-                      <span className="font-black uppercase tracking-wider">{viewMode === 'grid' ? 'Elenco' : 'Griglia'}</span>
-                    </button>
-                  )}
-                </div>
-                <Suspense fallback={<div className="h-64 flex items-center justify-center"><div className="w-12 h-12 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
-                  <AnimatePresence mode="wait">
-                    {viewMode === 'grid' ? (
-                      <motion.div key="grid-mode" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex flex-col items-center">{renderGridHome()}</motion.div>
-                    ) : (
-                      <motion.div key="dropdown-mode" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex flex-col items-center py-4">
-                        <DropdownFilterView tools={tools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} initialFilters={Object.fromEntries(filterStack.map(f => [f.type, f.value]))}
-                          onFilterChange={(newFilters) => {
-                            const newStack = Object.entries(newFilters).filter(([_, v]) => v).map(([k, v]) => ({ type: k, value: v }));
-                            setFilterStack(newStack);
-                          }}
-                          selectedIds={selectedToolsIds} onToggleSelect={toggleToolSelection} isSelectionMode={isSelectionMode} setIsSelectionMode={handleSetIsSelectionMode} />
-                      </motion.div>
                     )}
-                  </AnimatePresence>
-                </Suspense>
-              </div>
-              <AnimatePresence>
-                {selectedToolsIds.length > 0 && (
-                  <motion.button initial={{ opacity: 0, scale: 0.8, x: 20 }} animate={{ opacity: 1, scale: 1, x: 0 }} exit={{ opacity: 0, scale: 0.8, x: 20 }}
-                    onClick={() => setShowSelectionDrawer(true)} className="fixed right-6 bottom-8 md:bottom-10 z-[100] glass-panel bg-accent-blue/20 border-accent-blue/40 px-6 py-4 rounded-full flex items-center gap-4 group overflow-hidden"
-                  >
-                    <div className="absolute inset-0 bg-accent-blue/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                    <div className="relative flex items-center gap-3"><div className="bg-accent-blue text-slate-950 font-black text-xs w-6 h-6 rounded-full flex items-center justify-center">{selectedToolsIds.length}</div><span className="text-[10px] font-black uppercase tracking-[0.2em] dark:text-white text-slate-900">Utensili Selezionati</span></div>
-                  </motion.button>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          )}
-          <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
-            {view === 'history' && <HistoryView history={history} setView={setView} />}
-            {view === 'scanner' && <ScannerView setView={setView} tools={tools} setSelectedTool={setSelectedTool} setModalQty={setModalQty} setShowMoveModal={setShowMoveModal} setOpType={setOpType} isMobile={isMobile} />}
-          </Suspense>
-        </AnimatePresence>
+
+                    {currentLevel < 3 && (
+                      <button onClick={() => setViewMode(prev => prev === 'grid' ? 'dropdown' : 'grid')} className="glass-button px-3.5 py-2 rounded-xl flex items-center gap-1.5 text-[10px]">
+                        {viewMode === 'grid' ? <List size={14} className="text-accent-blue" /> : <LayoutGrid size={14} className="text-accent-blue" />}
+                        <span className="font-black uppercase tracking-wider">{viewMode === 'grid' ? 'Elenco' : 'Griglia'}</span>
+                      </button>
+                    )}
+                  </div>
+                  <Suspense fallback={<div className="h-64 flex items-center justify-center"><div className="w-12 h-12 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+                    <AnimatePresence mode="wait">
+                      {viewMode === 'grid' ? (
+                        <motion.div key="grid-mode" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex flex-col items-center">{renderGridHome()}</motion.div>
+                      ) : (
+                        <motion.div key="dropdown-mode" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex flex-col items-center py-4">
+                          <DropdownFilterView tools={tools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} initialFilters={Object.fromEntries(filterStack.map(f => [f.type, f.value]))}
+                            onFilterChange={(newFilters) => {
+                              const newStack = Object.entries(newFilters).filter(([_, v]) => v).map(([k, v]) => ({ type: k, value: v }));
+                              setFilterStack(newStack);
+                            }}
+                            selectedIds={selectedToolsIds} onToggleSelect={toggleToolSelection} isSelectionMode={isSelectionMode} setIsSelectionMode={handleSetIsSelectionMode} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </Suspense>
+                </div>
+                <AnimatePresence>
+                  {selectedToolsIds.length > 0 && (
+                    <motion.button initial={{ opacity: 0, scale: 0.8, x: 20 }} animate={{ opacity: 1, scale: 1, x: 0 }} exit={{ opacity: 0, scale: 0.8, x: 20 }}
+                      onClick={() => setShowSelectionDrawer(true)} className="fixed right-6 bottom-8 md:bottom-10 z-[100] glass-panel bg-accent-blue/20 border-accent-blue/40 px-6 py-4 rounded-full flex items-center gap-4 group overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-accent-blue/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                      <div className="relative flex items-center gap-3"><div className="bg-accent-blue text-slate-950 font-black text-xs w-6 h-6 rounded-full flex items-center justify-center">{selectedToolsIds.length}</div><span className="text-[10px] font-black uppercase tracking-[0.2em] dark:text-white text-slate-900">Utensili Selezionati</span></div>
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
+            {view === 'history' && <HistoryView key="history" history={history} setView={setView} />}
+            {view === 'scanner' && <ScannerView key="scanner" setView={setView} tools={tools} setSelectedTool={setSelectedTool} setModalQty={setModalQty} setShowMoveModal={setShowMoveModal} setOpType={setOpType} isMobile={isMobile} />}
+            {view === 'operators' && <OperatorsView key="operators" setView={setView} currentUser={currentUser} setCurrentUser={setCurrentUser} />}
+          </AnimatePresence>
+        </Suspense>
       </main>
 
       <Suspense fallback={null}>
         <AnimatePresence>
           {showSelectionDrawer && (
             <>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowSelectionDrawer(false)} className="fixed inset-0 dark:bg-slate-950/60 bg-slate-50/60 backdrop-blur-sm z-[1999]" />
-              <SelectionDrawer selectedIds={selectedToolsIds} tools={tools} onToggleSelect={toggleToolSelection} onBulkAction={(type) => { setShowSelectionDrawer(false); handleBulkAction(type); }} onClose={() => setShowSelectionDrawer(false)} setSelectedToolsIds={setSelectedToolsIds} />
+              <motion.div key="drawer-bg" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowSelectionDrawer(false)} className="fixed inset-0 dark:bg-slate-950/60 bg-slate-50/60 backdrop-blur-sm z-[1999]" />
+              <SelectionDrawer key="drawer" selectedIds={selectedToolsIds} tools={tools} onToggleSelect={toggleToolSelection} onBulkAction={(type) => { setShowSelectionDrawer(false); handleBulkAction(type); }} onClose={() => setShowSelectionDrawer(false)} setSelectedToolsIds={setSelectedToolsIds} />
             </>
           )}
         </AnimatePresence>
-      <AnimatePresence>
-        {showMoveModal && <MovementModal opType={opType} setOpType={setOpType} selectedTool={isBulkMode ? selectedToolsIds.length : selectedTool} modalQty={modalQty} setModalQty={setModalQty} setShowMoveModal={(val) => { setShowMoveModal(val); if (!val) setIsBulkMode(false); }} handleMovement={handleMovement} isBulkMode={isBulkMode} onOpenOrder={() => setShowOrderModal(true)} currentUser={currentUser} />}
-        {showAddModal && <AddToolModal onClose={() => setShowAddModal(false)} onToolAdded={fetchTools} currentUser={currentUser} />}
-        {showOrderModal && <OrderModal tool={selectedTool} onClose={() => setShowOrderModal(false)} currentUser={currentUser} />}
-      </AnimatePresence>
-    </Suspense>
+        <AnimatePresence>
+          {showMoveModal && <MovementModal key="move-modal" opType={opType} setOpType={setOpType} selectedTool={isBulkMode ? selectedToolsIds.length : selectedTool} modalQty={modalQty} setModalQty={setModalQty} setShowMoveModal={(val) => { setShowMoveModal(val); if (!val) setIsBulkMode(false); }} handleMovement={handleMovement} isBulkMode={isBulkMode} onOpenOrder={() => setShowOrderModal(true)} currentUser={currentUser} />}
+          {showAddModal && <AddToolModal key="add-modal" onClose={() => setShowAddModal(false)} onToolAdded={fetchTools} currentUser={currentUser} />}
+          {showOrderModal && <OrderModal key="order-modal" tool={selectedTool} onClose={() => setShowOrderModal(false)} currentUser={currentUser} />}
+        </AnimatePresence>
+      </Suspense>
 
       <AnimatePresence>
         {toast && (

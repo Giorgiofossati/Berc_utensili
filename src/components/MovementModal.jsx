@@ -20,6 +20,27 @@ const MovementModal = memo(({ opType, setOpType, selectedTool, modalQty, setModa
       );
     }
 
+    const displayLabelMap = {
+      Codice: 'Codice Aziendale',
+      SerialNumber: 'Codice Produttore',
+      'Serial Number': 'Codice Produttore',
+      Tipologia: 'Tipologia',
+      Forma: 'Forma',
+      Diametro: 'Diametro',
+      Lunghezza: 'Lunghezza',
+      Passo: 'Passo',
+      Tolleranza: 'Tolleranza',
+      Raggio: 'Raggio',
+      Angolo: 'Angolo',
+      Materiale: 'Materiale',
+      Rivestimento: 'Rivestimento',
+      Fornitore: 'Fornitore',
+      Lavorazione: 'Lavorazione',
+      Ubicazione: 'Ubicazione',
+      Stato: 'Stato',
+      sistema_misura: 'Sistema di Misura'
+    };
+
     const details = Object.entries(selectedTool).filter(([k, v]) => {
       if (excludedKeys.includes(k)) return false;
       if (v === null || v === undefined || v === '') return false;
@@ -32,7 +53,9 @@ const MovementModal = memo(({ opType, setOpType, selectedTool, modalQty, setModa
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
         {details.map(([key, value]) => (
           <div key={key} className="dark:bg-white/5 bg-slate-900/5 border border-white/5 p-4 rounded-3xl flex flex-col hover:bg-white/[0.08] transition-colors border-white/5 group">
-            <span className="text-[9px] font-black uppercase tracking-widest text-accent-orange mb-1.5 opacity-60 group-hover:opacity-100 transition-opacity">{key}</span>
+            <span className="text-[9px] font-black uppercase tracking-widest text-accent-orange mb-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+              {displayLabelMap[key] || key}
+            </span>
             <span className="text-[13px] font-bold dark:text-white text-slate-900 leading-tight">{value}</span>
           </div>
         ))}
@@ -61,7 +84,7 @@ const MovementModal = memo(({ opType, setOpType, selectedTool, modalQty, setModa
             </h3>
             {typeof selectedTool === 'object' && selectedTool?.Codice && (
               <p className="text-[10px] md:text-xs font-black uppercase tracking-widest dark:text-slate-400 text-slate-600 dark:bg-white/5 bg-slate-900/5 py-2 px-4 rounded-full self-start border border-white/5 mt-3">
-                ID MODELLO: <span className="dark:text-white text-slate-900 ml-2">{selectedTool.Codice}</span>
+                CODICE AZIENDALE: <span className="dark:text-white text-slate-900 ml-2">{selectedTool.Codice}</span>
               </p>
             )}
           </div>

@@ -79,7 +79,7 @@ const UserSelectionModal = ({ isOpen, onClose }) => {
               />
             </div>
 
-            <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto p-1 pb-4 pr-2 custom-scrollbar">
               {loading ? (
                 <div className="py-10 text-center flex flex-col items-center gap-4">
                   <div className="w-10 h-10 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" />
@@ -90,7 +90,7 @@ const UserSelectionModal = ({ isOpen, onClose }) => {
                   <button 
                     key={user.id}
                     onClick={() => handleUserSelect(user)}
-                    className="flex items-center justify-between p-4 rounded-2xl glass-button hover:bg-white/10 transition-all group"
+                    className="flex items-center justify-between p-4 rounded-2xl glass-button hover:bg-white/10 transition-all group shrink-0"
                   >
                     <div className="flex items-center gap-4">
                       <div className={`p-3 rounded-xl ${user.ruolo === 'Admin' ? 'bg-accent-orange/20 text-accent-orange' : 'bg-accent-blue/20 text-accent-blue'}`}>

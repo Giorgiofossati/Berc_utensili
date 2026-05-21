@@ -55,6 +55,11 @@ Questo file serve come "memoria" e linea guida per l'assistente AI (Gemini) che 
 6. **Ricerca Barcode**: Non forzare l'utente a premere "Enter" per vedere i risultati. La ricerca deve filtrare la lista compatta in tempo reale digitando i caratteri (modalità ricerca manuale).
 7. **Filtri dinamici**: Ricordarsi sempre che i filtri a tendina (nel Livello 3) devono essere dinamici e reagire ai dati. Non mostrare filtri che per le categorie selezionate risulterebbero completamente vuoti (tutti `null`).
 8. **Prevenzione del Blocco dello Scroll (Scroll Lock Prevention)**: Non bloccare mai l'altezza dei contenitori delle viste principali (evitare `h-full` o `h-screen` su div interni dinamici) e non usare `overflow-hidden` sul tag `<main>` o altri contenitori generali. Se il contenuto (come griglie di card o liste) supera l'altezza del viewport, la pagina deve poter scorrere naturalmente sfruttando lo scrollbar globale del contenitore radice. Non accoppiare mai altezze fisse e `overflow-hidden` su contenitori con dati dinamici che potrebbero crescere in futuro.
+9. **Prevenzione del Taglio dei Contorni (Active Outlines & Rings Safe-Zone)**: Nei contenitori scrollabili con `overflow-y-auto`, i contorni di focus/selezione (come i bordi `ring` arancioni) e le ombreggiature esterne (`box-shadow`) degli elementi estremi (il primo e l'ultimo della lista) vengono tagliati dal perimetro del contenitore di overflow. 
+   - Aggiungere sempre un padding interno al contenitore scrollabile (es. `p-2 pb-6` o `px-2 pb-6`) per garantire zone sicure dove i contorni e le ombreggiature possano essere renderizzati interamente senza essere tranciati dal clip dell'overflow.
+   - Forzare `shrink-0` (o `flex-shrink-0`) sulle righe o schede della lista per evitare che il browser ne alteri l'altezza per farli rientrare nel viewport, causando sovrapposizioni.
+   - Evitare la doppia nidificazione di contenitori `.glass-panel` (es. card glass dentro una dashboard glass) poiché ombre multiple e sfocature sovrapposte riducono le performance e creano spiacevoli collisioni grafiche.
+
 
 
 ### 💾 Regole di Sviluppo e Backend

@@ -124,6 +124,10 @@
     @apply dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 bg-blue-100 text-blue-700 border-blue-200;
   }
 
+  .badge-orange {
+    @apply dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20 bg-orange-100 text-orange-700 border-orange-200;
+  }
+
   /* Inline Action Buttons */
   .action-btn {
     @apply flex flex-row items-center justify-center gap-2 md:gap-3 rounded-[18px] md:rounded-[22px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] transition-all duration-300 relative overflow-hidden px-4 md:px-7 py-3 md:py-4.5;

@@ -15,7 +15,7 @@ const ScannerView = memo(({ setView, tools, setSelectedTool, setModalQty, setSho
       const codice = (t['Codice'] || '').toLowerCase();
       const desc = (t['Descrizione'] || '').toLowerCase();
       const tipologia = (t['Tipologia'] || '').toLowerCase();
-      const serialnumber = (t['SerialNumber'] || '').toLowerCase();
+      const serialnumber = (t['Serial Number'] || t['SerialNumber'] || '').toLowerCase();
       const diametro = String(t['Diametro'] || '').toLowerCase();
       return codice.includes(q) || desc.includes(q) || tipologia.includes(q) || serialnumber.includes(q) || diametro.includes(q);
     }).slice(0, 20);
@@ -85,7 +85,7 @@ const ScannerView = memo(({ setView, tools, setSelectedTool, setModalQty, setSho
               autoFocus
               value={manualCode}
               onChange={(e) => setManualCode(e.target.value)}
-              placeholder="DIGITA CODICE O DESCRIZIONE..."
+              placeholder="DIGITA CODICE AZIENDALE/PRODUTTORE O DESCRIZIONE..."
               className="w-full glass-panel py-5 pl-14 pr-14 rounded-[24px] font-bold text-lg outline-none border-accent-blue/20 focus:border-accent-blue/60 transition-all placeholder:text-slate-700 tracking-wider"
             />
             {manualCode && (

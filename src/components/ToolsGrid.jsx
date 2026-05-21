@@ -21,7 +21,7 @@ const ALL_DETAIL_KEYS = [
   { key: 'Ubicazione', label: 'Ubicazione', minWidth: '130px', align: 'center' },
   { key: 'Stato', label: 'Stato', minWidth: '120px', align: 'center' },
   { key: 'Fornitore', label: 'Fornitore', minWidth: '130px', align: 'center' },
-  { key: 'Codice', label: 'Codice', minWidth: '180px', align: 'center' },
+  { key: 'Codice', label: 'Codice Aziendale', minWidth: '180px', align: 'center' },
 ];
 
 const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds = [], onToggleSelect, isSelectionMode, setIsSelectionMode }) => {
@@ -96,7 +96,11 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
       );
     }
 
-    if (detail.key === 'SerialNumber' || detail.key === 'Ubicazione') {
+    if (detail.key === 'Ubicazione') {
+      return <span className="badge badge-orange text-xs font-mono font-bold px-3.5 py-1">{val}</span>;
+    }
+
+    if (detail.key === 'SerialNumber' || detail.key === 'Serial Number') {
       return <span className="text-xs md:text-sm font-extrabold dark:text-slate-200 text-slate-800 font-mono whitespace-nowrap">{val}</span>;
     }
 
@@ -162,7 +166,7 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
             {visibleDetailKeys.map(detail => (
               <div 
                 key={detail.key} 
-                className="flex-shrink-0 text-center"
+                className="flex-shrink-0 flex items-center justify-center"
                 style={{ width: detail.minWidth }}
               >
                 {detail.label}
