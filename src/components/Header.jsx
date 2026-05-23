@@ -27,18 +27,63 @@ const TAGLINES = [
   'Il CNC non aspetta! Su i giri e dai gas!'
 ];
 
+const MobileTagline = memo(({ text }) => {
+  const containerRef = React.useRef(null);
+  const textRef = React.useRef(null);
+  const [scrollX, setScrollX] = useState(0);
+
+  useEffect(() => {
+    const calculateScroll = () => {
+      if (containerRef.current && textRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const textWidth = textRef.current.scrollWidth;
+        if (textWidth > containerWidth) {
+          setScrollX(textWidth - containerWidth);
+        } else {
+          setScrollX(0);
+        }
+      }
+    };
+
+    calculateScroll();
+    window.addEventListener('resize', calculateScroll);
+    return () => window.removeEventListener('resize', calculateScroll);
+  }, [text]);
+
+  const animateProps = scrollX > 0 
+    ? {
+        animate: {
+          x: [0, -scrollX - 8, -scrollX - 8, 0, 0]
+        },
+        transition: {
+          duration: Math.max(6, scrollX * 0.07),
+          ease: "easeInOut",
+          repeat: Infinity,
+          repeatDelay: 1.5
+        }
+      }
+    : {};
+
+  return (
+    <div ref={containerRef} className="overflow-hidden min-w-0 flex-1 relative flex items-center">
+      <motion.p
+        ref={textRef}
+        className="text-[10px] font-black tracking-wider text-slate-800 dark:text-slate-100 uppercase whitespace-nowrap inline-block"
+        {...animateProps}
+      >
+        {text}
+      </motion.p>
+    </div>
+  );
+});
+
 const RotatingTagline = memo(() => {
   const [index, setIndex] = useState(0);
-  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setVisible(false);
-      setTimeout(() => {
-        setIndex(prev => (prev + 1) % TAGLINES.length);
-        setVisible(true);
-      }, 400);
-    }, 7000);
+      setIndex(prev => (prev + 1) % TAGLINES.length);
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -47,20 +92,18 @@ const RotatingTagline = memo(() => {
       <div className="glass-panel rounded-full px-4 py-1.5 md:px-5 md:py-2 flex items-center gap-2 md:gap-2.5 border border-slate-200/50 dark:border-slate-700/50 shadow-sm bg-white/60 dark:bg-slate-800/60 backdrop-blur-md">
         <Sparkles size={14} className="text-accent-orange animate-pulse shrink-0" />
         <AnimatePresence mode="wait">
-          {visible && (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              transition={{ duration: 0.3 }}
-              className="overflow-hidden"
-            >
-              <p className="text-[10px] md:text-sm font-black tracking-[0.15em] text-slate-800 dark:text-slate-100 uppercase truncate">
-                {TAGLINES[index]}
-              </p>
-            </motion.div>
-          )}
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
+            className="overflow-hidden"
+          >
+            <p className="text-[10px] md:text-sm font-black tracking-[0.15em] text-slate-800 dark:text-slate-100 uppercase truncate">
+              {TAGLINES[index]}
+            </p>
+          </motion.div>
         </AnimatePresence>
       </div>
     </div>
@@ -91,7 +134,7 @@ const Header = memo(({ currentUser, onLogout, showUserMenu, setShowUserMenu, set
       
       setTimeout(() => {
         setShowTaglineMobile(false);
-      }, 6000);
+      }, 10000);
       
     }, 20000);
 
@@ -104,34 +147,32 @@ const Header = memo(({ currentUser, onLogout, showUserMenu, setShowUserMenu, set
       <header className="header-bar flex justify-between items-center py-2 px-4 md:py-3 md:px-6 rounded-[20px] md:rounded-[24px] glass-panel border-accent-blue/15 dark:border-white/10 hover:border-accent-blue/35 dark:hover:border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-xl">
         
         {/* Left: Brand / Title */}
-        <div className="flex items-center gap-3 shrink-0 min-w-0">
-          <div className="hidden md:flex w-10 h-10 rounded-[14px] bg-gradient-to-br from-accent-blue/20 to-accent-blue/5 items-center justify-center border border-accent-blue/20 shadow-inner">
+        <div className="flex items-center gap-3 min-w-0 flex-1 md:flex-initial">
+          <div className="hidden md:flex w-10 h-10 rounded-[14px] bg-gradient-to-br from-accent-blue/20 to-accent-blue/5 items-center justify-center border border-accent-blue/20 shadow-inner shrink-0">
             <Database size={18} className="text-accent-blue drop-shadow-sm" />
           </div>
-          <div className="relative overflow-hidden h-9 md:h-10 flex items-center min-w-0">
+          <div className="relative overflow-hidden h-9 md:h-10 flex items-center min-w-0 flex-1">
             <AnimatePresence mode="wait">
               {isHeaderMobile && showTaglineMobile ? (
                 <motion.div
                   key="tagline"
-                  initial={{ opacity: 0, y: 15 }}
+                  initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex items-center gap-1.5 min-w-0"
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
+                  className="flex items-center gap-1.5 min-w-0 w-full"
                 >
                   <Sparkles size={12} className="text-accent-orange animate-pulse shrink-0" />
-                  <p className="text-[10px] font-black tracking-wider text-slate-800 dark:text-slate-100 uppercase truncate">
-                    {TAGLINES[mobileTaglineIndex]}
-                  </p>
+                  <MobileTagline text={TAGLINES[mobileTaglineIndex]} />
                 </motion.div>
               ) : (
                 <motion.div
                   key="logo"
-                  initial={{ opacity: 0, y: -15 }}
+                  initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 15 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex flex-col min-w-0"
+                  exit={{ opacity: 0, y: 6 }}
+                  transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
+                  className="flex flex-col min-w-0 w-full"
                 >
                   <h1 className="text-xs md:text-sm lg:text-base font-black uppercase tracking-[0.2em] text-slate-800 dark:text-slate-100 leading-tight truncate">
                     Magazzino <span className="text-accent-blue">Bercella</span>

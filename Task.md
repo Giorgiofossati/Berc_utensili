@@ -91,7 +91,8 @@
 - [x] Rimuovere temporaneamente il selettore di quantità dalla prima schermata. Sostituirlo con due pulsanti dedicati: **"Carico"** e **"Scarico"**.
 - [x] Cliccando "Carico" o "Scarico", l'UI si "riformatta" (o passa allo step 2) mostrando il selettore di Quantità e il tasto di **Conferma Transazione**.
 - [x] Confermare l'operazione aggiorna la giacenza in `Utensili_B1` e salva il log nella `movements_history`.
-
+- [x] Risolvere il problema dei menu tagliati/nascosti su browser mobile (iOS Safari/Chrome) con `height: -webkit-fill-available` e padding/bottom calcolati tramite `env(safe-area-inset)`
+- [x] Correggere il posizionamento troppo alto della barra dei comandi su iOS PWA azzerando la `padding-bottom` di `.app-container` per evitare il doppio offset.
 - [x] **Risoluzione Sovrapposizione Pulsanti Action**: Invece di nascondere i pulsanti al bottom dello schermo, spostarli direttamente nell'header ai lati del titolo, rimuovendo definitivamente il pannello bottom e qualsiasi sovrapposizione visiva.
 - [x] **Risoluzione Scrolling Orizzontale Griglia**: Attualmente la griglia mostra troppe colonne orizzontali (Materiale, Passo, Tolleranza, ecc.). Per risolvere:
   - [x] Ridurre le colonne visibili nella griglia alle sole fondamentali: `Descrizione`, `Ubicazione`, `Quantità`, `Stato` e `Codice`.
