@@ -335,7 +335,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar overflow-x-auto pb-4">
+        <div className="flex-1 overflow-y-auto custom-scrollbar overflow-x-auto">
           <div className="min-w-max md:min-w-full">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 dark:text-slate-400 text-slate-600">
@@ -385,10 +385,12 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
               </motion.div>
             ))
           )}
+          </div>
+          {/* Spacer esplicito per Safari/iOS */}
+          <div className="h-24 md:h-12 shrink-0 w-full" />
         </div>
       </div>
-    </div>
-  </motion.div>
+    </motion.div>
   );
 });
 

@@ -47,7 +47,7 @@
   }
 
   body {
-    @apply h-screen overflow-hidden font-inter antialiased transition-colors duration-500 bg-background text-foreground;
+    @apply h-[100dvh] overflow-hidden font-inter antialiased transition-colors duration-500 bg-background text-foreground;
     background-image: var(--theme-bg-gradient);
   }
 
@@ -80,13 +80,13 @@
 
 @utility glass-button {
   @apply relative backdrop-blur-xl border transition-all duration-300;
-  background-color: rgba(255, 255, 255, 0.6);
-  border-color: rgba(0, 0, 0, 0.06);
+  background-color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.08);
   box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.05);
 }
 
 .glass-button:hover {
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.95);
   border-color: rgba(0, 0, 0, 0.15);
 }
 
@@ -95,18 +95,18 @@
 }
 
 :root.dark .glass-button {
-  background-color: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
+  background-color: rgba(15, 23, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.3);
 }
 
 :root.dark .glass-button:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 :root.dark .glass-button:active {
-  background-color: rgba(255, 255, 255, 0.12);
+  background-color: rgba(15, 23, 42, 0.95);
 }
 
 @layer components {
@@ -143,11 +143,11 @@
   }
 
   .action-btn-carica {
-    @apply glass-panel bg-accent-emerald/[0.05] text-accent-emerald border-accent-emerald/20 hover:bg-accent-emerald/[0.1] hover:border-accent-emerald/40 hover:shadow-carica;
+    @apply bg-accent-emerald text-white border-transparent shadow-[0_4px_14px_rgba(16,185,129,0.25)] hover:bg-emerald-600 dark:hover:bg-emerald-500 hover:shadow-[0_4px_20px_rgba(16,185,129,0.45)] transition-all duration-300;
   }
 
   .action-btn-scarica {
-    @apply glass-panel bg-accent-rose/[0.05] text-accent-rose border-accent-rose/20 hover:bg-accent-rose/[0.1] hover:border-accent-rose/40 hover:shadow-scarica;
+    @apply bg-accent-rose text-white border-transparent shadow-[0_4px_14px_rgba(244,63,94,0.25)] hover:bg-rose-600 dark:hover:bg-rose-500 hover:shadow-[0_4px_20px_rgba(244,63,94,0.45)] transition-all duration-300;
   }
 
   .action-btn-barcode {

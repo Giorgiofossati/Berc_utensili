@@ -71,23 +71,77 @@ const Header = memo(({ currentUser, onLogout, showUserMenu, setShowUserMenu, set
 
   const { isDarkMode, toggleTheme } = useTheme();
 
+  const [isHeaderMobile, setIsHeaderMobile] = useState(false);
+  const [showTaglineMobile, setShowTaglineMobile] = useState(false);
+  const [mobileTaglineIndex, setMobileTaglineIndex] = useState(0);
+
+  useEffect(() => {
+    const handleResize = () => setIsHeaderMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!isHeaderMobile) return;
+    
+    const triggerInterval = setInterval(() => {
+      setMobileTaglineIndex(prev => (prev + 1) % TAGLINES.length);
+      setShowTaglineMobile(true);
+      
+      setTimeout(() => {
+        setShowTaglineMobile(false);
+      }, 6000);
+      
+    }, 20000);
+
+    return () => clearInterval(triggerInterval);
+  }, [isHeaderMobile]);
+
   return (
     <div className="flex flex-col w-full z-50">
       {/* Premium Header Bar */}
       <header className="header-bar flex justify-between items-center py-2 px-4 md:py-3 md:px-6 rounded-[20px] md:rounded-[24px] glass-panel border-accent-blue/15 dark:border-white/10 hover:border-accent-blue/35 dark:hover:border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-xl">
         
         {/* Left: Brand / Title */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-3 shrink-0 min-w-0">
           <div className="hidden md:flex w-10 h-10 rounded-[14px] bg-gradient-to-br from-accent-blue/20 to-accent-blue/5 items-center justify-center border border-accent-blue/20 shadow-inner">
             <Database size={18} className="text-accent-blue drop-shadow-sm" />
           </div>
-          <div className="flex flex-col">
-            <h1 className="text-xs md:text-sm lg:text-base font-black uppercase tracking-[0.2em] text-slate-800 dark:text-slate-100 leading-tight">
-              Magazzino <span className="text-accent-blue">Bercella</span>
-            </h1>
-            <span className="text-[8px] md:text-[9px] font-bold tracking-[0.3em] text-slate-500 dark:text-slate-400 uppercase mt-0.5">
-              Gestione Utensili CNC
-            </span>
+          <div className="relative overflow-hidden h-9 md:h-10 flex items-center min-w-0">
+            <AnimatePresence mode="wait">
+              {isHeaderMobile && showTaglineMobile ? (
+                <motion.div
+                  key="tagline"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex items-center gap-1.5 min-w-0"
+                >
+                  <Sparkles size={12} className="text-accent-orange animate-pulse shrink-0" />
+                  <p className="text-[10px] font-black tracking-wider text-slate-800 dark:text-slate-100 uppercase truncate">
+                    {TAGLINES[mobileTaglineIndex]}
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="logo"
+                  initial={{ opacity: 0, y: -15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 15 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex flex-col min-w-0"
+                >
+                  <h1 className="text-xs md:text-sm lg:text-base font-black uppercase tracking-[0.2em] text-slate-800 dark:text-slate-100 leading-tight truncate">
+                    Magazzino <span className="text-accent-blue">Bercella</span>
+                  </h1>
+                  <span className="text-[8px] md:text-[9px] font-bold tracking-[0.3em] text-slate-500 dark:text-slate-400 uppercase mt-0.5 truncate">
+                    Gestione Utensili CNC
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 

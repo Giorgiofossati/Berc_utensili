@@ -243,8 +243,8 @@ function App() {
     if (!options || options.length === 0) return null;
 
     return (
-      <div className="w-full max-w-5xl px-2 md:px-4 py-2 md:py-4 mx-auto flex flex-col justify-start flex-1 min-h-0">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 w-fit mx-auto justify-center justify-items-center items-center">
+      <div className="w-full max-w-5xl px-2 md:px-4 py-2 md:py-3 mx-auto flex flex-col justify-start">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 w-fit mx-auto justify-center justify-items-center items-center">
           {options.map((opt, idx) => (
             <CategoryGridCard 
               key={`${opt.label}-${idx}`} 
@@ -261,14 +261,14 @@ function App() {
 
   if (!currentUser) {
     return (
-      <Suspense fallback={<div className="h-screen w-screen dark:bg-slate-950 bg-slate-50 flex items-center justify-center text-accent-blue"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+      <Suspense fallback={<div className="h-[100dvh] w-screen dark:bg-slate-950 bg-slate-50 flex items-center justify-center text-accent-blue"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
         <LoginScreen onLogin={setCurrentUser} />
       </Suspense>
     );
   }
 
   return (
-    <div ref={mainRef} className="h-screen w-screen flex flex-col p-3 md:p-5 lg:p-6 relative overflow-hidden dark:text-slate-200 text-slate-800 custom-scrollbar">
+    <div ref={mainRef} className="h-[100dvh] w-screen flex flex-col p-2.5 md:p-4 lg:p-5 relative overflow-hidden dark:text-slate-200 text-slate-800 custom-scrollbar">
       <Suspense fallback={<div className="h-10 animate-pulse dark:bg-white/5 bg-slate-900/5 rounded-xl" />}>
         <Header 
           currentUser={currentUser}
@@ -283,19 +283,19 @@ function App() {
         />
       </Suspense>
 
-      <main className="flex-1 w-full flex flex-col items-center justify-start relative mt-1.5 md:mt-2.5 min-h-0 overflow-hidden">
+      <main className="flex-1 w-full flex flex-col items-center justify-start relative mt-1 md:mt-1.5 min-h-0 overflow-hidden">
         <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
           <AnimatePresence mode="wait">
             {view === 'home' && (
-              <motion.div key="home" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 1.05 }} className="w-full h-full flex flex-col items-center">
-                <div className="flex-1 w-full flex flex-col items-center justify-start min-h-0 px-2 mt-1.5 md:mt-2.5">
+              <motion.div key="home" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 1.05 }} className="w-full h-full flex flex-col items-center relative">
+                <div className="flex-1 w-full flex flex-col items-center justify-start min-h-0 px-2 mt-1 md:mt-1.5">
                   <Suspense fallback={<div className="h-64 flex items-center justify-center"><div className="w-12 h-12 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
                       {viewMode === 'grid' ? (
-                        <div key="grid-mode" className="w-full flex-1 flex flex-col items-center overflow-y-auto custom-scrollbar pb-2">
+                        <div key="grid-mode" className={`w-full flex-1 flex flex-col items-center min-h-0 ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar md:justify-center pb-24 md:pb-32' : ''}`}>
                           {renderGridHome()}
                         </div>
                       ) : (
-                        <div key="dropdown-mode" className="w-full flex-1 flex flex-col items-center min-h-0 pb-2">
+                        <div key="dropdown-mode" className="w-full flex-1 flex flex-col items-center min-h-0">
                           <DropdownFilterView tools={tools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} initialFilters={Object.fromEntries(filterStack.map(f => [f.type, f.value]))}
                             onFilterChange={(newFilters) => {
                               const newStack = Object.entries(newFilters).filter(([_, v]) => v).map(([k, v]) => ({ type: k, value: v }));
@@ -307,11 +307,11 @@ function App() {
                   </Suspense>
                 </div>
 
-                {/* Unified Command Center - Moved to Bottom */}
-                <div className="w-full flex flex-col mb-2 md:mb-3 px-2 md:px-4 max-w-[1600px] shrink-0 relative mt-1.5 md:mt-2.5">
+                {/* Unified Command Center - Floating Bottom */}
+                <div className="w-full flex flex-col px-2 md:px-4 max-w-5xl shrink-0 absolute bottom-4 md:bottom-6 z-[100] pointer-events-none">
                   
                   {/* COMMAND BAR: Breadcrumbs, Centered Actions, Search */}
-                  <div className="flex flex-col md:flex-row items-center justify-between w-full bg-slate-900/5 dark:bg-black/20 rounded-[20px] md:rounded-[24px] p-2 md:p-3 md:px-4 glass-panel border-accent-blue/10 hover:border-accent-blue/30 gap-3 md:gap-4 mt-2 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-xl">
+                  <div className="pointer-events-auto flex flex-col md:flex-row items-center justify-between w-full bg-white/30 dark:bg-slate-950/50 rounded-[20px] md:rounded-[24px] p-2 md:p-3 md:px-4 border border-white/30 dark:border-white/10 gap-3 md:gap-4 shadow-[0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:shadow-xl transition-all duration-300 backdrop-blur-3xl backdrop-saturate-150">
                     
                     {/* Top Row on Mobile, Left Column on Desktop */}
                     <div className="flex items-center justify-between md:justify-start w-full md:w-auto md:flex-1 min-w-0">
@@ -412,74 +412,75 @@ function App() {
                     </div>
 
                     {/* MOBILE VIEW ACTIONS & CONTROLS */}
-                    <div className={`flex md:hidden flex-col w-full gap-2.5 ${filterStack.length > 0 ? 'pt-2 border-t border-slate-200/10 dark:border-slate-700/10' : ''}`}>
-                      {/* Row 1: DEPOSITA & PRELEVA (full width, 50% each) */}
-                      <div className="flex w-full gap-2">
+                    <div className={`flex md:hidden w-full items-center justify-between gap-2.5 ${filterStack.length > 0 ? 'pt-2 border-t border-slate-200/10 dark:border-slate-700/10' : ''}`}>
+                      {/* Search Button (Always Leftmost) */}
+                      <button onClick={() => setShowSearchOverlay(true)} className="glass-button w-10 h-10 rounded-full text-accent-blue flex items-center justify-center shrink-0 shadow-sm" title="Cerca">
+                        <Search size={16} />
+                      </button>
+
+                      {/* Reset Filters Button (Appears next to Search) */}
+                      {filterStack.length > 0 && (
+                        <button
+                          onClick={resetFilters}
+                          className="glass-button w-10 h-10 rounded-full text-accent-orange flex items-center justify-center shadow-sm shrink-0"
+                          title="Reset Filtri"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
+
+                      {/* Center Main Actions (Deposita & Preleva) */}
+                      <div className="flex flex-1 gap-2 min-w-0">
                         {selectedToolsIds.length > 0 ? (
                           <>
-                            <button onClick={() => handleBulkAction('carico')} className="action-btn action-btn-carica py-2.5 rounded-[12px] flex items-center justify-center gap-1.5 shadow-sm text-xs flex-1">
-                              <ArrowDown size={14} className="animate-bounce" />
-                              <span className="font-black tracking-wider">DEPOSITA ({selectedToolsIds.length})</span>
+                            <button onClick={() => handleBulkAction('carico')} className="action-btn-carica h-10 rounded-full flex items-center justify-center gap-1 shadow-sm text-[9px] min-[375px]:text-[10px] font-black tracking-wider flex-1 px-1.5 min-w-0">
+                              <ArrowDown size={14} className="animate-bounce shrink-0" />
+                              <span className="truncate">DEPOSITA ({selectedToolsIds.length})</span>
                             </button>
-                            <button onClick={() => handleBulkAction('scarico')} className="action-btn action-btn-scarica py-2.5 rounded-[12px] flex items-center justify-center gap-1.5 shadow-sm text-xs flex-1">
-                              <ArrowUp size={14} className="animate-bounce" />
-                              <span className="font-black tracking-wider">PRELEVA ({selectedToolsIds.length})</span>
+                            <button onClick={() => handleBulkAction('scarico')} className="action-btn-scarica h-10 rounded-full flex items-center justify-center gap-1 shadow-sm text-[9px] min-[375px]:text-[10px] font-black tracking-wider flex-1 px-1.5 min-w-0">
+                              <ArrowUp size={14} className="animate-bounce shrink-0" />
+                              <span className="truncate">PRELEVA ({selectedToolsIds.length})</span>
                             </button>
                           </>
                         ) : (
                           <>
-                            <button onClick={() => { setOpType('carico'); setView('scanner'); }} className="action-btn action-btn-carica py-2.5 rounded-[12px] flex items-center justify-center gap-1.5 shadow-sm text-xs flex-1">
-                              <ArrowDown size={14} />
-                              <span className="font-black tracking-wider">DEPOSITA</span>
+                            <button onClick={() => { setOpType('carico'); setView('scanner'); }} className="action-btn-carica h-10 rounded-full flex items-center justify-center gap-1 shadow-sm text-[9px] min-[375px]:text-[10px] font-black tracking-wider flex-1 px-1.5 min-w-0">
+                              <ArrowDown size={14} className="shrink-0" />
+                              <span className="truncate">DEPOSITA</span>
                             </button>
-                            <button onClick={() => { setOpType('scarico'); setView('scanner'); }} className="action-btn action-btn-scarica py-2.5 rounded-[12px] flex items-center justify-center gap-1.5 shadow-sm text-xs flex-1">
-                              <ArrowUp size={14} />
-                              <span className="font-black tracking-wider">PRELEVA</span>
+                            <button onClick={() => { setOpType('scarico'); setView('scanner'); }} className="action-btn-scarica h-10 rounded-full flex items-center justify-center gap-1 shadow-sm text-[9px] min-[375px]:text-[10px] font-black tracking-wider flex-1 px-1.5 min-w-0">
+                              <ArrowUp size={14} className="shrink-0" />
+                              <span className="truncate">PRELEVA</span>
                             </button>
                           </>
                         )}
                       </div>
 
-                      {/* Row 2: Secondary buttons centered next to each other */}
-                      <div className="flex w-full justify-center items-center gap-3">
-                        {/* Cancel Selection Button (Bulk Mode Only) */}
-                        {selectedToolsIds.length > 0 && (
-                          <button onClick={() => setSelectedToolsIds([])} className="glass-button w-10 h-10 rounded-full text-rose-400 hover:bg-rose-400/10 flex items-center justify-center shrink-0 shadow-sm" title="Annulla Selezione">
-                            <X size={16} />
-                          </button>
-                        )}
-
-                        {/* Add Tool Button (Admin & Non-Bulk Only) */}
-                        {currentUser?.ruolo === 'Admin' && selectedToolsIds.length === 0 && (
-                          <button onClick={() => setShowAddModal(true)} className="glass-button w-10 h-10 rounded-full text-accent-blue border border-accent-blue/30 hover:bg-accent-blue/10 flex items-center justify-center shrink-0 shadow-sm" title="Nuovo Utensile">
-                            <span className="text-lg font-black">+</span>
-                          </button>
-                        )}
-
-                        {/* Search Button */}
-                        <button onClick={() => setShowSearchOverlay(true)} className="glass-button w-10 h-10 rounded-full text-accent-blue flex items-center justify-center shrink-0 shadow-sm" title="Cerca">
-                          <Search size={16} />
+                      {/* View Mode Toggle (Appears on the right side) */}
+                      {currentLevel < 3 && (
+                        <button
+                          type="button"
+                          onClick={() => setViewMode(prev => prev === 'grid' ? 'dropdown' : 'grid')}
+                          className="glass-button w-10 h-10 rounded-full flex items-center justify-center text-accent-blue shadow-sm shrink-0"
+                          title={viewMode === 'grid' ? 'Vista ad Elenco' : 'Vista a Griglia'}
+                        >
+                          {viewMode === 'grid' ? <List size={16} /> : <LayoutGrid size={16} />}
                         </button>
+                      )}
 
-                        {/* Reset Filters Button */}
-                        {filterStack.length > 0 && (
-                          <button onClick={resetFilters} className="glass-button px-3 h-10 rounded-full text-[9px] font-bold uppercase tracking-wider text-accent-orange flex items-center gap-1 shadow-sm shrink-0">
-                            <X size={12} /> <span>Reset</span>
-                          </button>
-                        )}
+                      {/* Add Tool Button (Admin Only, Rightmost) */}
+                      {currentUser?.ruolo === 'Admin' && selectedToolsIds.length === 0 && (
+                        <button onClick={() => setShowAddModal(true)} className="glass-button w-10 h-10 rounded-full text-accent-blue border border-accent-blue/30 hover:bg-accent-blue/10 flex items-center justify-center shrink-0 shadow-sm" title="Nuovo Utensile">
+                          <span className="text-lg font-black leading-none">+</span>
+                        </button>
+                      )}
 
-                        {/* View Mode Toggle */}
-                        {currentLevel < 3 && (
-                          <div className="flex bg-slate-200/50 dark:bg-slate-800/50 rounded-full p-0.5 border border-slate-300/30 dark:border-slate-700/30 shadow-inner shrink-0">
-                            <button type="button" onClick={() => setViewMode('grid')} className={`cursor-pointer p-2 rounded-full transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-slate-700 shadow-sm text-accent-blue' : 'text-slate-500'}`} title="Vista a Griglia">
-                              <LayoutGrid size={14} />
-                            </button>
-                            <button type="button" onClick={() => setViewMode('dropdown')} className={`cursor-pointer p-2 rounded-full transition-all ${viewMode === 'dropdown' ? 'bg-white dark:bg-slate-700 shadow-sm text-accent-blue' : 'text-slate-500'}`} title="Vista ad Elenco">
-                              <List size={14} />
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      {/* Cancel Selection Button (Bulk Mode Only, Rightmost) */}
+                      {selectedToolsIds.length > 0 && (
+                        <button onClick={() => setSelectedToolsIds([])} className="glass-button w-10 h-10 rounded-full text-rose-400 hover:bg-rose-400/10 flex items-center justify-center shrink-0 shadow-sm" title="Annulla Selezione">
+                          <X size={16} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -11,7 +11,7 @@ const SelectionDrawer = memo(({ selectedIds, tools, onToggleSelect, onBulkAction
       animate={{ x: 0 }} 
       exit={{ x: '100%' }}
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      className="fixed top-0 right-0 h-screen w-full md:w-[450px] glass-panel dark:bg-slate-950/90 bg-slate-50/90 backdrop-blur-2xl z-[2000] flex flex-col shadow-2xl border-l border-white/5"
+      className="fixed top-0 right-0 h-[100dvh] w-full md:w-[450px] glass-panel dark:bg-slate-950/90 bg-slate-50/90 backdrop-blur-2xl z-[2000] flex flex-col shadow-2xl border-l border-white/5"
     >
       <div className="p-8 border-b border-white/5 flex items-center justify-between">
         <div>

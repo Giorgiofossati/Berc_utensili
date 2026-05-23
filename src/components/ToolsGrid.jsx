@@ -181,7 +181,7 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
           </div>
         )}
 
-        <div className={`overflow-y-auto custom-scrollbar overflow-x-auto flex-1 min-h-0 pb-4`}>
+        <div className={`overflow-y-auto custom-scrollbar overflow-x-auto flex-1 min-h-0`}>
           <div className="min-w-max md:min-w-full">
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 dark:text-slate-400 text-slate-600">
@@ -231,6 +231,8 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
               ))
             )}
           </div>
+          {/* Spacer esplicito per risolvere il bug di iOS/Safari col padding-bottom nei contenitori scrollabili */}
+          <div className="h-24 md:h-12 shrink-0 w-full" />
         </div>
       </div>
     </motion.div>

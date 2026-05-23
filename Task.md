@@ -80,7 +80,8 @@
 
 ### 8. Utenti e Privilegi
 - [x] Creare la tabella `utenti` su Supabase (Nome, Cognome, Codice ID, Ruolo, Password).
-- [x] Implementare la selezione utente con ricerca per nome o ID nella UI.
+- [x] Ingrandire leggermente le card di selezione (fino a `270px` su schermi `xl`) per occupare meglio lo spazio verticale
+- [x] Risolvere la sovrapposizione delle card con la barra dei comandi su desktop ripristinando la larghezza massima (`240px`/`245px`) e aggiungendo il padding condizionale `md:pb-32`
 - [x] Gestione permessi:
   - **Operatore**: Solo filtri e operazioni di carico/scarica (senza password).
 - [x] Admin: Tutti i privilegi + accesso protetto da password (carica/scarica).
