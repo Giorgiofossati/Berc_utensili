@@ -268,7 +268,7 @@ function App() {
   }
 
   return (
-    <div ref={mainRef} className="h-full w-screen flex flex-col app-container relative overflow-hidden dark:text-slate-200 text-slate-800 custom-scrollbar">
+    <div ref={mainRef} className="h-[100dvh] w-screen flex flex-col app-container relative overflow-hidden dark:text-slate-200 text-slate-800 custom-scrollbar">
       <Suspense fallback={<div className="h-10 animate-pulse dark:bg-white/5 bg-slate-900/5 rounded-xl" />}>
         <Header 
           currentUser={currentUser}
@@ -307,9 +307,18 @@ function App() {
                   </Suspense>
                 </div>
 
-                {/* Unified Command Center - Floating Bottom */}
-                <div className="w-full flex flex-col px-2 md:px-4 max-w-5xl shrink-0 absolute command-bar-container z-[100] pointer-events-none">
-                  
+              </motion.div>
+            )}
+            {view === 'history' && <HistoryView key="history" history={history} setView={setView} />}
+            {view === 'scanner' && <ScannerView key="scanner" setView={setView} tools={tools} setSelectedTool={setSelectedTool} setModalQty={setModalQty} setShowMoveModal={setShowMoveModal} setOpType={setOpType} isMobile={isMobile} />}
+            {view === 'operators' && <OperatorsView key="operators" setView={setView} currentUser={currentUser} setCurrentUser={setCurrentUser} />}
+          </AnimatePresence>
+        </Suspense>
+      </main>
+
+      <AnimatePresence>
+          <motion.div key="global-command-bar" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="w-full flex flex-col items-center px-2 md:px-4 z-[100] shrink-0 pt-2 pb-2 relative" style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }}>
+                <div className="w-full max-w-5xl flex flex-col shrink-0 pointer-events-auto">
                   {/* COMMAND BAR: Breadcrumbs, Centered Actions, Search */}
                   <div className="pointer-events-auto flex flex-col md:flex-row items-center justify-between w-full bg-white/30 dark:bg-slate-950/50 rounded-[20px] md:rounded-[24px] p-2 md:p-3 md:px-4 border border-white/30 dark:border-white/10 gap-3 md:gap-4 shadow-[0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:shadow-xl transition-all duration-300 backdrop-blur-3xl backdrop-saturate-150">
                     
@@ -487,21 +496,16 @@ function App() {
                 <AnimatePresence>
                   {selectedToolsIds.length > 0 && (
                     <motion.button initial={{ opacity: 0, scale: 0.8, x: 20 }} animate={{ opacity: 1, scale: 1, x: 0 }} exit={{ opacity: 0, scale: 0.8, x: 20 }}
-                      onClick={() => setShowSelectionDrawer(true)} className="fixed right-6 floating-badge-container z-[100] glass-panel bg-accent-blue/20 border-accent-blue/40 px-6 py-4 rounded-full flex items-center gap-4 group overflow-hidden"
+                      onClick={() => setShowSelectionDrawer(true)} className="absolute right-6 -top-20 floating-badge-container z-[100] glass-panel bg-accent-blue/20 border-accent-blue/40 px-6 py-4 rounded-full flex items-center gap-4 group overflow-hidden shadow-lg"
                     >
                       <div className="absolute inset-0 bg-accent-blue/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                       <div className="relative flex items-center gap-3"><div className="bg-accent-blue text-slate-950 font-black text-xs w-6 h-6 rounded-full flex items-center justify-center">{selectedToolsIds.length}</div><span className="text-[10px] font-black uppercase tracking-[0.2em] dark:text-white text-slate-900">Utensili Selezionati</span></div>
                     </motion.button>
                   )}
                 </AnimatePresence>
+
               </motion.div>
-            )}
-            {view === 'history' && <HistoryView key="history" history={history} setView={setView} />}
-            {view === 'scanner' && <ScannerView key="scanner" setView={setView} tools={tools} setSelectedTool={setSelectedTool} setModalQty={setModalQty} setShowMoveModal={setShowMoveModal} setOpType={setOpType} isMobile={isMobile} />}
-            {view === 'operators' && <OperatorsView key="operators" setView={setView} currentUser={currentUser} setCurrentUser={setCurrentUser} />}
           </AnimatePresence>
-        </Suspense>
-      </main>
 
       <Suspense fallback={null}>
         <AnimatePresence>
