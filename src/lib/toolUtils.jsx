@@ -43,7 +43,7 @@ export const ToolIcon = ({ type, size = 24, className = "", mode = 'icon' }) => 
         <img 
           src={src} 
           alt={type} 
-          className="w-full h-full object-cover rounded-xl"
+          className="w-full h-full object-cover"
           onError={(e) => { e.target.src = '/tool-images/fresa.png'; }}
         />
       </div>

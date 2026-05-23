@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy, useRef } from 'react';
 import {
   ArrowLeft, ChevronRight,
-  ChevronLeft, ArrowUp, ArrowDown, X,
+  ChevronLeft, ArrowUp, ArrowDown, X, Search,
   List, LayoutGrid, CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -56,6 +56,7 @@ function App() {
   };
   const [showSelectionDrawer, setShowSelectionDrawer] = useState(false);
   const [showSearchOverlay, setShowSearchOverlay] = useState(false);
+
   const mainRef = useRef(null);
 
   useEffect(() => {
@@ -64,6 +65,8 @@ function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+
 
   const today = useMemo(() => getTodayString(), []);
 
@@ -81,7 +84,7 @@ function App() {
   const fetchHistory = useCallback(async () => {
     const { data, error } = await supabase
       .from('movements_history')
-      .select('*, Utensili_B1("Tipologia", "Diametro", "Codice")')
+      .select('*, Utensili_B1("Tipologia", "Diametro", "Codice", "Forma", "Fornitore")')
       .order('created_at', { ascending: false });
     if (!error) setHistory(data || []);
   }, []);
@@ -239,26 +242,9 @@ function App() {
     );
     if (!options || options.length === 0) return null;
 
-    const getGridColsClass = (count, isMobileScreen) => {
-      if (count <= 1) return 'grid-cols-1';
-      if (isMobileScreen) {
-        if (count % 2 === 0) return 'grid-cols-2';
-        if (count % 3 === 0) return 'grid-cols-3';
-        return 'grid-cols-2';
-      } else {
-        if (count % 4 === 0) return 'grid-cols-4';
-        if (count % 3 === 0) return 'grid-cols-3';
-        if (count % 5 === 0) return 'grid-cols-5';
-        if (count % 2 === 0) return 'grid-cols-2';
-        return 'grid-cols-3';
-      }
-    };
-
-    const colsClass = getGridColsClass(options.length, isMobile);
-
     return (
-      <div className="w-full max-w-7xl px-4 my-auto pb-10 md:pb-12">
-        <div className={`grid ${colsClass} gap-4 md:gap-6 w-full justify-center`}>
+      <div className="w-full max-w-5xl px-2 md:px-4 py-2 md:py-4 mx-auto flex flex-col justify-start flex-1 min-h-0">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 w-fit mx-auto justify-center justify-items-center items-center">
           {options.map((opt, idx) => (
             <CategoryGridCard 
               key={`${opt.label}-${idx}`} 
@@ -282,7 +268,7 @@ function App() {
   }
 
   return (
-    <div ref={mainRef} className="h-screen w-screen flex flex-col p-3 md:p-5 lg:p-6 relative overflow-y-auto overflow-x-hidden dark:text-slate-200 text-slate-800 custom-scrollbar">
+    <div ref={mainRef} className="h-screen w-screen flex flex-col p-3 md:p-5 lg:p-6 relative overflow-hidden dark:text-slate-200 text-slate-800 custom-scrollbar">
       <Suspense fallback={<div className="h-10 animate-pulse dark:bg-white/5 bg-slate-900/5 rounded-xl" />}>
         <Header 
           currentUser={currentUser}
@@ -297,144 +283,205 @@ function App() {
         />
       </Suspense>
 
-      <main className="flex-1 w-full flex flex-col items-center justify-start relative mt-2 md:mt-4">
+      <main className="flex-1 w-full flex flex-col items-center justify-start relative mt-1.5 md:mt-2.5 min-h-0 overflow-hidden">
         <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
           <AnimatePresence mode="wait">
             {view === 'home' && (
-              <motion.div key="home" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 1.05 }} className="w-full flex flex-col items-center">
-                <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-[1600px] mb-2 md:mb-6 px-4 gap-4 md:gap-6 shrink-0">
-                  <div className="flex items-center w-10 md:w-12 shrink-0">
-                    {filterStack.length > 0 && (
-                      <button onClick={() => { setFilterStack(prev => {
-                          let nextStack = [...prev];
-                          while (nextStack.length > 0) {
-                            const popped = nextStack.pop();
-                            if (!popped.skipped) break;
-                          }
-                          return nextStack;
-                        }); 
-                      }} className="p-2.5 md:p-3 glass-button rounded-full text-accent-orange hover:scale-110 transition-all flex-shrink-0"
-                      ><ArrowLeft size={isMobile ? 18 : 20} /></button>
-                    )}
-                  </div>
-                  <div className="flex flex-col items-center text-center flex-1 min-w-0">
-                    <p className="text-[8px] md:text-[11px] font-black uppercase tracking-[0.3em] md:tracking-[0.6em] text-accent-orange mb-0.5 md:mb-1 opacity-80">Sfoglia Catalogo</p>
-                    <h2 className="text-base sm:text-lg md:text-5xl lg:text-6xl font-black uppercase italic tracking-tighter dark:text-white text-slate-900 px-2 leading-tight truncate w-full">
-                      {filterStack.length === 0 ? "Categorie" : breadcrumbText}
-                    </h2>
-                  </div>
-                  <div className="hidden md:flex items-center justify-end shrink-0 gap-4">
-                    {/* Desktop action toolbar */}
-                    <div className="flex items-center gap-2.5">
-                      {selectedToolsIds.length > 0 ? (
-                        <>
-                          <button onClick={() => handleBulkAction('carico')} className="action-btn action-btn-carica py-2.5 px-4 flex items-center gap-2">
-                            <ArrowUp size={16} />
-                            <span className="text-xs font-black tracking-wider">BULK DEPOSITA ({selectedToolsIds.length})</span>
-                          </button>
-                          <button onClick={() => handleBulkAction('scarico')} className="action-btn action-btn-scarica py-2.5 px-4 flex items-center gap-2">
-                            <ArrowDown size={16} />
-                            <span className="text-xs font-black tracking-wider">BULK PRELEVA ({selectedToolsIds.length})</span>
-                          </button>
-                          <button onClick={() => setSelectedToolsIds([])} className="glass-button p-2.5 rounded-xl text-rose-400 hover:bg-rose-400/10" title="Deseleziona tutto">
-                            <X size={16} />
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button onClick={() => { setOpType('carico'); setView('scanner'); }} className="action-btn action-btn-carica py-2.5 px-4 flex items-center gap-2">
-                            <ArrowUp size={16} />
-                            <span className="text-xs font-black tracking-wider">DEPOSITA</span>
-                          </button>
-                          <button onClick={() => { setOpType('scarico'); setView('scanner'); }} className="action-btn action-btn-scarica py-2.5 px-4 flex items-center gap-2">
-                            <ArrowDown size={16} />
-                            <span className="text-xs font-black tracking-wider">PRELEVA</span>
-                          </button>
-                          {currentUser?.ruolo === 'Admin' && (
-                            <button onClick={() => setShowAddModal(true)} className="glass-button px-4 py-2.5 rounded-xl text-accent-blue hover:bg-accent-blue/10 flex items-center gap-2 border border-accent-blue/20">
-                              <span className="text-xs font-black uppercase tracking-widest">+ Nuovo Articolo</span>
-                            </button>
-                          )}
-                        </>
-                      )}
-                    </div>
-
-                    {filterStack.length > 0 && (
-                      <button onClick={resetFilters} className="glass-button px-6 py-4 rounded-[24px] flex items-center gap-3 text-accent-orange border-accent-orange/20"><X size={18} /><span className="text-xs font-black uppercase tracking-widest">Cancella Filtri</span></button>
-                    )}
-                    {currentLevel < 3 && (
-                      <button onClick={() => setViewMode(prev => prev === 'grid' ? 'dropdown' : 'grid')} className="glass-button px-8 py-4 rounded-[24px] flex items-center gap-3" title={viewMode === 'grid' ? 'Passa a elenco' : 'Passa a griglia'}>
-                        {viewMode === 'grid' ? <List size={22} className="text-accent-blue" /> : <LayoutGrid size={22} className="text-accent-blue" />}
-                        <span className="text-xs font-black uppercase tracking-widest dark:text-slate-200 text-slate-800">{viewMode === 'grid' ? 'Elenco' : 'Griglia'}</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-                <div className="flex-1 w-full flex flex-col items-center justify-start min-h-0">
-                  {/* Mobile action toolbar */}
-                  <div className="md:hidden flex items-center justify-center gap-2 mb-4 px-4 w-full flex-wrap">
-                    {selectedToolsIds.length > 0 ? (
-                      <>
-                        <button onClick={() => handleBulkAction('carico')} className="action-btn action-btn-carica py-2 px-3.5 flex items-center gap-1.5 text-[10px]">
-                          <ArrowUp size={14} />
-                          <span className="font-black">BULK DEPOSITA ({selectedToolsIds.length})</span>
-                        </button>
-                        <button onClick={() => handleBulkAction('scarico')} className="action-btn action-btn-scarica py-2 px-3.5 flex items-center gap-1.5 text-[10px]">
-                          <ArrowDown size={14} />
-                          <span className="font-black">BULK PRELEVA ({selectedToolsIds.length})</span>
-                        </button>
-                        <button onClick={() => setSelectedToolsIds([])} className="glass-button p-2 rounded-xl text-rose-400 hover:bg-rose-400/10">
-                          <X size={14} />
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button onClick={() => { setOpType('carico'); setView('scanner'); }} className="action-btn action-btn-carica py-2 px-3.5 flex items-center gap-1.5 text-[10px]">
-                          <ArrowUp size={14} />
-                          <span className="font-black">DEPOSITA</span>
-                        </button>
-                        <button onClick={() => { setOpType('scarico'); setView('scanner'); }} className="action-btn action-btn-scarica py-2 px-3.5 flex items-center gap-1.5 text-[10px]">
-                          <ArrowDown size={14} />
-                          <span className="font-black">PRELEVA</span>
-                        </button>
-                        {currentUser?.ruolo === 'Admin' && (
-                          <button onClick={() => setShowAddModal(true)} className="glass-button py-2 px-3.5 rounded-xl text-accent-blue flex items-center gap-1.5 text-[10px] border border-accent-blue/20">
-                            <span className="font-black">+ NUOVO ART.</span>
-                          </button>
-                        )}
-                      </>
-                    )}
-
-                    {filterStack.length > 0 && (
-                      <button onClick={resetFilters} className="glass-button px-3.5 py-2 rounded-xl flex items-center gap-1.5 text-accent-orange border-accent-orange/20 text-[10px]">
-                        <X size={14} />
-                        <span className="font-black uppercase tracking-wider">RESET FILTRI</span>
-                      </button>
-                    )}
-
-                    {currentLevel < 3 && (
-                      <button onClick={() => setViewMode(prev => prev === 'grid' ? 'dropdown' : 'grid')} className="glass-button px-3.5 py-2 rounded-xl flex items-center gap-1.5 text-[10px]">
-                        {viewMode === 'grid' ? <List size={14} className="text-accent-blue" /> : <LayoutGrid size={14} className="text-accent-blue" />}
-                        <span className="font-black uppercase tracking-wider">{viewMode === 'grid' ? 'Elenco' : 'Griglia'}</span>
-                      </button>
-                    )}
-                  </div>
+              <motion.div key="home" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 1.05 }} className="w-full h-full flex flex-col items-center">
+                <div className="flex-1 w-full flex flex-col items-center justify-start min-h-0 px-2 mt-1.5 md:mt-2.5">
                   <Suspense fallback={<div className="h-64 flex items-center justify-center"><div className="w-12 h-12 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
-                    <AnimatePresence mode="wait">
                       {viewMode === 'grid' ? (
-                        <motion.div key="grid-mode" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex flex-col items-center">{renderGridHome()}</motion.div>
+                        <div key="grid-mode" className="w-full flex-1 flex flex-col items-center overflow-y-auto custom-scrollbar pb-2">
+                          {renderGridHome()}
+                        </div>
                       ) : (
-                        <motion.div key="dropdown-mode" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex flex-col items-center py-4">
+                        <div key="dropdown-mode" className="w-full flex-1 flex flex-col items-center min-h-0 pb-2">
                           <DropdownFilterView tools={tools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} initialFilters={Object.fromEntries(filterStack.map(f => [f.type, f.value]))}
                             onFilterChange={(newFilters) => {
                               const newStack = Object.entries(newFilters).filter(([_, v]) => v).map(([k, v]) => ({ type: k, value: v }));
                               setFilterStack(newStack);
                             }}
                             selectedIds={selectedToolsIds} onToggleSelect={toggleToolSelection} isSelectionMode={isSelectionMode} setIsSelectionMode={handleSetIsSelectionMode} />
-                        </motion.div>
+                        </div>
                       )}
-                    </AnimatePresence>
                   </Suspense>
+                </div>
+
+                {/* Unified Command Center - Moved to Bottom */}
+                <div className="w-full flex flex-col mb-2 md:mb-3 px-2 md:px-4 max-w-[1600px] shrink-0 relative mt-1.5 md:mt-2.5">
+                  
+                  {/* COMMAND BAR: Breadcrumbs, Centered Actions, Search */}
+                  <div className="flex flex-col md:flex-row items-center justify-between w-full bg-slate-900/5 dark:bg-black/20 rounded-[20px] md:rounded-[24px] p-2 md:p-3 md:px-4 glass-panel border-accent-blue/10 hover:border-accent-blue/30 gap-3 md:gap-4 mt-2 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-xl">
+                    
+                    {/* Top Row on Mobile, Left Column on Desktop */}
+                    <div className="flex items-center justify-between md:justify-start w-full md:w-auto md:flex-1 min-w-0">
+                      {/* Left: Breadcrumb */}
+                      <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
+                        {filterStack.length > 0 && (
+                          <button onClick={() => { setFilterStack(prev => {
+                              let nextStack = [...prev];
+                              while (nextStack.length > 0) {
+                                const popped = nextStack.pop();
+                                if (!popped.skipped) break;
+                              }
+                              return nextStack;
+                            }); 
+                          }} className="p-1.5 glass-button rounded-full text-accent-orange hover:scale-110 flex-shrink-0"
+                          ><ArrowLeft size={isMobile ? 14 : 16} /></button>
+                        )}
+                        <div className="flex flex-col min-w-0">
+                          {filterStack.length > 0 && (
+                            <div className="flex flex-col">
+                              <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-accent-orange opacity-80">Filtro</span>
+                              <h2 className="text-[10px] md:text-xs font-bold uppercase tracking-wide dark:text-white text-slate-900 truncate">
+                                 {breadcrumbText}
+                              </h2>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Center: Grouped Action Buttons - DESKTOP VIEW ONLY */}
+                    <div className="hidden md:flex flex-[2] justify-center items-center gap-2 md:gap-3 w-auto shrink-0">
+                       {selectedToolsIds.length > 0 ? (
+                          <>
+                            <button onClick={() => handleBulkAction('carico')} className="action-btn action-btn-carica py-1.5 px-3 md:py-2.5 md:px-5 rounded-[12px] md:rounded-[16px] flex items-center justify-center gap-1.5 group shadow-sm hover:shadow-emerald-500/20 text-[10px] md:text-sm flex-1 md:flex-none">
+                              <ArrowDown size={isMobile ? 14 : 16} className="group-hover:translate-y-1 transition-transform" />
+                              <span className="font-black tracking-wider">DEPOSITA ({selectedToolsIds.length})</span>
+                            </button>
+                            <button onClick={() => handleBulkAction('scarico')} className="action-btn action-btn-scarica py-1.5 px-3 md:py-2.5 md:px-5 rounded-[12px] md:rounded-[16px] flex items-center justify-center gap-1.5 group shadow-sm hover:shadow-rose-500/20 text-[10px] md:text-sm flex-1 md:flex-none">
+                              <ArrowUp size={isMobile ? 14 : 16} className="group-hover:-translate-y-1 transition-transform" />
+                              <span className="font-black tracking-wider">PRELEVA ({selectedToolsIds.length})</span>
+                            </button>
+                            <button onClick={() => setSelectedToolsIds([])} className="glass-button p-1.5 md:p-2 rounded-[12px] md:rounded-[16px] text-rose-400 hover:bg-rose-400/10 flex items-center justify-center shrink-0" title="Annulla Selezione">
+                               <X size={14} />
+                            </button>
+                          </>
+                       ) : (
+                          <>
+                            <button onClick={() => { setOpType('carico'); setView('scanner'); }} className="action-btn action-btn-carica py-2 px-3 md:py-2.5 md:px-6 rounded-[12px] md:rounded-[16px] flex items-center justify-center gap-1.5 group shadow-sm hover:shadow-emerald-500/20 text-[10px] md:text-sm flex-1 md:flex-none">
+                              <ArrowDown size={isMobile ? 14 : 16} className="group-hover:translate-y-1 transition-transform" />
+                              <span className="font-black tracking-wider">DEPOSITA</span>
+                            </button>
+                            <button onClick={() => { setOpType('scarico'); setView('scanner'); }} className="action-btn action-btn-scarica py-2 px-3 md:py-2.5 md:px-6 rounded-[12px] md:rounded-[16px] flex items-center justify-center gap-1.5 group shadow-sm hover:shadow-rose-500/20 text-[10px] md:text-sm flex-1 md:flex-none">
+                              <ArrowUp size={isMobile ? 14 : 16} className="group-hover:-translate-y-1 transition-transform" />
+                              <span className="font-black tracking-wider">PRELEVA</span>
+                            </button>
+                            {currentUser?.ruolo === 'Admin' && (
+                              <button onClick={() => setShowAddModal(true)} className="glass-button py-2 px-2 md:py-2.5 md:px-3.5 rounded-[12px] md:rounded-[16px] text-accent-blue border border-accent-blue/30 hover:bg-accent-blue/10 flex items-center justify-center gap-1 group shadow-sm text-[10px] md:text-sm shrink-0">
+                                 <span className="text-sm md:text-base font-black group-hover:scale-110 transition-transform">+</span>
+                              </button>
+                            )}
+                          </>
+                       )}
+                    </div>
+
+                    {/* Right: Search & View Modes - DESKTOP VIEW ONLY */}
+                    <div className="hidden md:flex items-center justify-end gap-1.5 md:gap-2 md:flex-1 shrink-0">
+                       {/* Search Shortcut */}
+                       <div className="group relative flex items-center justify-end">
+                          <input 
+                            type="text"
+                            readOnly
+                            onClick={() => setShowSearchOverlay(true)}
+                            placeholder="Cerca..."
+                            className="w-0 opacity-0 group-hover:w-20 md:group-hover:w-32 group-hover:opacity-100 transition-all duration-300 ease-out bg-white/50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-full py-1 px-2 text-[10px] md:text-xs font-semibold outline-none cursor-pointer absolute right-4 focus:w-20 md:focus:w-32 focus:opacity-100"
+                          />
+                          <button onClick={() => setShowSearchOverlay(true)} className="glass-button p-1.5 rounded-full text-accent-blue hover:scale-110 relative z-10 shadow-sm" title="Ricerca veloce">
+                            <Search size={16} />
+                          </button>
+                       </div>
+
+                       {filterStack.length > 0 && (
+                         <button onClick={resetFilters} className="glass-button px-2 py-1 md:px-2.5 md:py-1.5 rounded-full text-[8px] md:text-[9px] font-bold uppercase tracking-wider text-accent-orange flex items-center gap-1 shadow-sm hover:shadow-accent-orange/20">
+                           <X size={10} /> <span>Reset</span>
+                         </button>
+                       )}
+                       
+                       {currentLevel < 3 && (
+                         <div className="flex bg-slate-200/50 dark:bg-slate-800/50 rounded-full p-0.5 md:p-1 border border-slate-300/30 dark:border-slate-700/30 shadow-inner relative z-50">
+                           <button type="button" onClick={() => setViewMode('grid')} className={`cursor-pointer p-1.5 rounded-full transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-slate-700 shadow-sm text-accent-blue' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-400'}`} title="Vista a Griglia">
+                             <LayoutGrid size={14} />
+                           </button>
+                           <button type="button" onClick={() => setViewMode('dropdown')} className={`cursor-pointer p-1.5 rounded-full transition-all ${viewMode === 'dropdown' ? 'bg-white dark:bg-slate-700 shadow-sm text-accent-blue' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-400'}`} title="Vista ad Elenco">
+                             <List size={14} />
+                           </button>
+                         </div>
+                       )}
+                    </div>
+
+                    {/* MOBILE VIEW ACTIONS & CONTROLS */}
+                    <div className={`flex md:hidden flex-col w-full gap-2.5 ${filterStack.length > 0 ? 'pt-2 border-t border-slate-200/10 dark:border-slate-700/10' : ''}`}>
+                      {/* Row 1: DEPOSITA & PRELEVA (full width, 50% each) */}
+                      <div className="flex w-full gap-2">
+                        {selectedToolsIds.length > 0 ? (
+                          <>
+                            <button onClick={() => handleBulkAction('carico')} className="action-btn action-btn-carica py-2.5 rounded-[12px] flex items-center justify-center gap-1.5 shadow-sm text-xs flex-1">
+                              <ArrowDown size={14} className="animate-bounce" />
+                              <span className="font-black tracking-wider">DEPOSITA ({selectedToolsIds.length})</span>
+                            </button>
+                            <button onClick={() => handleBulkAction('scarico')} className="action-btn action-btn-scarica py-2.5 rounded-[12px] flex items-center justify-center gap-1.5 shadow-sm text-xs flex-1">
+                              <ArrowUp size={14} className="animate-bounce" />
+                              <span className="font-black tracking-wider">PRELEVA ({selectedToolsIds.length})</span>
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button onClick={() => { setOpType('carico'); setView('scanner'); }} className="action-btn action-btn-carica py-2.5 rounded-[12px] flex items-center justify-center gap-1.5 shadow-sm text-xs flex-1">
+                              <ArrowDown size={14} />
+                              <span className="font-black tracking-wider">DEPOSITA</span>
+                            </button>
+                            <button onClick={() => { setOpType('scarico'); setView('scanner'); }} className="action-btn action-btn-scarica py-2.5 rounded-[12px] flex items-center justify-center gap-1.5 shadow-sm text-xs flex-1">
+                              <ArrowUp size={14} />
+                              <span className="font-black tracking-wider">PRELEVA</span>
+                            </button>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Row 2: Secondary buttons centered next to each other */}
+                      <div className="flex w-full justify-center items-center gap-3">
+                        {/* Cancel Selection Button (Bulk Mode Only) */}
+                        {selectedToolsIds.length > 0 && (
+                          <button onClick={() => setSelectedToolsIds([])} className="glass-button w-10 h-10 rounded-full text-rose-400 hover:bg-rose-400/10 flex items-center justify-center shrink-0 shadow-sm" title="Annulla Selezione">
+                            <X size={16} />
+                          </button>
+                        )}
+
+                        {/* Add Tool Button (Admin & Non-Bulk Only) */}
+                        {currentUser?.ruolo === 'Admin' && selectedToolsIds.length === 0 && (
+                          <button onClick={() => setShowAddModal(true)} className="glass-button w-10 h-10 rounded-full text-accent-blue border border-accent-blue/30 hover:bg-accent-blue/10 flex items-center justify-center shrink-0 shadow-sm" title="Nuovo Utensile">
+                            <span className="text-lg font-black">+</span>
+                          </button>
+                        )}
+
+                        {/* Search Button */}
+                        <button onClick={() => setShowSearchOverlay(true)} className="glass-button w-10 h-10 rounded-full text-accent-blue flex items-center justify-center shrink-0 shadow-sm" title="Cerca">
+                          <Search size={16} />
+                        </button>
+
+                        {/* Reset Filters Button */}
+                        {filterStack.length > 0 && (
+                          <button onClick={resetFilters} className="glass-button px-3 h-10 rounded-full text-[9px] font-bold uppercase tracking-wider text-accent-orange flex items-center gap-1 shadow-sm shrink-0">
+                            <X size={12} /> <span>Reset</span>
+                          </button>
+                        )}
+
+                        {/* View Mode Toggle */}
+                        {currentLevel < 3 && (
+                          <div className="flex bg-slate-200/50 dark:bg-slate-800/50 rounded-full p-0.5 border border-slate-300/30 dark:border-slate-700/30 shadow-inner shrink-0">
+                            <button type="button" onClick={() => setViewMode('grid')} className={`cursor-pointer p-2 rounded-full transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-slate-700 shadow-sm text-accent-blue' : 'text-slate-500'}`} title="Vista a Griglia">
+                              <LayoutGrid size={14} />
+                            </button>
+                            <button type="button" onClick={() => setViewMode('dropdown')} className={`cursor-pointer p-2 rounded-full transition-all ${viewMode === 'dropdown' ? 'bg-white dark:bg-slate-700 shadow-sm text-accent-blue' : 'text-slate-500'}`} title="Vista ad Elenco">
+                              <List size={14} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <AnimatePresence>
                   {selectedToolsIds.length > 0 && (

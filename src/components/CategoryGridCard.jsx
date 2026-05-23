@@ -15,28 +15,28 @@ const CategoryGridCard = memo(({ opt, idx, handleSelectOption, isMobile }) => {
         delay: Math.min(idx * 0.04, 0.4) 
       }}
       onClick={() => handleSelectOption(opt)}
-      className="glass-panel group relative flex flex-col items-center justify-center p-5 md:p-8 rounded-[24px] cursor-pointer dark:bg-white/[0.02] bg-slate-900/[0.02] border dark:border-white/5 border-slate-900/5 dark:hover:border-accent-blue/40 hover:border-accent-blue/30 dark:hover:bg-accent-blue/[0.04] hover:bg-accent-blue/[0.04] hover:shadow-[0_0_25px_rgba(14,165,233,0.15)] transition-all duration-300 overflow-hidden"
+      className="glass-panel group relative w-full max-w-[220px] aspect-square p-0 rounded-[16px] md:rounded-[20px] cursor-pointer bg-slate-100/50 dark:bg-slate-900/40 border dark:border-white/10 border-slate-900/10 dark:hover:border-accent-blue/50 hover:border-accent-blue/40 hover:shadow-[0_8px_30px_rgba(14,165,233,0.2)] transition-all duration-300 overflow-hidden"
     >
-      {/* Background glow effect on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-accent-blue/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-      
-      {/* Icon Container */}
-      <div className="relative mb-4 md:mb-6 transition-all duration-500 rounded-[20px] overflow-hidden dark:bg-white/5 bg-slate-900/5 p-4 flex items-center justify-center group-hover:scale-105 group-hover:bg-accent-blue/10 dark:group-hover:bg-accent-blue/15 transition-transform duration-300">
-        <ToolIcon 
-          type={opt.label} 
-          size={isMobile ? 80 : 110} 
-          className="transition-transform duration-700 group-hover:scale-110" 
-          mode="image"
-        />
-      </div>
+      {/* Full-bleed Image Container */}
+      <ToolIcon 
+        type={opt.label} 
+        size="100%" 
+        className="absolute inset-0 w-full h-full transition-transform duration-700 ease-out group-hover:scale-110" 
+        mode="image"
+      />
 
-      {/* Category Info */}
-      <p className="text-[9px] font-black tracking-[0.2em] uppercase mb-1 dark:text-slate-400 text-slate-500 group-hover:text-accent-orange transition-colors">
-        {opt.category}
-      </p>
-      <h3 className="text-base md:text-xl font-black uppercase tracking-tighter text-center leading-tight dark:text-slate-200 text-slate-800 dark:group-hover:text-white group-hover:text-slate-950 transition-colors">
-        {opt.label}
-      </h3>
+      {/* Subtle overlay gradient to blend image and increase contrast slightly */}
+      <div className="absolute inset-0 bg-black/10 dark:bg-black/25 transition-colors duration-300 pointer-events-none" />
+
+      {/* Category Info Overlay - Floating Glassmorphic Panel for Maximum legibility and Premium UX */}
+      <div className="absolute bottom-3 left-3 right-3 p-2.5 md:p-3 bg-slate-950/80 dark:bg-slate-950/90 backdrop-blur-md border border-white/10 rounded-[12px] flex flex-col items-center justify-center z-20 shadow-lg">
+        <p className="text-[8px] md:text-[9px] font-black tracking-[0.2em] uppercase mb-0.5 text-accent-orange">
+          {opt.category}
+        </p>
+        <h3 className="text-xs md:text-sm font-black uppercase tracking-tight text-center leading-tight text-white group-hover:text-accent-blue transition-colors duration-300">
+          {opt.label}
+        </h3>
+      </div>
     </motion.div>
   );
 });

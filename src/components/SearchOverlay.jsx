@@ -50,7 +50,7 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose} 
-            className="absolute inset-0 dark:bg-slate-950/80 bg-slate-50/80 backdrop-blur-xl" 
+            className="absolute inset-0 dark:bg-slate-950/40 bg-slate-100/40 backdrop-blur-md" 
           />
           
           <motion.div

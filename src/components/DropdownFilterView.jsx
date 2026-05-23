@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, X, CheckCircle2, List, Activity, Filter, ChevronRight } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../lib/toolUtils';
 import { EXTRA_FILTER_KEYS } from './ToolsGrid';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const ALL_DETAIL_KEYS = [
   { key: 'Quantità', label: 'Quantità', minWidth: '95px', align: 'center' },
@@ -214,7 +216,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-7xl flex flex-col gap-3 md:gap-4"
+      className="w-full max-w-7xl flex flex-col gap-3 md:gap-4 flex-1 min-h-0"
     >
       <div className="flex items-center justify-between px-2 md:hidden">
         <button 
@@ -241,7 +243,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
             initial={isMobile ? { height: 0, opacity: 0 } : false}
             animate={{ height: 'auto', opacity: 1 }}
             exit={isMobile ? { height: 0, opacity: 0 } : false}
-            className="overflow-hidden"
+            className="overflow-hidden shrink-0"
           >
             <div className="flex flex-wrap gap-2 px-2 pb-2">
               <AnimatePresence mode="popLayout">
@@ -258,17 +260,23 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                       transition={{ duration: 0.2 }}
                       className="relative"
                     >
-                      <select
-                        value={filters[key] || ''}
-                        onChange={(e) => setFilter(key, e.target.value)}
-                        className={`glass-button rounded-[12px] md:rounded-[14px] px-3 py-2 md:px-4 md:py-2.5 text-[10px] md:text-[11px] font-bold uppercase tracking-wider appearance-none cursor-pointer pr-7 md:pr-8 bg-transparent dark:border-white/10 border-slate-900/10 focus:border-accent-blue/40 outline-none transition-all min-w-[100px] md:min-w-[120px] ${filters[key] ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-400 text-slate-600'}`}
+                      <Select
+                        key={`select-${key}-${filters[key] || 'empty'}`}
+                        value={filters[key] ? String(filters[key]) : undefined}
+                        onValueChange={(val) => setFilter(key, val === 'all' ? '' : val)}
                       >
-                        <option value="">{LABELS[key] || key}</option>
-                        {(filterOptions[key] || []).map(val => (
-                          <option key={val} value={val}>{key === 'Diametro' ? `Ø${val}` : val}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={12} className="absolute right-2.5 md:right-3 top-1/2 -translate-y-1/2 dark:text-slate-300 text-slate-700 pointer-events-none" />
+                        <SelectTrigger className={`glass-button rounded-[12px] md:rounded-[14px] px-3 py-2 md:px-4 md:py-2.5 text-[10px] md:text-[11px] font-bold uppercase tracking-wider bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all min-w-[100px] md:min-w-[120px] ${filters[key] && filters[key] !== 'all' ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-400 text-slate-600'}`}>
+                          <SelectValue placeholder={LABELS[key] || key} />
+                        </SelectTrigger>
+                        <SelectContent className="glass-panel z-[2000] border-white/10 dark:bg-slate-950/90 bg-white/90 backdrop-blur-xl">
+                          <SelectItem value="all" className="cursor-pointer font-bold opacity-60 italic">{LABELS[key] || key} (Tutti)</SelectItem>
+                          {(filterOptions[key] || []).map(val => (
+                            <SelectItem key={val} value={String(val)} className="cursor-pointer font-bold">
+                              {key === 'Diametro' ? `Ø${val}` : val}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </motion.div>
                   );
                 })}
@@ -301,8 +309,8 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
         )}
       </AnimatePresence>
 
-      <div className="glass-panel rounded-[32px] overflow-hidden flex flex-col">
-        <div className="px-6 py-3 border-b dark:border-white/5 border-slate-900/10 bg-white/[0.02]">
+      <div className="glass-panel rounded-[20px] md:rounded-[24px] overflow-hidden flex flex-col flex-1 min-h-0">
+        <div className="px-6 py-2 border-b dark:border-white/5 border-slate-900/10 bg-white/[0.02]">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-orange">
             {filtered.length} utensil{filtered.length === 1 ? 'e' : 'i'} trovati
           </p>
@@ -310,7 +318,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
 
         {/* Header Row for Desktop */}
         {!isMobile && filtered.length > 0 && (
-          <div className="px-6 py-2 border-b dark:border-white/5 border-slate-900/10 bg-white/[0.01] flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-slate-500">
+          <div className="px-6 py-1.5 border-b dark:border-white/5 border-slate-900/10 bg-white/[0.01] flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-slate-500 shrink-0">
             {isSelectionMode && <div className="w-5 flex-shrink-0" />} {/* Checkbox spacer */}
             <div className="w-9 flex-shrink-0" /> {/* Icon spacer */}
             <div className="flex-1 min-w-[150px]">Descrizione</div>
@@ -327,7 +335,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
           </div>
         )}
 
-        <div className="max-h-[55vh] overflow-y-auto custom-scrollbar overflow-x-auto">
+        <div className="flex-1 overflow-y-auto custom-scrollbar overflow-x-auto pb-4">
           <div className="min-w-max md:min-w-full">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 dark:text-slate-400 text-slate-600">
@@ -341,14 +349,15 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: Math.min(i * 0.015, 0.3) }}
-                className={`flex items-center gap-4 px-6 py-3 hover:bg-white/[0.04] cursor-pointer transition-all border-b dark:border-white/[0.03] border-slate-900/5 last:border-b-0 group ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
+                className={`flex items-center gap-4 px-6 py-2 md:py-1.5 hover:bg-white/[0.04] cursor-pointer transition-all border-b dark:border-white/[0.03] border-slate-900/5 last:border-b-0 group ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
               >
                 {isSelectionMode && (
-                  <div 
-                    onClick={(e) => { e.stopPropagation(); onToggleSelect(tool.id); }}
-                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all flex-shrink-0 ${selectedIds.includes(tool.id) ? 'bg-accent-blue border-accent-blue' : 'dark:border-white/20 border-slate-300 hover:border-accent-blue/50'}`}
-                  >
-                    {selectedIds.includes(tool.id) && <CheckCircle2 size={12} className="text-slate-950" />}
+                  <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center flex-shrink-0 w-5">
+                    <Checkbox
+                      checked={selectedIds.includes(tool.id)}
+                      onCheckedChange={(checked) => onToggleSelect(tool.id)}
+                      className={`w-5 h-5 rounded-md transition-all ${selectedIds.includes(tool.id) ? 'data-[state=checked]:bg-accent-blue data-[state=checked]:text-slate-950 border-accent-blue' : 'dark:border-white/30 border-slate-400'}`}
+                    />
                   </div>
                 )}
                 <div onClick={() => onSelectTool(tool)} className="w-9 h-9 rounded-lg bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-blue/20 transition-colors overflow-hidden">

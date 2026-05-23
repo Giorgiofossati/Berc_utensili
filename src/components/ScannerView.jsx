@@ -2,6 +2,8 @@ import React, { useState, useMemo, useCallback, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Activity, Search, X, AlertTriangle, ChevronRight, Camera } from 'lucide-react';
 import BarcodeScanner from './BarcodeScanner';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const ScannerView = memo(({ setView, tools, setSelectedTool, setModalQty, setShowMoveModal, setOpType, isMobile }) => {
   const [manualCode, setManualCode] = useState('');
@@ -38,7 +40,7 @@ const ScannerView = memo(({ setView, tools, setSelectedTool, setModalQty, setSho
   return (
     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-5xl w-full flex flex-col items-center gap-6">
       <div className="w-full flex justify-between items-center">
-        <button onClick={() => setView('home')} className="glass-button p-4 rounded-full text-accent-orange"><ArrowLeft /></button>
+        <Button variant="glass" size="icon" onClick={() => setView('home')} className="w-12 h-12 rounded-full text-accent-orange"><ArrowLeft /></Button>
         <div className="flex flex-col items-center">
           <p className="text-[10px] font-black uppercase tracking-[0.5em] text-accent-orange mb-2">Laser Recognition</p>
           <h2 className="text-4xl font-extrabold uppercase italic tracking-tighter">Optical Scanner</h2>
@@ -80,26 +82,27 @@ const ScannerView = memo(({ setView, tools, setSelectedTool, setModalQty, setSho
         <div className="relative flex items-center gap-4">
           <div className="relative flex-1 flex items-center">
             <Search size={20} className="absolute left-6 dark:text-slate-300 text-slate-700 pointer-events-none z-10" />
-            <input
+            <Input
               ref={inputRef}
               autoFocus
               value={manualCode}
               onChange={(e) => setManualCode(e.target.value)}
               placeholder="DIGITA CODICE AZIENDALE/PRODUTTORE O DESCRIZIONE..."
-              className="w-full glass-panel py-5 pl-14 pr-14 rounded-[24px] font-bold text-lg outline-none border-accent-blue/20 focus:border-accent-blue/60 transition-all placeholder:text-slate-700 tracking-wider"
+              className="w-full h-auto glass-panel py-5 pl-14 pr-14 rounded-[24px] font-bold text-lg outline-none border-accent-blue/20 focus:border-accent-blue/60 transition-all placeholder:text-slate-700 tracking-wider"
             />
             {manualCode && (
-              <button onClick={() => setManualCode('')} className="absolute right-5 dark:text-slate-300 text-slate-700 hover:text-white transition-colors">
+              <Button variant="ghost" size="icon" onClick={() => setManualCode('')} className="absolute right-3 dark:text-slate-300 text-slate-700 hover:text-white transition-colors">
                 <X size={18} />
-              </button>
+              </Button>
             )}
           </div>
-          <button 
+          <Button 
+            variant="glass"
             onClick={() => setShowCamera(!showCamera)}
-            className={`glass-button p-5 rounded-[24px] ${showCamera ? 'text-accent-orange border-accent-orange/40' : 'text-accent-blue border-accent-blue/20'}`}
+            className={`w-16 h-16 rounded-[24px] flex-shrink-0 ${showCamera ? 'text-accent-orange border-accent-orange/40' : 'text-accent-blue border-accent-blue/20'}`}
           >
             <Camera size={24} />
-          </button>
+          </Button>
         </div>
         
         {showCamera && (

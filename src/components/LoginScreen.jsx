@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { User, Lock, ArrowRight, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function LoginScreen({ onLogin }) {
   const [users, setUsers] = useState([]);
@@ -66,13 +68,13 @@ export default function LoginScreen({ onLogin }) {
            <motion.div key="user-list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
              <div className="relative mb-6">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 dark:text-slate-400 text-slate-600" size={20} />
-                <input 
+                <Input 
                   type="text" 
                   autoFocus
                   placeholder="Cerca per Nome o ID..." 
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full dark:bg-slate-900/50 bg-slate-200/50 border dark:border-white/10 border-slate-900/10 rounded-2xl py-4 pl-12 pr-4 dark:text-white text-slate-900 focus:outline-none focus:border-accent-blue/50 transition-colors"
+                  className="w-full rounded-2xl h-12 pl-12 pr-4 bg-slate-200/50 dark:bg-slate-900/50 border-slate-900/10 dark:border-white/10"
                 />
              </div>
              
@@ -83,10 +85,11 @@ export default function LoginScreen({ onLogin }) {
                   <p className="text-center text-sm dark:text-slate-400 text-slate-600 font-bold p-4">Nessun utente trovato</p>
                 ) : (
                   filteredUsers.map(u => (
-                    <button 
+                    <Button 
                       key={u.id}
+                      variant="ghost"
                       onClick={() => handleSelectUser(u)}
-                      className="flex items-center justify-between p-4 rounded-xl border border-white/5 hover:border-accent-blue/40 dark:bg-white/5 bg-slate-900/5 hover:bg-accent-blue/10 transition-all text-left group shrink-0"
+                      className="flex items-center justify-between p-4 h-auto rounded-xl border border-white/5 hover:border-accent-blue/40 dark:bg-white/5 bg-slate-900/5 hover:bg-accent-blue/10 transition-all text-left group shrink-0"
                     >
                       <div>
                         <p className="font-bold dark:text-white text-slate-900 text-lg group-hover:text-accent-blue transition-colors">{u.nome} {u.cognome}</p>
@@ -95,7 +98,7 @@ export default function LoginScreen({ onLogin }) {
                       <div className="text-[9px] font-black tracking-widest uppercase dark:bg-slate-900/50 bg-slate-200/50 px-3 py-1.5 rounded-full text-accent-blue">
                          {u.ruolo}
                       </div>
-                    </button>
+                    </Button>
                   ))
                 )}
              </div>
@@ -110,28 +113,28 @@ export default function LoginScreen({ onLogin }) {
                    <p className="font-bold dark:text-white text-slate-900 text-lg">{selectedUser.nome} {selectedUser.cognome}</p>
                    <p className="text-[10px] dark:text-slate-400 text-slate-600 font-black uppercase tracking-widest">{selectedUser.ruolo}</p>
                 </div>
-                <button onClick={() => setSelectedUser(null)} className="ml-auto text-[10px] font-black uppercase tracking-widest text-accent-orange hover:text-white transition-colors">
+                <Button variant="ghost" size="sm" onClick={() => setSelectedUser(null)} className="ml-auto text-[10px] font-black uppercase tracking-widest text-accent-orange hover:text-accent-orange/80 hover:bg-transparent">
                   Cambia
-                </button>
+                </Button>
              </div>
 
              <form onSubmit={handlePasswordSubmit}>
                 <div className="relative mb-6">
                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 dark:text-slate-400 text-slate-600" size={20} />
-                   <input
+                   <Input
                      type="password"
                      autoFocus
                      placeholder="Inserisci la password admin"
                      value={password}
                      onChange={(e) => setPassword(e.target.value)}
-                     className="w-full dark:bg-slate-900/50 bg-slate-200/50 border dark:border-white/10 border-slate-900/10 rounded-2xl py-4 pl-12 pr-4 dark:text-white text-slate-900 focus:outline-none focus:border-accent-blue/50 transition-colors"
+                     className="w-full rounded-2xl h-12 pl-12 pr-4 bg-slate-200/50 dark:bg-slate-900/50 border-slate-900/10 dark:border-white/10"
                    />
                 </div>
                 {error && <p className="text-rose-400 text-xs font-bold text-center mb-4 uppercase tracking-wider">{error}</p>}
                 
-                <button type="submit" className="w-full py-4 bg-accent-blue text-slate-950 font-black uppercase tracking-widest rounded-xl hover:bg-opacity-90 transition-all flex items-center justify-center gap-3">
+                <Button type="submit" className="w-full h-12 text-slate-950 font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-3">
                    Accedi <ArrowRight size={20} />
-                </button>
+                </Button>
              </form>
            </motion.div>
         )}

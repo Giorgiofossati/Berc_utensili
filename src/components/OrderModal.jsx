@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { X, Send, ShoppingCart } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { buildDesc } from '../lib/toolUtils';
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const OrderModal = ({ tool, onClose, currentUser }) => {
   const [qty, setQty] = useState(1);
@@ -47,21 +49,9 @@ const OrderModal = ({ tool, onClose, currentUser }) => {
   if (!tool) return null;
 
   return (
-    <div className="fixed inset-0 z-[2500] flex items-center justify-center p-4 sm:p-6 overflow-hidden">
-      <motion.div 
-        initial={{ opacity: 0 }} 
-        animate={{ opacity: 1 }} 
-        exit={{ opacity: 0 }} 
-        onClick={onClose} 
-        className="absolute inset-0 dark:bg-slate-950/90 bg-slate-50/90 backdrop-blur-2xl"
-      />
-      
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95, y: 20 }} 
-        animate={{ opacity: 1, scale: 1, y: 0 }} 
-        exit={{ opacity: 0, scale: 0.95, y: 20 }} 
-        className="glass-panel w-full max-w-md flex flex-col rounded-[32px] z-[2501] relative shadow-[0_0_100px_rgba(0,0,0,0.3)] dark:border-white/10 border-slate-900/10 overflow-hidden"
-      >
+    <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent showCloseButton={false} className="glass-panel w-[95vw] sm:w-full max-w-md flex flex-col rounded-[32px] z-[2501] bg-transparent border-none shadow-none overflow-hidden p-0 gap-0 focus:outline-none">
+        <DialogTitle className="sr-only">Crea Ordine</DialogTitle>
         {/* Header */}
         <div className="flex items-center justify-between p-6 shrink-0 border-b dark:border-white/10 border-slate-900/10 bg-accent-orange/10">
           <div className="flex items-center gap-4">
@@ -73,9 +63,9 @@ const OrderModal = ({ tool, onClose, currentUser }) => {
               <h2 className="text-xl font-black uppercase tracking-tighter dark:text-white text-slate-900">Crea Ordine</h2>
             </div>
           </div>
-          <button onClick={onClose} className="glass-button w-10 h-10 rounded-full flex items-center justify-center hover:rotate-90 transition-transform">
+          <Button variant="glass" size="icon" onClick={onClose} className="w-10 h-10 rounded-full flex items-center justify-center hover:rotate-90 transition-transform">
             <X size={20} />
-          </button>
+          </Button>
         </div>
 
         {/* Body */}
@@ -90,13 +80,13 @@ const OrderModal = ({ tool, onClose, currentUser }) => {
           <form id="order-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
               <label className="text-[10px] font-black uppercase tracking-widest opacity-70 text-slate-700 dark:text-slate-300">Quantità da ordinare *</label>
-              <input 
+              <Input 
                 type="number" 
                 min="1" 
                 required
                 value={qty} 
                 onChange={(e) => setQty(Number(e.target.value))} 
-                className="glass-input w-full p-4 rounded-2xl font-black text-2xl text-center focus:border-accent-orange focus:ring-1 focus:ring-accent-orange transition-all" 
+                className="w-full h-auto p-4 rounded-2xl font-black text-2xl text-center focus:border-accent-orange focus:ring-1 focus:ring-accent-orange transition-all" 
               />
             </div>
 
@@ -115,12 +105,11 @@ const OrderModal = ({ tool, onClose, currentUser }) => {
 
         {/* Footer */}
         <div className="p-6 shrink-0 bg-black/5 dark:bg-white/5 flex justify-end">
-          <button 
+          <Button 
             type="submit" 
             form="order-form"
             disabled={isLoading}
-            className="action-btn py-3 px-6 flex items-center gap-2 rounded-xl shadow-xl disabled:opacity-50 w-full justify-center"
-            style={{ backgroundColor: '#f97316', color: 'white' }}
+            className="py-6 px-6 flex items-center gap-2 rounded-xl shadow-xl disabled:opacity-50 w-full justify-center bg-[#f97316] text-white hover:bg-[#ea580c]"
           >
             {isLoading ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -130,10 +119,10 @@ const OrderModal = ({ tool, onClose, currentUser }) => {
                 <span className="font-black uppercase tracking-widest text-xs">Invia Ordine</span>
               </>
             )}
-          </button>
+          </Button>
         </div>
-      </motion.div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

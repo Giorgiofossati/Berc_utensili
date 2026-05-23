@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
+import { buildDesc } from '../lib/toolUtils';
 
 const HistoryView = memo(({ history, setView }) => (
   <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-6xl flex flex-col items-center gap-10">
@@ -30,7 +31,7 @@ const HistoryView = memo(({ history, setView }) => (
             {(history || []).map(item => (
               <tr key={item.id} className="glass-panel hover:bg-white/[0.04]">
                 <td className="px-10 rounded-l-[24px] dark:text-slate-400 text-slate-600 text-sm font-mono">{new Date(item.created_at).toLocaleString('it-IT')}</td>
-                <td className="px-6 font-bold text-lg">{item.Utensili_B1?.Tipologia} Ø{item.Utensili_B1?.Diametro} <span className="text-[10px] dark:text-slate-400 text-slate-600 block">Codice Aziendale: {item.Utensili_B1?.Codice}</span></td>
+                <td className="px-6 font-bold text-lg">{buildDesc(item.Utensili_B1)} <span className="text-[10px] dark:text-slate-400 text-slate-600 block">Codice Aziendale: {item.Utensili_B1?.Codice}</span></td>
                 <td className="px-6 py-4">
                   <span className={`badge ${item.tipo_operazione === 'carico' ? 'badge-emerald' : 'badge-rose'}`}>{item.tipo_operazione === 'carico' ? 'deposita' : 'preleva'}</span>
                 </td>

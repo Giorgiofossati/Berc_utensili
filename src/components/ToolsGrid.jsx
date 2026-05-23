@@ -2,6 +2,8 @@ import React, { useState, useMemo, useCallback, memo } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, X, CheckCircle2, List, Activity, AlertTriangle, ChevronRight } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../lib/toolUtils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const EXTRA_FILTER_KEYS = [
   { key: 'Lunghezza', label: 'Lunghezza' },
@@ -117,17 +119,20 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
         <div className="flex flex-wrap gap-2 px-2">
           {availableFilters.map(({ key, label }) => (
             <div key={key} className="relative">
-              <select
-                value={extraFilters[key] || ''}
-                onChange={(e) => setFilter(key, e.target.value)}
-                className="glass-button rounded-[14px] px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider appearance-none cursor-pointer pr-8 bg-transparent dark:text-slate-300 text-slate-700 dark:border-white/10 border-slate-900/10 focus:border-accent-blue/40 outline-none transition-all min-w-[120px]"
+              <Select
+                value={extraFilters[key] ? String(extraFilters[key]) : undefined}
+                onValueChange={(val) => setFilter(key, val === 'all' ? '' : val)}
               >
-                <option value="">{label}</option>
-                {(filterOptions[key] || []).map(val => (
-                  <option key={val} value={val}>{val}</option>
-                ))}
-              </select>
-              <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 dark:text-slate-300 text-slate-700 pointer-events-none" />
+                <SelectTrigger className={`glass-button rounded-[14px] px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all min-w-[120px] ${extraFilters[key] && extraFilters[key] !== 'all' ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'}`}>
+                  <SelectValue placeholder={label} />
+                </SelectTrigger>
+                <SelectContent className="glass-panel z-[2000] border-white/10 dark:bg-slate-950/90 bg-white/90 backdrop-blur-xl">
+                  <SelectItem value="all" className="cursor-pointer font-bold opacity-60">Tutti</SelectItem>
+                  {(filterOptions[key] || []).map(val => (
+                    <SelectItem key={val} value={String(val)} className="cursor-pointer font-bold">{val}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           ))}
           {Object.values(extraFilters).some(v => v) && (
@@ -191,11 +196,12 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
                 >
                   <div className="flex items-center gap-3 flex-shrink-0">
                     {isSelectionMode && (
-                      <div 
-                        onClick={(e) => { e.stopPropagation(); onToggleSelect(tool.id); }}
-                        className={`w-6 h-6 rounded-md border flex items-center justify-center transition-all flex-shrink-0 ${selectedIds.includes(tool.id) ? 'bg-accent-blue border-accent-blue' : 'dark:border-white/20 border-slate-300 hover:border-accent-blue/50'}`}
-                      >
-                        {selectedIds.includes(tool.id) && <CheckCircle2 size={14} className="text-slate-950" />}
+                      <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center flex-shrink-0 w-6">
+                        <Checkbox
+                          checked={selectedIds.includes(tool.id)}
+                          onCheckedChange={(checked) => onToggleSelect(tool.id)}
+                          className={`w-6 h-6 rounded-md transition-all ${selectedIds.includes(tool.id) ? 'data-[state=checked]:bg-accent-blue data-[state=checked]:text-slate-950 border-accent-blue' : 'dark:border-white/30 border-slate-400'}`}
+                        />
                       </div>
                     )}
                     <div onClick={() => onSelectTool(tool)} className="w-10 h-10 rounded-xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-blue/20 transition-colors overflow-hidden">

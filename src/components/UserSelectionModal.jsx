@@ -2,6 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Shield, Search, Key, X, Check } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const UserSelectionModal = ({ isOpen, onClose }) => {
   const { users, login, loading } = useAuth();
@@ -40,21 +43,9 @@ const UserSelectionModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 md:p-6">
-      <motion.div 
-        initial={{ opacity: 0 }} 
-        animate={{ opacity: 1 }} 
-        exit={{ opacity: 0 }} 
-        onClick={onClose} 
-        className="absolute inset-0 dark:bg-slate-950/90 bg-slate-50/90 backdrop-blur-2xl"
-      />
-      
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9, y: 20 }} 
-        animate={{ opacity: 1, scale: 1, y: 0 }} 
-        exit={{ opacity: 0, scale: 0.9, y: 20 }} 
-        className="glass-panel w-full max-w-lg p-6 md:p-10 rounded-[40px] z-[2001] relative overflow-hidden"
-      >
+    <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent showCloseButton={false} className="glass-panel w-[95vw] sm:w-full max-w-lg p-6 md:p-10 rounded-[40px] z-[2001] bg-transparent border-none shadow-none overflow-hidden focus:outline-none">
+        <DialogTitle className="sr-only">Accesso Sistema</DialogTitle>
         <div className="absolute top-0 right-0 w-32 h-32 bg-accent-blue/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         
         <div className="flex justify-between items-center mb-8">
@@ -62,19 +53,19 @@ const UserSelectionModal = ({ isOpen, onClose }) => {
             <p className="text-[10px] font-black text-accent-orange uppercase tracking-[0.4em] mb-1">Accesso Sistema</p>
             <h3 className="text-3xl font-black uppercase italic tracking-tighter dark:text-white text-slate-900">Identifica Utente</h3>
           </div>
-          <button onClick={onClose} className="glass-button p-3 rounded-full"><X size={20} /></button>
+          <Button variant="glass" size="icon" onClick={onClose} className="rounded-full"><X size={20} /></Button>
         </div>
 
         {!selectedUser ? (
           <div className="flex flex-col gap-6">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 dark:text-white text-slate-900/30" size={20} />
-              <input 
+              <Input 
                 type="text" 
                 placeholder="Cerca Nome o Codice ID..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full dark:bg-white/5 bg-slate-900/5 border dark:border-white/10 border-slate-900/10 rounded-2xl py-4 pl-12 pr-4 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 transition-all font-medium"
+                className="w-full h-auto rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-accent-blue/50 transition-all font-medium"
                 autoFocus
               />
             </div>
@@ -87,10 +78,11 @@ const UserSelectionModal = ({ isOpen, onClose }) => {
                 </div>
               ) : filteredUsers.length > 0 ? (
                 filteredUsers.map(user => (
-                  <button 
+                  <Button 
                     key={user.id}
+                    variant="glass"
                     onClick={() => handleUserSelect(user)}
-                    className="flex items-center justify-between p-4 rounded-2xl glass-button hover:bg-white/10 transition-all group shrink-0"
+                    className="flex items-center justify-between p-4 h-auto rounded-2xl hover:bg-white/10 group shrink-0"
                   >
                     <div className="flex items-center gap-4">
                       <div className={`p-3 rounded-xl ${user.ruolo === 'Admin' ? 'bg-accent-orange/20 text-accent-orange' : 'bg-accent-blue/20 text-accent-blue'}`}>
@@ -104,7 +96,7 @@ const UserSelectionModal = ({ isOpen, onClose }) => {
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                       <Check size={18} className="text-accent-blue" />
                     </div>
-                  </button>
+                  </Button>
                 ))
               ) : (
                 <div className="py-10 text-center flex flex-col items-center gap-4 dark:bg-white/5 bg-slate-900/5 rounded-3xl p-8 border border-white/5">
@@ -140,12 +132,12 @@ const UserSelectionModal = ({ isOpen, onClose }) => {
                   <label className="block text-[10px] font-black dark:text-white text-slate-900/40 uppercase tracking-[0.2em] mb-2 ml-1">Richiesta Password</label>
                   <div className="relative">
                     <Key className="absolute left-4 top-1/2 -translate-y-1/2 dark:text-white text-slate-900/30" size={20} />
-                    <input 
+                    <Input 
                       type="password" 
                       placeholder="••••••••" 
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full dark:bg-white/5 bg-slate-900/5 border dark:border-white/10 border-slate-900/10 rounded-2xl py-4 pl-12 pr-4 dark:text-white text-slate-900 outline-none focus:border-accent-orange/50 transition-all font-mono text-2xl tracking-[0.3em]"
+                      className="w-full h-auto rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-accent-orange/50 transition-all font-mono text-2xl tracking-[0.3em]"
                       autoFocus
                       onKeyDown={(e) => e.key === 'Enter' && handleLogin(selectedUser, password)}
                     />
@@ -163,8 +155,8 @@ const UserSelectionModal = ({ isOpen, onClose }) => {
             )}
           </motion.div>
         )}
-      </motion.div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
