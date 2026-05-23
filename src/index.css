@@ -46,8 +46,14 @@
       url("https://www.transparenttextures.com/patterns/dark-matter.png");
   }
 
+  html, body, #root {
+    height: 100%;
+    height: -webkit-fill-available;
+    overflow: hidden;
+  }
+
   body {
-    @apply h-[100dvh] overflow-hidden font-inter antialiased transition-colors duration-500 bg-background text-foreground;
+    @apply font-inter antialiased transition-colors duration-500 bg-background text-foreground;
     background-image: var(--theme-bg-gradient);
   }
 
@@ -110,6 +116,46 @@
 }
 
 @layer components {
+
+  /* Safe Area / Viewport Compatibility for iOS Safari and PWA */
+  .app-container {
+    padding-top: max(10px, env(safe-area-inset-top));
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+  }
+
+  @media (min-width: 768px) {
+    .app-container {
+      padding: 16px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .app-container {
+      padding: 20px;
+    }
+  }
+
+  .command-bar-container {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  @media (min-width: 768px) {
+    .command-bar-container {
+      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  .floating-badge-container {
+    bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+  }
+
+  @media (min-width: 768px) {
+    .floating-badge-container {
+      bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+    }
+  }
 
   /* Header spacing fix */
   .header-bar {

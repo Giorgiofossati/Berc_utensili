@@ -268,7 +268,7 @@ function App() {
   }
 
   return (
-    <div ref={mainRef} className="h-[100dvh] w-screen flex flex-col p-2.5 md:p-4 lg:p-5 relative overflow-hidden dark:text-slate-200 text-slate-800 custom-scrollbar">
+    <div ref={mainRef} className="h-full w-screen flex flex-col app-container relative overflow-hidden dark:text-slate-200 text-slate-800 custom-scrollbar">
       <Suspense fallback={<div className="h-10 animate-pulse dark:bg-white/5 bg-slate-900/5 rounded-xl" />}>
         <Header 
           currentUser={currentUser}
@@ -308,7 +308,7 @@ function App() {
                 </div>
 
                 {/* Unified Command Center - Floating Bottom */}
-                <div className="w-full flex flex-col px-2 md:px-4 max-w-5xl shrink-0 absolute bottom-4 md:bottom-6 z-[100] pointer-events-none">
+                <div className="w-full flex flex-col px-2 md:px-4 max-w-5xl shrink-0 absolute command-bar-container z-[100] pointer-events-none">
                   
                   {/* COMMAND BAR: Breadcrumbs, Centered Actions, Search */}
                   <div className="pointer-events-auto flex flex-col md:flex-row items-center justify-between w-full bg-white/30 dark:bg-slate-950/50 rounded-[20px] md:rounded-[24px] p-2 md:p-3 md:px-4 border border-white/30 dark:border-white/10 gap-3 md:gap-4 shadow-[0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:shadow-xl transition-all duration-300 backdrop-blur-3xl backdrop-saturate-150">
@@ -487,7 +487,7 @@ function App() {
                 <AnimatePresence>
                   {selectedToolsIds.length > 0 && (
                     <motion.button initial={{ opacity: 0, scale: 0.8, x: 20 }} animate={{ opacity: 1, scale: 1, x: 0 }} exit={{ opacity: 0, scale: 0.8, x: 20 }}
-                      onClick={() => setShowSelectionDrawer(true)} className="fixed right-6 bottom-8 md:bottom-10 z-[100] glass-panel bg-accent-blue/20 border-accent-blue/40 px-6 py-4 rounded-full flex items-center gap-4 group overflow-hidden"
+                      onClick={() => setShowSelectionDrawer(true)} className="fixed right-6 floating-badge-container z-[100] glass-panel bg-accent-blue/20 border-accent-blue/40 px-6 py-4 rounded-full flex items-center gap-4 group overflow-hidden"
                     >
                       <div className="absolute inset-0 bg-accent-blue/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                       <div className="relative flex items-center gap-3"><div className="bg-accent-blue text-slate-950 font-black text-xs w-6 h-6 rounded-full flex items-center justify-center">{selectedToolsIds.length}</div><span className="text-[10px] font-black uppercase tracking-[0.2em] dark:text-white text-slate-900">Utensili Selezionati</span></div>
