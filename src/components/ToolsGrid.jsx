@@ -153,7 +153,7 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
         </div>
       )}
 
-      <div className="glass-panel rounded-[32px] overflow-hidden flex flex-col flex-1 min-h-0">
+      <div className="glass-panel rounded-[20px] md:rounded-[24px] overflow-hidden flex flex-col flex-1 min-h-0">
         <div className="px-6 py-4 border-b dark:border-white/5 border-slate-900/10 flex items-center justify-between bg-white/[0.02]">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-orange">
             Utensili — {filtered.length} risultat{filtered.length === 1 ? 'o' : 'i'}
@@ -192,7 +192,7 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
               filtered.map((tool, i) => (
                 <div
                   key={tool.id || i}
-                  className={`flex items-center gap-4 px-6 py-3.5 hover:bg-white/[0.04] cursor-pointer transition-all border-b dark:border-white/[0.03] border-slate-900/5 last:border-b-0 group ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
+                  className={`flex items-center gap-4 px-6 py-2.5 md:py-2 hover:bg-white/[0.04] cursor-pointer transition-all border-b dark:border-white/[0.03] border-slate-900/5 last:border-b-0 group ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
                 >
                   <div className="flex items-center gap-3 flex-shrink-0">
                     {isSelectionMode && (
