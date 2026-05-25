@@ -243,8 +243,8 @@ function App() {
     if (!options || options.length === 0) return null;
 
     return (
-      <div className="w-full max-w-5xl px-2 md:px-4 py-2 md:py-3 mx-auto flex flex-col justify-start">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 w-fit mx-auto justify-center justify-items-center items-center">
+      <div className="w-full max-w-7xl xl:max-w-[1600px] px-2 md:px-4 py-2 md:py-3 mx-auto flex flex-col justify-start">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-5 w-fit mx-auto justify-center justify-items-center items-center">
           {options.map((opt, idx) => (
             <CategoryGridCard 
               key={`${opt.label}-${idx}`} 

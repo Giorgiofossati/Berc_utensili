@@ -8,10 +8,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 const ALL_DETAIL_KEYS = [
   { key: 'Quantità', label: 'Quantità', minWidth: '95px', align: 'center' },
-  { key: 'Ubicazione', label: 'Ubicazione', minWidth: '130px', align: 'center' },
-  { key: 'Stato', label: 'Stato', minWidth: '120px', align: 'center' },
-  { key: 'Fornitore', label: 'Fornitore', minWidth: '130px', align: 'center' },
-  { key: 'Codice', label: 'Codice Aziendale', minWidth: '180px', align: 'center' },
+  { key: 'Ubicazione', label: 'Ubicazione', minWidth: '130px', align: 'center', className: 'hidden md:flex' },
+  { key: 'Stato', label: 'Stato', minWidth: '120px', align: 'center', className: 'hidden md:flex' },
+  { key: 'Fornitore', label: 'Fornitore', minWidth: '130px', align: 'center', className: 'hidden md:flex' },
+  { key: 'Codice', label: 'Codice Aziendale', minWidth: '180px', align: 'center', className: 'hidden md:flex' },
 ];
 
 const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, initialFilters = {}, onFilterChange, selectedIds = [], onToggleSelect, isSelectionMode, setIsSelectionMode }) => {
@@ -325,7 +325,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
             {visibleDetailKeys.map(detail => (
               <div 
                 key={detail.key} 
-                className={`flex-shrink-0 flex items-center justify-${detail.align === 'center' ? 'center' : 'start'}`}
+                className={`flex-shrink-0 flex items-center justify-${detail.align === 'center' ? 'center' : 'start'} ${detail.className || ''}`}
                 style={{ width: detail.minWidth }}
               >
                 {detail.label}
@@ -372,7 +372,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                   <div 
                     key={detail.key} 
                     onClick={() => onSelectTool(tool)}
-                    className={`flex-shrink-0 flex items-center justify-${detail.align === 'center' ? 'center' : 'start'}`}
+                    className={`flex-shrink-0 flex items-center justify-${detail.align === 'center' ? 'center' : 'start'} ${detail.className || ''}`}
                     style={{ width: detail.minWidth }}
                   >
                     {renderDetailValue(tool, detail)}
