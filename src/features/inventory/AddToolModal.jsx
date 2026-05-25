@@ -67,7 +67,7 @@ const CustomSelectField = ({
   );
 };
 
-const AddToolModal = ({ onClose, onToolAdded, currentUser }) => {
+const AddToolModal = ({ onClose, onToolAdded, currentUser, tools = [] }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [dbOptions, setDbOptions] = useState({
@@ -121,34 +121,48 @@ const AddToolModal = ({ onClose, onToolAdded, currentUser }) => {
   });
 
   useEffect(() => {
-    const fetchExistingOptions = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('Utensili_B1')
-          .select('Tipologia, Forma, Diametro, Ubicazione, Materiale, Rivestimento, Fornitore, Lavorazione, Passo, Tolleranza, Raggio, Angolo');
-        
-        if (error) throw error;
-        
-        if (data) {
-          const processed = {};
-          const keys = ['Tipologia', 'Forma', 'Diametro', 'Ubicazione', 'Materiale', 'Rivestimento', 'Fornitore', 'Lavorazione', 'Passo', 'Tolleranza', 'Raggio', 'Angolo'];
-          keys.forEach(key => {
-            const values = data
-              .map(row => row[key])
-              .filter(val => val !== null && val !== undefined && val !== '');
-            processed[key] = [...new Set(values)].sort((a, b) => 
-              a.toString().localeCompare(b.toString(), undefined, { numeric: true, sensitivity: 'base' })
-            );
-          });
-          setDbOptions(processed);
+    if (tools && tools.length > 0) {
+      const processed = {};
+      const keys = ['Tipologia', 'Forma', 'Diametro', 'Ubicazione', 'Materiale', 'Rivestimento', 'Fornitore', 'Lavorazione', 'Passo', 'Tolleranza', 'Raggio', 'Angolo'];
+      keys.forEach(key => {
+        const values = tools
+          .map(row => row[key])
+          .filter(val => val !== null && val !== undefined && val !== '');
+        processed[key] = [...new Set(values)].sort((a, b) => 
+          a.toString().localeCompare(b.toString(), undefined, { numeric: true, sensitivity: 'base' })
+        );
+      });
+      setDbOptions(processed);
+    } else {
+      const fetchExistingOptions = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('Utensili_B1')
+            .select('"Tipologia", "Forma", "Diametro", "Ubicazione", "Materiale", "Rivestimento", "Fornitore", "Lavorazione", "Passo", "Tolleranza", "Raggio", "Angolo"');
+          
+          if (error) throw error;
+          
+          if (data) {
+            const processed = {};
+            const keys = ['Tipologia', 'Forma', 'Diametro', 'Ubicazione', 'Materiale', 'Rivestimento', 'Fornitore', 'Lavorazione', 'Passo', 'Tolleranza', 'Raggio', 'Angolo'];
+            keys.forEach(key => {
+              const values = data
+                .map(row => row[key])
+                .filter(val => val !== null && val !== undefined && val !== '');
+              processed[key] = [...new Set(values)].sort((a, b) => 
+                a.toString().localeCompare(b.toString(), undefined, { numeric: true, sensitivity: 'base' })
+              );
+            });
+            setDbOptions(processed);
+          }
+        } catch (err) {
+          console.error('Error fetching database categories:', err);
         }
-      } catch (err) {
-        console.error('Error fetching database categories:', err);
-      }
-    };
+      };
 
-    fetchExistingOptions();
-  }, []);
+      fetchExistingOptions();
+    }
+  }, [tools]);
 
   const isFieldVisible = (fieldName) => {
     const type = (formData.Tipologia || '').toUpperCase();
