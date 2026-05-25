@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, AlertTriangle, Activity, ChevronRight, Camera } from 'lucide-react';
-import { ToolIcon } from '../lib/toolUtils';
-import BarcodeScanner from './BarcodeScanner';
+import { ToolIcon } from '../../lib/toolUtils';
+import BarcodeScanner from '../scanner/BarcodeScanner';
 
 const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
   const [manualCode, setManualCode] = useState('');

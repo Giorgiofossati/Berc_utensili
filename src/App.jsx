@@ -7,53 +7,65 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
 
+// Custom Hooks
+import { useAuth } from './hooks/useAuth';
+import { useTools } from './hooks/useTools';
+import { useFilters } from './hooks/useFilters';
+import { useMovements } from './hooks/useMovements';
+
 // Lazy load components
-const SelectionDrawer = lazy(() => import('./components/SelectionDrawer'));
-const Header = lazy(() => import('./components/Header'));
-const CategoryGridCard = lazy(() => import('./components/CategoryGridCard'));
-const HistoryView = lazy(() => import('./components/HistoryView'));
-const ScannerView = lazy(() => import('./components/ScannerView'));
-const MovementModal = lazy(() => import('./components/MovementModal'));
-const DiameterList = lazy(() => import('./components/DiameterList'));
-const ToolsGrid = lazy(() => import('./components/ToolsGrid'));
-const DropdownFilterView = lazy(() => import('./components/DropdownFilterView'));
-const SearchOverlay = lazy(() => import('./components/SearchOverlay'));
-const LoginScreen = lazy(() => import('./components/LoginScreen'));
-const AddToolModal = lazy(() => import('./components/AddToolModal'));
-const OrderModal = lazy(() => import('./components/OrderModal'));
-const OperatorsView = lazy(() => import('./components/OperatorsView'));
+const SelectionDrawer = lazy(() => import('./components/layout/SelectionDrawer'));
+const Header = lazy(() => import('./components/layout/Header'));
+const CategoryGridCard = lazy(() => import('./features/filters/CategoryGridCard'));
+const HistoryView = lazy(() => import('./features/admin/HistoryView'));
+const ScannerView = lazy(() => import('./features/scanner/ScannerView'));
+const MovementModal = lazy(() => import('./features/inventory/MovementModal'));
+const DiameterList = lazy(() => import('./features/filters/DiameterList'));
+const ToolsGrid = lazy(() => import('./features/inventory/ToolsGrid'));
+const DropdownFilterView = lazy(() => import('./features/filters/DropdownFilterView'));
+const SearchOverlay = lazy(() => import('./features/filters/SearchOverlay'));
+const LoginScreen = lazy(() => import('./features/auth/LoginScreen'));
+const AddToolModal = lazy(() => import('./features/inventory/AddToolModal'));
+const OrderModal = lazy(() => import('./features/inventory/OrderModal'));
+const OperatorsView = lazy(() => import('./features/admin/OperatorsView'));
 
 // Helper for date
 const getTodayString = () => new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
 function App() {
-  const [view, setView] = useState('home');
-  const [currentUser, setCurrentUser] = useState(null);
-  const [tools, setTools] = useState([]);
-  const [history, setHistory] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { currentUser, setCurrentUser } = useAuth();
+  const { tools, setTools, fetchTools } = useTools();
+  
+  const {
+    filterStack, setFilterStack,
+    viewMode, setViewMode,
+    isSelectionMode, handleSetIsSelectionMode, setIsSelectionMode,
+    selectedToolsIds, setSelectedToolsIds, toggleToolSelection,
+    filteredByStack, options, diameters, finalTools, currentLevel,
+    handleSelectOption, handleSelectDiameter, resetFilters, breadcrumbText
+  } = useFilters(tools);
+
   const [toast, setToast] = useState(null);
+  const showToastNotification = useCallback((msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 4000);
+  }, []);
+
+  const {
+    opType, setOpType,
+    modalQty, setModalQty,
+    isBulkMode, setIsBulkMode,
+    selectedTool, setSelectedTool,
+    handleMovement
+  } = useMovements({ tools, setTools, fetchTools, currentUser, showToastNotification });
+
+  const [view, setView] = useState('home');
+  const [history, setHistory] = useState([]);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
-
-  const [filterStack, setFilterStack] = useState([]);
-  const [viewMode, setViewMode] = useState('grid');
-
-  const [selectedTool, setSelectedTool] = useState(null);
-  const [selectedToolsIds, setSelectedToolsIds] = useState([]);
-  const [opType, setOpType] = useState('scarico');
-  const [modalQty, setModalQty] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
-  const [isBulkMode, setIsBulkMode] = useState(false);
-  const [isSelectionMode, setIsSelectionMode] = useState(false);
-  const handleSetIsSelectionMode = (val) => {
-    setIsSelectionMode(val);
-    if (!val) {
-      setSelectedToolsIds([]);
-    }
-  };
   const [showSelectionDrawer, setShowSelectionDrawer] = useState(false);
   const [showSearchOverlay, setShowSearchOverlay] = useState(false);
 
@@ -66,20 +78,7 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-
-
   const today = useMemo(() => getTodayString(), []);
-
-  useEffect(() => {
-    fetchTools();
-  }, []);
-
-  const fetchTools = async () => {
-    setIsLoading(true);
-    const { data, error } = await supabase.from('Utensili_B1').select('*').order('Tipologia', { ascending: true });
-    if (!error) setTools(data || []);
-    setIsLoading(false);
-  };
 
   const fetchHistory = useCallback(async () => {
     const { data, error } = await supabase
@@ -89,150 +88,27 @@ function App() {
     if (!error) setHistory(data || []);
   }, []);
 
-  const filteredByStack = useMemo(() => {
-    let result = tools;
-    filterStack.forEach(f => {
-      if (!f.skipped) {
-        result = result.filter(t => String(t[f.type]) === String(f.value));
-      }
-    });
-    return result;
-  }, [tools, filterStack]);
-
-  const options = useMemo(() => {
-    if (filterStack.length === 0) {
-      const types = [...new Set(tools.map(t => t['Tipologia']))].filter(Boolean);
-      types.sort((a, b) => {
-        if (a.toUpperCase().includes('FRESA')) return -1;
-        if (b.toUpperCase().includes('FRESA')) return 1;
-        return a.localeCompare(b);
-      });
-      return types.map(v => ({ label: v, type: 'Tipologia', category: 'TIPOLOGIA' }));
-    }
-    if (filterStack.length === 1) {
-      const shapes = [...new Set(filteredByStack.map(t => t['Forma']))].filter(Boolean);
-      if (shapes.length === 0) return null;
-      shapes.sort((a, b) => a.localeCompare(b));
-      return shapes.map(v => ({ label: v, type: 'Forma', category: 'FORMA' }));
-    }
-    return null;
-  }, [tools, filterStack, filteredByStack]);
-
-  const diameters = useMemo(() => {
-    if (filterStack.length < 2) return [];
-    const diam = [...new Set(filteredByStack.map(t => t['Diametro']))].filter(Boolean);
-    diam.sort((a, b) => {
-      const na = parseFloat(a);
-      const nb = parseFloat(b);
-      return (!isNaN(na) && !isNaN(nb)) ? na - nb : String(a).localeCompare(String(b), undefined, { numeric: true });
-    });
-    return diam;
-  }, [filteredByStack, filterStack]);
-
-  const finalTools = useMemo(() => (filterStack.length < 3 ? [] : filteredByStack), [filteredByStack, filterStack]);
-  const currentLevel = filterStack.length;
-
-  useEffect(() => {
-    if (currentLevel < 3) setIsSelectionMode(false);
-  }, [currentLevel]);
-
-  const handleSelectOption = useCallback((opt) => {
-    setFilterStack(prev => {
-      let nextStack = [...prev, { type: opt.type, value: opt.label }];
-      const getFiltered = (stack) => {
-        let res = tools;
-        stack.forEach(f => { if (!f.skipped) res = res.filter(t => String(t[f.type]) === String(f.value)); });
-        return res;
-      };
-      if (opt.type === 'Tipologia') {
-        const shapes = [...new Set(getFiltered(nextStack).map(t => t['Forma']))].filter(Boolean);
-        if (shapes.length === 0) nextStack.push({ type: 'Forma', value: 'N/A', skipped: true });
-      }
-      const lastFilter = nextStack[nextStack.length - 1];
-      if (lastFilter.type === 'Forma') {
-        const diameters = [...new Set(getFiltered(nextStack).map(t => t['Diametro']))].filter(Boolean);
-        if (diameters.length === 0) nextStack.push({ type: 'Diametro', value: 'N/A', skipped: true });
-      }
-      return nextStack;
-    });
-  }, [tools]);
-
-  const handleSelectDiameter = useCallback((d) => {
-    setFilterStack(prev => [...prev, { type: 'Diametro', value: d }]);
-  }, []);
-
-  const resetFilters = useCallback(() => {
-    setFilterStack([]);
-  }, []);
-
-  const toggleToolSelection = useCallback((id) => {
-    setSelectedToolsIds(prev => prev.includes(id) ? prev.filter(toolId => toolId !== id) : [...prev, id]);
-  }, []);
-
   const handleBulkAction = useCallback((type) => {
     setOpType(type);
     setModalQty(1);
     setShowMoveModal(true);
     setIsBulkMode(true);
-  }, []);
+  }, [setOpType, setModalQty, setIsBulkMode]);
 
   const handleSelectToolFromGrid = useCallback((tool) => {
     setSelectedTool(tool);
-    setOpType(null); // Wait for user to decide Carico/Scarico in Modal
+    setOpType(null);
     setModalQty(1);
     setShowMoveModal(true);
-  }, []);
+  }, [setSelectedTool, setOpType, setModalQty]);
 
-  const showToastNotification = useCallback((msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 4000);
-  }, []);
-
-  const handleMovement = useCallback(async () => {
-    const change = parseInt(modalQty);
-    const targets = isBulkMode ? tools.filter(t => selectedToolsIds.includes(t.id)) : [selectedTool];
-    
-    if (opType === 'scarico') {
-      const insufficient = targets.filter(t => (t['Quantità'] || 0) < change);
-      if (insufficient.length > 0) return alert(`Quantità insufficiente per: ${insufficient.map(t => t.Tipologia).join(', ')}`);
-    }
-
-    // --- OPTIMISTIC UPDATE ---
-    const previousTools = [...tools];
-    setTools(prev => prev.map(t => {
-      if (targets.some(target => target.id === t.id)) {
-        return { ...t, 'Quantità': opType === 'carico' ? (t['Quantità'] || 0) + change : (t['Quantità'] || 0) - change };
-      }
-      return t;
-    }));
-
-    setIsLoading(true);
-    try {
-      const { error: rpcErr } = await supabase.rpc('handle_bulk_movement', {
-        p_tool_ids: targets.map(t => t.id),
-        p_op_type: opType,
-        p_change: change,
-        p_operator: currentUser ? `${currentUser.nome} ${currentUser.cognome}` : 'Admin'
-      });
-
-      if (rpcErr) throw rpcErr;
-
-      showToastNotification(`MAGAZZINO AGGIORNATO: ${opType.toUpperCase()} (${targets.length} articoli)`);
+  const onConfirmMovement = () => {
+    handleMovement(selectedToolsIds, () => {
       setShowMoveModal(false);
       setSelectedToolsIds([]);
       setIsBulkMode(false);
-    } catch (err) { 
-      console.error(err);
-      // ROLLBACK on error
-      setTools(previousTools);
-      alert('Errore durante l\'aggiornamento: ' + (err.message || err));
-    } finally { 
-      setIsLoading(false); 
-      fetchTools(); // Final sync
-    }
-  }, [modalQty, selectedTool, opType, showToastNotification, isBulkMode, selectedToolsIds, tools, fetchTools]);
-
-  const breadcrumbText = filterStack.filter(f => !f.skipped).map(f => f.value).join(' / ');
+    });
+  };
 
   const renderGridHome = () => {
     if (currentLevel >= 2 && currentLevel < 3) return <DiameterList diameters={diameters} onSelect={handleSelectDiameter} />;
@@ -517,7 +393,7 @@ function App() {
           )}
         </AnimatePresence>
         <AnimatePresence>
-          {showMoveModal && <MovementModal key="move-modal" opType={opType} setOpType={setOpType} selectedTool={isBulkMode ? selectedToolsIds.length : selectedTool} modalQty={modalQty} setModalQty={setModalQty} setShowMoveModal={(val) => { setShowMoveModal(val); if (!val) setIsBulkMode(false); }} handleMovement={handleMovement} isBulkMode={isBulkMode} onOpenOrder={() => setShowOrderModal(true)} currentUser={currentUser} />}
+          {showMoveModal && <MovementModal key="move-modal" opType={opType} setOpType={setOpType} selectedTool={isBulkMode ? selectedToolsIds.length : selectedTool} modalQty={modalQty} setModalQty={setModalQty} setShowMoveModal={(val) => { setShowMoveModal(val); if (!val) setIsBulkMode(false); }} handleMovement={onConfirmMovement} isBulkMode={isBulkMode} onOpenOrder={() => setShowOrderModal(true)} currentUser={currentUser} />}
           {showAddModal && <AddToolModal key="add-modal" onClose={() => setShowAddModal(false)} onToolAdded={fetchTools} currentUser={currentUser} />}
           {showOrderModal && <OrderModal key="order-modal" tool={selectedTool} onClose={() => setShowOrderModal(false)} currentUser={currentUser} />}
         </AnimatePresence>

@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { X, ArrowUp, ArrowDown, MapPin, Package, Hash, Info, Target, Layers, Ruler, Activity, Warehouse } from 'lucide-react';
-import { ToolIcon } from '../lib/toolUtils';
+import { ToolIcon } from '../../lib/toolUtils';
 
 const DetailItem = ({ icon: Icon, label, value, color = "text-accent-blue" }) => {
   if (value === null || value === undefined || value === '') return null;

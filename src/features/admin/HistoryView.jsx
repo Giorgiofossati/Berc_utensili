@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
-import { buildDesc } from '../lib/toolUtils';
+import { buildDesc } from '../../lib/toolUtils';
 
 const HistoryView = memo(({ history, setView }) => (
   <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-6xl flex flex-col items-center gap-10">

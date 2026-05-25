@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback, memo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, X, CheckCircle2, List, Activity, Filter, ChevronRight } from 'lucide-react';
-import { ToolIcon, buildDesc } from '../lib/toolUtils';
-import { EXTRA_FILTER_KEYS } from './ToolsGrid';
+import { ToolIcon, buildDesc } from '../../lib/toolUtils';
+import { EXTRA_FILTER_KEYS } from '../inventory/ToolsGrid';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 

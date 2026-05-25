@@ -1,7 +1,7 @@
 import React, { memo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, User, History, Database, LogOut, ChevronRight, Search, Sun, Moon, Users, Wrench, Sparkles } from 'lucide-react';
-import { useTheme } from '../lib/ThemeContext';
+import { useTheme } from '../../lib/ThemeContext';
 import { Button } from "@/components/ui/button";
 
 const NavSubItem = memo(({ icon, label, onClick, className = "" }) => (

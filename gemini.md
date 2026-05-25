@@ -33,19 +33,23 @@ Questo file serve come "memoria" e linea guida per l'assistente AI (Gemini) che 
 - Toggle tra visualizzazione a Carosello e Filtri a tendina.
 - Navigazione a livelli (Tipologia -> Forma -> Diametro -> Lista Utensili a griglia compatta).
 - Filtri dinamici: se una colonna ha tutti valori `null` per la classe selezionata, il filtro viene nascosto.
-- Navbar con informazioni utente e data; bottoni azione in linea (Carico, Scanner, Scarico).
+- Navbar con informazioni utente e data; bottoni azione in linea.
+- **Gestione Utenti e Privilegi (Completata):** Sistema di Login screen. Gli Operatori eseguono operazioni base; gli Admin hanno accesso completo (es. aggiunta nuovi utensili).
+- **Operazioni Bulk (Selezione Multipla):** Modalità di selezione che permette di selezionare più utensili contemporaneamente per effettuare movimenti di carico o scarico di massa tramite un Drawer dedicato.
+- **Ottimizzazione Griglia e Layout Responsivo (Completata):** Nascondimento colonne non essenziali su mobile per evitare lo scroll orizzontale ed espansione a griglie di 6 colonne su schermi molto grandi.
 
 ### Richieste Attuali / Future
-- **Gestione Utenti e Privilegi:** Operatori (solo operazioni base, no password per accedere) vs Admin (accesso completo con password).
-- **Dettaglio Utensile Modal:** Cliccando un utensile nella griglia si apre un modale di dettaglio (invece di andare diretti al carico/scarico), con i tasti per procedere al movimento.
-- **Ottimizzazione Griglia:** Nascondere pulsanti grandi in fase di scroll; mostrare solo colonne essenziali (`Descrizione`, `Ubicazione`, `Quantità`, `Stato`, `Codice`) per evitare scroll orizzontale. Tutte le altre info tecniche vanno nel Modale Dettaglio.
+- **Dettaglio Utensile Modal Avanzato:** Ottimizzare o espandere il modale di dettaglio (che attualmente gestisce il movimento) per visualizzare comodamente tutte le info non presenti in griglia.
+- **Gestione Ordini:** Se un utensile non è presente o la quantità è insufficiente, creare il flusso per l'ordine automatico.
 - **Dark Mode Toggle:** Implementazione di un toggle globale per tema chiaro/scuro in alto a destra.
 
 ## 🧠 Cosa ho imparato e Regole da Seguire (Errori da evitare)
 
 ### 🎨 Regole di UX/UI e Design
 1. **Mai reinserire il colore "indigo"**: Il cliente ha richiesto specificamente un restyling verso il blu/ciano e arancione. Evitare l'utilizzo di `indigo` in nuove classi Tailwind.
-2. **Attenzione allo scroll orizzontale**: Le tabelle/griglie devono essere sempre visibili senza scroll orizzontale. Se ci sono troppe informazioni, le colonne accessorie vanno nascoste e inserite nel "Dettaglio Utensile Modal".
+2. **Attenzione allo scroll orizzontale e Layout Responsivo (Mobile vs Desktop)**: Le tabelle/griglie devono essere sempre visibili senza scroll orizzontale. 
+   - **Su Mobile:** Le colonne accessorie (Ubicazione, Stato, Codice, Fornitore) devono essere nascoste via CSS (es. `hidden md:flex`) mostrando solo le info vitali (Icona, Descrizione, Quantità) per evitare sbordamenti. Tutti i dettagli secondari sono sempre consultabili cliccando la riga (Modale Dettaglio).
+   - **Su Desktop/XL:** Sfruttare tutto lo spazio orizzontale disponibile espandendo i container (es. `max-w-7xl` o `max-w-[1600px]`) e incrementando le colonne delle griglie dinamicamente (es. `lg:grid-cols-5`, `xl:grid-cols-6`), evitando di sprecare spazio bianco laterale.
 3. **Proporzioni, Spaziature e Safe Zones (Ottimizzazione UI):** Il design deve massimizzare lo spazio dedicato ai contenuti utili, mantenendo il focus visivo al centro della schermata senza sprechi.
    - **Contenitori proporzionati:** Evitare riquadri o padding eccessivamente grandi attorno a elementi piccoli (es. icone o immagini). L'immagine e il testo principale devono dominare il contenitore in modo bilanciato ed essere chiaramente leggibili, evitando "scatole vuote" che tolgono spazio al resto degli elementi.
    - **Prevenzione Sovrapposizioni (Safe Area):** Gli elementi fissi (come i bottoni flottanti in basso o header sticky) non devono **mai** coprire i contenuti. Prevedere sempre un margine o `padding-bottom` abbondante (es. `pb-28`) nei contenitori scrollabili per far scorrere la lista oltre i bottoni.

@@ -14,6 +14,21 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     const root = window.document.documentElement;
+    
+    const css = document.createElement('style');
+    css.appendChild(
+      document.createTextNode(
+        `* {
+          -webkit-transition: none !important;
+          -moz-transition: none !important;
+          -o-transition: none !important;
+          -ms-transition: none !important;
+          transition: none !important;
+        }`
+      )
+    );
+    document.head.appendChild(css);
+
     if (isDarkMode) {
       root.classList.add('dark');
       localStorage.setItem('theme', 'dark');
@@ -21,6 +36,14 @@ export function ThemeProvider({ children }) {
       root.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
+
+    // Force a reflow to ensure the class changes are applied without transitions
+    window.getComputedStyle(css).opacity;
+
+    // Remove the style tag after a tiny delay
+    setTimeout(() => {
+      document.head.removeChild(css);
+    }, 10);
   }, [isDarkMode]);
 
   const toggleTheme = () => setIsDarkMode(prev => !prev);

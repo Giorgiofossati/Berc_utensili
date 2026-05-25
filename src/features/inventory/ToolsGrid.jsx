@@ -1,7 +1,8 @@
-import React, { useState, useMemo, useCallback, memo } from 'react';
+import React, { useState, useMemo, useCallback, memo, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { motion } from 'framer-motion';
 import { ChevronDown, X, CheckCircle2, List, Activity, AlertTriangle, ChevronRight } from 'lucide-react';
-import { ToolIcon, buildDesc } from '../lib/toolUtils';
+import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -63,6 +64,15 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
   const setFilter = useCallback((key, value) => {
     setExtraFilters(prev => ({ ...prev, [key]: value || '' }));
   }, []);
+
+  const parentRef = useRef(null);
+
+  const rowVirtualizer = useVirtualizer({
+    count: filtered.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 64, // Approssimazione altezza riga
+    overscan: 5,
+  });
 
 
 
@@ -181,58 +191,70 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
           </div>
         )}
 
-        <div className={`overflow-y-auto custom-scrollbar overflow-x-auto flex-1 min-h-0`}>
-          <div className="min-w-max md:min-w-full">
+        <div ref={parentRef} className={`overflow-y-auto custom-scrollbar overflow-x-auto flex-1 min-h-0 relative`}>
+          <div className="min-w-max md:min-w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
             {filtered.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 dark:text-slate-400 text-slate-600">
+              <div className="flex flex-col items-center justify-center py-16 dark:text-slate-400 text-slate-600 absolute w-full top-0 left-0">
                 <AlertTriangle size={32} className="mb-4 text-slate-700" />
                 <p className="font-bold text-sm uppercase tracking-widest">Nessun utensile trovato</p>
               </div>
             ) : (
-              filtered.map((tool, i) => (
-                <div
-                  key={tool.id || i}
-                  className={`flex items-center gap-4 px-6 py-2.5 md:py-2 hover:bg-white/[0.04] cursor-pointer transition-all border-b dark:border-white/[0.03] border-slate-900/5 last:border-b-0 group ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
-                >
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    {isSelectionMode && (
-                      <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center flex-shrink-0 w-6">
-                        <Checkbox
-                          checked={selectedIds.includes(tool.id)}
-                          onCheckedChange={(checked) => onToggleSelect(tool.id)}
-                          className={`w-6 h-6 rounded-md transition-all ${selectedIds.includes(tool.id) ? 'data-[state=checked]:bg-accent-blue data-[state=checked]:text-slate-950 border-accent-blue' : 'dark:border-white/30 border-slate-400'}`}
-                        />
+              rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const tool = filtered[virtualRow.index];
+                return (
+                  <div
+                    key={tool.id || virtualRow.key}
+                    data-index={virtualRow.index}
+                    ref={rowVirtualizer.measureElement}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualRow.start}px)`
+                    }}
+                    className={`flex items-center gap-4 px-6 py-2.5 md:py-2 hover:bg-white/[0.04] cursor-pointer transition-all border-b dark:border-white/[0.03] border-slate-900/5 group ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
+                  >
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      {isSelectionMode && (
+                        <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center flex-shrink-0 w-6">
+                          <Checkbox
+                            checked={selectedIds.includes(tool.id)}
+                            onCheckedChange={(checked) => onToggleSelect(tool.id)}
+                            className={`w-6 h-6 rounded-md transition-all ${selectedIds.includes(tool.id) ? 'data-[state=checked]:bg-accent-blue data-[state=checked]:text-slate-950 border-accent-blue' : 'dark:border-white/30 border-slate-400'}`}
+                          />
+                        </div>
+                      )}
+                      <div onClick={() => onSelectTool(tool)} className="w-10 h-10 rounded-xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-blue/20 transition-colors overflow-hidden">
+                        <ToolIcon type={tool['Tipologia']} size={40} className="opacity-80 group-hover:opacity-100 transition-opacity" />
                       </div>
-                    )}
-                    <div onClick={() => onSelectTool(tool)} className="w-10 h-10 rounded-xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-blue/20 transition-colors overflow-hidden">
-                      <ToolIcon type={tool['Tipologia']} size={40} className="opacity-80 group-hover:opacity-100 transition-opacity" />
+                    </div>
+
+                    <div className="flex-1 min-w-[150px] text-center" onClick={() => onSelectTool(tool)}>
+                      <p className="font-extrabold text-sm md:text-base dark:text-white text-slate-900 truncate">{buildDesc(tool)}</p>
+                    </div>
+
+                    {visibleDetailKeys.map(detail => (
+                      <div 
+                        key={detail.key} 
+                        onClick={() => onSelectTool(tool)}
+                        className={`flex-shrink-0 flex items-center justify-center ${detail.className || ''}`}
+                        style={{ width: detail.minWidth }}
+                      >
+                        {renderDetailValue(tool, detail)}
+                      </div>
+                    ))}
+
+                    <div className="w-8 flex-shrink-0 flex items-center justify-center" onClick={() => onSelectTool(tool)}>
+                      <ChevronRight size={14} className="text-slate-700 group-hover:text-accent-blue transition-colors" />
                     </div>
                   </div>
-
-                  <div className="flex-1 min-w-[150px] text-center" onClick={() => onSelectTool(tool)}>
-                    <p className="font-extrabold text-sm md:text-base dark:text-white text-slate-900 truncate">{buildDesc(tool)}</p>
-                  </div>
-
-                  {visibleDetailKeys.map(detail => (
-                    <div 
-                      key={detail.key} 
-                      onClick={() => onSelectTool(tool)}
-                      className={`flex-shrink-0 flex items-center justify-center ${detail.className || ''}`}
-                      style={{ width: detail.minWidth }}
-                    >
-                      {renderDetailValue(tool, detail)}
-                    </div>
-                  ))}
-
-                  <div className="w-8 flex-shrink-0 flex items-center justify-center" onClick={() => onSelectTool(tool)}>
-                    <ChevronRight size={14} className="text-slate-700 group-hover:text-accent-blue transition-colors" />
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
           {/* Spacer esplicito per risolvere il bug di iOS/Safari col padding-bottom nei contenitori scrollabili */}
-          <div className="h-24 md:h-12 shrink-0 w-full" />
+          <div className="h-24 md:h-12 shrink-0 w-full pointer-events-none" />
         </div>
       </div>
     </motion.div>

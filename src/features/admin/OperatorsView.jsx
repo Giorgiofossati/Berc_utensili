@@ -4,7 +4,7 @@ import {
   ArrowLeft, UserPlus, Edit2, Trash2, Shield, User, 
   Lock, Check, X, RefreshCw, Key, AlertTriangle, Eye, EyeOff
 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../../lib/supabase';
 
 const generateUUID = () => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {

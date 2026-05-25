@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowUp, ArrowDown, ShoppingCart } from 'lucide-react';
-import { buildDesc } from '../lib/toolUtils';
+import { buildDesc } from '../../lib/toolUtils';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 const MovementModal = memo(({ opType, setOpType, selectedTool, modalQty, setModalQty, setShowMoveModal, handleMovement, isBulkMode, onOpenOrder, currentUser }) => {

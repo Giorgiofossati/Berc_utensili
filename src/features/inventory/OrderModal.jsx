@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Send, ShoppingCart } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { buildDesc } from '../lib/toolUtils';
+import { supabase } from '../../lib/supabase';
+import { buildDesc } from '../../lib/toolUtils';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, Save, Database, List, CheckCircle2 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { buildDesc } from '../lib/toolUtils';
+import { supabase } from '../../lib/supabase';
+import { buildDesc } from '../../lib/toolUtils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
