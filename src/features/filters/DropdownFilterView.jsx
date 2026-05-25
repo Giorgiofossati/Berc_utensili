@@ -90,6 +90,45 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
     return result;
   }, [allTools, filters]);
 
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
+      key = null;
+      direction = 'asc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedFiltered = useMemo(() => {
+    let result = filtered;
+    if (sortConfig.key) {
+      result = [...result].sort((a, b) => {
+        let aVal = sortConfig.key === 'Descrizione' ? buildDesc(a) : a[sortConfig.key];
+        let bVal = sortConfig.key === 'Descrizione' ? buildDesc(b) : b[sortConfig.key];
+        
+        if (aVal === null || aVal === undefined) aVal = '';
+        if (bVal === null || bVal === undefined) bVal = '';
+
+        if (sortConfig.key === 'Quantità') {
+          aVal = Number(aVal) || 0;
+          bVal = Number(bVal) || 0;
+        } else {
+          aVal = String(aVal).toLowerCase();
+          bVal = String(bVal).toLowerCase();
+        }
+
+        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+    return result;
+  }, [filtered, sortConfig]);
+
   const visibleDetailKeys = useMemo(() => {
     return ALL_DETAIL_KEYS;
   }, []);
@@ -312,23 +351,35 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
       <div className="glass-panel rounded-[20px] md:rounded-[24px] overflow-hidden flex flex-col flex-1 min-h-0">
         <div className="px-6 py-2 border-b dark:border-white/5 border-slate-900/10 bg-white/[0.02]">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-orange">
-            {filtered.length} utensil{filtered.length === 1 ? 'e' : 'i'} trovati
+            {sortedFiltered.length} utensil{sortedFiltered.length === 1 ? 'e' : 'i'} trovati
           </p>
         </div>
 
         {/* Header Row for Desktop */}
-        {!isMobile && filtered.length > 0 && (
+        {!isMobile && sortedFiltered.length > 0 && (
           <div className="px-6 py-1.5 border-b dark:border-white/5 border-slate-900/10 bg-white/[0.01] flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-slate-500 shrink-0">
             {isSelectionMode && <div className="w-5 flex-shrink-0" />} {/* Checkbox spacer */}
             <div className="w-9 flex-shrink-0" /> {/* Icon spacer */}
-            <div className="flex-1 min-w-[150px]">Descrizione</div>
+            <div 
+              className="flex-1 min-w-[150px] cursor-pointer hover:text-accent-blue transition-colors flex items-center gap-1"
+              onClick={() => handleSort('Descrizione')}
+            >
+              Descrizione
+              {sortConfig.key === 'Descrizione' && (
+                <span className="text-accent-blue">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+              )}
+            </div>
             {visibleDetailKeys.map(detail => (
               <div 
                 key={detail.key} 
-                className={`flex-shrink-0 flex items-center justify-${detail.align === 'center' ? 'center' : 'start'} ${detail.className || ''}`}
+                className={`flex-shrink-0 flex items-center justify-${detail.align === 'center' ? 'center' : 'start'} cursor-pointer hover:text-accent-blue transition-colors gap-1 ${detail.className || ''}`}
                 style={{ width: detail.minWidth }}
+                onClick={() => handleSort(detail.key)}
               >
                 {detail.label}
+                {sortConfig.key === detail.key && (
+                  <span className="text-accent-blue">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                )}
               </div>
             ))}
             <div className="w-8 flex-shrink-0" /> {/* Chevron spacer */}
@@ -337,13 +388,13 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
 
         <div className="flex-1 overflow-y-auto custom-scrollbar overflow-x-auto">
           <div className="min-w-max md:min-w-full">
-          {filtered.length === 0 ? (
+          {sortedFiltered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 dark:text-slate-400 text-slate-600">
               <Filter size={32} className="mb-4 text-slate-700" />
               <p className="font-bold text-sm uppercase tracking-widest">Seleziona almeno un filtro</p>
             </div>
           ) : (
-            filtered.map((tool, i) => (
+            sortedFiltered.map((tool, i) => (
               <motion.div
                 key={tool.id || i}
                 initial={{ opacity: 0, x: -10 }}

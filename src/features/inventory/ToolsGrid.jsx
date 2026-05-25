@@ -17,6 +17,7 @@ export const EXTRA_FILTER_KEYS = [
   { key: 'Fornitore', label: 'Fornitore' },
   { key: 'Lavorazione', label: 'Lavorazione' },
   { key: 'Sistema di misura', label: 'Sistema Misura' },
+  { key: 'Ubicazione', label: 'Ubicazione' },
 ];
 
 const ALL_DETAIL_KEYS = [
@@ -61,6 +62,45 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
     return ALL_DETAIL_KEYS.filter(d => ['Quantità', 'Ubicazione', 'Stato', 'Codice'].includes(d.key));
   }, []);
 
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
+      key = null;
+      direction = 'asc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedFiltered = useMemo(() => {
+    let result = filtered;
+    if (sortConfig.key) {
+      result = [...result].sort((a, b) => {
+        let aVal = sortConfig.key === 'Descrizione' ? buildDesc(a) : a[sortConfig.key];
+        let bVal = sortConfig.key === 'Descrizione' ? buildDesc(b) : b[sortConfig.key];
+        
+        if (aVal === null || aVal === undefined) aVal = '';
+        if (bVal === null || bVal === undefined) bVal = '';
+
+        if (sortConfig.key === 'Quantità') {
+          aVal = Number(aVal) || 0;
+          bVal = Number(bVal) || 0;
+        } else {
+          aVal = String(aVal).toLowerCase();
+          bVal = String(bVal).toLowerCase();
+        }
+
+        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+    return result;
+  }, [filtered, sortConfig]);
+
   const setFilter = useCallback((key, value) => {
     setExtraFilters(prev => ({ ...prev, [key]: value || '' }));
   }, []);
@@ -68,7 +108,7 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
   const parentRef = useRef(null);
 
   const rowVirtualizer = useVirtualizer({
-    count: filtered.length,
+    count: sortedFiltered.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 64, // Approssimazione altezza riga
     overscan: 5,
@@ -166,25 +206,37 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
       <div className="glass-panel rounded-[20px] md:rounded-[24px] overflow-hidden flex flex-col flex-1 min-h-0">
         <div className="px-6 py-4 border-b dark:border-white/5 border-slate-900/10 flex items-center justify-between bg-white/[0.02]">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-orange">
-            Utensili — {filtered.length} risultat{filtered.length === 1 ? 'o' : 'i'}
+            Utensili — {sortedFiltered.length} risultat{sortedFiltered.length === 1 ? 'o' : 'i'}
           </p>
         </div>
 
         {/* Header Row for All Screens */}
-        {filtered.length > 0 && (
+        {sortedFiltered.length > 0 && (
           <div className="px-6 py-3 border-b dark:border-white/5 border-slate-900/10 bg-white/[0.01] flex items-center gap-4 text-xs font-black uppercase tracking-wider dark:text-slate-400 text-slate-600">
             <div className="flex items-center gap-3 flex-shrink-0">
               {isSelectionMode && <div className="w-6 flex-shrink-0" />}
               <div className="w-10 flex-shrink-0" />
             </div>
-            <div className="flex-1 min-w-[150px] text-center">Descrizione</div>
+            <div 
+              className="flex-1 min-w-[150px] text-center cursor-pointer hover:text-accent-blue transition-colors flex items-center justify-center gap-1"
+              onClick={() => handleSort('Descrizione')}
+            >
+              Descrizione
+              {sortConfig.key === 'Descrizione' && (
+                <span className="text-accent-blue">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+              )}
+            </div>
             {visibleDetailKeys.map(detail => (
               <div 
                 key={detail.key} 
-                className={`flex-shrink-0 flex items-center justify-center ${detail.className || ''}`}
+                className={`flex-shrink-0 flex items-center justify-center cursor-pointer hover:text-accent-blue transition-colors gap-1 ${detail.className || ''}`}
                 style={{ width: detail.minWidth }}
+                onClick={() => handleSort(detail.key)}
               >
                 {detail.label}
+                {sortConfig.key === detail.key && (
+                  <span className="text-accent-blue">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                )}
               </div>
             ))}
             <div className="w-8 flex-shrink-0" /> {/* Chevron spacer */}
@@ -193,14 +245,14 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds 
 
         <div ref={parentRef} className={`overflow-y-auto custom-scrollbar overflow-x-auto flex-1 min-h-0 relative`}>
           <div className="min-w-max md:min-w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
-            {filtered.length === 0 ? (
+            {sortedFiltered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 dark:text-slate-400 text-slate-600 absolute w-full top-0 left-0">
                 <AlertTriangle size={32} className="mb-4 text-slate-700" />
                 <p className="font-bold text-sm uppercase tracking-widest">Nessun utensile trovato</p>
               </div>
             ) : (
               rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                const tool = filtered[virtualRow.index];
+                const tool = sortedFiltered[virtualRow.index];
                 return (
                   <div
                     key={tool.id || virtualRow.key}

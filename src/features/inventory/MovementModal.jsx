@@ -51,13 +51,13 @@ const MovementModal = memo(({ opType, setOpType, selectedTool, modalQty, setModa
     });
 
     return (
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3">
         {details.map(([key, value]) => (
-          <div key={key} className="dark:bg-white/5 bg-slate-900/5 border border-white/5 p-4 rounded-3xl flex flex-col hover:bg-white/[0.08] transition-colors border-white/5 group">
-            <span className="text-[9px] font-black uppercase tracking-widest text-accent-orange mb-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+          <div key={key} className="dark:bg-white/5 bg-slate-900/5 border border-white/5 p-2.5 md:p-3 rounded-2xl flex flex-col hover:bg-white/[0.08] transition-colors group">
+            <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-accent-orange mb-1 opacity-60 group-hover:opacity-100 transition-opacity truncate">
               {displayLabelMap[key] || key}
             </span>
-            <span className="text-[13px] font-bold dark:text-white text-slate-900 leading-tight">{value}</span>
+            <span className="text-xs md:text-[13px] font-bold dark:text-white text-slate-900 leading-tight truncate">{value}</span>
           </div>
         ))}
       </div>
@@ -66,7 +66,7 @@ const MovementModal = memo(({ opType, setOpType, selectedTool, modalQty, setModa
 
   return (
     <Dialog open={true} onOpenChange={(open) => { if (!open) setShowMoveModal(false); }}>
-      <DialogContent showCloseButton={false} className="glass-panel w-[95vw] sm:w-full max-w-3xl max-h-[95vh] overflow-hidden p-6 md:p-8 rounded-[48px] md:rounded-[48px] z-[1001] bg-transparent border-none shadow-none flex flex-col gap-4 md:gap-6 !max-w-3xl focus:outline-none">
+      <DialogContent showCloseButton={false} className="glass-panel w-[95vw] sm:w-full max-w-3xl max-h-[95vh] overflow-hidden p-4 md:p-6 rounded-[32px] md:rounded-[40px] z-[1001] bg-transparent border-none shadow-none flex flex-col gap-3 md:gap-5 !max-w-3xl focus:outline-none">
         <DialogTitle className="sr-only">Dettaglio Utensile</DialogTitle>
         
         {/* Glow decoration */}
@@ -75,87 +75,87 @@ const MovementModal = memo(({ opType, setOpType, selectedTool, modalQty, setModa
         />
 
         {/* Header Block */}
-        <div className="flex justify-between items-start relative z-10">
-          <div className="flex flex-col flex-1 pr-4">
-            <p className={`text-[10px] md:text-[11px] font-black tracking-[0.4em] drop-shadow-md uppercase mb-2 ${isDetailsStep ? 'text-accent-orange' : opType === 'carico' ? 'text-accent-emerald' : 'text-accent-rose'}`}>
+        <div className="flex justify-between items-start relative z-10 shrink-0">
+          <div className="flex flex-col flex-1 pr-4 overflow-hidden">
+            <p className={`text-[9px] md:text-[10px] font-black tracking-[0.4em] drop-shadow-md uppercase mb-1 md:mb-2 ${isDetailsStep ? 'text-accent-orange' : opType === 'carico' ? 'text-accent-emerald' : 'text-accent-rose'}`}>
               {isDetailsStep ? "Dettaglio Utensile" : opType === 'carico' ? "Conferma Deposito" : "Conferma Prelievo"}
             </p>
-            <h3 className="text-2xl md:text-4xl font-black uppercase tracking-tighter leading-none mb-2 italic dark:text-white text-slate-900">
+            <h3 className="text-xl md:text-3xl font-black uppercase tracking-tighter leading-none mb-1 md:mb-2 italic dark:text-white text-slate-900 truncate">
               {typeof selectedTool === 'object' ? buildDesc(selectedTool) : `${selectedTool} Articoli`}
             </h3>
             {typeof selectedTool === 'object' && selectedTool?.Codice && (
-              <p className="text-[10px] md:text-xs font-black uppercase tracking-widest dark:text-slate-400 text-slate-600 dark:bg-white/5 bg-slate-900/5 py-2 px-4 rounded-full self-start border border-white/5 mt-3">
-                CODICE AZIENDALE: <span className="dark:text-white text-slate-900 ml-2">{selectedTool.Codice}</span>
+              <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest dark:text-slate-400 text-slate-600 dark:bg-white/5 bg-slate-900/5 py-1.5 px-3 rounded-full self-start border border-white/5 mt-1 md:mt-2 truncate max-w-full">
+                CODICE AZIENDALE: <span className="dark:text-white text-slate-900 ml-1">{selectedTool.Codice}</span>
               </p>
             )}
           </div>
-          <button onClick={() => setShowMoveModal(false)} className="glass-button p-4 rounded-full flex-shrink-0 text-slate-400 hover:text-white hover:bg-rose-500/20 transition-all"><X size={24} /></button>
+          <button onClick={() => setShowMoveModal(false)} className="glass-button p-3 md:p-4 rounded-full flex-shrink-0 text-slate-400 hover:text-white hover:bg-rose-500/20 transition-all"><X size={20} className="md:w-6 md:h-6" /></button>
         </div>
 
         {/* Main Content Area */}
-        <div className="relative z-10 w-full min-h-[300px]">
+        <div className="relative z-10 w-full min-h-[250px] flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pr-2 md:pr-4">
           <AnimatePresence mode="wait">
             {isDetailsStep ? (
-              <motion.div key="details" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-5">
+              <motion.div key="details" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-3 md:gap-4">
                 
-                <div className="mt-1">
-                  <div className="flex items-end justify-between mb-4 border-b dark:border-white/10 border-slate-900/10 pb-4">
+                <div className="mt-0">
+                  <div className="flex items-end justify-between mb-3 md:mb-4 border-b dark:border-white/10 border-slate-900/10 pb-2 md:pb-3">
                      <div>
-                       <p className="text-[9px] font-black uppercase tracking-[0.3em] text-accent-orange drop-shadow-md mb-2">Giacenza Magazzino</p>
-                       <p className="text-5xl md:text-6xl font-black dark:text-white text-slate-900 tabular-nums leading-none">
+                       <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] text-accent-orange drop-shadow-md mb-1 md:mb-2">Giacenza Magazzino</p>
+                       <p className="text-4xl md:text-5xl font-black dark:text-white text-slate-900 tabular-nums leading-none">
                          {isBulkMode ? selectedTool : (selectedTool?.['Quantità'] || 0)}
-                         <span className="text-sm text-slate-500 ml-4 font-black tracking-widest uppercase">Pezzi</span>
+                         <span className="text-xs md:text-sm text-slate-500 ml-2 md:ml-4 font-black tracking-widest uppercase">Pezzi</span>
                        </p>
                      </div>
                   </div>
                   {renderDetails()}
                 </div>
 
-                <div className={`grid ${(!isBulkMode && (selectedTool?.['Quantità'] <= 0) && currentUser?.ruolo !== 'Admin') ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-3'} gap-3 mt-2`}>
+                <div className={`grid ${(!isBulkMode && (selectedTool?.['Quantità'] <= 0) && currentUser?.ruolo !== 'Admin') ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-3'} gap-2 md:gap-3 mt-1`}>
                   {(!(!isBulkMode && (selectedTool?.['Quantità'] <= 0) && currentUser?.ruolo !== 'Admin')) && (
                     <>
-                      <button onClick={() => setOpType('carico')} className="action-btn action-btn-carica py-4 md:py-5 w-full flex flex-col gap-2 group border border-accent-emerald/30 shadow-xl relative overflow-hidden rounded-3xl">
+                      <button onClick={() => setOpType('carico')} className="action-btn action-btn-carica py-3 md:py-4 w-full flex flex-col items-center justify-center gap-1.5 group border border-accent-emerald/30 shadow-xl relative overflow-hidden rounded-2xl md:rounded-3xl">
                         <div className="absolute inset-0 bg-accent-emerald/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <ArrowUp size={22} className="group-hover:-translate-y-1 transition-transform relative z-10" />
-                        <span className="text-sm font-black relative z-10 tracking-widest">DEPOSITA</span>
+                        <ArrowUp size={20} className="group-hover:-translate-y-1 transition-transform relative z-10" />
+                        <span className="text-[11px] md:text-xs font-black relative z-10 tracking-widest">DEPOSITA</span>
                       </button>
-                      <button onClick={() => setOpType('scarico')} className="action-btn action-btn-scarica py-4 md:py-5 w-full flex flex-col gap-2 group border border-accent-rose/30 shadow-xl relative overflow-hidden rounded-3xl">
+                      <button onClick={() => setOpType('scarico')} className="action-btn action-btn-scarica py-3 md:py-4 w-full flex flex-col items-center justify-center gap-1.5 group border border-accent-rose/30 shadow-xl relative overflow-hidden rounded-2xl md:rounded-3xl">
                         <div className="absolute inset-0 bg-accent-rose/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <ArrowDown size={22} className="group-hover:translate-y-1 transition-transform relative z-10" />
-                        <span className="text-sm font-black relative z-10 tracking-widest">PRELEVA</span>
+                        <ArrowDown size={20} className="group-hover:translate-y-1 transition-transform relative z-10" />
+                        <span className="text-[11px] md:text-xs font-black relative z-10 tracking-widest">PRELEVA</span>
                       </button>
                     </>
                   )}
                   {!isBulkMode && (
-                    <button onClick={() => { setShowMoveModal(false); if(onOpenOrder) onOpenOrder(); }} className={`action-btn py-4 md:py-5 w-full flex flex-col gap-2 group border border-accent-orange/30 shadow-xl relative overflow-hidden rounded-3xl ${(!(!isBulkMode && (selectedTool?.['Quantità'] <= 0) && currentUser?.ruolo !== 'Admin')) ? 'col-span-2 lg:col-span-1' : ''}`} style={{ backgroundColor: 'rgba(249, 115, 22, 0.05)' }}>
+                    <button onClick={() => { setShowMoveModal(false); if(onOpenOrder) onOpenOrder(); }} className={`action-btn py-3 md:py-4 w-full flex flex-col items-center justify-center gap-1.5 group border border-accent-orange/30 shadow-xl relative overflow-hidden rounded-2xl md:rounded-3xl ${(!(!isBulkMode && (selectedTool?.['Quantità'] <= 0) && currentUser?.ruolo !== 'Admin')) ? 'col-span-2 lg:col-span-1' : ''}`} style={{ backgroundColor: 'rgba(249, 115, 22, 0.05)' }}>
                       <div className="absolute inset-0 bg-accent-orange/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <ShoppingCart size={22} className="text-accent-orange group-hover:scale-110 transition-transform relative z-10 mx-auto" />
-                      <span className="text-sm font-black relative z-10 tracking-widest text-accent-orange text-center">CREA ORDINE</span>
+                      <ShoppingCart size={20} className="text-accent-orange group-hover:scale-110 transition-transform relative z-10 mx-auto" />
+                      <span className="text-[11px] md:text-xs font-black relative z-10 tracking-widest text-accent-orange text-center">CREA ORDINE</span>
                     </button>
                   )}
                 </div>
               </motion.div>
             ) : (
-              <motion.div key="operation" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex flex-col h-full justify-center gap-12 mt-8 md:mt-12">
+              <motion.div key="operation" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex flex-col h-full justify-center gap-8 md:gap-12 mt-4 md:mt-8">
                 
-                <div className="flex items-center gap-6 md:gap-12 justify-center">
-                  <button onClick={() => setModalQty(Math.max(1, modalQty - 1))} className="w-14 h-14 md:w-20 md:h-20 glass-button rounded-full text-3xl font-black shrink-0 hover:bg-white/10 hover:scale-110 transition-all">-</button>
+                <div className="flex items-center gap-4 md:gap-12 justify-center">
+                  <button onClick={() => setModalQty(Math.max(1, modalQty - 1))} className="w-12 h-12 md:w-20 md:h-20 glass-button rounded-full text-2xl md:text-3xl font-black shrink-0 hover:bg-white/10 hover:scale-110 transition-all">-</button>
                   <div className="flex flex-col items-center">
-                    <p className="text-xs md:text-sm font-black text-accent-orange uppercase tracking-[0.15em] mb-2">Quantità {opType === 'carico' ? 'da Depositare' : 'da Prelevare'}</p>
-                    <input type="number" value={modalQty} onChange={(e) => setModalQty(parseInt(e.target.value) || 1)} className="w-24 bg-transparent text-center text-5xl md:text-7xl font-black outline-none dark:text-white text-slate-900 tabular-nums border-b-2 dark:border-white/10 border-slate-900/10 pb-2 focus:border-accent-blue transition-all" />
+                    <p className="text-[10px] md:text-sm font-black text-accent-orange uppercase tracking-[0.15em] mb-1 md:mb-2 text-center">Quantità {opType === 'carico' ? 'da Depositare' : 'da Prelevare'}</p>
+                    <input type="number" value={modalQty} onChange={(e) => setModalQty(parseInt(e.target.value) || 1)} className="w-20 md:w-24 bg-transparent text-center text-5xl md:text-7xl font-black outline-none dark:text-white text-slate-900 tabular-nums border-b-2 dark:border-white/10 border-slate-900/10 pb-1 md:pb-2 focus:border-accent-blue transition-all" />
                   </div>
-                  <button onClick={() => setModalQty(modalQty + 1)} className="w-14 h-14 md:w-20 md:h-20 glass-button rounded-full text-3xl font-black shrink-0 hover:bg-white/10 hover:scale-110 transition-all">+</button>
+                  <button onClick={() => setModalQty(modalQty + 1)} className="w-12 h-12 md:w-20 md:h-20 glass-button rounded-full text-2xl md:text-3xl font-black shrink-0 hover:bg-white/10 hover:scale-110 transition-all">+</button>
                 </div>
 
-                <div className="flex items-center gap-4 w-full mt-2">
+                <div className="flex items-center gap-3 md:gap-4 w-full mt-2">
                   {!isBulkMode && (
-                    <button onClick={() => setOpType(null)} className="glass-button px-6 py-4 md:py-6 rounded-[24px] md:rounded-[32px] dark:text-slate-400 text-slate-600 hover:dark:text-white text-slate-900 w-auto shrink-0 flex items-center justify-center transition-all group">
-                       <span className="text-[10px] font-black uppercase tracking-widest group-hover:-translate-x-1 transition-transform">Indietro</span>
+                    <button onClick={() => setOpType(null)} className="glass-button px-4 md:px-6 py-3 md:py-6 rounded-2xl md:rounded-[32px] dark:text-slate-400 text-slate-600 hover:dark:text-white text-slate-900 w-auto shrink-0 flex items-center justify-center transition-all group">
+                       <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest group-hover:-translate-x-1 transition-transform">Indietro</span>
                     </button>
                   )}
                   <button
                     onClick={handleMovement}
-                    className={`flex-1 py-4 md:py-6 rounded-[24px] md:rounded-[32px] font-black text-lg md:text-xl uppercase tracking-[0.3em] shadow-2xl hover:scale-[1.03] active:scale-[0.97] transition-all ${opType === 'carico' ? 'bg-accent-emerald text-slate-950 border-emerald-400/50 hover:bg-emerald-400' : 'bg-accent-rose text-white border-rose-500/50 hover:bg-rose-500'}`}
+                    className={`flex-1 py-3 md:py-6 rounded-2xl md:rounded-[32px] font-black text-base md:text-xl uppercase tracking-[0.2em] md:tracking-[0.3em] shadow-2xl hover:scale-[1.03] active:scale-[0.97] transition-all ${opType === 'carico' ? 'bg-accent-emerald text-slate-950 border-emerald-400/50 hover:bg-emerald-400' : 'bg-accent-rose text-white border-rose-500/50 hover:bg-rose-500'}`}
                   >
                     CONFERMA
                   </button>
