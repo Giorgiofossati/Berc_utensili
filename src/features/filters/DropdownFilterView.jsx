@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, memo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { ChevronDown, X, CheckCircle2, List, LayoutGrid, Activity, Filter, ChevronRight } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { EXTRA_FILTER_KEYS } from '../inventory/ToolsGrid';
@@ -133,6 +134,15 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
     }
     return result;
   }, [filtered, sortConfig]);
+
+  const parentRef = useRef(null);
+
+  const rowVirtualizer = useVirtualizer({
+    count: sortedFiltered.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 60,
+    overscan: 5,
+  });
 
   const visibleDetailKeys = useMemo(() => {
     return ALL_DETAIL_KEYS;
@@ -418,21 +428,29 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar overflow-x-auto">
-          <div className="min-w-max md:min-w-full">
+        <div ref={parentRef} className="flex-1 overflow-y-auto custom-scrollbar overflow-x-auto relative">
+          <div className="min-w-max md:min-w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
           {sortedFiltered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 dark:text-slate-400 text-slate-600">
+            <div className="flex flex-col items-center justify-center py-16 dark:text-slate-400 text-slate-600 absolute w-full top-0 left-0">
               <Filter size={32} className="mb-4 text-slate-700" />
               <p className="font-bold text-sm uppercase tracking-widest">Seleziona almeno un filtro</p>
             </div>
           ) : (
-            sortedFiltered.map((tool, i) => (
-              <motion.div
-                key={tool.id || i}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: Math.min(i * 0.015, 0.3) }}
-                className={`flex items-center gap-4 px-6 py-2 md:py-1.5 hover:bg-white/[0.04] cursor-pointer transition-all border-b dark:border-white/[0.03] border-slate-900/5 last:border-b-0 group ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
+            rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              const tool = sortedFiltered[virtualRow.index];
+              return (
+              <div
+                key={tool.id || virtualRow.key}
+                data-index={virtualRow.index}
+                ref={rowVirtualizer.measureElement}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  transform: `translateY(${virtualRow.start}px)`
+                }}
+                className={`flex items-center gap-4 px-6 py-2 md:py-1.5 hover:bg-white/[0.04] cursor-pointer transition-all border-b dark:border-white/[0.03] border-slate-900/5 group ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
               >
                 {isSelectionMode && (
                   <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center flex-shrink-0 w-5">
@@ -465,8 +483,9 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                 <div className="w-8 flex-shrink-0 flex items-center justify-end" onClick={() => onSelectTool(tool)}>
                   <ChevronRight size={14} className="text-slate-700 group-hover:text-accent-blue transition-colors" />
                 </div>
-              </motion.div>
-            ))
+              </div>
+              );
+            })
           )}
           </div>
           {/* Spacer esplicito per Safari/iOS */}

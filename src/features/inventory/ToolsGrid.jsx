@@ -167,8 +167,9 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.15 }}
       className="w-full max-w-[1600px] flex flex-col flex-1 gap-2 md:gap-4 min-h-0"
     >
       {availableFilters.length > 0 && (

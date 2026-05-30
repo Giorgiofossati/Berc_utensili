@@ -649,12 +649,12 @@ const OperatorsView = memo(({ setView }) => {
       <AnimatePresence>
         {toast && (
           <motion.div 
-            initial={{ opacity: 0, y: 50, scale: 0.95 }} 
+            initial={{ opacity: 0, y: -50, scale: 0.95 }} 
             animate={{ opacity: 1, y: 0, scale: 1 }} 
             exit={{ opacity: 0, scale: 0.9 }} 
-            className="fixed bottom-6 right-6 z-[4000]"
+            className="fixed top-[max(16px,env(safe-area-inset-top))] left-4 right-4 md:left-auto md:right-12 z-[9999] pointer-events-auto"
           >
-            <div className={`glass-panel p-6 rounded-[24px] border-l-[8px] ${
+            <div className={`glass-panel p-4 md:p-6 rounded-[24px] border-l-[8px] bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl ${
               toast.type === 'error' ? 'border-accent-rose' : 'border-accent-blue'
             } flex items-center gap-4 shadow-2xl`}>
               <div className={`w-10 h-10 ${

@@ -13,22 +13,24 @@ import { useFilterStore } from './store/useFilterStore';
 import { useMovementStore } from './store/useMovementStore';
 import { useFilters } from './hooks/useFilters';
 
-// Lazy load components
-const SelectionDrawer = lazy(() => import('./components/layout/SelectionDrawer'));
+// Lazy load only major separate views
 const Sidebar = lazy(() => import('./components/layout/Sidebar'));
-const Header = lazy(() => import('./components/layout/Header'));
-const CategoryGridCard = lazy(() => import('./features/filters/CategoryGridCard'));
 const HistoryView = lazy(() => import('./features/admin/HistoryView'));
 const ScannerView = lazy(() => import('./features/scanner/ScannerView'));
-const MovementModal = lazy(() => import('./features/inventory/MovementModal'));
-const DiameterList = lazy(() => import('./features/filters/DiameterList'));
-const ToolsGrid = lazy(() => import('./features/inventory/ToolsGrid'));
-const DropdownFilterView = lazy(() => import('./features/filters/DropdownFilterView'));
-const SearchOverlay = lazy(() => import('./features/filters/SearchOverlay'));
-const LoginScreen = lazy(() => import('./features/auth/LoginScreen'));
-const AddToolModal = lazy(() => import('./features/inventory/AddToolModal'));
-const OrderModal = lazy(() => import('./features/inventory/OrderModal'));
 const OperatorsView = lazy(() => import('./features/admin/OperatorsView'));
+const LoginScreen = lazy(() => import('./features/auth/LoginScreen'));
+
+// Standard imports for critical UI to avoid Suspense flickering/double renders
+import SelectionDrawer from './components/layout/SelectionDrawer';
+import Header from './components/layout/Header';
+import CategoryGridCard from './features/filters/CategoryGridCard';
+import MovementModal from './features/inventory/MovementModal';
+import DiameterList from './features/filters/DiameterList';
+import ToolsGrid from './features/inventory/ToolsGrid';
+import DropdownFilterView from './features/filters/DropdownFilterView';
+import SearchOverlay from './features/filters/SearchOverlay';
+import AddToolModal from './features/inventory/AddToolModal';
+import OrderModal from './features/inventory/OrderModal';
 
 // Helper for date
 const getTodayString = () => new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -168,9 +170,7 @@ function App() {
       </Suspense>
 
       <div className="flex-1 flex flex-col gap-3 md:gap-4 relative overflow-hidden app-container custom-scrollbar px-2 md:px-4 py-3 md:py-4 min-w-0">
-        <Suspense fallback={<div className="h-10 animate-pulse dark:bg-white/5 bg-slate-900/5 rounded-xl" />}>
-          <Header onOpenSidebar={() => setShowSidebarMobile(true)} />
-        </Suspense>
+        <Header onOpenSidebar={() => setShowSidebarMobile(true)} />
 
         {/* Top Controls: Breadcrumbs & Filters */}
         <AnimatePresence>
@@ -237,37 +237,47 @@ function App() {
         </AnimatePresence>
 
         <main className="flex-1 w-full flex flex-col items-center justify-start relative min-h-0 overflow-hidden">
-          <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
             <AnimatePresence mode="wait">
               {view === 'home' && (
-                <motion.div key="home" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 1.05 }} className="w-full h-full flex flex-col items-center relative">
+                <motion.div key="home" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.2 }} className="w-full h-full flex flex-col items-center relative">
                   <div className="flex-1 w-full flex flex-col items-center justify-start min-h-0 px-2 mt-1 md:mt-1.5">
-                    <Suspense fallback={<div className="h-64 flex items-center justify-center"><div className="w-12 h-12 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
-                        {viewMode === 'grid' ? (
-                          <div key="grid-mode" className={`w-full flex-1 flex flex-col items-center min-h-0 ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar pt-4 pb-6' : ''}`}>
-                            {renderGridHome()}
-                          </div>
-                        ) : (
-                          <div key="dropdown-mode" className="w-full flex-1 flex flex-col items-center min-h-0">
-                            <DropdownFilterView tools={tools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} initialFilters={Object.fromEntries(filterStack.map(f => [f.type, f.value]))}
-                              onFilterChange={(newFilters) => {
-                                const newStack = Object.entries(newFilters).filter(([_, v]) => v).map(([k, v]) => ({ type: k, value: v }));
-                                setFilterStack(newStack);
-                              }}
-                              viewMode={viewMode}
-                              setViewMode={setViewMode}
-                            />
-                          </div>
-                        )}
-                    </Suspense>
+                    <AnimatePresence mode="wait">
+                      {viewMode === 'grid' ? (
+                        <motion.div key="grid-mode" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }} className={`w-full flex-1 flex flex-col items-center min-h-0 ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar pt-4 pb-6' : ''}`}>
+                          {renderGridHome()}
+                        </motion.div>
+                      ) : (
+                        <motion.div key="dropdown-mode" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }} className="w-full flex-1 flex flex-col items-center min-h-0">
+                          <DropdownFilterView tools={tools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} initialFilters={Object.fromEntries(filterStack.map(f => [f.type, f.value]))}
+                            onFilterChange={(newFilters) => {
+                              const newStack = Object.entries(newFilters).filter(([_, v]) => v).map(([k, v]) => ({ type: k, value: v }));
+                              setFilterStack(newStack);
+                            }}
+                            viewMode={viewMode}
+                            setViewMode={setViewMode}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </motion.div>
               )}
-              {view === 'history' && <HistoryView key="history" history={history} setView={setView} />}
-              {view === 'scanner' && <ScannerView key="scanner" setView={setView} setShowMoveModal={setShowMoveModal} isMobile={isMobile} />}
-              {view === 'operators' && <OperatorsView key="operators" setView={setView} />}
+              {view === 'history' && (
+                <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+                  <HistoryView key="history" history={history} setView={setView} />
+                </Suspense>
+              )}
+              {view === 'scanner' && (
+                <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+                  <ScannerView key="scanner" setView={setView} setShowMoveModal={setShowMoveModal} isMobile={isMobile} />
+                </Suspense>
+              )}
+              {view === 'operators' && (
+                <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+                  <OperatorsView key="operators" setView={setView} />
+                </Suspense>
+              )}
             </AnimatePresence>
-          </Suspense>
         </main>
 
         {/* Contextual Bulk Action Bar */}
@@ -309,16 +319,16 @@ function App() {
           )}
         </AnimatePresence>
 
-        <Suspense fallback={null}>
-          <AnimatePresence>
+        <AnimatePresence>
             {showSelectionDrawer && (
               <>
                 <motion.div key="drawer-bg" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowSelectionDrawer(false)} className="fixed inset-0 dark:bg-slate-950/60 bg-slate-50/60 backdrop-blur-sm z-[1999]" />
                 <SelectionDrawer key="drawer" selectedIds={selectedToolsIds} tools={tools} onToggleSelect={toggleToolSelection} onBulkAction={(type) => { setShowSelectionDrawer(false); handleBulkAction(type); }} onClose={() => setShowSelectionDrawer(false)} setSelectedToolsIds={setSelectedToolsIds} />
               </>
             )}
-          </AnimatePresence>
-          <AnimatePresence>
+        </AnimatePresence>
+        
+        <AnimatePresence>
             {showMoveModal && <MovementModal key="move-modal" setShowMoveModal={(val) => { setShowMoveModal(val); if (!val) setIsBulkMode(false); }} onConfirm={() => {
               handleMovement(showToastNotification, () => {
                 setShowMoveModal(false);
@@ -328,29 +338,29 @@ function App() {
             }} onOpenOrder={() => setShowOrderModal(true)} />}
             {showAddModal && <AddToolModal key="add-modal" tools={tools} onClose={() => setShowAddModal(false)} onToolAdded={fetchTools} currentUser={currentUser} />}
             {showOrderModal && <OrderModal key="order-modal" tool={selectedTool} onClose={() => setShowOrderModal(false)} currentUser={currentUser} />}
-          </AnimatePresence>
-        </Suspense>
+        </AnimatePresence>
 
         <AnimatePresence>
           {toast && (
-            <motion.div initial={{ opacity: 0, x: 100 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed bottom-40 md:bottom-32 right-6 md:right-12 z-[2000]">
-              <div className="glass-panel p-8 rounded-[32px] border-l-[12px] border-accent-blue flex items-center gap-6 shadow-2xl">
-                <div className="w-12 h-12 bg-accent-blue/20 rounded-2xl flex items-center justify-center"><CheckCircle2 className="text-accent-blue" size={32} /></div>
-                <div><p className="text-[10px] font-black text-accent-orange uppercase drop-shadow-md tracking-[0.5em] mb-1">System Notice</p><p className="font-black text-2xl uppercase tracking-widest dark:text-white text-slate-900">{toast}</p></div>
+            <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed top-[max(16px,env(safe-area-inset-top))] left-4 right-4 md:left-auto md:right-12 z-[9999] pointer-events-auto">
+              <div className="glass-panel p-4 md:p-6 rounded-[24px] border-l-[8px] border-accent-blue flex items-center gap-4 shadow-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-accent-blue/20 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0"><CheckCircle2 className="text-accent-blue" size={24} /></div>
+                <div className="flex flex-col min-w-0">
+                  <p className="text-[9px] md:text-[10px] font-black text-accent-orange uppercase drop-shadow-md tracking-[0.3em] md:tracking-[0.5em] mb-0.5 md:mb-1">Notifica Sistema</p>
+                  <p className="font-black text-sm md:text-xl uppercase tracking-wider md:tracking-widest dark:text-white text-slate-900 truncate">{toast}</p>
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <Suspense fallback={null}>
-          <SearchOverlay 
-            isOpen={showSearchOverlay} 
-            onClose={() => setShowSearchOverlay(false)} 
-            tools={tools} 
-            onSelectTool={handleSelectToolFromGrid}
-            isMobile={isMobile}
-          />
-        </Suspense>
+        <SearchOverlay 
+          isOpen={showSearchOverlay} 
+          onClose={() => setShowSearchOverlay(false)} 
+          tools={tools} 
+          onSelectTool={handleSelectToolFromGrid}
+          isMobile={isMobile}
+        />
       </div>
     </div>
   );

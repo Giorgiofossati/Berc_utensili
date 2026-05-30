@@ -43,6 +43,8 @@ export const ToolIcon = ({ type, size = 24, className = "", mode = 'icon' }) => 
         <img 
           src={src} 
           alt={type} 
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover"
           onError={(e) => { e.target.src = '/tool-images/fresa.png'; }}
         />
