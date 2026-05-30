@@ -4,8 +4,10 @@ import { User, Lock, ArrowRight, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from '../../store/useAuthStore';
 
-export default function LoginScreen({ onLogin }) {
+export default function LoginScreen() {
+  const setCurrentUser = useAuthStore(state => state.setCurrentUser);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -34,14 +36,14 @@ export default function LoginScreen({ onLogin }) {
     setPassword('');
     setError('');
     if (user.ruolo === 'Operatore') {
-      onLogin(user);
+      setCurrentUser(user);
     }
   };
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
     if (password === selectedUser.password || password === '1234') { // Fallback 1234 from old PLANNING
-      onLogin(selectedUser);
+      setCurrentUser(selectedUser);
     } else {
       setError('Password errata. Riprova.');
     }

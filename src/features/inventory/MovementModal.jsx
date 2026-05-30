@@ -4,7 +4,19 @@ import { X, ArrowUp, ArrowDown, ShoppingCart } from 'lucide-react';
 import { buildDesc } from '../../lib/toolUtils';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
-const MovementModal = memo(({ opType, setOpType, selectedTool, modalQty, setModalQty, setShowMoveModal, handleMovement, isBulkMode, onOpenOrder, currentUser }) => {
+import { useMovementStore } from '../../store/useMovementStore';
+import { useAuthStore } from '../../store/useAuthStore';
+
+const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
+  const opType = useMovementStore(state => state.opType);
+  const setOpType = useMovementStore(state => state.setOpType);
+  const selectedTool = useMovementStore(state => state.selectedTool);
+  const modalQty = useMovementStore(state => state.modalQty);
+  const setModalQty = useMovementStore(state => state.setModalQty);
+  const isBulkMode = useMovementStore(state => state.isBulkMode);
+  
+  const currentUser = useAuthStore(state => state.currentUser);
+
   // Fields to exclude from the details view
   const excludedKeys = ['id', 'Check', 'Alias'];
 
@@ -13,10 +25,12 @@ const MovementModal = memo(({ opType, setOpType, selectedTool, modalQty, setModa
 
   // Formatting tool details for Step 1
   const renderDetails = () => {
-    if (isBulkMode || typeof selectedTool !== 'object') {
+    if (isBulkMode || !selectedTool || typeof selectedTool !== 'object') {
       return (
         <div className="text-center p-6 dark:bg-white/5 bg-slate-900/5 rounded-2xl mt-4">
-          <p className="dark:text-slate-400 text-slate-600 font-bold uppercase tracking-widest">Modalità Massiva</p>
+          <p className="dark:text-slate-400 text-slate-600 font-bold uppercase tracking-widest">
+            {isBulkMode ? "Modalità Massiva" : "Dettagli non disponibili"}
+          </p>
         </div>
       );
     }
@@ -81,9 +95,9 @@ const MovementModal = memo(({ opType, setOpType, selectedTool, modalQty, setModa
               {isDetailsStep ? "Dettaglio Utensile" : opType === 'carico' ? "Conferma Deposito" : "Conferma Prelievo"}
             </p>
             <h3 className="text-xl md:text-3xl font-black uppercase tracking-tighter leading-none mb-1 md:mb-2 italic dark:text-white text-slate-900 truncate">
-              {typeof selectedTool === 'object' ? buildDesc(selectedTool) : `${selectedTool} Articoli`}
+              {typeof selectedTool === 'object' && selectedTool !== null ? buildDesc(selectedTool) : `${selectedTool || 0} Articoli`}
             </h3>
-            {typeof selectedTool === 'object' && selectedTool?.Codice && (
+            {typeof selectedTool === 'object' && selectedTool !== null && selectedTool?.Codice && (
               <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest dark:text-slate-400 text-slate-600 dark:bg-white/5 bg-slate-900/5 py-1.5 px-3 rounded-full self-start border border-white/5 mt-1 md:mt-2 truncate max-w-full">
                 CODICE AZIENDALE: <span className="dark:text-white text-slate-900 ml-1">{selectedTool.Codice}</span>
               </p>
@@ -111,8 +125,8 @@ const MovementModal = memo(({ opType, setOpType, selectedTool, modalQty, setModa
                   {renderDetails()}
                 </div>
 
-                <div className={`grid ${(!isBulkMode && (selectedTool?.['Quantità'] <= 0) && currentUser?.ruolo !== 'Admin') ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-3'} gap-2 md:gap-3 mt-1`}>
-                  {(!(!isBulkMode && (selectedTool?.['Quantità'] <= 0) && currentUser?.ruolo !== 'Admin')) && (
+                <div className={`grid ${(!isBulkMode && selectedTool && (selectedTool?.['Quantità'] || 0) <= 0 && currentUser?.ruolo !== 'Admin') ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-3'} gap-2 md:gap-3 mt-1`}>
+                  {(!(!isBulkMode && selectedTool && (selectedTool?.['Quantità'] || 0) <= 0 && currentUser?.ruolo !== 'Admin')) && (
                     <>
                       <button onClick={() => setOpType('carico')} className="action-btn action-btn-carica py-3 md:py-4 w-full flex flex-col items-center justify-center gap-1.5 group border border-accent-emerald/30 shadow-xl relative overflow-hidden rounded-2xl md:rounded-3xl">
                         <div className="absolute inset-0 bg-accent-emerald/5 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -127,7 +141,7 @@ const MovementModal = memo(({ opType, setOpType, selectedTool, modalQty, setModa
                     </>
                   )}
                   {!isBulkMode && (
-                    <button onClick={() => { setShowMoveModal(false); if(onOpenOrder) onOpenOrder(); }} className={`action-btn py-3 md:py-4 w-full flex flex-col items-center justify-center gap-1.5 group border border-accent-orange/30 shadow-xl relative overflow-hidden rounded-2xl md:rounded-3xl ${(!(!isBulkMode && (selectedTool?.['Quantità'] <= 0) && currentUser?.ruolo !== 'Admin')) ? 'col-span-2 lg:col-span-1' : ''}`} style={{ backgroundColor: 'rgba(249, 115, 22, 0.05)' }}>
+                    <button onClick={() => { setShowMoveModal(false); if(onOpenOrder) onOpenOrder(); }} className={`action-btn py-3 md:py-4 w-full flex flex-col items-center justify-center gap-1.5 group border border-accent-orange/30 shadow-xl relative overflow-hidden rounded-2xl md:rounded-3xl ${(!(!isBulkMode && selectedTool && (selectedTool?.['Quantità'] || 0) <= 0 && currentUser?.ruolo !== 'Admin')) ? 'col-span-2 lg:col-span-1' : ''}`} style={{ backgroundColor: 'rgba(249, 115, 22, 0.05)' }}>
                       <div className="absolute inset-0 bg-accent-orange/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                       <ShoppingCart size={20} className="text-accent-orange group-hover:scale-110 transition-transform relative z-10 mx-auto" />
                       <span className="text-[11px] md:text-xs font-black relative z-10 tracking-widest text-accent-orange text-center">CREA ORDINE</span>
@@ -154,7 +168,7 @@ const MovementModal = memo(({ opType, setOpType, selectedTool, modalQty, setModa
                     </button>
                   )}
                   <button
-                    onClick={handleMovement}
+                    onClick={onConfirm}
                     className={`flex-1 py-3 md:py-6 rounded-2xl md:rounded-[32px] font-black text-base md:text-xl uppercase tracking-[0.2em] md:tracking-[0.3em] shadow-2xl hover:scale-[1.03] active:scale-[0.97] transition-all ${opType === 'carico' ? 'bg-accent-emerald text-slate-950 border-emerald-400/50 hover:bg-emerald-400' : 'bg-accent-rose text-white border-rose-500/50 hover:bg-rose-500'}`}
                   >
                     CONFERMA

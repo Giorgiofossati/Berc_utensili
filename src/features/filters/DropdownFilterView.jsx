@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback, memo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, X, CheckCircle2, List, Activity, Filter, ChevronRight } from 'lucide-react';
+import { ChevronDown, X, CheckCircle2, List, LayoutGrid, Activity, Filter, ChevronRight } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { EXTRA_FILTER_KEYS } from '../inventory/ToolsGrid';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useFilterStore } from '../../store/useFilterStore';
 
 const ALL_DETAIL_KEYS = [
   { key: 'Quantità', label: 'Quantità', minWidth: '95px', align: 'center' },
@@ -14,7 +15,11 @@ const ALL_DETAIL_KEYS = [
   { key: 'Codice', label: 'Codice Aziendale', minWidth: '180px', align: 'center', className: 'hidden md:flex' },
 ];
 
-const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, initialFilters = {}, onFilterChange, selectedIds = [], onToggleSelect, isSelectionMode, setIsSelectionMode }) => {
+const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, initialFilters = {}, onFilterChange, viewMode, setViewMode }) => {
+  const selectedIds = useFilterStore(state => state.selectedToolsIds);
+  const onToggleSelect = useFilterStore(state => state.toggleToolSelection);
+  const isSelectionMode = useFilterStore(state => state.isSelectionMode);
+  const setIsSelectionMode = useFilterStore(state => state.handleSetIsSelectionMode);
   const [filters, setFilters] = useState(initialFilters);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(!isMobile);
 
@@ -257,22 +262,49 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-7xl flex flex-col gap-3 md:gap-4 flex-1 min-h-0"
     >
-      <div className="flex items-center justify-between px-2 md:hidden">
+      <div className="flex items-center justify-between gap-2 px-2 md:hidden">
         <button 
           onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
-          className="flex items-center gap-2 glass-button px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-accent-blue"
+          className="flex-1 flex items-center justify-center gap-1.5 glass-button px-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-accent-blue"
         >
-          <Filter size={14} />
-          {isFiltersExpanded ? 'Nascondi Filtri' : 'Mostra Filtri'}
-          {activeFiltersCount > 0 && <span className="bg-accent-blue text-slate-950 w-4 h-4 rounded-full flex items-center justify-center text-[8px]">{activeFiltersCount}</span>}
+          <Filter size={14} className="shrink-0" />
+          <span className="truncate">{isFiltersExpanded ? 'Nascondi' : 'Mostra'}</span>
+          {activeFiltersCount > 0 && <span className="bg-accent-blue text-slate-950 w-4 h-4 rounded-full flex items-center justify-center text-[8px] shrink-0">{activeFiltersCount}</span>}
         </button>
         
+        {setViewMode && (
+          <div className="shrink-0 flex items-center bg-slate-900/5 dark:bg-white/5 p-1.5 rounded-2xl relative shadow-inner border border-slate-900/5 dark:border-white/5">
+            <motion.div 
+              className="absolute top-1.5 bottom-1.5 w-[36px] bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-accent-blue/30 dark:border-accent-blue/30 overflow-hidden"
+              initial={false}
+              animate={{ x: viewMode === 'grid' ? 36 : 0 }}
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            >
+              <div className="absolute inset-0 bg-accent-blue/10 animate-pulse" />
+            </motion.div>
+            <button 
+              type="button" 
+              onClick={() => setViewMode('dropdown')} 
+              className={`relative z-10 w-9 h-8 flex items-center justify-center transition-colors ${viewMode === 'dropdown' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
+            >
+              <List size={16} />
+            </button>
+            <button 
+              type="button" 
+              onClick={() => setViewMode('grid')} 
+              className={`relative z-10 w-9 h-8 flex items-center justify-center transition-colors ${viewMode === 'grid' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
+            >
+              <LayoutGrid size={16} />
+            </button>
+          </div>
+        )}
+
         <button
           onClick={() => setIsSelectionMode(!isSelectionMode)}
-          className={`glass-button rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${isSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600'}`}
+          className={`flex-1 glass-button rounded-xl px-2 py-2 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 ${isSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600'}`}
         >
-          {isSelectionMode ? <X size={14} /> : <List size={14} />}
-          {isSelectionMode ? 'Cancella' : 'Seleziona'}
+          {isSelectionMode ? <X size={14} className="shrink-0" /> : <CheckCircle2 size={14} className="shrink-0" />}
+          <span className="truncate">{isSelectionMode ? 'Cancella' : 'Seleziona'}</span>
         </button>
       </div>
 
@@ -284,7 +316,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
             exit={isMobile ? { height: 0, opacity: 0 } : false}
             className="overflow-hidden shrink-0"
           >
-            <div className="flex flex-wrap gap-2 px-2 pb-2">
+            <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2 px-2 pb-2">
               <AnimatePresence mode="popLayout">
                 {filterKeys.map(key => {
                   const isVisible = !!filters[key] || (filterOptions[key] && filterOptions[key].length > 0);
@@ -297,15 +329,15 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.2 }}
-                      className="relative"
+                      className="relative w-full"
                     >
                       <Select
                         key={`select-${key}-${filters[key] || 'empty'}`}
                         value={filters[key] ? String(filters[key]) : undefined}
                         onValueChange={(val) => setFilter(key, val === 'all' ? '' : val)}
                       >
-                        <SelectTrigger className={`glass-button rounded-[12px] md:rounded-[14px] px-3 py-2 md:px-4 md:py-2.5 text-[10px] md:text-[11px] font-bold uppercase tracking-wider bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all min-w-[100px] md:min-w-[120px] ${filters[key] && filters[key] !== 'all' ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-400 text-slate-600'}`}>
-                          <SelectValue placeholder={LABELS[key] || key} />
+                        <SelectTrigger className={`glass-button rounded-[12px] md:rounded-[14px] px-3 py-2 md:px-4 md:py-2.5 text-[10px] md:text-[11px] font-bold uppercase tracking-wider bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all w-full md:min-w-[120px] ${filters[key] && filters[key] !== 'all' ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-400 text-slate-600'}`}>
+                          <span className="truncate"><SelectValue placeholder={LABELS[key] || key} /></span>
                         </SelectTrigger>
                         <SelectContent className="glass-panel z-[2000] border-white/10 dark:bg-slate-950/90 bg-white/90 backdrop-blur-xl">
                           <SelectItem value="all" className="cursor-pointer font-bold opacity-60 italic">{LABELS[key] || key} (Tutti)</SelectItem>
@@ -328,7 +360,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.2 }}
                     onClick={() => setFilters({})}
-                    className="glass-button rounded-[12px] md:rounded-[14px] px-3 py-2 md:px-4 md:py-2.5 text-[10px] md:text-[11px] font-bold uppercase tracking-wider text-accent-rose hover:bg-accent-rose/10 transition-all flex items-center gap-1"
+                    className="col-span-full md:col-auto w-full md:w-auto glass-button rounded-[12px] md:rounded-[14px] px-3 py-2 md:px-4 md:py-2.5 text-[10px] md:text-[11px] font-bold uppercase tracking-wider text-accent-rose hover:bg-accent-rose/10 transition-all flex items-center justify-center gap-1"
                   >
                     <X size={12} /> Reset
                   </motion.button>

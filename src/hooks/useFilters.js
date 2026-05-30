@@ -1,17 +1,24 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useMemo } from 'react';
+import { useFilterStore } from '../store/useFilterStore';
+import { useInventoryStore } from '../store/useInventoryStore';
 
-export function useFilters(tools) {
-  const [filterStack, setFilterStack] = useState([]);
-  const [viewMode, setViewMode] = useState('grid');
-  const [isSelectionMode, setIsSelectionMode] = useState(false);
-  const [selectedToolsIds, setSelectedToolsIds] = useState([]);
-
-  const handleSetIsSelectionMode = useCallback((val) => {
-    setIsSelectionMode(val);
-    if (!val) {
-      setSelectedToolsIds([]);
-    }
-  }, []);
+export function useFilters() {
+  const tools = useInventoryStore((state) => state.tools);
+  
+  const filterStack = useFilterStore((state) => state.filterStack);
+  const setFilterStack = useFilterStore((state) => state.setFilterStack);
+  const viewMode = useFilterStore((state) => state.viewMode);
+  const setViewMode = useFilterStore((state) => state.setViewMode);
+  const isSelectionMode = useFilterStore((state) => state.isSelectionMode);
+  const handleSetIsSelectionMode = useFilterStore((state) => state.handleSetIsSelectionMode);
+  const setIsSelectionMode = useFilterStore((state) => state.setIsSelectionMode);
+  const selectedToolsIds = useFilterStore((state) => state.selectedToolsIds);
+  const setSelectedToolsIds = useFilterStore((state) => state.setSelectedToolsIds);
+  const toggleToolSelection = useFilterStore((state) => state.toggleToolSelection);
+  const resetFilters = useFilterStore((state) => state.resetFilters);
+  const handleSelectDiameter = useFilterStore((state) => state.handleSelectDiameter);
+  
+  const handleSelectOptionStore = useFilterStore((state) => state.handleSelectOption);
 
   const filteredByStack = useMemo(() => {
     let result = tools;
@@ -56,38 +63,7 @@ export function useFilters(tools) {
   const finalTools = useMemo(() => (filterStack.length < 3 ? [] : filteredByStack), [filteredByStack, filterStack]);
   const currentLevel = filterStack.length;
 
-  const handleSelectOption = useCallback((opt) => {
-    setFilterStack(prev => {
-      let nextStack = [...prev, { type: opt.type, value: opt.label }];
-      const getFiltered = (stack) => {
-        let res = tools;
-        stack.forEach(f => { if (!f.skipped) res = res.filter(t => String(t[f.type]) === String(f.value)); });
-        return res;
-      };
-      if (opt.type === 'Tipologia') {
-        const shapes = [...new Set(getFiltered(nextStack).map(t => t['Forma']))].filter(Boolean);
-        if (shapes.length === 0) nextStack.push({ type: 'Forma', value: 'N/A', skipped: true });
-      }
-      const lastFilter = nextStack[nextStack.length - 1];
-      if (lastFilter.type === 'Forma') {
-        const diameters = [...new Set(getFiltered(nextStack).map(t => t['Diametro']))].filter(Boolean);
-        if (diameters.length === 0) nextStack.push({ type: 'Diametro', value: 'N/A', skipped: true });
-      }
-      return nextStack;
-    });
-  }, [tools]);
-
-  const handleSelectDiameter = useCallback((d) => {
-    setFilterStack(prev => [...prev, { type: 'Diametro', value: d }]);
-  }, []);
-
-  const resetFilters = useCallback(() => {
-    setFilterStack([]);
-  }, []);
-
-  const toggleToolSelection = useCallback((id) => {
-    setSelectedToolsIds(prev => prev.includes(id) ? prev.filter(toolId => toolId !== id) : [...prev, id]);
-  }, []);
+  const handleSelectOption = (opt) => handleSelectOptionStore(opt, tools);
 
   const breadcrumbText = filterStack.filter(f => !f.skipped).map(f => f.value).join(' / ');
 
@@ -100,3 +76,4 @@ export function useFilters(tools) {
     handleSelectOption, handleSelectDiameter, resetFilters, breadcrumbText
   };
 }
+

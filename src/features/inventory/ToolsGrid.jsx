@@ -5,6 +5,7 @@ import { ChevronDown, X, CheckCircle2, List, Activity, AlertTriangle, ChevronRig
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useFilterStore } from '../../store/useFilterStore';
 
 export const EXTRA_FILTER_KEYS = [
   { key: 'Lunghezza', label: 'Lunghezza' },
@@ -28,7 +29,12 @@ const ALL_DETAIL_KEYS = [
   { key: 'Codice', label: 'Codice Aziendale', minWidth: '180px', align: 'center', className: 'hidden md:flex' },
 ];
 
-const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, selectedIds = [], onToggleSelect, isSelectionMode, setIsSelectionMode }) => {
+const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile }) => {
+  const selectedIds = useFilterStore(state => state.selectedToolsIds);
+  const onToggleSelect = useFilterStore(state => state.toggleToolSelection);
+  const isSelectionMode = useFilterStore(state => state.isSelectionMode);
+  const setIsSelectionMode = useFilterStore(state => state.handleSetIsSelectionMode);
+  
   const [extraFilters, setExtraFilters] = useState({});
 
   const availableFilters = useMemo(() => {

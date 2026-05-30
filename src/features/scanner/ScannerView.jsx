@@ -4,8 +4,14 @@ import { ArrowLeft, Activity, Search, X, AlertTriangle, ChevronRight, Camera } f
 import BarcodeScanner from './BarcodeScanner';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useInventoryStore } from '../../store/useInventoryStore';
+import { useMovementStore } from '../../store/useMovementStore';
 
-const ScannerView = memo(({ setView, tools, setSelectedTool, setModalQty, setShowMoveModal, setOpType, isMobile }) => {
+const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
+  const tools = useInventoryStore(state => state.tools);
+  const setSelectedTool = useMovementStore(state => state.setSelectedTool);
+  const setModalQty = useMovementStore(state => state.setModalQty);
+  const setOpType = useMovementStore(state => state.setOpType);
   const [manualCode, setManualCode] = useState('');
   const [showCamera, setShowCamera] = useState(false);
   const inputRef = useRef(null);

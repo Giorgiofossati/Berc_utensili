@@ -5,6 +5,7 @@ import {
   Lock, Check, X, RefreshCw, Key, AlertTriangle, Eye, EyeOff
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../store/useAuthStore';
 
 const generateUUID = () => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -26,7 +27,9 @@ const withTimeout = (promise, timeoutMs = 5000) => {
   ]);
 };
 
-const OperatorsView = memo(({ setView, currentUser, setCurrentUser }) => {
+const OperatorsView = memo(({ setView }) => {
+  const currentUser = useAuthStore(state => state.currentUser);
+  const setCurrentUser = useAuthStore(state => state.setCurrentUser);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
