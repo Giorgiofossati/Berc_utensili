@@ -44,6 +44,7 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[1000] flex flex-col items-center justify-start p-4 md:p-10"
+          style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
         >
           <motion.div 
             initial={{ opacity: 0 }}

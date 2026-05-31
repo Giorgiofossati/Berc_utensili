@@ -45,7 +45,7 @@ const SidebarContent = ({
   return (
     <div className="w-full h-full flex flex-col bg-white/70 dark:bg-slate-950/70 backdrop-blur-2xl border-r border-slate-200/50 dark:border-white/10 shadow-2xl overflow-hidden relative">
       {/* Header / Logo */}
-      <div className="pt-6 md:pt-8 pb-5 px-6 flex flex-col border-b border-slate-200/50 dark:border-white/5 shrink-0">
+      <div className="pb-5 px-6 flex flex-col border-b border-slate-200/50 dark:border-white/5 shrink-0" style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}>
         <div className="flex items-center justify-between gap-3 mb-2">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-accent-blue/20 to-accent-blue/5 flex items-center justify-center border border-accent-blue/20 shadow-inner shrink-0">

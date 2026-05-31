@@ -339,7 +339,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.2 }}
-                      className="relative w-full"
+                      className="relative w-full md:w-auto md:flex-none"
                     >
                       <Select
                         key={`select-${key}-${filters[key] || 'empty'}`}

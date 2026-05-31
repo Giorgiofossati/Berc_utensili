@@ -169,7 +169,7 @@ function App() {
         />
       </Suspense>
 
-      <div className="flex-1 flex flex-col gap-3 md:gap-4 relative overflow-hidden app-container custom-scrollbar px-2 md:px-4 py-3 md:py-4 min-w-0">
+      <div className="flex-1 flex flex-col gap-3 md:gap-4 relative overflow-hidden app-container custom-scrollbar min-w-0">
         <Header onOpenSidebar={() => setShowSidebarMobile(true)} />
 
         {/* Top Controls: Breadcrumbs & Filters */}
@@ -342,7 +342,7 @@ function App() {
 
         <AnimatePresence>
           {toast && (
-            <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed top-[max(16px,env(safe-area-inset-top))] left-4 right-4 md:left-auto md:right-12 z-[9999] pointer-events-auto">
+            <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed left-4 right-4 md:left-auto md:right-12 z-[9999] pointer-events-auto" style={{ top: 'max(16px, env(safe-area-inset-top))' }}>
               <div className="glass-panel p-4 md:p-6 rounded-[24px] border-l-[8px] border-accent-blue flex items-center gap-4 shadow-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl">
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-accent-blue/20 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0"><CheckCircle2 className="text-accent-blue" size={24} /></div>
                 <div className="flex flex-col min-w-0">
