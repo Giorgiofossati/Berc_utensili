@@ -13,14 +13,14 @@ import { useFilterStore } from './store/useFilterStore';
 import { useMovementStore } from './store/useMovementStore';
 import { useFilters } from './hooks/useFilters';
 
-// Lazy load only major separate views
-const Sidebar = lazy(() => import('./components/layout/Sidebar'));
+// Lazy load only secondary admin/separate views
 const HistoryView = lazy(() => import('./features/admin/HistoryView'));
 const ScannerView = lazy(() => import('./features/scanner/ScannerView'));
 const OperatorsView = lazy(() => import('./features/admin/OperatorsView'));
-const LoginScreen = lazy(() => import('./features/auth/LoginScreen'));
 
-// Standard imports for critical UI to avoid Suspense flickering/double renders
+// Standard imports for critical core UI to guarantee instant rendering and eliminate PWA logout chunk failures
+import Sidebar from './components/layout/Sidebar';
+import LoginScreen from './features/auth/LoginScreen';
 import SelectionDrawer from './components/layout/SelectionDrawer';
 import Header from './components/layout/Header';
 import CategoryGridCard from './features/filters/CategoryGridCard';
@@ -31,6 +31,7 @@ import DropdownFilterView from './features/filters/DropdownFilterView';
 import SearchOverlay from './features/filters/SearchOverlay';
 import AddToolModal from './features/inventory/AddToolModal';
 import OrderModal from './features/inventory/OrderModal';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Helper for date
 const getTodayString = () => new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -61,23 +62,28 @@ function App() {
   const setOpType = useMovementStore(state => state.setOpType);
   const modalQty = useMovementStore(state => state.modalQty);
   const setModalQty = useMovementStore(state => state.setModalQty);
-  const isBulkMode = useMovementStore(state => state.isBulkMode);
-  const setIsBulkMode = useMovementStore(state => state.setIsBulkMode);
+  const showMoveModal = useMovementStore(state => state.showMoveModal);
+  const setShowMoveModal = useMovementStore(state => state.setShowMoveModal);
   const selectedTool = useMovementStore(state => state.selectedTool);
   const setSelectedTool = useMovementStore(state => state.setSelectedTool);
+  const isBulkMode = useMovementStore(state => state.isBulkMode);
+  const setIsBulkMode = useMovementStore(state => state.setIsBulkMode);
   const handleMovement = useMovementStore(state => state.handleMovement);
 
   const [view, setView] = useState('home');
   const [history, setHistory] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showMoveModal, setShowMoveModal] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [showSidebarMobile, setShowSidebarMobile] = useState(false);
   const [showSelectionDrawer, setShowSelectionDrawer] = useState(false);
   const [showSearchOverlay, setShowSearchOverlay] = useState(false);
-  const [showSidebarMobile, setShowSidebarMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const mainRef = useRef(null);
+
+  useEffect(() => {
+    fetchTools();
+  }, [fetchTools]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -86,26 +92,22 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  useEffect(() => {
-    fetchTools();
-  }, [fetchTools]);
+  const fetchHistory = async () => {
+    try {
+      const { data } = await supabase.from('movements_history').select('*, Utensili_B1(*)').order('created_at', { ascending: false });
+      setHistory(data || []);
+    } catch(e) {
+      console.error(e);
+    }
+  };
 
-  const today = useMemo(() => getTodayString(), []);
-
-  const fetchHistory = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('movements_history')
-      .select('*, Utensili_B1("Tipologia", "Diametro", "Codice", "Forma", "Fornitore")')
-      .order('created_at', { ascending: false });
-    if (!error) setHistory(data || []);
-  }, []);
-
-  const handleBulkAction = useCallback((type) => {
+  const handleBulkAction = (type) => {
+    if (selectedToolsIds.length === 0) return;
     setOpType(type);
+    setIsBulkMode(true);
     setModalQty(1);
     setShowMoveModal(true);
-    setIsBulkMode(true);
-  }, [setOpType, setModalQty, setIsBulkMode]);
+  };
 
   const handleSelectToolFromGrid = useCallback((tool) => {
     setSelectedTool(tool);
@@ -123,15 +125,19 @@ function App() {
   };
 
   const renderGridHome = () => {
-    if (currentLevel >= 2 && currentLevel < 3) return <DiameterList diameters={diameters} onSelect={handleSelectDiameter} />;
+    if (currentLevel >= 2 && currentLevel < 3) return (
+      <div className="w-full flex-1 flex flex-col items-center justify-center my-auto">
+        <DiameterList diameters={diameters} onSelect={handleSelectDiameter} />
+      </div>
+    );
     if (currentLevel >= 3) return (
       <ToolsGrid tools={finalTools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} />
     );
     if (!options || options.length === 0) return null;
 
     return (
-      <div className="w-full max-w-7xl xl:max-w-[1600px] px-2 md:px-4 py-1 mx-auto flex flex-col justify-start">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 w-fit mx-auto justify-center justify-items-center items-center">
+      <div className="w-full max-w-6xl xl:max-w-7xl px-2 md:px-4 py-1 my-auto mx-auto flex flex-col justify-center items-center">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 w-fit mx-auto justify-center justify-items-center items-center">
           {options.map((opt, idx) => (
             <CategoryGridCard 
               key={`${opt.label}-${idx}`} 
@@ -147,27 +153,21 @@ function App() {
   };
 
   if (!currentUser) {
-    return (
-      <Suspense fallback={<div className="min-h-[100dvh] h-[100dvh] w-full dark:bg-slate-950 bg-slate-50 flex items-center justify-center text-accent-blue"><div className="w-12 h-12 md:w-16 md:h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
-        <LoginScreen />
-      </Suspense>
-    );
+    return <LoginScreen />;
   }
 
   return (
     <div ref={mainRef} className="min-h-[100dvh] h-[100dvh] w-full flex flex-row overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
-      <Suspense fallback={null}>
-        <Sidebar 
-          isMobile={isMobile} 
-          isOpen={showSidebarMobile} 
-          onClose={() => setShowSidebarMobile(false)}
-          setView={setView}
-          fetchHistory={fetchHistory}
-          setShowAddModal={setShowAddModal}
-          onOpenSearch={() => setShowSearchOverlay(true)}
-          view={view}
-        />
-      </Suspense>
+      <Sidebar 
+        isMobile={isMobile} 
+        isOpen={showSidebarMobile} 
+        onClose={() => setShowSidebarMobile(false)}
+        setView={setView}
+        fetchHistory={fetchHistory}
+        setShowAddModal={setShowAddModal}
+        onOpenSearch={() => setShowSearchOverlay(true)}
+        view={view}
+      />
 
       <div className="flex-1 flex flex-col gap-3 md:gap-4 relative overflow-hidden app-container custom-scrollbar min-w-0">
         <Header onOpenSidebar={() => setShowSidebarMobile(true)} />
@@ -243,7 +243,7 @@ function App() {
                   <div className="flex-1 w-full flex flex-col items-center justify-start min-h-0 px-2 mt-1 md:mt-1.5">
                     <AnimatePresence mode="wait">
                       {viewMode === 'grid' ? (
-                        <motion.div key="grid-mode" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }} className={`w-full flex-1 flex flex-col items-center min-h-0 ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar pt-4 pb-6' : ''}`}>
+                        <motion.div key="grid-mode" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }} className={`w-full flex-1 flex flex-col items-center justify-center min-h-0 ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar py-2 md:py-0' : ''}`}>
                           {renderGridHome()}
                         </motion.div>
                       ) : (
@@ -263,19 +263,25 @@ function App() {
                 </motion.div>
               )}
               {view === 'history' && (
-                <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
-                  <HistoryView key="history" history={history} setView={setView} />
-                </Suspense>
+                <ErrorBoundary>
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+                    <HistoryView key="history" history={history} setView={setView} />
+                  </Suspense>
+                </ErrorBoundary>
               )}
               {view === 'scanner' && (
-                <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
-                  <ScannerView key="scanner" setView={setView} setShowMoveModal={setShowMoveModal} isMobile={isMobile} />
-                </Suspense>
+                <ErrorBoundary>
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+                    <ScannerView key="scanner" setView={setView} setShowMoveModal={setShowMoveModal} isMobile={isMobile} />
+                  </Suspense>
+                </ErrorBoundary>
               )}
               {view === 'operators' && (
-                <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
-                  <OperatorsView key="operators" setView={setView} />
-                </Suspense>
+                <ErrorBoundary>
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+                    <OperatorsView key="operators" setView={setView} />
+                  </Suspense>
+                </ErrorBoundary>
               )}
             </AnimatePresence>
         </main>

@@ -8,8 +8,23 @@ import { useAuthStore } from '../../store/useAuthStore';
 
 export default function LoginScreen() {
   const setCurrentUser = useAuthStore(state => state.setCurrentUser);
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState(() => {
+    try {
+      const cached = localStorage.getItem('berc_cached_users');
+      return cached ? JSON.parse(cached) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+  const [loading, setLoading] = useState(() => {
+    try {
+      const cached = localStorage.getItem('berc_cached_users');
+      return !(cached && JSON.parse(cached).length > 0);
+    } catch (e) {
+      return true;
+    }
+  });
+  const [fetchError, setFetchError] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [password, setPassword] = useState('');
@@ -21,9 +36,32 @@ export default function LoginScreen() {
 
   const fetchUsers = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from('utenti').select('*').order('nome');
-    if (!error) setUsers(data || []);
-    setLoading(false);
+    setFetchError(false);
+    try {
+      const { data, error: sbError } = await supabase.from('utenti').select('*').order('nome');
+      if (!sbError && data && data.length > 0) {
+        setUsers(data);
+        localStorage.setItem('berc_cached_users', JSON.stringify(data));
+      } else if (sbError) {
+        console.warn('Supabase fetch users warning:', sbError);
+        const cached = localStorage.getItem('berc_cached_users');
+        if (cached) {
+          try { setUsers(JSON.parse(cached)); } catch (e) {}
+        } else {
+          setFetchError(true);
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching users:', e);
+      const cached = localStorage.getItem('berc_cached_users');
+      if (cached) {
+        try { setUsers(JSON.parse(cached)); } catch (err) {}
+      } else {
+        setFetchError(true);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredUsers = users.filter(u => 
@@ -90,6 +128,16 @@ export default function LoginScreen() {
                   <div className="flex flex-col items-center justify-center p-6 gap-2">
                     <div className="w-8 h-8 border-3 border-accent-blue border-t-transparent rounded-full animate-spin" />
                     <p className="text-center text-xs dark:text-slate-400 text-slate-600 font-bold">Caricamento operatori...</p>
+                  </div>
+                ) : fetchError && filteredUsers.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center p-6 gap-3 text-center">
+                    <p className="text-xs text-accent-orange font-bold">Impossibile caricare gli utenti.</p>
+                    <button 
+                      onClick={fetchUsers}
+                      className="glass-button px-4 py-2 rounded-xl text-xs font-bold text-accent-blue hover:scale-105 transition-all"
+                    >
+                      Riprova
+                    </button>
                   </div>
                 ) : filteredUsers.length === 0 ? (
                   <p className="text-center text-xs dark:text-slate-400 text-slate-600 font-bold p-6">Nessun utente trovato</p>

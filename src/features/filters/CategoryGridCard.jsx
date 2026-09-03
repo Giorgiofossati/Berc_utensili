@@ -15,7 +15,7 @@ const CategoryGridCard = memo(({ opt, idx, handleSelectOption, isMobile }) => {
         delay: Math.min(idx * 0.02, 0.15) 
       }}
       onClick={() => handleSelectOption(opt)}
-      className="glass-panel group relative w-full max-w-[200px] sm:max-w-[220px] md:max-w-[230px] lg:max-w-[280px] xl:max-w-full aspect-square p-0 rounded-[16px] md:rounded-[20px] cursor-pointer bg-slate-100/50 dark:bg-slate-900/40 border dark:border-white/10 border-slate-900/10 dark:hover:border-accent-blue/50 hover:border-accent-blue/40 hover:shadow-[0_8px_30px_rgba(14,165,233,0.2)] active:scale-95 transition-all duration-300 overflow-hidden"
+      className="glass-panel group relative w-full max-w-[155px] sm:max-w-[175px] md:max-w-[195px] lg:max-w-[215px] xl:max-w-[235px] aspect-square p-0 rounded-[16px] md:rounded-[20px] cursor-pointer bg-slate-100/50 dark:bg-slate-900/40 border dark:border-white/10 border-slate-900/10 dark:hover:border-accent-blue/50 hover:border-accent-blue/40 hover:shadow-[0_8px_30px_rgba(14,165,233,0.2)] active:scale-95 transition-all duration-300 overflow-hidden"
     >
       {/* Full-bleed Image Container */}
       <ToolIcon 
