@@ -15,8 +15,8 @@ const SelectionDrawer = memo(({ selectedIds, tools, onToggleSelect, onBulkAction
     >
       <div className="p-4 sm:p-6 md:p-8 pt-[max(1rem,env(safe-area-inset-top))] border-b dark:border-white/5 border-slate-900/5 flex items-center justify-between shrink-0">
         <div>
-          <p className="text-[9px] sm:text-[10px] font-black text-accent-cyan uppercase tracking-[0.3em] sm:tracking-[0.4em] mb-0.5">Queue Manager</p>
-          <h3 className="text-2xl sm:text-3xl font-black uppercase italic tracking-tight dark:text-white text-slate-900">Selezione Bulk</h3>
+          <p className="app-overline text-accent-cyan mb-0.5">Queue Manager</p>
+          <h3 className="app-h2">Selezione Bulk</h3>
         </div>
         <button onClick={onClose} className="glass-button p-2.5 sm:p-3.5 rounded-full dark:text-slate-400 text-slate-600 hover:text-white transition-colors">
           <X size={20} />

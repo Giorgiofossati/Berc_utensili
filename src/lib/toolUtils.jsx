@@ -35,17 +35,34 @@ export const getToolIconConfig = (type) => {
   return { icon: Warehouse, color: 'text-slate-400', bg: 'bg-slate-500/5', border: 'border-white/10' };
 };
 
+export const ALL_TOOL_IMAGES = [
+  '/tool-images/fresa.png',
+  '/tool-images/punta.png',
+  '/tool-images/maschio.png',
+  '/tool-images/alesatore.png',
+  '/tool-images/tastatore.png',
+  '/tool-images/inserto.png'
+];
+
+export const preloadToolImages = () => {
+  if (typeof window === 'undefined') return;
+  ALL_TOOL_IMAGES.forEach((src) => {
+    const img = new Image();
+    img.src = src;
+  });
+};
+
 export const ToolIcon = ({ type, size = 24, className = "", mode = 'icon' }) => {
   if (mode === 'image') {
     const src = getToolImage(type);
     return (
-      <div className={`relative overflow-hidden flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
+      <div className={`relative overflow-hidden flex items-center justify-center bg-slate-900/5 dark:bg-slate-900/20 ${className}`} style={{ width: size, height: size }}>
         <img 
           src={src} 
           alt={type} 
-          loading="lazy"
-          decoding="async"
-          className="w-full h-full object-cover"
+          fetchPriority="high"
+          decoding="sync"
+          className="w-full h-full object-cover select-none pointer-events-none"
           onError={(e) => { e.target.src = '/tool-images/fresa.png'; }}
         />
       </div>

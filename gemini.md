@@ -66,6 +66,23 @@ Questo file serve come "memoria" e linea guida per l'assistente AI (Gemini) che 
 10. **Modali e Dialog (shadcn/ui vs custom)**: Per la gestione di modali e overlay (come Dettaglio Utensile o Login), utilizzare sempre i componenti nativi basati su Radix UI (es. `Dialog` di shadcn) al posto di overlay custom basati su `framer-motion` e div a tutto schermo. Questo risolve in modo nativo e robusto i problemi di focus-trap, scroll-lock del body e sovrapposizioni z-index non volute. Lo stile "glass" può essere facilmente applicato sovrascrivendo le classi del `DialogContent`.
 11. **Nessuno Scroll Interno nei Modali di Dettaglio**: L'utente preferisce un design in cui **tutto il contenuto del modale sia visibile in un colpo d'occhio senza barre di scorrimento** (impostando `overflow-hidden` anziché `overflow-y-auto`). Per far stare tutto (dettagli, bottoni, testi) in una schermata (`max-h-[95vh]`), è necessario bilanciare accuratamente i padding (es. `p-6` o `p-8` massimo), ridurre il text-size, le icone e l'altezza dei pulsanti di azione. L'obiettivo è un popup denso, pulito e immediatamente fruibile senza scroll.
 12. **Ottimizzazione Transizioni Dark Mode**: Le transizioni CSS prolungate (es. `duration-500`) su proprietà complesse come `backdrop-blur`, `box-shadow` e gradienti radiali di background causano gravi cali di frame rate. Limitare le transizioni grafiche per i cambi di tema esclusivamente a `background-color`, `border-color` e `color`.
+13. **Design System Tipografico Semantico (`src/index.css`)**:
+   - Utilizzare sempre le classi semantiche unificate per garantire coerenza grafica in tutta l'applicazione:
+     - `.app-overline`: micro-titoli, tag di categoria, overlines (`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.25em]`).
+     - `.app-h1`: titoli principali delle pagine e viste (`text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight`).
+     - `.app-h2`: titoli di modali, dialog e sezioni primarie (`text-lg sm:text-xl md:text-2xl font-black uppercase tracking-tight`).
+     - `.app-h3`: titoli articoli in liste, card e drawer (`text-xs sm:text-sm font-bold uppercase tracking-tight`).
+     - `.app-body`: testo standard e descrizioni form (`text-xs sm:text-sm font-medium`).
+     - `.app-caption`: metadati, codici aziendali, timestamp (`text-[10px] sm:text-xs font-mono`).
+     - `.app-qty-sm`: quantità in tabelle e liste (`text-xs sm:text-sm md:text-base font-black tabular-nums`).
+     - `.app-qty-lg`: quantità in evidenza e giacenza modali (`text-2xl sm:text-3xl md:text-4xl font-black tabular-nums`).
+   - Evitare stili tipografici arbitrari e disconnessi (es. `text-5xl` sproporzionati).
+14. **Tabelle e Liste Mobile-First (Zero Scroll Orizzontale)**:
+   - Le tabelle su smartphone devono essere visibili al 100% della larghezza senza alcuna barra di scorrimento orizzontale.
+   - Non usare `min-w-max` o `min-w-[150px]` su smartphone. Impostare `min-w-0 flex-1 truncate` per i testi estesi (es. descrizione utensile) e larghezze calibrate (`w-12 sm:w-16` / `min-w-[48px]`) per la colonna quantità `.app-qty-sm`.
+15. **Precaricamento Immagini Statiche (Zero Flickering)**:
+   - Tutte le immagini locali degli utensili (`/tool-images/*.png`) devono essere precaricate in memoria (`preloadToolImages()`) al bootstrap dell'app in `App.jsx`.
+   - Su `ToolIcon` non usare `loading="lazy"` o `decoding="async"` per icone e immagini locali essenziali.
 ### 💾 Regole di Sviluppo, Architettura e Backend
 1. **Database Supabase**: Quando si creano o modificano query, ricordare che ci interfacciamo con la tabella `Utensili_B1` (per la giacenza degli utensili) e `movements_history` (per i log dei movimenti), oltre alla futura tabella `utenti`.
 2. **Gestione dello Stato Globale (Zustand)**: L'app ha abbandonato il *prop-drilling* esteso in favore di **Zustand**. Ogni macro-area ha il suo Store dedicato (`src/store/useAuthStore`, `useInventoryStore`, `useFilterStore`, `useMovementStore`). Usare gli store in modo atomico per evitare re-render non necessari dei componenti figli.

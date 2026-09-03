@@ -30,10 +30,10 @@ const CategoryGridCard = memo(({ opt, idx, handleSelectOption, isMobile }) => {
 
       {/* Category Info Overlay - Floating Glassmorphic Panel for Maximum legibility and Premium UX */}
       <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3 p-1.5 sm:p-2.5 md:p-3 bg-slate-950/80 dark:bg-slate-950/90 backdrop-blur-md border border-white/10 rounded-[10px] sm:rounded-[12px] flex flex-col items-center justify-center z-20 shadow-lg">
-        <p className="text-[7px] sm:text-[8px] md:text-[9px] font-black tracking-[0.2em] uppercase mb-0.5 text-accent-orange">
+        <p className="app-overline text-accent-orange mb-0.5">
           {opt.category}
         </p>
-        <h3 className="text-[11px] sm:text-xs md:text-sm font-black uppercase tracking-tight text-center leading-tight text-white group-hover:text-accent-blue transition-colors duration-300 truncate max-w-full">
+        <h3 className="app-h3 text-center leading-tight text-white group-hover:text-accent-blue transition-colors duration-300 truncate max-w-full">
           {opt.label}
         </h3>
       </div>

@@ -286,14 +286,14 @@ const OperatorsView = memo(({ setView }) => {
       className="w-full max-w-7xl flex flex-col items-center gap-4 sm:gap-6 px-2 sm:px-4 md:px-6 pb-20 overflow-y-auto custom-scrollbar"
     >
       {/* Intestazione */}
-      <div className="flex flex-col sm:flex-row w-full justify-between items-start sm:items-end gap-3 sm:gap-4">
+      <div className="flex flex-col sm:flex-row w-full justify-between items-start sm:items-end gap-3 sm:gap-4 px-1">
         <div>
-          <p className="text-[9px] sm:text-[10px] font-black tracking-[0.3em] sm:tracking-[0.5em] text-accent-orange uppercase drop-shadow-md mb-1">Amministrazione</p>
-          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black uppercase italic tracking-tight dark:text-white text-slate-900">Gestione Operatori</h2>
+          <p className="app-overline text-accent-orange drop-shadow-md mb-0.5">Amministrazione</p>
+          <h2 className="app-h1">Gestione Operatori</h2>
         </div>
         <button 
           onClick={() => setView('home')} 
-          className="glass-panel px-4 py-2.5 sm:px-6 sm:py-3.5 rounded-[16px] sm:rounded-[20px] font-bold text-xs sm:text-sm text-accent-blue flex items-center gap-2 sm:gap-3 hover:scale-105 active:scale-95 transition-all"
+          className="glass-panel px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-[14px] sm:rounded-[20px] font-bold text-xs sm:text-sm text-accent-blue flex items-center gap-1.5 hover:scale-105 active:scale-95 transition-all"
         >
           <ArrowLeft size={16} /> Indietro
         </button>

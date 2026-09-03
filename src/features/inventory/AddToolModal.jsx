@@ -135,8 +135,8 @@ const AddToolModal = ({ onClose, onToolAdded, currentUser, tools = [] }) => {
                   <Database className="text-accent-blue" size={20} />
                 </div>
                 <div>
-                  <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.25em] text-accent-blue">Nuovo Inserimento</p>
-                  <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight dark:text-white text-slate-900">Aggiungi Articolo</h2>
+                  <p className="app-overline text-accent-blue">Nuovo Inserimento</p>
+                  <h2 className="app-h2">Aggiungi Articolo</h2>
                 </div>
               </div>
               <button onClick={onClose} className="glass-button w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center hover:rotate-90 transition-transform shrink-0">
@@ -146,10 +146,10 @@ const AddToolModal = ({ onClose, onToolAdded, currentUser, tools = [] }) => {
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 md:p-8">
               <form id="add-tool-form" onSubmit={handleSubmit} className="flex flex-col gap-6 sm:gap-8">
-                <div className="p-6 md:p-8 rounded-3xl bg-slate-950/5 dark:bg-white/5 border dark:border-white/5 border-slate-900/5 flex flex-col gap-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+                <div className="p-5 sm:p-6 md:p-8 rounded-3xl bg-slate-950/5 dark:bg-white/5 border dark:border-white/5 border-slate-900/5 flex flex-col gap-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
                   <div className="flex items-center gap-2 border-b dark:border-white/5 border-slate-900/5 pb-3">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-accent-blue bg-accent-blue/10 px-2.5 py-1 rounded-md">1</span>
-                    <h3 className="text-xs font-black uppercase tracking-wider dark:text-white text-slate-800">Informazioni Principali e Geometriche</h3>
+                    <span className="app-overline text-accent-blue bg-accent-blue/10 px-2 py-0.5 rounded">1</span>
+                    <h3 className="app-h3 uppercase tracking-wider dark:text-white text-slate-800">Informazioni Principali e Geometriche</h3>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                     <CustomSelectField 

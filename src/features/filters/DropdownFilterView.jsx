@@ -9,11 +9,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useFilterStore } from '../../store/useFilterStore';
 
 const ALL_DETAIL_KEYS = [
-  { key: 'Quantità', label: 'Quantità', minWidth: '95px', align: 'center' },
-  { key: 'Ubicazione', label: 'Ubicazione', minWidth: '130px', align: 'center', className: 'hidden md:flex' },
-  { key: 'Stato', label: 'Stato', minWidth: '120px', align: 'center', className: 'hidden md:flex' },
-  { key: 'Fornitore', label: 'Fornitore', minWidth: '130px', align: 'center', className: 'hidden md:flex' },
-  { key: 'Codice', label: 'Codice Aziendale', minWidth: '180px', align: 'center', className: 'hidden md:flex' },
+  { key: 'Quantità', label: 'QTY', minWidth: '48px', align: 'center', className: 'w-12 sm:w-16 shrink-0' },
+  { key: 'Ubicazione', label: 'Ubicazione', minWidth: '110px', align: 'center', className: 'hidden md:flex' },
+  { key: 'Stato', label: 'Stato', minWidth: '110px', align: 'center', className: 'hidden md:flex' },
+  { key: 'Fornitore', label: 'Fornitore', minWidth: '120px', align: 'center', className: 'hidden md:flex' },
+  { key: 'Codice', label: 'Codice Aziendale', minWidth: '140px', align: 'center', className: 'hidden md:flex' },
 ];
 
 const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, initialFilters = {}, onFilterChange, viewMode, setViewMode }) => {
@@ -221,8 +221,6 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
     ...Object.fromEntries(EXTRA_FILTER_KEYS.map(e => [e.key, e.label]))
   };
 
-
-
   const renderDetailValue = (tool, detail) => {
     let val = tool[detail.key];
     if (val === null || val === undefined || val === '') {
@@ -233,7 +231,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
     // Handle Codice BEFORE the generic null check — show actual code or dash
     if (detail.key === 'Codice') {
       if (!val) return <span className="text-slate-700 opacity-20">—</span>;
-      return <span className="badge badge-blue text-xs font-mono font-bold px-3.5 py-1">{val}</span>;
+      return <span className="badge badge-blue app-caption font-bold px-2.5 py-0.5">{val}</span>;
     }
 
     // Generic null/empty early return (for all other fields)
@@ -241,7 +239,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
 
     if (detail.key === 'Stato') {
       return (
-        <span className={`badge text-xs font-black px-3.5 py-1 ${val === 'Disponibile' ? 'badge-emerald' : 'badge-rose'}`}>
+        <span className={`badge text-[10px] font-black px-2.5 py-0.5 ${val === 'Disponibile' ? 'badge-emerald' : 'badge-rose'}`}>
           {val}
         </span>
       );
@@ -249,21 +247,21 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
 
     if (detail.key === 'Quantità') {
       return (
-        <span className={`font-black text-base md:text-lg tabular-nums ${val > 0 ? 'text-accent-emerald' : 'text-accent-rose'}`}>
+        <span className={`app-qty-sm ${val > 0 ? 'text-accent-emerald' : 'text-accent-rose'}`}>
           {val}
         </span>
       );
     }
 
     if (detail.key === 'Ubicazione') {
-      return <span className="badge badge-orange text-xs font-mono font-bold px-3.5 py-1">{val}</span>;
+      return <span className="badge badge-orange app-caption font-bold px-2.5 py-0.5">{val}</span>;
     }
 
     if (detail.key === 'SerialNumber') {
-      return <span className="text-xs md:text-sm font-extrabold dark:text-slate-200 text-slate-800 font-mono whitespace-nowrap">{val}</span>;
+      return <span className="app-caption font-bold whitespace-nowrap">{val}</span>;
     }
 
-    return <span className="text-xs md:text-sm font-extrabold dark:text-slate-300 text-slate-700 whitespace-nowrap">{val}</span>;
+    return <span className="app-caption font-bold whitespace-nowrap">{val}</span>;
   };
 
   return (
@@ -275,19 +273,19 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
       <div className="flex items-center justify-between gap-2 px-2 md:hidden">
         <button 
           onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
-          className="flex-1 flex items-center justify-center gap-1.5 glass-button px-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-accent-blue"
+          className="flex-1 flex items-center justify-center gap-1.5 glass-button px-2 py-1.5 rounded-xl app-overline text-accent-blue"
         >
           <Filter size={14} className="shrink-0" />
           <span className="truncate">{isFiltersExpanded ? 'Nascondi' : 'Mostra'}</span>
-          {activeFiltersCount > 0 && <span className="bg-accent-blue text-slate-950 w-4 h-4 rounded-full flex items-center justify-center text-[8px] shrink-0">{activeFiltersCount}</span>}
+          {activeFiltersCount > 0 && <span className="bg-accent-blue text-slate-950 w-4 h-4 rounded-full flex items-center justify-center text-[8px] shrink-0 font-black">{activeFiltersCount}</span>}
         </button>
         
         {setViewMode && (
-          <div className="shrink-0 flex items-center bg-slate-900/5 dark:bg-white/5 p-1.5 rounded-2xl relative shadow-inner border border-slate-900/5 dark:border-white/5">
+          <div className="shrink-0 flex items-center bg-slate-900/5 dark:bg-white/5 p-1 rounded-2xl relative shadow-inner border border-slate-900/5 dark:border-white/5">
             <motion.div 
-              className="absolute top-1.5 bottom-1.5 w-[36px] bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-accent-blue/30 dark:border-accent-blue/30 overflow-hidden"
+              className="absolute top-1 bottom-1 w-[32px] bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-accent-blue/30 dark:border-accent-blue/30 overflow-hidden"
               initial={false}
-              animate={{ x: viewMode === 'grid' ? 36 : 0 }}
+              animate={{ x: viewMode === 'grid' ? 32 : 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
             >
               <div className="absolute inset-0 bg-accent-blue/10 animate-pulse" />
@@ -295,23 +293,23 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
             <button 
               type="button" 
               onClick={() => setViewMode('dropdown')} 
-              className={`relative z-10 w-9 h-8 flex items-center justify-center transition-colors ${viewMode === 'dropdown' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
+              className={`relative z-10 w-8 h-7 flex items-center justify-center transition-colors ${viewMode === 'dropdown' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
             >
-              <List size={16} />
+              <List size={15} />
             </button>
             <button 
               type="button" 
               onClick={() => setViewMode('grid')} 
-              className={`relative z-10 w-9 h-8 flex items-center justify-center transition-colors ${viewMode === 'grid' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
+              className={`relative z-10 w-8 h-7 flex items-center justify-center transition-colors ${viewMode === 'grid' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
             >
-              <LayoutGrid size={16} />
+              <LayoutGrid size={15} />
             </button>
           </div>
         )}
 
         <button
           onClick={() => setIsSelectionMode(!isSelectionMode)}
-          className={`flex-1 glass-button rounded-xl px-2 py-2 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 ${isSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600'}`}
+          className={`flex-1 glass-button rounded-xl px-2 py-1.5 app-overline transition-all flex items-center justify-center gap-1.5 ${isSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600'}`}
         >
           {isSelectionMode ? <X size={14} className="shrink-0" /> : <CheckCircle2 size={14} className="shrink-0" />}
           <span className="truncate">{isSelectionMode ? 'Cancella' : 'Seleziona'}</span>
@@ -339,14 +337,13 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.2 }}
-                      className="relative w-full md:w-auto md:flex-none"
+                      className="relative flex-1 min-w-[130px] md:min-w-[140px] md:max-w-[200px]"
                     >
                       <Select
-                        key={`select-${key}-${filters[key] || 'empty'}`}
                         value={filters[key] ? String(filters[key]) : undefined}
                         onValueChange={(val) => setFilter(key, val === 'all' ? '' : val)}
                       >
-                        <SelectTrigger className={`glass-button rounded-[12px] md:rounded-[14px] px-3 py-2 md:px-4 md:py-2.5 text-[10px] md:text-[11px] font-bold uppercase tracking-wider bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all w-full md:min-w-[120px] ${filters[key] && filters[key] !== 'all' ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-400 text-slate-600'}`}>
+                        <SelectTrigger className={`glass-button rounded-[12px] md:rounded-[14px] px-3 py-1.5 md:px-4 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all w-full ${filters[key] ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'}`}>
                           <span className="truncate"><SelectValue placeholder={LABELS[key] || key} /></span>
                         </SelectTrigger>
                         <SelectContent className="glass-panel z-[2000] border-white/10 dark:bg-slate-950/90 bg-white/90 backdrop-blur-xl">
@@ -370,7 +367,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.2 }}
                     onClick={() => setFilters({})}
-                    className="col-span-full md:col-auto w-full md:w-auto glass-button rounded-[12px] md:rounded-[14px] px-3 py-2 md:px-4 md:py-2.5 text-[10px] md:text-[11px] font-bold uppercase tracking-wider text-accent-rose hover:bg-accent-rose/10 transition-all flex items-center justify-center gap-1"
+                    className="col-span-full md:col-auto w-full md:w-auto glass-button rounded-[12px] md:rounded-[14px] px-3 py-1.5 md:px-4 md:py-2 app-overline text-accent-rose hover:bg-accent-rose/10 transition-all flex items-center justify-center gap-1"
                   >
                     <X size={12} /> Reset
                   </motion.button>
@@ -378,10 +375,10 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                 <motion.div layout key="selection-mode" className="hidden md:block">
                   <button
                     onClick={() => setIsSelectionMode(!isSelectionMode)}
-                    className={`glass-button rounded-[14px] px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${isSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600 opacity-60 hover:opacity-100'}`}
+                    className={`glass-button rounded-[14px] px-4 py-2 app-overline transition-all flex items-center gap-2 ${isSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600 opacity-60 hover:opacity-100'}`}
                   >
                     {isSelectionMode ? <X size={12} /> : <List size={12} />}
-                    {isSelectionMode ? 'Cancella Selezione' : 'Seleziona'}
+                    {isSelectionMode ? 'Cancella' : 'Seleziona'}
                   </button>
                 </motion.div>
               </AnimatePresence>
@@ -391,22 +388,22 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
       </AnimatePresence>
 
       <div className="glass-panel rounded-[20px] md:rounded-[24px] overflow-hidden flex flex-col flex-1 min-h-0">
-        <div className="px-6 py-2 border-b dark:border-white/5 border-slate-900/10 bg-white/[0.02]">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-orange">
+        <div className="px-4 md:px-6 py-2.5 md:py-3 border-b dark:border-white/5 border-slate-900/10 bg-white/[0.02]">
+          <p className="app-overline text-accent-orange">
             {sortedFiltered.length} utensil{sortedFiltered.length === 1 ? 'e' : 'i'} trovati
           </p>
         </div>
 
         {/* Header Row for Desktop */}
         {!isMobile && sortedFiltered.length > 0 && (
-          <div className="px-6 py-1.5 border-b dark:border-white/5 border-slate-900/10 bg-white/[0.01] flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-slate-500 shrink-0">
-            {isSelectionMode && <div className="w-5 flex-shrink-0" />} {/* Checkbox spacer */}
-            <div className="w-9 flex-shrink-0" /> {/* Icon spacer */}
+          <div className="px-3 sm:px-4 md:px-6 py-2 border-b dark:border-white/5 border-slate-900/10 bg-white/[0.01] flex items-center gap-2 sm:gap-3 md:gap-4 app-overline dark:text-slate-400 text-slate-600 shrink-0">
+            {isSelectionMode && <div className="w-5 sm:w-6 flex-shrink-0" />} {/* Checkbox spacer */}
+            <div className="w-8 sm:w-9 md:w-10 flex-shrink-0" /> {/* Icon spacer */}
             <div 
-              className="flex-1 min-w-[150px] cursor-pointer hover:text-accent-blue transition-colors flex items-center gap-1"
+              className="flex-1 min-w-0 cursor-pointer hover:text-accent-blue transition-colors flex items-center gap-1 text-left"
               onClick={() => handleSort('Descrizione')}
             >
-              Descrizione
+              <span>Descrizione</span>
               {sortConfig.key === 'Descrizione' && (
                 <span className="text-accent-blue">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
               )}
@@ -414,26 +411,26 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
             {visibleDetailKeys.map(detail => (
               <div 
                 key={detail.key} 
-                className={`flex-shrink-0 flex items-center justify-${detail.align === 'center' ? 'center' : 'start'} cursor-pointer hover:text-accent-blue transition-colors gap-1 ${detail.className || ''}`}
-                style={{ width: detail.minWidth }}
+                className={`flex-shrink-0 flex items-center justify-center cursor-pointer hover:text-accent-blue transition-colors gap-1 ${detail.className || ''}`}
+                style={{ minWidth: detail.minWidth }}
                 onClick={() => handleSort(detail.key)}
               >
-                {detail.label}
+                <span>{detail.label}</span>
                 {sortConfig.key === detail.key && (
                   <span className="text-accent-blue">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
                 )}
               </div>
             ))}
-            <div className="w-8 flex-shrink-0" /> {/* Chevron spacer */}
+            <div className="w-6 flex-shrink-0" /> {/* Chevron spacer */}
           </div>
         )}
 
-        <div ref={parentRef} className="flex-1 overflow-y-auto custom-scrollbar overflow-x-auto relative">
-          <div className="min-w-max md:min-w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
+        <div ref={parentRef} className="flex-1 overflow-y-auto custom-scrollbar overflow-x-hidden md:overflow-x-auto relative w-full">
+          <div className="w-full min-w-0 md:min-w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
           {sortedFiltered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 dark:text-slate-400 text-slate-600 absolute w-full top-0 left-0">
-              <Filter size={32} className="mb-4 text-slate-700" />
-              <p className="font-bold text-sm uppercase tracking-widest">Seleziona almeno un filtro</p>
+              <Filter size={32} className="mb-3 text-slate-600" />
+              <p className="app-overline">Seleziona almeno un filtro</p>
             </div>
           ) : (
             rowVirtualizer.getVirtualItems().map((virtualRow) => {
@@ -450,10 +447,10 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                   width: '100%',
                   transform: `translateY(${virtualRow.start}px)`
                 }}
-                className={`flex items-center gap-4 px-6 py-2 md:py-1.5 hover:bg-white/[0.04] cursor-pointer transition-all border-b dark:border-white/[0.03] border-slate-900/5 group ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
+                className={`flex items-center gap-2 sm:gap-3 md:gap-4 px-3 sm:px-4 md:px-6 py-2 hover:bg-white/[0.04] cursor-pointer transition-all border-b dark:border-white/[0.03] border-slate-900/5 group ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
               >
                 {isSelectionMode && (
-                  <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center flex-shrink-0 w-5">
+                  <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center flex-shrink-0 w-5 sm:w-6">
                     <Checkbox
                       checked={selectedIds.includes(tool.id)}
                       onCheckedChange={(checked) => onToggleSelect(tool.id)}
@@ -461,35 +458,35 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                     />
                   </div>
                 )}
-                <div onClick={() => onSelectTool(tool)} className="w-9 h-9 rounded-lg bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-blue/20 transition-colors overflow-hidden">
+                <div onClick={() => onSelectTool(tool)} className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg sm:rounded-xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-blue/20 transition-colors overflow-hidden">
                   <ToolIcon type={tool['Tipologia']} size={36} className="opacity-80 group-hover:opacity-100" />
                 </div>
                 
-                <div className="flex-1 min-w-[150px]" onClick={() => onSelectTool(tool)}>
-                  <p className="font-bold text-xs dark:text-white text-slate-900 truncate">{buildDesc(tool)}</p>
+                <div className="flex-1 min-w-0" onClick={() => onSelectTool(tool)}>
+                  <p className="app-h3 truncate">{buildDesc(tool)}</p>
                 </div>
 
                 {visibleDetailKeys.map(detail => (
                   <div 
                     key={detail.key} 
                     onClick={() => onSelectTool(tool)}
-                    className={`flex-shrink-0 flex items-center justify-${detail.align === 'center' ? 'center' : 'start'} ${detail.className || ''}`}
-                    style={{ width: detail.minWidth }}
+                    className={`flex-shrink-0 flex items-center justify-center ${detail.className || ''}`}
+                    style={{ minWidth: detail.minWidth }}
                   >
                     {renderDetailValue(tool, detail)}
                   </div>
                 ))}
 
-                <div className="w-8 flex-shrink-0 flex items-center justify-end" onClick={() => onSelectTool(tool)}>
-                  <ChevronRight size={14} className="text-slate-700 group-hover:text-accent-blue transition-colors" />
+                <div className="w-6 flex-shrink-0 flex items-center justify-center" onClick={() => onSelectTool(tool)}>
+                  <ChevronRight size={14} className="text-slate-500 group-hover:text-accent-blue transition-colors" />
                 </div>
               </div>
               );
             })
           )}
           </div>
-          {/* Spacer esplicito per Safari/iOS */}
-          <div className="h-24 md:h-12 shrink-0 w-full" />
+          {/* Spacer esplicito per scroll container */}
+          <div className="h-20 md:h-10 shrink-0 w-full pointer-events-none" />
         </div>
       </div>
     </motion.div>

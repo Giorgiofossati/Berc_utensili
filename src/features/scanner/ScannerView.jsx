@@ -44,14 +44,14 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-5xl w-full flex flex-col items-center gap-4 sm:gap-6 px-2 sm:px-4 overflow-y-auto custom-scrollbar pb-12">
-      <div className="w-full flex justify-between items-center">
-        <Button variant="glass" size="icon" onClick={() => setView('home')} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-accent-orange"><ArrowLeft size={18} /></Button>
+    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-5xl w-full flex flex-col items-center gap-3 sm:gap-5 px-2 sm:px-4 overflow-y-auto custom-scrollbar pb-12">
+      <div className="w-full flex justify-between items-center px-1">
+        <Button variant="glass" size="icon" onClick={() => setView('home')} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full text-accent-orange"><ArrowLeft size={16} /></Button>
         <div className="flex flex-col items-center">
-          <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.5em] text-accent-orange mb-1">Laser Recognition</p>
-          <h2 className="text-2xl sm:text-4xl font-extrabold uppercase italic tracking-tight">Optical Scanner</h2>
+          <p className="app-overline text-accent-orange mb-0.5">Laser Recognition</p>
+          <h2 className="app-h1">Optical Scanner</h2>
         </div>
-        <div className="w-10 h-10 sm:w-12 sm:h-12" />
+        <div className="w-9 h-9 sm:w-10 sm:h-10" />
       </div>
 
       <AnimatePresence mode="wait">

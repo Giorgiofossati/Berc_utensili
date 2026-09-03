@@ -105,8 +105,8 @@ export default function LoginScreen() {
              <User size={24} className="sm:w-8 sm:h-8" />
            </div>
         </div>
-        <h2 className="text-2xl sm:text-3xl font-black text-center uppercase tracking-widest dark:text-white text-slate-900 mb-1 leading-none">Login</h2>
-        <p className="text-center text-[10px] sm:text-xs font-black uppercase text-accent-orange tracking-[0.2em] mb-4 sm:mb-6 opacity-80">Identificati per continuare</p>
+        <h2 className="app-h2 text-center uppercase tracking-widest mb-1 leading-none">Login</h2>
+        <p className="app-overline text-accent-orange text-center mb-4 sm:mb-6 opacity-80">Identificati per continuare</p>
 
         <AnimatePresence mode="wait">
         {!selectedUser ? (
@@ -133,7 +133,7 @@ export default function LoginScreen() {
                   <div className="flex flex-col items-center justify-center p-6 gap-3 text-center">
                     <p className="text-xs text-accent-orange font-bold">Impossibile caricare gli utenti.</p>
                     <button 
-                      onClick={fetchUsers}
+                      onClick={fetchUsers} 
                       className="glass-button px-4 py-2 rounded-xl text-xs font-bold text-accent-blue hover:scale-105 transition-all"
                     >
                       Riprova
@@ -150,8 +150,8 @@ export default function LoginScreen() {
                       className="flex items-center justify-between p-3 sm:p-4 h-auto rounded-xl sm:rounded-2xl border border-white/5 hover:border-accent-blue/40 dark:bg-white/5 bg-slate-900/5 hover:bg-accent-blue/10 transition-all text-left group shrink-0 active:scale-[0.99]"
                     >
                       <div className="min-w-0 flex-1 pr-2">
-                        <p className="font-bold dark:text-white text-slate-900 text-base sm:text-lg group-hover:text-accent-blue transition-colors truncate">{u.nome} {u.cognome}</p>
-                        <p className="text-[9px] sm:text-[10px] font-black tracking-widest uppercase dark:text-slate-400 text-slate-600 mt-0.5">ID: {u.codice_id || 'N/A'}</p>
+                        <p className="app-h3 group-hover:text-accent-blue transition-colors truncate">{u.nome} {u.cognome}</p>
+                        <p className="app-caption mt-0.5">ID: {u.codice_id || 'N/A'}</p>
                       </div>
                       <div className="text-[8px] sm:text-[9px] font-black tracking-widest uppercase dark:bg-slate-900/70 bg-slate-200/70 px-2.5 py-1 rounded-full text-accent-blue shrink-0 shadow-xs">
                          {u.ruolo}

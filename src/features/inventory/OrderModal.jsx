@@ -59,8 +59,8 @@ const OrderModal = ({ tool, onClose, currentUser }) => {
               <ShoppingCart className="text-accent-orange" size={20} />
             </div>
             <div>
-              <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.25em] text-accent-orange">Riassortimento</p>
-              <h2 className="text-lg sm:text-xl font-black uppercase tracking-tight dark:text-white text-slate-900">Crea Ordine</h2>
+              <p className="app-overline text-accent-orange">Riassortimento</p>
+              <h2 className="app-h2">Crea Ordine</h2>
             </div>
           </div>
           <Button variant="glass" size="icon" onClick={onClose} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center hover:rotate-90 transition-transform shrink-0">
@@ -71,15 +71,15 @@ const OrderModal = ({ tool, onClose, currentUser }) => {
         {/* Body */}
         <div className="p-4 sm:p-6 flex flex-col gap-4 sm:gap-6 overflow-y-auto custom-scrollbar flex-1">
           <div className="bg-black/5 dark:bg-white/5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col gap-0.5 border border-slate-900/5 dark:border-white/5">
-            <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-500">Utensile Selezionato</p>
-            <p className="text-xs sm:text-sm font-black dark:text-white text-slate-900 truncate">
+            <p className="app-overline text-slate-500">Utensile Selezionato</p>
+            <p className="app-h3 truncate">
               {buildDesc(tool)} {tool.Codice ? ` - ${tool.Codice}` : ''}
             </p>
           </div>
 
           <form id="order-form" onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-5">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest opacity-70 text-slate-700 dark:text-slate-300 px-1">Quantità da ordinare *</label>
+              <label className="app-overline opacity-70 text-slate-700 dark:text-slate-300 px-1">Quantità da ordinare *</label>
               <Input 
                 type="number" 
                 inputMode="numeric"

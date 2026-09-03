@@ -32,6 +32,10 @@ import SearchOverlay from './features/filters/SearchOverlay';
 import AddToolModal from './features/inventory/AddToolModal';
 import OrderModal from './features/inventory/OrderModal';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import { preloadToolImages } from './lib/toolUtils';
+
+// Preload static tool images in memory immediately
+preloadToolImages();
 
 // Helper for date
 const getTodayString = () => new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
