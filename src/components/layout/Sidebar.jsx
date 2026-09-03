@@ -45,7 +45,7 @@ const SidebarContent = ({
   return (
     <div className="w-full h-full flex flex-col bg-white/70 dark:bg-slate-950/70 backdrop-blur-2xl border-r border-slate-200/50 dark:border-white/10 shadow-2xl overflow-hidden relative">
       {/* Header / Logo */}
-      <div className="pb-5 px-6 flex flex-col border-b border-slate-200/50 dark:border-white/5 shrink-0" style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}>
+      <div className="pb-4 px-6 pt-[max(1rem,env(safe-area-inset-top))] flex flex-col border-b border-slate-200/50 dark:border-white/5 shrink-0">
         <div className="flex items-center justify-between gap-3 mb-2">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-accent-blue/20 to-accent-blue/5 flex items-center justify-center border border-accent-blue/20 shadow-inner shrink-0">
@@ -72,7 +72,7 @@ const SidebarContent = ({
           )}
         </div>
         
-        <span className="text-[9px] font-bold tracking-[0.15em] text-slate-500 dark:text-slate-400 uppercase mt-1.5 block truncate">
+        <span className="text-[9px] font-bold tracking-[0.15em] text-slate-500 dark:text-slate-400 uppercase mt-1 block truncate">
           Gestione Utensili CNC
         </span>
       </div>
@@ -157,7 +157,7 @@ const SidebarContent = ({
       </div>
 
       {/* Footer / User Profile Card */}
-      <div className="p-4 border-t border-slate-200/50 dark:border-white/5 flex flex-col gap-2 shrink-0 pb-6 md:pb-4">
+      <div className="p-3 sm:p-4 border-t border-slate-200/50 dark:border-white/5 flex flex-col gap-2 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-4">
          <div className="flex items-center justify-between px-2 py-2 bg-slate-50/50 dark:bg-slate-900/30 rounded-2xl border border-slate-200/30 dark:border-white/5 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-accent-blue to-blue-600 flex items-center justify-center text-white shadow-inner shrink-0">
@@ -186,7 +186,7 @@ const SidebarContent = ({
 
          <button 
            onClick={() => { logout(); if(onClose) onClose(); }}
-           className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-500/10 text-slate-500 hover:text-rose-500 transition-colors mt-2"
+           className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-500/10 text-slate-500 hover:text-rose-500 transition-colors mt-1"
          >
            <LogOut size={16} />
            <span className="text-xs font-bold uppercase tracking-wider">Logout</span>
@@ -216,7 +216,7 @@ export default function Sidebar(props) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed top-0 left-0 bottom-0 w-[280px] max-w-[85vw] z-[2001] shadow-2xl"
+              className="fixed top-0 left-0 bottom-0 w-[280px] max-w-[85vw] h-[100dvh] min-h-[100dvh] z-[2001] shadow-2xl"
             >
               <SidebarContent {...props} />
             </motion.div>

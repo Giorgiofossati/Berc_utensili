@@ -81,7 +81,7 @@ const AddToolModal = ({ onClose, onToolAdded, currentUser, tools = [] }) => {
   } = useAddToolForm({ tools, onClose, onToolAdded });
 
   return (
-    <div className="fixed inset-0 z-[2500] flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+    <div className="fixed inset-0 z-[2500] flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden">
       <motion.div 
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
@@ -94,27 +94,27 @@ const AddToolModal = ({ onClose, onToolAdded, currentUser, tools = [] }) => {
         initial={{ opacity: 0, scale: 0.95, y: 20 }} 
         animate={{ opacity: 1, scale: 1, y: 0 }} 
         exit={{ opacity: 0, scale: 0.95, y: 20 }} 
-        className="glass-panel w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl max-h-[90vh] flex flex-col rounded-[32px] md:rounded-[48px] z-[2501] relative shadow-[0_0_100px_rgba(0,0,0,0.3)] dark:border-white/10 border-slate-900/10 overflow-hidden"
+        className="glass-panel w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl max-h-[92dvh] flex flex-col rounded-[28px] sm:rounded-[36px] md:rounded-[48px] z-[2501] relative shadow-[0_0_100px_rgba(0,0,0,0.3)] dark:border-white/10 border-slate-900/10 overflow-hidden"
       >
         {showSuccess ? (
           <motion.div 
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
-            className="flex flex-col items-center justify-center p-16 min-h-[50vh]"
+            className="flex flex-col items-center justify-center p-8 sm:p-16 min-h-[40vh]"
           >
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200, damping: 20 }}
-              className="w-24 h-24 rounded-full bg-accent-emerald/20 border-4 border-accent-emerald/30 flex items-center justify-center mb-8"
+              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-accent-emerald/20 border-4 border-accent-emerald/30 flex items-center justify-center mb-6"
             >
-              <CheckCircle2 size={48} className="text-accent-emerald drop-shadow-lg" />
+              <CheckCircle2 size={40} className="text-accent-emerald drop-shadow-lg sm:w-12 sm:h-12" />
             </motion.div>
             <motion.h2 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic dark:text-white text-slate-900 mb-3 text-center"
+              className="text-2xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter italic dark:text-white text-slate-900 mb-2 text-center"
             >
               Operazione Completata
             </motion.h2>
@@ -122,30 +122,30 @@ const AddToolModal = ({ onClose, onToolAdded, currentUser, tools = [] }) => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-sm md:text-base font-bold uppercase tracking-widest dark:text-slate-400 text-slate-600 text-center"
+              className="text-xs sm:text-base font-bold uppercase tracking-widest dark:text-slate-400 text-slate-600 text-center"
             >
               L'articolo è stato registrato nel sistema
             </motion.p>
           </motion.div>
         ) : (
           <>
-            <div className="flex items-center justify-between p-6 md:p-8 shrink-0 border-b dark:border-white/10 border-slate-900/10">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-accent-blue/10 flex items-center justify-center">
-                  <Database className="text-accent-blue" size={24} />
+            <div className="flex items-center justify-between p-4 sm:p-6 md:p-8 shrink-0 border-b dark:border-white/10 border-slate-900/10">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-accent-blue/10 flex items-center justify-center shrink-0">
+                  <Database className="text-accent-blue" size={20} />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-blue">Nuovo Inserimento</p>
-                  <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tighter dark:text-white text-slate-900">Aggiungi Articolo</h2>
+                  <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.25em] text-accent-blue">Nuovo Inserimento</p>
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight dark:text-white text-slate-900">Aggiungi Articolo</h2>
                 </div>
               </div>
-              <button onClick={onClose} className="glass-button w-12 h-12 rounded-full flex items-center justify-center hover:rotate-90 transition-transform">
-                <X size={24} />
+              <button onClick={onClose} className="glass-button w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center hover:rotate-90 transition-transform shrink-0">
+                <X size={20} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-8">
-              <form id="add-tool-form" onSubmit={handleSubmit} className="flex flex-col gap-8">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 md:p-8">
+              <form id="add-tool-form" onSubmit={handleSubmit} className="flex flex-col gap-6 sm:gap-8">
                 <div className="p-6 md:p-8 rounded-3xl bg-slate-950/5 dark:bg-white/5 border dark:border-white/5 border-slate-900/5 flex flex-col gap-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
                   <div className="flex items-center gap-2 border-b dark:border-white/5 border-slate-900/5 pb-3">
                     <span className="text-[10px] font-black uppercase tracking-wider text-accent-blue bg-accent-blue/10 px-2.5 py-1 rounded-md">1</span>

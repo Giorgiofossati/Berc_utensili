@@ -15,7 +15,7 @@ const CategoryGridCard = memo(({ opt, idx, handleSelectOption, isMobile }) => {
         delay: Math.min(idx * 0.02, 0.15) 
       }}
       onClick={() => handleSelectOption(opt)}
-      className="glass-panel group relative w-full max-w-[200px] sm:max-w-[220px] md:max-w-[230px] lg:max-w-[280px] xl:max-w-full aspect-square p-0 rounded-[16px] md:rounded-[20px] cursor-pointer bg-slate-100/50 dark:bg-slate-900/40 border dark:border-white/10 border-slate-900/10 dark:hover:border-accent-blue/50 hover:border-accent-blue/40 hover:shadow-[0_8px_30px_rgba(14,165,233,0.2)] transition-all duration-300 overflow-hidden"
+      className="glass-panel group relative w-full max-w-[200px] sm:max-w-[220px] md:max-w-[230px] lg:max-w-[280px] xl:max-w-full aspect-square p-0 rounded-[16px] md:rounded-[20px] cursor-pointer bg-slate-100/50 dark:bg-slate-900/40 border dark:border-white/10 border-slate-900/10 dark:hover:border-accent-blue/50 hover:border-accent-blue/40 hover:shadow-[0_8px_30px_rgba(14,165,233,0.2)] active:scale-95 transition-all duration-300 overflow-hidden"
     >
       {/* Full-bleed Image Container */}
       <ToolIcon 
@@ -29,11 +29,11 @@ const CategoryGridCard = memo(({ opt, idx, handleSelectOption, isMobile }) => {
       <div className="absolute inset-0 bg-black/10 dark:bg-black/25 transition-colors duration-300 pointer-events-none" />
 
       {/* Category Info Overlay - Floating Glassmorphic Panel for Maximum legibility and Premium UX */}
-      <div className="absolute bottom-3 left-3 right-3 p-2.5 md:p-3 bg-slate-950/80 dark:bg-slate-950/90 backdrop-blur-md border border-white/10 rounded-[12px] flex flex-col items-center justify-center z-20 shadow-lg">
-        <p className="text-[8px] md:text-[9px] font-black tracking-[0.2em] uppercase mb-0.5 text-accent-orange">
+      <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3 p-1.5 sm:p-2.5 md:p-3 bg-slate-950/80 dark:bg-slate-950/90 backdrop-blur-md border border-white/10 rounded-[10px] sm:rounded-[12px] flex flex-col items-center justify-center z-20 shadow-lg">
+        <p className="text-[7px] sm:text-[8px] md:text-[9px] font-black tracking-[0.2em] uppercase mb-0.5 text-accent-orange">
           {opt.category}
         </p>
-        <h3 className="text-xs md:text-sm font-black uppercase tracking-tight text-center leading-tight text-white group-hover:text-accent-blue transition-colors duration-300">
+        <h3 className="text-[11px] sm:text-xs md:text-sm font-black uppercase tracking-tight text-center leading-tight text-white group-hover:text-accent-blue transition-colors duration-300 truncate max-w-full">
           {opt.label}
         </h3>
       </div>

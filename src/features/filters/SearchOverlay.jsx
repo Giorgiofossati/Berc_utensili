@@ -43,58 +43,57 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[1000] flex flex-col items-center justify-start p-4 md:p-10"
-          style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
+          className="fixed inset-0 z-[1000] flex flex-col items-center justify-start p-3 sm:p-6 md:p-10 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] overflow-y-auto custom-scrollbar"
         >
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose} 
-            className="absolute inset-0 dark:bg-slate-950/40 bg-slate-100/40 backdrop-blur-md" 
+            className="fixed inset-0 dark:bg-slate-950/60 bg-slate-100/60 backdrop-blur-md" 
           />
           
           <motion.div
-            initial={{ y: -50, opacity: 0 }}
+            initial={{ y: -30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -50, opacity: 0 }}
-            className="w-full max-w-4xl z-10 flex flex-col gap-6"
+            exit={{ y: -30, opacity: 0 }}
+            className="w-full max-w-4xl z-10 flex flex-col gap-4 sm:gap-6 my-auto"
           >
             <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-black uppercase italic tracking-tighter dark:text-white text-slate-900">Ricerca Globale</h2>
+              <h2 className="text-2xl sm:text-3xl font-black uppercase italic tracking-tight dark:text-white text-slate-900">Ricerca Globale</h2>
               <button 
                 onClick={onClose} 
-                className="glass-button p-4 rounded-full text-accent-orange"
+                className="glass-button p-2.5 sm:p-4 rounded-full text-accent-orange"
               >
-                <X size={24} />
+                <X size={20} className="sm:w-6 sm:h-6" />
               </button>
             </div>
 
-            <div className="relative flex items-center gap-4">
+            <div className="relative flex items-center gap-2 sm:gap-4">
               <div className="relative flex-1 flex items-center">
-                <Search size={24} className="absolute left-6 dark:text-slate-400 text-slate-600 pointer-events-none z-10" />
+                <Search size={20} className="absolute left-4 sm:left-6 dark:text-slate-400 text-slate-600 pointer-events-none z-10 sm:w-6 sm:h-6" />
                 <input
                   ref={inputRef}
                   value={manualCode}
                   onChange={(e) => setManualCode(e.target.value)}
-                  placeholder="CERCA PER CODICE AZIENDALE/PRODUTTORE, DESCRIZIONE..."
-                  className="w-full glass-panel py-6 pl-16 pr-14 rounded-[32px] font-bold text-xl outline-none border-accent-blue/20 focus:border-accent-blue/60 transition-all placeholder:text-slate-700 tracking-wider"
+                  placeholder="Cerca codice o descrizione..."
+                  className="w-full glass-panel py-3.5 sm:py-5 pl-11 sm:pl-16 pr-10 sm:pr-14 rounded-[20px] sm:rounded-[32px] font-bold text-sm sm:text-lg outline-none border-accent-blue/20 focus:border-accent-blue/60 transition-all placeholder:text-slate-500 tracking-wide"
                 />
                 {manualCode && (
                   <button 
                     onClick={() => setManualCode('')} 
-                    className="absolute right-6 dark:text-slate-400 text-slate-600 hover:text-white transition-colors"
+                    className="absolute right-4 sm:right-6 dark:text-slate-400 text-slate-600 hover:text-white transition-colors p-1"
                   >
-                    <X size={20} />
+                    <X size={18} />
                   </button>
                 )}
               </div>
               
               <button 
                 onClick={() => setShowCamera(!showCamera)}
-                className={`glass-button p-6 rounded-[32px] ${showCamera ? 'text-accent-orange border-accent-orange/40' : 'text-accent-blue border-accent-blue/20'}`}
+                className={`glass-button p-3.5 sm:p-5 rounded-[20px] sm:rounded-[28px] shrink-0 ${showCamera ? 'text-accent-orange border-accent-orange/40' : 'text-accent-blue border-accent-blue/20'}`}
               >
-                <Camera size={28} />
+                <Camera size={22} className="sm:w-6 sm:h-6" />
               </button>
             </div>
 
@@ -103,7 +102,7 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="glass-panel rounded-[32px] overflow-hidden"
+                className="glass-panel rounded-[24px] sm:rounded-[32px] overflow-hidden"
               >
                 <BarcodeScanner onScan={handleScan} />
               </motion.div>

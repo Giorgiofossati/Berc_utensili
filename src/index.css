@@ -47,9 +47,12 @@
   }
 
   html, body, #root {
-    height: 100vh;
+    min-height: 100vh;
+    min-height: 100dvh;
     height: 100dvh;
+    width: 100%;
     overflow: hidden;
+    overscroll-behavior: none;
   }
 
   body {
@@ -120,40 +123,48 @@
 
 @layer components {
 
-  /* Safe Area / Viewport Compatibility for iOS Safari and PWA */
+  /* Safe Area / Viewport Compatibility for iOS Safari, Chrome Mobile and PWA */
   .app-container {
-    padding-top: max(12px, env(safe-area-inset-top));
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: max(8px, env(safe-area-inset-left));
-    padding-right: max(8px, env(safe-area-inset-right));
+    padding-top: max(10px, env(safe-area-inset-top, 10px));
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
+    padding-left: max(8px, env(safe-area-inset-left, 0px));
+    padding-right: max(8px, env(safe-area-inset-right, 0px));
+  }
+
+  .safe-toast-top {
+    top: max(16px, env(safe-area-inset-top, 16px));
+  }
+
+  .safe-overlay-top {
+    padding-top: max(16px, env(safe-area-inset-top, 16px));
   }
 
   @media (min-width: 768px) {
     .app-container {
-      padding-top: max(16px, env(safe-area-inset-top));
-      padding-bottom: env(safe-area-inset-bottom);
-      padding-left: max(16px, env(safe-area-inset-left));
-      padding-right: max(16px, env(safe-area-inset-right));
+      padding-top: max(16px, env(safe-area-inset-top, 16px));
+      padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+      padding-left: max(16px, env(safe-area-inset-left, 0px));
+      padding-right: max(16px, env(safe-area-inset-right, 0px));
     }
   }
 
   .command-bar-container {
-    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
 
   @media (min-width: 768px) {
     .command-bar-container {
-      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
     }
   }
 
   .floating-badge-container {
-    bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px));
   }
 
   @media (min-width: 768px) {
     .floating-badge-container {
-      bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+      bottom: calc(36px + env(safe-area-inset-bottom, 0px));
     }
   }
 

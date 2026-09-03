@@ -44,14 +44,14 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-5xl w-full flex flex-col items-center gap-6">
+    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-5xl w-full flex flex-col items-center gap-4 sm:gap-6 px-2 sm:px-4 overflow-y-auto custom-scrollbar pb-12">
       <div className="w-full flex justify-between items-center">
-        <Button variant="glass" size="icon" onClick={() => setView('home')} className="w-12 h-12 rounded-full text-accent-orange"><ArrowLeft /></Button>
+        <Button variant="glass" size="icon" onClick={() => setView('home')} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-accent-orange"><ArrowLeft size={18} /></Button>
         <div className="flex flex-col items-center">
-          <p className="text-[10px] font-black uppercase tracking-[0.5em] text-accent-orange mb-2">Laser Recognition</p>
-          <h2 className="text-4xl font-extrabold uppercase italic tracking-tighter">Optical Scanner</h2>
+          <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.5em] text-accent-orange mb-1">Laser Recognition</p>
+          <h2 className="text-2xl sm:text-4xl font-extrabold uppercase italic tracking-tight">Optical Scanner</h2>
         </div>
-        <div className="w-12 h-12" />
+        <div className="w-10 h-10 sm:w-12 sm:h-12" />
       </div>
 
       <AnimatePresence mode="wait">
@@ -61,18 +61,18 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="glass-panel w-full rounded-[48px] overflow-hidden relative border-accent-cyan/20 mb-4 flex-shrink-0"
-            style={{ aspectRatio: '21/9', maxHeight: '350px' }}
+            className="glass-panel w-full rounded-[28px] sm:rounded-[48px] overflow-hidden relative border-accent-cyan/20 mb-2 sm:mb-4 flex-shrink-0"
+            style={{ aspectRatio: isMobile ? '16/9' : '21/9', maxHeight: '320px' }}
           >
-            <div className="absolute inset-x-0 top-6 flex justify-center z-10">
-              <div className="glass-panel px-6 py-2 rounded-full border-accent-cyan/40 bg-accent-cyan/5">
-                <p className="text-[10px] font-black text-accent-cyan tracking-widest uppercase flex items-center gap-2">
+            <div className="absolute inset-x-0 top-4 sm:top-6 flex justify-center z-10">
+              <div className="glass-panel px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border-accent-cyan/40 bg-accent-cyan/5">
+                <p className="text-[9px] sm:text-[10px] font-black text-accent-cyan tracking-widest uppercase flex items-center gap-2">
                   <Activity size={12} className="animate-pulse" /> Scanner Status: Active
                 </p>
               </div>
             </div>
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none mt-4">
-              <div className="w-48 h-48 sm:w-64 sm:h-64 border-2 border-accent-cyan/20 rounded-[32px] sm:rounded-[48px] relative overflow-hidden">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none mt-2 sm:mt-4">
+              <div className="w-40 h-40 sm:w-64 sm:h-64 border-2 border-accent-cyan/20 rounded-[28px] sm:rounded-[48px] relative overflow-hidden">
                 <div className="scan-line"></div>
                 <div className="absolute top-0 left-0 w-6 h-6 sm:w-8 sm:h-8 border-t-4 border-l-4 border-accent-cyan rounded-tl-2xl" />
                 <div className="absolute top-0 right-0 w-6 h-6 sm:w-8 sm:h-8 border-t-4 border-r-4 border-accent-cyan rounded-tr-2xl" />
@@ -85,29 +85,29 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
       </AnimatePresence>
 
       <div className="w-full relative">
-        <div className="relative flex items-center gap-4">
+        <div className="relative flex items-center gap-2 sm:gap-4">
           <div className="relative flex-1 flex items-center">
-            <Search size={20} className="absolute left-6 dark:text-slate-300 text-slate-700 pointer-events-none z-10" />
+            <Search size={18} className="absolute left-4 sm:left-6 dark:text-slate-300 text-slate-700 pointer-events-none z-10" />
             <Input
               ref={inputRef}
               autoFocus
               value={manualCode}
               onChange={(e) => setManualCode(e.target.value)}
-              placeholder="DIGITA CODICE AZIENDALE/PRODUTTORE O DESCRIZIONE..."
-              className="w-full h-auto glass-panel py-5 pl-14 pr-14 rounded-[24px] font-bold text-lg outline-none border-accent-blue/20 focus:border-accent-blue/60 transition-all placeholder:text-slate-700 tracking-wider"
+              placeholder="Digita codice o descrizione..."
+              className="w-full h-auto glass-panel py-3.5 sm:py-5 pl-11 sm:pl-14 pr-10 sm:pr-14 rounded-[20px] sm:rounded-[24px] font-bold text-sm sm:text-lg outline-none border-accent-blue/20 focus:border-accent-blue/60 transition-all placeholder:text-slate-500 tracking-wide"
             />
             {manualCode && (
-              <Button variant="ghost" size="icon" onClick={() => setManualCode('')} className="absolute right-3 dark:text-slate-300 text-slate-700 hover:text-white transition-colors">
-                <X size={18} />
+              <Button variant="ghost" size="icon" onClick={() => setManualCode('')} className="absolute right-2 sm:right-3 dark:text-slate-300 text-slate-700 hover:text-white transition-colors">
+                <X size={16} />
               </Button>
             )}
           </div>
           <Button 
             variant="glass"
             onClick={() => setShowCamera(!showCamera)}
-            className={`w-16 h-16 rounded-[24px] flex-shrink-0 ${showCamera ? 'text-accent-orange border-accent-orange/40' : 'text-accent-blue border-accent-blue/20'}`}
+            className={`w-12 h-12 sm:w-16 sm:h-16 rounded-[18px] sm:rounded-[24px] flex-shrink-0 ${showCamera ? 'text-accent-orange border-accent-orange/40' : 'text-accent-blue border-accent-blue/20'}`}
           >
-            <Camera size={24} />
+            <Camera size={20} className="sm:w-6 sm:h-6" />
           </Button>
         </div>
         

@@ -173,14 +173,14 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile }) => {
       className="w-full max-w-[1600px] flex flex-col flex-1 gap-2 md:gap-4 min-h-0"
     >
       {availableFilters.length > 0 && (
-        <div className="flex flex-wrap gap-2 px-2">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2 px-2">
           {availableFilters.map(({ key, label }) => (
             <div key={key} className="relative">
               <Select
                 value={extraFilters[key] ? String(extraFilters[key]) : undefined}
                 onValueChange={(val) => setFilter(key, val === 'all' ? '' : val)}
               >
-                <SelectTrigger className={`glass-button rounded-[14px] px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all min-w-[120px] ${extraFilters[key] && extraFilters[key] !== 'all' ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'}`}>
+                <SelectTrigger className={`glass-button rounded-[12px] md:rounded-[14px] px-3 py-2 md:px-4 md:py-2.5 text-[10px] md:text-[11px] font-bold uppercase tracking-wider bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all min-w-[100px] md:min-w-[120px] ${extraFilters[key] && extraFilters[key] !== 'all' ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'}`}>
                   <SelectValue placeholder={label} />
                 </SelectTrigger>
                 <SelectContent className="glass-panel z-[2000] border-white/10 dark:bg-slate-950/90 bg-white/90 backdrop-blur-xl">
@@ -195,17 +195,17 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile }) => {
           {Object.values(extraFilters).some(v => v) && (
             <button
               onClick={() => setExtraFilters({})}
-              className="glass-button rounded-[14px] px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-accent-orange hover:bg-accent-orange/10 transition-all flex items-center gap-1"
+              className="glass-button rounded-[12px] md:rounded-[14px] px-3 py-2 md:px-4 md:py-2.5 text-[10px] md:text-[11px] font-bold uppercase tracking-wider text-accent-orange hover:bg-accent-orange/10 transition-all flex items-center gap-1"
             >
               <X size={12} /> Reset
             </button>
           )}
           <button
             onClick={() => setIsSelectionMode(!isSelectionMode)}
-            className={`glass-button rounded-[14px] px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${isSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600 opacity-60 hover:opacity-100'}`}
+            className={`glass-button rounded-[12px] md:rounded-[14px] px-3 py-2 md:px-4 md:py-2.5 text-[10px] md:text-[11px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ${isSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600 opacity-60 hover:opacity-100'}`}
           >
             {isSelectionMode ? <X size={12} /> : <List size={12} />}
-            {isSelectionMode ? 'Cancella Selezione' : 'Seleziona'}
+            {isSelectionMode ? 'Cancella' : 'Seleziona'}
           </button>
         </div>
       )}

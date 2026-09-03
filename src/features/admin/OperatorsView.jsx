@@ -283,19 +283,19 @@ const OperatorsView = memo(({ setView }) => {
     <motion.div 
       initial={{ opacity: 0, scale: 0.98 }} 
       animate={{ opacity: 1, scale: 1 }} 
-      className="w-full max-w-7xl flex flex-col items-center gap-6 px-4 md:px-6 pb-20"
+      className="w-full max-w-7xl flex flex-col items-center gap-4 sm:gap-6 px-2 sm:px-4 md:px-6 pb-20 overflow-y-auto custom-scrollbar"
     >
       {/* Intestazione */}
-      <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-end gap-4">
+      <div className="flex flex-col sm:flex-row w-full justify-between items-start sm:items-end gap-3 sm:gap-4">
         <div>
-          <p className="text-[10px] font-black tracking-[0.5em] text-accent-orange uppercase drop-shadow-md mb-2">Amministrazione</p>
-          <h2 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter dark:text-white text-slate-900">Gestione Operatori</h2>
+          <p className="text-[9px] sm:text-[10px] font-black tracking-[0.3em] sm:tracking-[0.5em] text-accent-orange uppercase drop-shadow-md mb-1">Amministrazione</p>
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black uppercase italic tracking-tight dark:text-white text-slate-900">Gestione Operatori</h2>
         </div>
         <button 
           onClick={() => setView('home')} 
-          className="glass-panel px-6 py-3.5 rounded-[20px] font-bold text-accent-blue flex items-center gap-3 hover:scale-105 active:scale-95 transition-all"
+          className="glass-panel px-4 py-2.5 sm:px-6 sm:py-3.5 rounded-[16px] sm:rounded-[20px] font-bold text-xs sm:text-sm text-accent-blue flex items-center gap-2 sm:gap-3 hover:scale-105 active:scale-95 transition-all"
         >
-          <ArrowLeft size={18} /> Indietro
+          <ArrowLeft size={16} /> Indietro
         </button>
       </div>
 
@@ -579,7 +579,7 @@ const OperatorsView = memo(({ setView }) => {
       {/* CONFIRM DELETE MODAL */}
       <AnimatePresence>
         {deletingUser && (
-          <div className="fixed inset-0 z-[3000] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[3000] flex items-center justify-center p-3 sm:p-4">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
@@ -592,48 +592,48 @@ const OperatorsView = memo(({ setView }) => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }} 
               animate={{ opacity: 1, scale: 1, y: 0 }} 
               exit={{ opacity: 0, scale: 0.9, y: 20 }} 
-              className="glass-panel w-full max-w-md p-8 rounded-[36px] z-[3001] relative overflow-hidden border-accent-rose/30 shadow-[0_0_50px_rgba(244,63,94,0.1)]"
+              className="glass-panel w-full max-w-md p-5 sm:p-8 rounded-[28px] sm:rounded-[36px] z-[3001] relative overflow-hidden border-accent-rose/30 shadow-[0_0_50px_rgba(244,63,94,0.1)]"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-accent-rose/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-accent-rose/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
               
-              <div className="flex flex-col items-center text-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-accent-rose/10 flex items-center justify-center text-accent-rose mb-2">
-                  <AlertTriangle size={32} />
+              <div className="flex flex-col items-center text-center gap-3 sm:gap-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-accent-rose/10 flex items-center justify-center text-accent-rose mb-1">
+                  <AlertTriangle size={24} className="sm:w-8 sm:h-8" />
                 </div>
                 
                 <div>
-                  <p className="text-[9px] font-black text-accent-rose uppercase tracking-[0.3em] mb-1">RIMOZIONE OPERATORE</p>
-                  <h3 className="text-2xl font-black uppercase italic tracking-tighter dark:text-white text-slate-900">Sei sicuro?</h3>
+                  <p className="text-[8px] sm:text-[9px] font-black text-accent-rose uppercase tracking-[0.25em] mb-0.5">RIMOZIONE OPERATORE</p>
+                  <h3 className="text-xl sm:text-2xl font-black uppercase italic tracking-tight dark:text-white text-slate-900">Sei sicuro?</h3>
                 </div>
 
-                <p className="text-sm dark:text-slate-400 text-slate-600 leading-relaxed">
-                  Stai per eliminare definitivamente l'operatore <strong className="dark:text-white text-slate-900">{deletingUser.nome} {deletingUser.cognome}</strong> (ID: {deletingUser.codice_id}) dal database. Questa operazione non può essere annullata.
+                <p className="text-xs sm:text-sm dark:text-slate-400 text-slate-600 leading-relaxed">
+                  Stai per eliminare definitivamente l'operatore <strong className="dark:text-white text-slate-900">{deletingUser.nome} {deletingUser.cognome}</strong> (ID: {deletingUser.codice_id}) dal database.
                 </p>
 
                 {deletingUser.id === currentUser.id && (
-                  <div className="w-full p-4 bg-accent-orange/10 border border-accent-orange/20 rounded-2xl flex items-start gap-3 text-left">
-                    <AlertTriangle size={18} className="text-accent-orange shrink-0 mt-0.5" />
-                    <p className="text-xs text-accent-orange font-bold leading-normal">
+                  <div className="w-full p-3 sm:p-4 bg-accent-orange/10 border border-accent-orange/20 rounded-xl sm:rounded-2xl flex items-start gap-2.5 text-left">
+                    <AlertTriangle size={16} className="text-accent-orange shrink-0 mt-0.5" />
+                    <p className="text-[11px] sm:text-xs text-accent-orange font-bold leading-normal">
                       Attenzione: Stai eliminando il tuo stesso account. Verrai disconnesso immediatamente dal sistema.
                     </p>
                   </div>
                 )}
 
-                <div className="flex gap-3 w-full mt-4">
+                <div className="flex gap-2.5 sm:gap-3 w-full mt-2">
                   <button 
                     onClick={() => setDeletingUser(null)} 
                     disabled={actionLoading}
-                    className="flex-1 py-4 glass-button font-black rounded-2xl uppercase tracking-[0.1em] text-xs"
+                    className="flex-1 py-3 sm:py-4 glass-button font-black rounded-xl sm:rounded-2xl uppercase tracking-[0.1em] text-xs hover:text-accent-rose"
                   >
                     Annulla
                   </button>
                   <button 
                     onClick={confirmDelete}
                     disabled={actionLoading}
-                    className="flex-1 py-4 bg-accent-rose text-white font-black rounded-2xl uppercase tracking-[0.1em] text-xs hover:bg-rose-600 transition-all flex justify-center items-center gap-2"
+                    className="flex-1 py-3 sm:py-4 bg-accent-rose text-white font-black rounded-xl sm:rounded-2xl uppercase tracking-[0.1em] text-xs hover:bg-rose-600 active:scale-[0.98] transition-all flex justify-center items-center gap-2 shadow-lg shadow-rose-500/20"
                   >
                     {actionLoading ? (
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     ) : (
                       <>Sì, Elimina</>
                     )}
@@ -652,8 +652,7 @@ const OperatorsView = memo(({ setView }) => {
             initial={{ opacity: 0, y: -50, scale: 0.95 }} 
             animate={{ opacity: 1, y: 0, scale: 1 }} 
             exit={{ opacity: 0, scale: 0.9 }} 
-            className="fixed left-4 right-4 md:left-auto md:right-12 z-[9999] pointer-events-auto"
-            style={{ top: 'max(16px, env(safe-area-inset-top))' }}
+            className="fixed left-4 right-4 md:left-auto md:right-12 z-[9999] pointer-events-auto safe-toast-top"
           >
             <div className={`glass-panel p-4 md:p-6 rounded-[24px] border-l-[8px] bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl ${
               toast.type === 'error' ? 'border-accent-rose' : 'border-accent-blue'

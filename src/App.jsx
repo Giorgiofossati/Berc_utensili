@@ -148,14 +148,14 @@ function App() {
 
   if (!currentUser) {
     return (
-      <Suspense fallback={<div className="h-[100dvh] w-screen dark:bg-slate-950 bg-slate-50 flex items-center justify-center text-accent-blue"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+      <Suspense fallback={<div className="min-h-[100dvh] h-[100dvh] w-full dark:bg-slate-950 bg-slate-50 flex items-center justify-center text-accent-blue"><div className="w-12 h-12 md:w-16 md:h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
         <LoginScreen />
       </Suspense>
     );
   }
 
   return (
-    <div ref={mainRef} className="h-[100dvh] w-screen flex flex-row overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
+    <div ref={mainRef} className="min-h-[100dvh] h-[100dvh] w-full flex flex-row overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
       <Suspense fallback={null}>
         <Sidebar 
           isMobile={isMobile} 
@@ -342,7 +342,7 @@ function App() {
 
         <AnimatePresence>
           {toast && (
-            <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed left-4 right-4 md:left-auto md:right-12 z-[9999] pointer-events-auto" style={{ top: 'max(16px, env(safe-area-inset-top))' }}>
+            <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed left-4 right-4 md:left-auto md:right-12 z-[9999] pointer-events-auto safe-toast-top">
               <div className="glass-panel p-4 md:p-6 rounded-[24px] border-l-[8px] border-accent-blue flex items-center gap-4 shadow-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl">
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-accent-blue/20 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0"><CheckCircle2 className="text-accent-blue" size={24} /></div>
                 <div className="flex flex-col min-w-0">
