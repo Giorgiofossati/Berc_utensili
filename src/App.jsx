@@ -118,7 +118,7 @@ function App() {
     setOpType(null);
     setModalQty(1);
     setShowMoveModal(true);
-  }, [setSelectedTool, setOpType, setModalQty]);
+  }, [setSelectedTool, setOpType, setModalQty, setShowMoveModal]);
 
   const onConfirmMovement = () => {
     handleMovement(selectedToolsIds, () => {
@@ -243,26 +243,24 @@ function App() {
         <main className="flex-1 w-full flex flex-col items-center justify-start relative min-h-0 overflow-hidden">
             <AnimatePresence mode="wait">
               {view === 'home' && (
-                <motion.div key="home" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.2 }} className="w-full h-full flex flex-col items-center relative">
+                <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="w-full h-full flex flex-col items-center relative">
                   <div className="flex-1 w-full flex flex-col items-center justify-start min-h-0 px-2 mt-1 md:mt-1.5">
-                    <AnimatePresence mode="wait">
-                      {viewMode === 'grid' ? (
-                        <motion.div key="grid-mode" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }} className={`w-full flex-1 flex flex-col items-center justify-center min-h-0 ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar py-2 md:py-0' : ''}`}>
-                          {renderGridHome()}
-                        </motion.div>
-                      ) : (
-                        <motion.div key="dropdown-mode" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }} className="w-full flex-1 flex flex-col items-center min-h-0">
-                          <DropdownFilterView tools={tools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} initialFilters={Object.fromEntries(filterStack.map(f => [f.type, f.value]))}
-                            onFilterChange={(newFilters) => {
-                              const newStack = Object.entries(newFilters).filter(([_, v]) => v).map(([k, v]) => ({ type: k, value: v }));
-                              setFilterStack(newStack);
-                            }}
-                            viewMode={viewMode}
-                            setViewMode={setViewMode}
-                          />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    {viewMode === 'grid' ? (
+                      <div className={`w-full flex-1 flex flex-col items-center justify-center min-h-0 ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar py-2 md:py-0' : ''}`}>
+                        {renderGridHome()}
+                      </div>
+                    ) : (
+                      <div className="w-full flex-1 flex flex-col items-center min-h-0">
+                        <DropdownFilterView tools={tools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} initialFilters={Object.fromEntries(filterStack.map(f => [f.type, f.value]))}
+                          onFilterChange={(newFilters) => {
+                            const newStack = Object.entries(newFilters).filter(([_, v]) => v).map(([k, v]) => ({ type: k, value: v }));
+                            setFilterStack(newStack);
+                          }}
+                          viewMode={viewMode}
+                          setViewMode={setViewMode}
+                        />
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}

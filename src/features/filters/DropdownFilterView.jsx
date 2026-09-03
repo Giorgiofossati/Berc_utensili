@@ -447,7 +447,8 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                   width: '100%',
                   transform: `translateY(${virtualRow.start}px)`
                 }}
-                className={`flex items-center gap-2 sm:gap-3 md:gap-4 px-3 sm:px-4 md:px-6 py-2 hover:bg-white/[0.04] cursor-pointer transition-all border-b dark:border-white/[0.03] border-slate-900/5 group ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
+                onClick={() => onSelectTool(tool)}
+                className={`flex items-center gap-2 sm:gap-3 md:gap-4 px-3 sm:px-4 md:px-6 py-2.5 sm:py-2 hover:bg-white/[0.06] active:bg-accent-blue/10 cursor-pointer transition-colors border-b dark:border-white/[0.03] border-slate-900/5 group select-none ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
               >
                 {isSelectionMode && (
                   <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center flex-shrink-0 w-5 sm:w-6">
@@ -458,18 +459,17 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                     />
                   </div>
                 )}
-                <div onClick={() => onSelectTool(tool)} className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg sm:rounded-xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-blue/20 transition-colors overflow-hidden">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg sm:rounded-xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-blue/20 transition-colors overflow-hidden">
                   <ToolIcon type={tool['Tipologia']} size={36} className="opacity-80 group-hover:opacity-100" />
                 </div>
                 
-                <div className="flex-1 min-w-0" onClick={() => onSelectTool(tool)}>
+                <div className="flex-1 min-w-0">
                   <p className="app-h3 truncate">{buildDesc(tool)}</p>
                 </div>
 
                 {visibleDetailKeys.map(detail => (
                   <div 
                     key={detail.key} 
-                    onClick={() => onSelectTool(tool)}
                     className={`flex-shrink-0 flex items-center justify-center ${detail.className || ''}`}
                     style={{ minWidth: detail.minWidth }}
                   >
@@ -477,7 +477,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                   </div>
                 ))}
 
-                <div className="w-6 flex-shrink-0 flex items-center justify-center" onClick={() => onSelectTool(tool)}>
+                <div className="w-6 flex-shrink-0 flex items-center justify-center">
                   <ChevronRight size={14} className="text-slate-500 group-hover:text-accent-blue transition-colors" />
                 </div>
               </div>
