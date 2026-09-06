@@ -44,15 +44,10 @@ L'ambiente operativo richiede:
 
 ## 3. Sistema Tipografico e Font
 
-L'applicazione utilizza una combinazione tipografica specifica per l'ambiente industriale e CNC:
-
-### Font Families Ufficiali
-- **Font Principale Sans-Serif (`--font-sans`):** [`Inter`](https://fonts.google.com/specimen/Inter)
-  - Caricato in `index.html` con gamma completa di pesi: `300 (Light)`, `400 (Regular)`, `500 (Medium)`, `600 (SemiBold)`, `700 (Bold)`, `800 (ExtraBold)`, `900 (Black)`.
-  - Utilizzato per tutta l'interfaccia utente, pulsanti, titoli e descrizioni.
-- **Font Tecnico Monospace (`--font-mono`):** [`JetBrains Mono`](https://fonts.google.com/specimen/JetBrains+Mono)
-  - Caricato con pesi `400`, `500`, `600`, `700`, `800`.
-  - Utilizzato per **codici utensile** (`Codice`, es. `D12-APKT1003`), **matricole**, **ID operatore** (`I0000001`), **ubicazioni**, **date/timestamp** e cifre tabular-nums. Garantisce allineamento visivo perfetto a larghezza fissa.
+### Font Family Ufficiale
+- **Font Ufficiale di Progetto:** [`Inter`](https://fonts.google.com/specimen/Inter)
+  - Caricato in `index.html` e applicato globalmente a tutta l'applicazione tramite `--font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;`.
+  - Rimane il font storico e identitario del progetto Bercella, garantendo pulizia, leggibilità e perfetta resa visiva.
 
 ### Regola di Applicazione
 Tutti i testi dell'applicazione **devono utilizzare esclusivamente le classi semantiche `.app-*`** definite in `src/index.css`. È vietato introdurre classi arbitrarie come `text-5xl`, `text-[13px]`, `tracking-widest` sparse nei file.

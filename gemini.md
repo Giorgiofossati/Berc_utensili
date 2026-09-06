@@ -32,9 +32,7 @@ Questo file serve come "memoria" e linea guida per l'assistente AI (Gemini) che 
     - `.action-btn-primary`: Pulsante ciano per azioni confermative generiche (login, salvataggi).
     - `.action-btn-order`: Pulsante arancione per creazione ordini fornitore.
     - `.glass-input`: Stile uniforme per tutti i campi `<input>` e `<textarea>`.
-  - **Font Ufficiali:**
-    - **UI Sans-Serif:** `Inter` (pesi 300-900 caricati in `index.html` e mappati in `@theme` a `--font-sans`).
-    - **Monospace Tecnico:** `JetBrains Mono` (pesi 400-800 caricati in `index.html` e mappati a `--font-mono`) per codici utensile, matricole, ID operatore, ubicazioni, date e quantità tabular.
+  - **Font Ufficiale:** `Inter` (caricato in `index.html` e applicato globalmente via `--font-inter`). Nessun altro font esterno deve essere introdotto.
   - **Regola Dimensioni Card Affiancate (Sibling / Split Cards):**
     - Quando due card sono affiancate (es. Login Screen), il container genitore **deve sempre usare `items-stretch`** e le card interne devono avere `h-full flex flex-col justify-between`.
     - Vietato usare `items-center` con altezze libere asimmetriche. Le card affiancate devono condividere identico raggio `rounded-[32px]`, identico padding `p-6 sm:p-8`, e linee di base superiore e inferiore allineate.
