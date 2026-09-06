@@ -1,7 +1,14 @@
 import React, { useState, useMemo, useCallback, memo, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { 
+  useReactTable, 
+  getCoreRowModel, 
+  getSortedRowModel, 
+  flexRender,
+  createColumnHelper
+} from '@tanstack/react-table';
 import { motion } from 'framer-motion';
-import { ChevronDown, X, CheckCircle2, List, Activity, AlertTriangle, ChevronRight } from 'lucide-react';
+import { X, List, AlertTriangle, ChevronRight, ArrowUp, ArrowDown, ChevronsUpDown } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -21,21 +28,22 @@ export const EXTRA_FILTER_KEYS = [
   { key: 'Ubicazione', label: 'Ubicazione' },
 ];
 
-const ALL_DETAIL_KEYS = [
-  { key: 'Quantità', label: 'QTY', minWidth: '48px', align: 'center', className: 'w-12 sm:w-16 shrink-0' },
-  { key: 'Ubicazione', label: 'Ubicazione', minWidth: '110px', align: 'center', className: 'hidden md:flex' },
-  { key: 'Stato', label: 'Stato', minWidth: '110px', align: 'center', className: 'hidden md:flex' },
-  { key: 'Fornitore', label: 'Fornitore', minWidth: '120px', align: 'center', className: 'hidden md:flex' },
-  { key: 'Codice', label: 'Codice Aziendale', minWidth: '140px', align: 'center', className: 'hidden md:flex' },
-];
+const SortIcon = ({ column }) => {
+  const sort = column.getIsSorted();
+  if (!sort) return <ChevronsUpDown size={14} className="opacity-30 group-hover:opacity-70 transition-opacity shrink-0" />;
+  return sort === 'asc' 
+    ? <ArrowUp size={14} className="text-accent-blue shrink-0" />
+    : <ArrowDown size={14} className="text-accent-blue shrink-0" />;
+};
 
-const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile }) => {
+const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, hideExtraFilters = false }) => {
   const selectedIds = useFilterStore(state => state.selectedToolsIds);
   const onToggleSelect = useFilterStore(state => state.toggleToolSelection);
   const isSelectionMode = useFilterStore(state => state.isSelectionMode);
   const setIsSelectionMode = useFilterStore(state => state.handleSetIsSelectionMode);
   
   const [extraFilters, setExtraFilters] = useState({});
+  const [sorting, setSorting] = useState([]);
 
   const availableFilters = useMemo(() => {
     return EXTRA_FILTER_KEYS.filter(({ key }) =>
@@ -63,105 +71,161 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile }) => {
     return result;
   }, [toolsList, extraFilters]);
 
-  const visibleDetailKeys = useMemo(() => {
-    // Only essential columns to avoid horizontal scroll and ensure Codice is visible
-    return ALL_DETAIL_KEYS.filter(d => ['Quantità', 'Ubicazione', 'Stato', 'Codice'].includes(d.key));
-  }, []);
-
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-
-  const handleSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
-      key = null;
-      direction = 'asc';
-    }
-    setSortConfig({ key, direction });
-  };
-
-  const sortedFiltered = useMemo(() => {
-    let result = filtered;
-    if (sortConfig.key) {
-      result = [...result].sort((a, b) => {
-        let aVal = sortConfig.key === 'Descrizione' ? buildDesc(a) : a[sortConfig.key];
-        let bVal = sortConfig.key === 'Descrizione' ? buildDesc(b) : b[sortConfig.key];
-        
-        if (aVal === null || aVal === undefined) aVal = '';
-        if (bVal === null || bVal === undefined) bVal = '';
-
-        if (sortConfig.key === 'Quantità') {
-          aVal = Number(aVal) || 0;
-          bVal = Number(bVal) || 0;
-        } else {
-          aVal = String(aVal).toLowerCase();
-          bVal = String(bVal).toLowerCase();
-        }
-
-        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
-    return result;
-  }, [filtered, sortConfig]);
-
   const setFilter = useCallback((key, value) => {
     setExtraFilters(prev => ({ ...prev, [key]: value || '' }));
   }, []);
 
+  // Costruzione Colonne con TanStack Table
+  const columnHelper = createColumnHelper();
+  
+  const columns = useMemo(() => {
+    return [
+      columnHelper.accessor(row => buildDesc(row), {
+        id: 'Descrizione',
+        header: 'Descrizione',
+        sortingFn: (rowA, rowB, columnId) => {
+          return String(rowA.getValue(columnId) || '').localeCompare(
+            String(rowB.getValue(columnId) || ''), 
+            undefined, 
+            { numeric: true }
+          );
+        },
+        size: 0,
+        cell: info => {
+          const tool = info.row.original;
+          return (
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 h-full pl-3 sm:pl-4 md:pl-6">
+              {isSelectionMode && (
+                <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center flex-shrink-0 w-5 sm:w-6">
+                  <Checkbox
+                    checked={selectedIds.includes(tool.id)}
+                    onCheckedChange={() => onToggleSelect(tool.id)}
+                    className={`w-5 h-5 rounded-md transition-all ${selectedIds.includes(tool.id) ? 'data-[state=checked]:bg-accent-blue data-[state=checked]:text-slate-950 border-accent-blue' : 'dark:border-white/30 border-slate-400'}`}
+                  />
+                </div>
+              )}
+              <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg sm:rounded-xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-blue/20 transition-colors overflow-hidden">
+                <ToolIcon type={tool['Tipologia']} size={36} className="opacity-80 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <div className="min-w-0 flex-1 ml-1 truncate">
+                <p className="app-h3 truncate">{info.getValue()}</p>
+              </div>
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor('Quantità', {
+        header: 'QTY',
+        size: 64,
+        sortingFn: (rowA, rowB, columnId) => {
+          const a = Number(rowA.getValue(columnId)) || 0;
+          const b = Number(rowB.getValue(columnId)) || 0;
+          return a - b;
+        },
+        meta: { className: 'shrink-0' },
+        cell: info => (
+          <div className="w-full truncate text-center">
+             <span className={`app-qty-sm ${Number(info.getValue()) > 0 ? 'text-accent-emerald' : 'text-accent-rose'}`}>
+              {info.getValue() || 0}
+            </span>
+          </div>
+        )
+      }),
+      columnHelper.accessor('Ubicazione', {
+        header: 'Ubicazione',
+        size: 120,
+        sortingFn: (rowA, rowB, columnId) => {
+          return String(rowA.getValue(columnId) || '').localeCompare(
+            String(rowB.getValue(columnId) || ''), 
+            undefined, 
+            { numeric: true }
+          );
+        },
+        meta: { className: 'hidden md:flex' },
+        cell: info => {
+          const val = info.getValue();
+          if (!val) return <div className="w-full truncate text-center"><span className="text-slate-700 opacity-20">—</span></div>;
+          return <div className="w-full truncate text-center"><span className="badge badge-orange app-caption font-bold px-2.5 py-0.5">{val}</span></div>;
+        }
+      }),
+      columnHelper.accessor('Stato', {
+        header: 'Stato',
+        size: 100,
+        sortingFn: (rowA, rowB, columnId) => {
+          return String(rowA.getValue(columnId) || '').localeCompare(
+            String(rowB.getValue(columnId) || '')
+          );
+        },
+        meta: { className: 'hidden md:flex' },
+        cell: info => {
+          const val = info.getValue();
+          if (!val) return <div className="w-full truncate text-center"><span className="text-slate-700 opacity-20">—</span></div>;
+          const isOk = val === 'Disponibile' || val === 'NUOVO';
+          return (
+            <div className="w-full truncate text-center">
+              <span className={`badge text-[10px] font-black px-2.5 py-0.5 ${isOk ? 'badge-emerald' : 'badge-rose'}`}>
+                {val}
+              </span>
+            </div>
+          );
+        }
+      }),
+      columnHelper.accessor('Fornitore', {
+        header: 'Fornitore',
+        size: 110,
+        sortingFn: (rowA, rowB, columnId) => {
+          return String(rowA.getValue(columnId) || '').localeCompare(
+            String(rowB.getValue(columnId) || ''),
+            undefined,
+            { numeric: true }
+          );
+        },
+        meta: { className: 'hidden md:flex' },
+        cell: info => {
+          const val = info.getValue();
+          if (!val) return <div className="w-full truncate text-center"><span className="text-slate-700 opacity-20">—</span></div>;
+          return <div className="w-full truncate text-center"><span className="app-caption font-bold">{val}</span></div>;
+        }
+      }),
+      columnHelper.accessor('Codice', {
+        header: 'Codice Aziendale',
+        size: 140,
+        sortingFn: (rowA, rowB, columnId) => {
+          return String(rowA.getValue(columnId) || '').localeCompare(
+            String(rowB.getValue(columnId) || ''),
+            undefined,
+            { numeric: true }
+          );
+        },
+        meta: { className: 'hidden md:flex' },
+        cell: info => {
+          const val = info.getValue();
+          if (!val) return <div className="w-full truncate text-center"><span className="text-slate-700 opacity-20">—</span></div>;
+          return <div className="w-full truncate text-center"><span className="badge badge-blue app-caption font-bold px-2.5 py-0.5">{val}</span></div>;
+        }
+      })
+    ];
+  }, [isSelectionMode, selectedIds, onToggleSelect]);
+
+  const table = useReactTable({
+    data: filtered,
+    columns,
+    state: { sorting },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
+  const { rows } = table.getRowModel();
+
   const parentRef = useRef(null);
 
   const rowVirtualizer = useVirtualizer({
-    count: sortedFiltered.length,
+    count: rows.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 56, // Approssimazione altezza riga
+    estimateSize: () => 56, // Altezza riga stimata
     overscan: 5,
   });
-
-  const renderDetailValue = (tool, detail) => {
-    let val = tool[detail.key];
-    if (val === null || val === undefined || val === '') {
-      const lowerKey = detail.key.toLowerCase();
-      val = tool[lowerKey];
-    }
-
-    // Handle Codice BEFORE the generic null check — show actual code or dash
-    if (detail.key === 'Codice') {
-      if (!val) return <span className="text-slate-700 opacity-20">—</span>;
-      return <span className="badge badge-blue app-caption font-bold px-2.5 py-0.5">{val}</span>;
-    }
-
-    // Generic null/empty early return (for all other fields)
-    if (val === null || val === undefined || val === '') return <span className="text-slate-700 opacity-20">—</span>;
-
-    if (detail.key === 'Stato') {
-      return (
-        <span className={`badge text-[10px] font-black px-2.5 py-0.5 ${val === 'Disponibile' ? 'badge-emerald' : 'badge-rose'}`}>
-          {val}
-        </span>
-      );
-    }
-
-    if (detail.key === 'Quantità') {
-      return (
-        <span className={`app-qty-sm ${val > 0 ? 'text-accent-emerald' : 'text-accent-rose'}`}>
-          {val}
-        </span>
-      );
-    }
-
-    if (detail.key === 'Ubicazione') {
-      return <span className="badge badge-orange app-caption font-bold px-2.5 py-0.5">{val}</span>;
-    }
-
-    if (detail.key === 'SerialNumber' || detail.key === 'Serial Number') {
-      return <span className="app-caption font-bold whitespace-nowrap">{val}</span>;
-    }
-
-    return <span className="app-caption font-bold whitespace-nowrap">{val}</span>;
-  };
 
   return (
     <motion.div
@@ -170,7 +234,7 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile }) => {
       transition={{ duration: 0.15 }}
       className="w-full max-w-[1600px] flex flex-col flex-1 gap-2 md:gap-4 min-h-0"
     >
-      {availableFilters.length > 0 && (
+      {!hideExtraFilters && availableFilters.length > 0 && (
         <div className="flex flex-wrap gap-1.5 sm:gap-2 px-2">
           {availableFilters.map(({ key, label }) => (
             <div key={key} className="relative">
@@ -211,56 +275,65 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile }) => {
       <div className="glass-panel rounded-[20px] md:rounded-[24px] overflow-hidden flex flex-col flex-1 min-h-0">
         <div className="px-4 md:px-6 py-2.5 md:py-3 border-b dark:border-white/5 border-slate-900/10 flex items-center justify-between bg-white/[0.02]">
           <p className="app-overline text-accent-orange">
-            Utensili — {sortedFiltered.length} risultat{sortedFiltered.length === 1 ? 'o' : 'i'}
+            {rows.length} utensil{rows.length === 1 ? 'e' : 'i'} trovat{rows.length === 1 ? 'o' : 'i'}
           </p>
         </div>
 
-        {/* Header Row for All Screens */}
-        {sortedFiltered.length > 0 && (
-          <div className="px-3 sm:px-4 md:px-6 py-2 border-b dark:border-white/5 border-slate-900/10 bg-white/[0.01] flex items-center gap-2 sm:gap-3 md:gap-4 app-overline dark:text-slate-400 text-slate-600 shrink-0">
-            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-              {isSelectionMode && <div className="w-5 sm:w-6 flex-shrink-0" />}
-              <div className="w-8 sm:w-9 md:w-10 flex-shrink-0" />
+        <div ref={parentRef} className="overflow-y-auto custom-scrollbar overflow-x-hidden md:overflow-x-auto flex-1 min-h-0 relative w-full flex flex-col">
+          {rows.length > 0 && (
+            <div className="sticky top-0 z-[10] border-b dark:border-white/10 border-slate-900/10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur flex w-full shrink-0 shadow-sm">
+              {table.getHeaderGroups().map(headerGroup => (
+                <div key={headerGroup.id} className="flex flex-1 w-full app-overline dark:text-slate-400 text-slate-600 select-none">
+                  {headerGroup.headers.map(header => {
+                    const isDesc = header.column.id === 'Descrizione';
+                    const colSize = header.getSize();
+                    return (
+                      <div 
+                        key={header.id}
+                        className={`flex items-center gap-2 py-2.5 cursor-pointer hover:text-slate-900 dark:hover:text-slate-200 transition-colors group relative ${header.column.columnDef.meta?.className || ''} ${isDesc ? 'flex-1 min-w-0' : 'flex-shrink-0 justify-center'}`}
+                        style={{ 
+                          width: isDesc ? undefined : `${colSize}px`,
+                          maxWidth: isDesc ? undefined : `${colSize}px`,
+                          minWidth: isDesc ? '0px' : `${colSize}px`
+                        }}
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        {isDesc ? (
+                          <div className="flex items-center gap-2 sm:gap-3 h-full pl-3 sm:pl-4 md:pl-6">
+                            {isSelectionMode && <div className="w-5 sm:w-6 flex-shrink-0" />}
+                            <div className="w-8 sm:w-9 md:w-10 flex-shrink-0" />
+                            <span className="ml-1">{flexRender(header.column.columnDef.header, header.getContext())}</span>
+                          </div>
+                        ) : (
+                          <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
+                        )}
+                        {header.column.getCanSort() && (
+                          <div className={`flex items-center ${isDesc ? 'ml-2' : 'absolute right-1 sm:right-2'}`}>
+                            <SortIcon column={header.column} />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  <div className="w-6 flex-shrink-0 mx-3 sm:mx-4 md:mx-6" /> {/* Spacer per l'icona Chevron a destra */}
+                </div>
+              ))}
             </div>
-            <div 
-              className="flex-1 min-w-0 text-left cursor-pointer hover:text-accent-blue transition-colors flex items-center gap-1"
-              onClick={() => handleSort('Descrizione')}
-            >
-              <span>Descrizione</span>
-              {sortConfig.key === 'Descrizione' && (
-                <span className="text-accent-blue">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-              )}
-            </div>
-            {visibleDetailKeys.map(detail => (
-              <div 
-                key={detail.key} 
-                className={`flex-shrink-0 flex items-center justify-center cursor-pointer hover:text-accent-blue transition-colors gap-1 ${detail.className || ''}`}
-                style={{ minWidth: detail.minWidth }}
-                onClick={() => handleSort(detail.key)}
-              >
-                <span>{detail.label}</span>
-                {sortConfig.key === detail.key && (
-                  <span className="text-accent-blue">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-                )}
-              </div>
-            ))}
-            <div className="w-6 flex-shrink-0" /> {/* Chevron spacer */}
-          </div>
-        )}
+          )}
 
-        <div ref={parentRef} className="overflow-y-auto custom-scrollbar overflow-x-hidden md:overflow-x-auto flex-1 min-h-0 relative w-full">
-          <div className="w-full min-w-0 md:min-w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
-            {sortedFiltered.length === 0 ? (
+          <div className="w-full shrink-0" style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
+            {rows.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 dark:text-slate-400 text-slate-600 absolute w-full top-0 left-0">
                 <AlertTriangle size={32} className="mb-3 text-slate-600" />
                 <p className="app-overline">Nessun utensile trovato</p>
               </div>
             ) : (
               rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                const tool = sortedFiltered[virtualRow.index];
+                const row = rows[virtualRow.index];
+                const tool = row.original;
                 return (
                   <div
-                    key={tool.id || virtualRow.key}
+                    key={row.id}
                     data-index={virtualRow.index}
                     ref={rowVirtualizer.measureElement}
                     style={{
@@ -271,38 +344,26 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile }) => {
                       transform: `translateY(${virtualRow.start}px)`
                     }}
                     onClick={() => onSelectTool(tool)}
-                    className={`flex items-center gap-2 sm:gap-3 md:gap-4 px-3 sm:px-4 md:px-6 py-2.5 sm:py-2 hover:bg-white/[0.06] active:bg-accent-blue/10 cursor-pointer transition-colors border-b dark:border-white/[0.03] border-slate-900/5 group select-none ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
+                    className={`flex items-center w-full hover:bg-white/[0.06] active:bg-accent-blue/10 cursor-pointer transition-colors border-b dark:border-white/[0.03] border-slate-900/5 group select-none ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
                   >
-                    <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                      {isSelectionMode && (
-                        <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center flex-shrink-0 w-5 sm:w-6">
-                          <Checkbox
-                            checked={selectedIds.includes(tool.id)}
-                            onCheckedChange={(checked) => onToggleSelect(tool.id)}
-                            className={`w-5 h-5 rounded-md transition-all ${selectedIds.includes(tool.id) ? 'data-[state=checked]:bg-accent-blue data-[state=checked]:text-slate-950 border-accent-blue' : 'dark:border-white/30 border-slate-400'}`}
-                          />
+                    {row.getVisibleCells().map(cell => {
+                      const isDesc = cell.column.id === 'Descrizione';
+                      const colSize = cell.column.getSize();
+                      return (
+                        <div 
+                          key={cell.id}
+                          className={`flex items-center py-2.5 sm:py-2 ${cell.column.columnDef.meta?.className || ''} ${isDesc ? 'flex-1 min-w-0' : 'flex-shrink-0 justify-center'}`}
+                          style={{ 
+                            width: isDesc ? undefined : `${colSize}px`,
+                            maxWidth: isDesc ? undefined : `${colSize}px`,
+                            minWidth: isDesc ? '0px' : `${colSize}px`
+                          }}
+                        >
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </div>
-                      )}
-                      <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg sm:rounded-xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-blue/20 transition-colors overflow-hidden">
-                        <ToolIcon type={tool['Tipologia']} size={36} className="opacity-80 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <p className="app-h3 truncate">{buildDesc(tool)}</p>
-                    </div>
-
-                    {visibleDetailKeys.map(detail => (
-                      <div 
-                        key={detail.key} 
-                        className={`flex-shrink-0 flex items-center justify-center ${detail.className || ''}`}
-                        style={{ minWidth: detail.minWidth }}
-                      >
-                        {renderDetailValue(tool, detail)}
-                      </div>
-                    ))}
-
-                    <div className="w-6 flex-shrink-0 flex items-center justify-center">
+                      );
+                    })}
+                    <div className="w-6 flex-shrink-0 flex items-center justify-center mx-3 sm:mx-4 md:mx-6">
                       <ChevronRight size={14} className="text-slate-500 group-hover:text-accent-blue transition-colors" />
                     </div>
                   </div>
@@ -310,7 +371,6 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile }) => {
               })
             )}
           </div>
-          {/* Spacer esplicito per scroll container */}
           <div className="h-20 md:h-10 shrink-0 w-full pointer-events-none" />
         </div>
       </div>

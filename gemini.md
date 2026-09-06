@@ -37,8 +37,11 @@ Questo file serve come "memoria" e linea guida per l'assistente AI (Gemini) che 
 - **Gestione Utenti e Privilegi (Completata):** Sistema di Login screen. Gli Operatori eseguono operazioni base; gli Admin hanno accesso completo (es. aggiunta nuovi utensili).
 - **Operazioni Bulk (Selezione Multipla):** Modalità di selezione che permette di selezionare più utensili contemporaneamente per effettuare movimenti di carico o scarico di massa tramite un Drawer dedicato.
 - **Ottimizzazione Griglia e Layout Responsivo (Completata):** Nascondimento colonne non essenziali su mobile per evitare lo scroll orizzontale ed espansione a griglie di 6 colonne su schermi molto grandi.
+- **Migrazione a TanStack Table v8 (Completata):** Tabella inventario riscritta interamente con `@tanstack/react-table@8` e `@tanstack/react-virtual`. Dimensioni colonne bloccate (`getSize()`), ordinamento headless integrato, stato di selezione multi-utensile sincronizzato con Zustand (`useFilterStore`).
+- **Unificazione Griglia Inventario (Completata):** Centralizzato il rendering della tabella utensili; `DropdownFilterView.jsx` ora riutilizza direttamente `<ToolsGrid hideExtraFilters={true} />`, eliminando il codice duplicato della vecchia griglia flexbox.
 
 ### Richieste Attuali / Future
+- **Restyling Selettore Diametri / Codici Inserti (`DiameterList.jsx`):** La vista di selezione Diametro (Livello 2) soffre di problemi visivi (prefisso `Ø` applicato a martello anche su sigle alfanumeriche tipo `ØCCMT` o `ØD1.5`, griglia rigida a 6 colonne con testi lunghi che si spezzano e sovrappongono, contenitore piccolo `max-w-3xl` con troppo bianco vuoto). Soluzione concordata: convertire in una griglia intelligente/cards responsive con larghezza auto-adattiva, simbolo `Ø` solo per numeri, giacenza (badge pezzi) visibile a colpo d'occhio e barra di ricerca rapida.
 - **Dettaglio Utensile Modal Avanzato:** Ottimizzare o espandere il modale di dettaglio (che attualmente gestisce il movimento) per visualizzare comodamente tutte le info non presenti in griglia.
 - **Gestione Ordini:** Se un utensile non è presente o la quantità è insufficiente, creare il flusso per l'ordine automatico.
 - **Dark Mode Toggle:** Implementazione di un toggle globale per tema chiaro/scuro in alto a destra.
