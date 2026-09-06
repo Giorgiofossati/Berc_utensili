@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback, memo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2, List, LayoutGrid, Filter } from 'lucide-react';
-import ToolsGrid, { EXTRA_FILTER_KEYS } from '../inventory/ToolsGrid';
+import ToolsGrid from '../inventory/ToolsGrid';
+import { EXTRA_FILTER_KEYS } from '../inventory/constants';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useFilterStore } from '../../store/useFilterStore';
 

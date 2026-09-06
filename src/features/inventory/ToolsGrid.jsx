@@ -1,42 +1,22 @@
-import React, { useState, useMemo, useCallback, memo, useRef } from 'react';
-import { useVirtualizer } from '@tanstack/react-virtual';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { 
   useReactTable, 
   getCoreRowModel, 
   getSortedRowModel, 
-  flexRender,
   createColumnHelper
 } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
-import { X, List, AlertTriangle, ChevronRight, ArrowUp, ArrowDown, ChevronsUpDown } from 'lucide-react';
+import { X, List, AlertTriangle, ChevronRight } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useFilterStore } from '../../store/useFilterStore';
+import { VirtualizedTable } from '../../components/common/DataTable';
+import { EXTRA_FILTER_KEYS } from './constants';
 
-export const EXTRA_FILTER_KEYS = [
-  { key: 'Lunghezza', label: 'Lunghezza' },
-  { key: 'Materiale', label: 'Materiale' },
-  { key: 'Tolleranza', label: 'Tolleranza' },
-  { key: 'Passo', label: 'Passo' },
-  { key: 'Angolo', label: 'Angolo' },
-  { key: 'Rivestimento', label: 'Rivestimento' },
-  { key: 'Stato', label: 'Stato' },
-  { key: 'Fornitore', label: 'Fornitore' },
-  { key: 'Lavorazione', label: 'Lavorazione' },
-  { key: 'Sistema di misura', label: 'Sistema Misura' },
-  { key: 'Ubicazione', label: 'Ubicazione' },
-];
+const columnHelper = createColumnHelper();
 
-const SortIcon = ({ column }) => {
-  const sort = column.getIsSorted();
-  if (!sort) return <ChevronsUpDown size={14} className="opacity-30 group-hover:opacity-70 transition-opacity shrink-0" />;
-  return sort === 'asc' 
-    ? <ArrowUp size={14} className="text-accent-blue shrink-0" />
-    : <ArrowDown size={14} className="text-accent-blue shrink-0" />;
-};
-
-const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, hideExtraFilters = false }) => {
+const ToolsGrid = memo(({ tools: toolsList, onSelectTool, hideExtraFilters = false }) => {
   const selectedIds = useFilterStore(state => state.selectedToolsIds);
   const onToggleSelect = useFilterStore(state => state.toggleToolSelection);
   const isSelectionMode = useFilterStore(state => state.isSelectionMode);
@@ -75,14 +55,19 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, hideExtraFil
     setExtraFilters(prev => ({ ...prev, [key]: value || '' }));
   }, []);
 
-  // Costruzione Colonne con TanStack Table
-  const columnHelper = createColumnHelper();
-  
   const columns = useMemo(() => {
     return [
       columnHelper.accessor(row => buildDesc(row), {
         id: 'Descrizione',
-        header: 'Descrizione',
+        header: () => (
+          <div className="flex items-center gap-2 sm:gap-3 h-full pl-3 sm:pl-4 md:pl-6">
+            {isSelectionMode && <div className="w-5 sm:w-6 flex-shrink-0" />}
+            <div className="w-8 sm:w-9 md:w-10 flex-shrink-0" />
+            <span className="ml-1">Descrizione</span>
+          </div>
+        ),
+        meta: { isFlex: true },
+        size: 0,
         sortingFn: (rowA, rowB, columnId) => {
           return String(rowA.getValue(columnId) || '').localeCompare(
             String(rowB.getValue(columnId) || ''), 
@@ -90,7 +75,6 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, hideExtraFil
             { numeric: true }
           );
         },
-        size: 0,
         cell: info => {
           const tool = info.row.original;
           return (
@@ -218,15 +202,6 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, hideExtraFil
 
   const { rows } = table.getRowModel();
 
-  const parentRef = useRef(null);
-
-  const rowVirtualizer = useVirtualizer({
-    count: rows.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 56, // Altezza riga stimata
-    overscan: 5,
-  });
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -279,100 +254,20 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, isMobile, hideExtraFil
           </p>
         </div>
 
-        <div ref={parentRef} className="overflow-y-auto custom-scrollbar overflow-x-hidden md:overflow-x-auto flex-1 min-h-0 relative w-full flex flex-col">
-          {rows.length > 0 && (
-            <div className="sticky top-0 z-[10] border-b dark:border-white/10 border-slate-900/10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur flex w-full shrink-0 shadow-sm">
-              {table.getHeaderGroups().map(headerGroup => (
-                <div key={headerGroup.id} className="flex flex-1 w-full app-overline dark:text-slate-400 text-slate-600 select-none">
-                  {headerGroup.headers.map(header => {
-                    const isDesc = header.column.id === 'Descrizione';
-                    const colSize = header.getSize();
-                    return (
-                      <div 
-                        key={header.id}
-                        className={`flex items-center gap-2 py-2.5 cursor-pointer hover:text-slate-900 dark:hover:text-slate-200 transition-colors group relative ${header.column.columnDef.meta?.className || ''} ${isDesc ? 'flex-1 min-w-0' : 'flex-shrink-0 justify-center'}`}
-                        style={{ 
-                          width: isDesc ? undefined : `${colSize}px`,
-                          maxWidth: isDesc ? undefined : `${colSize}px`,
-                          minWidth: isDesc ? '0px' : `${colSize}px`
-                        }}
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        {isDesc ? (
-                          <div className="flex items-center gap-2 sm:gap-3 h-full pl-3 sm:pl-4 md:pl-6">
-                            {isSelectionMode && <div className="w-5 sm:w-6 flex-shrink-0" />}
-                            <div className="w-8 sm:w-9 md:w-10 flex-shrink-0" />
-                            <span className="ml-1">{flexRender(header.column.columnDef.header, header.getContext())}</span>
-                          </div>
-                        ) : (
-                          <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
-                        )}
-                        {header.column.getCanSort() && (
-                          <div className={`flex items-center ${isDesc ? 'ml-2' : 'absolute right-1 sm:right-2'}`}>
-                            <SortIcon column={header.column} />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                  <div className="w-6 flex-shrink-0 mx-3 sm:mx-4 md:mx-6" /> {/* Spacer per l'icona Chevron a destra */}
-                </div>
-              ))}
-            </div>
+        <VirtualizedTable
+          table={table}
+          estimateRowSize={56}
+          onRowClick={(tool) => onSelectTool(tool)}
+          getRowClassName={(tool) => (selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : '')}
+          renderRowTrailing={() => (
+            <ChevronRight
+              size={14}
+              className="text-slate-500 group-hover:text-accent-blue transition-colors"
+            />
           )}
-
-          <div className="w-full shrink-0" style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
-            {rows.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 dark:text-slate-400 text-slate-600 absolute w-full top-0 left-0">
-                <AlertTriangle size={32} className="mb-3 text-slate-600" />
-                <p className="app-overline">Nessun utensile trovato</p>
-              </div>
-            ) : (
-              rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                const row = rows[virtualRow.index];
-                const tool = row.original;
-                return (
-                  <div
-                    key={row.id}
-                    data-index={virtualRow.index}
-                    ref={rowVirtualizer.measureElement}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      transform: `translateY(${virtualRow.start}px)`
-                    }}
-                    onClick={() => onSelectTool(tool)}
-                    className={`flex items-center w-full hover:bg-white/[0.06] active:bg-accent-blue/10 cursor-pointer transition-colors border-b dark:border-white/[0.03] border-slate-900/5 group select-none ${selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : ''}`}
-                  >
-                    {row.getVisibleCells().map(cell => {
-                      const isDesc = cell.column.id === 'Descrizione';
-                      const colSize = cell.column.getSize();
-                      return (
-                        <div 
-                          key={cell.id}
-                          className={`flex items-center py-2.5 sm:py-2 ${cell.column.columnDef.meta?.className || ''} ${isDesc ? 'flex-1 min-w-0' : 'flex-shrink-0 justify-center'}`}
-                          style={{ 
-                            width: isDesc ? undefined : `${colSize}px`,
-                            maxWidth: isDesc ? undefined : `${colSize}px`,
-                            minWidth: isDesc ? '0px' : `${colSize}px`
-                          }}
-                        >
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </div>
-                      );
-                    })}
-                    <div className="w-6 flex-shrink-0 flex items-center justify-center mx-3 sm:mx-4 md:mx-6">
-                      <ChevronRight size={14} className="text-slate-500 group-hover:text-accent-blue transition-colors" />
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-          <div className="h-20 md:h-10 shrink-0 w-full pointer-events-none" />
-        </div>
+          emptyIcon={AlertTriangle}
+          emptyTitle="Nessun utensile trovato"
+        />
       </div>
     </motion.div>
   );

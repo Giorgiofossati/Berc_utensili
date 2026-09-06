@@ -27,3 +27,12 @@ WITH CHECK (true);
 CREATE POLICY "Permetti a tutti di aggiornare ordini" 
 ON public.ordini FOR UPDATE 
 USING (true);
+
+-- ==========================================================
+-- GESTIONE ONBOARDING / TUTORIAL PER UTENTI
+-- ==========================================================
+-- Aggiunge la colonna per verificare se l'utente ha completato il tutorial iniziale.
+-- Di default è FALSE per tutti i nuovi utenti.
+ALTER TABLE public.utenti 
+ADD COLUMN IF NOT EXISTS has_completed_tutorial BOOLEAN DEFAULT FALSE;
+

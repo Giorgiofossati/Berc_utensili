@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, UserPlus, Edit2, Trash2, Shield, User, 
-  Lock, Check, X, RefreshCw, Key, AlertTriangle, Eye, EyeOff
+  Lock, Check, X, RefreshCw, Key, AlertTriangle, Eye, EyeOff,
+  HelpCircle
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -188,16 +189,25 @@ const OperatorsView = memo(({ setView }) => {
         
         response = await withTimeout(updatePromise);
       } else {
-        // Create user
-        const insertPromise = supabase
+        // Create user with tutorial initialized to false
+        const newUserData = {
+          id: generateUUID(),
+          ...payload,
+          has_completed_tutorial: false
+        };
+        
+        let insertPromise = supabase
           .from('utenti')
-          .insert([{
-            id: generateUUID(),
-            ...payload
-          }])
+          .insert([newUserData])
           .select();
         
         response = await withTimeout(insertPromise);
+        if (response.error && (response.error.message?.includes('has_completed_tutorial') || response.error.code === 'PGRST204')) {
+          const fallbackData = { id: newUserData.id, ...payload };
+          response = await withTimeout(
+            supabase.from('utenti').insert([fallbackData]).select()
+          );
+        }
       }
 
       const { data, error } = response;
@@ -276,6 +286,25 @@ const OperatorsView = memo(({ setView }) => {
     } finally {
       setDeletingUser(null);
       setActionLoading(false);
+    }
+  };
+
+  const handleResetTutorial = async (user) => {
+    try {
+      localStorage.removeItem(`berc_tutorial_completed_${user.id}`);
+      const { error } = await supabase
+        .from('utenti')
+        .update({ has_completed_tutorial: false })
+        .eq('id', user.id);
+      
+      if (error && !error.message?.includes('has_completed_tutorial')) {
+        console.warn('Errore reset tutorial:', error);
+      }
+      showToast(`Tutorial riattivato per ${user.nome}! Al prossimo login visualizzerà la guida.`);
+      fetchUsers();
+    } catch (err) {
+      console.error(err);
+      showToast('Errore durante il reset del tutorial', 'error');
     }
   };
 
@@ -398,6 +427,13 @@ const OperatorsView = memo(({ setView }) => {
 
                         {/* Azioni */}
                         <div className="flex items-center gap-1 shrink-0">
+                          <button 
+                            onClick={() => handleResetTutorial(u)}
+                            className="p-2 rounded-lg glass-button text-slate-400 hover:text-accent-blue hover:scale-105 active:scale-95 transition-all"
+                            title="Reimposta Tutorial (mostra guida al prossimo accesso)"
+                          >
+                            <HelpCircle size={14} />
+                          </button>
                           {u.ruolo !== 'Admin' || isSelf ? (
                             <>
                               <button 

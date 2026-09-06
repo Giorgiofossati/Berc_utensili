@@ -77,13 +77,31 @@ export const ToolIcon = ({ type, size = 24, className = "", mode = 'icon' }) => 
   );
 };
 
+export const isNumericDiameter = (val) => {
+  if (val === null || val === undefined) return false;
+  const str = String(val).trim();
+  if (!str) return false;
+  if (/^[Øø]/.test(str)) return true;
+  return /^(?:[0-9]+(?:[.,][0-9]+)?|[.,][0-9]+)(?:\s*mm)?$/i.test(str);
+};
+
+export const formatDiameter = (val) => {
+  if (val === null || val === undefined) return '';
+  const str = String(val).trim();
+  if (!str) return '';
+  if (/^[Øø]/.test(str)) return str;
+  return isNumericDiameter(str) ? `Ø${str}` : str;
+};
+
 export const buildDesc = (t) => {
   if (!t) return '';
+  const formattedDiam = t['Diametro'] ? formatDiameter(t['Diametro']) : null;
   const parts = [
     t['Tipologia'], 
     t['Forma'], 
-    t['Diametro'] ? `Ø${t['Diametro']}` : null,
+    formattedDiam,
     t['Fornitore']
   ];
   return parts.filter(Boolean).join(' · ');
 };
+

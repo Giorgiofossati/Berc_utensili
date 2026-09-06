@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy, useRef } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy, useRef } from 'react';
 import {
-  ArrowLeft, ChevronRight,
-  ChevronLeft, ArrowUp, ArrowDown, X, Search,
+  ArrowLeft, ArrowUp, ArrowDown, X,
   List, LayoutGrid, CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +8,6 @@ import { supabase } from './lib/supabase';
 
 import { useAuthStore } from './store/useAuthStore';
 import { useInventoryStore } from './store/useInventoryStore';
-import { useFilterStore } from './store/useFilterStore';
 import { useMovementStore } from './store/useMovementStore';
 import { useFilters } from './hooks/useFilters';
 
@@ -32,17 +30,16 @@ import SearchOverlay from './features/filters/SearchOverlay';
 import AddToolModal from './features/inventory/AddToolModal';
 import OrderModal from './features/inventory/OrderModal';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import AppTutorial from './components/common/AppTutorial';
+import HelpFloatingButton from './components/common/HelpFloatingButton';
+import { useTutorialStore } from './store/useTutorialStore';
 import { preloadToolImages } from './lib/toolUtils';
 
 // Preload static tool images in memory immediately
 preloadToolImages();
 
-// Helper for date
-const getTodayString = () => new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
 function App() {
   const currentUser = useAuthStore(state => state.currentUser);
-  const setCurrentUser = useAuthStore(state => state.setCurrentUser);
   
   const tools = useInventoryStore(state => state.tools);
   const fetchTools = useInventoryStore(state => state.fetchTools);
@@ -50,7 +47,6 @@ function App() {
   const {
     filterStack, setFilterStack,
     viewMode, setViewMode,
-    isSelectionMode, handleSetIsSelectionMode, setIsSelectionMode,
     selectedToolsIds, setSelectedToolsIds, toggleToolSelection,
     filteredByStack, options, diameters, finalTools, currentLevel,
     handleSelectOption, handleSelectDiameter, resetFilters, breadcrumbText
@@ -62,15 +58,12 @@ function App() {
     setTimeout(() => setToast(null), 4000);
   }, []);
 
-  const opType = useMovementStore(state => state.opType);
   const setOpType = useMovementStore(state => state.setOpType);
-  const modalQty = useMovementStore(state => state.modalQty);
   const setModalQty = useMovementStore(state => state.setModalQty);
   const showMoveModal = useMovementStore(state => state.showMoveModal);
   const setShowMoveModal = useMovementStore(state => state.setShowMoveModal);
   const selectedTool = useMovementStore(state => state.selectedTool);
   const setSelectedTool = useMovementStore(state => state.setSelectedTool);
-  const isBulkMode = useMovementStore(state => state.isBulkMode);
   const setIsBulkMode = useMovementStore(state => state.setIsBulkMode);
   const handleMovement = useMovementStore(state => state.handleMovement);
 
@@ -96,6 +89,22 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const startTutorial = useTutorialStore(state => state.startTutorial);
+
+  // Avvio automatico pratico al primo ingresso dell'utente
+  useEffect(() => {
+    if (!currentUser) return;
+    const hasCompletedLocal = localStorage.getItem(`berc_tutorial_completed_${currentUser.id}`) === 'true';
+    const hasCompletedDb = currentUser.has_completed_tutorial === true;
+
+    if (!hasCompletedLocal && !hasCompletedDb) {
+      const timer = setTimeout(() => {
+        startTutorial();
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [currentUser, startTutorial]);
+
   const fetchHistory = async () => {
     try {
       const { data } = await supabase.from('movements_history').select('*, Utensili_B1(*)').order('created_at', { ascending: false });
@@ -120,18 +129,14 @@ function App() {
     setShowMoveModal(true);
   }, [setSelectedTool, setOpType, setModalQty, setShowMoveModal]);
 
-  const onConfirmMovement = () => {
-    handleMovement(selectedToolsIds, () => {
-      setShowMoveModal(false);
-      setSelectedToolsIds([]);
-      setIsBulkMode(false);
-    });
-  };
-
   const renderGridHome = () => {
     if (currentLevel >= 2 && currentLevel < 3) return (
-      <div className="w-full flex-1 flex flex-col items-center justify-center my-auto">
-        <DiameterList diameters={diameters} onSelect={handleSelectDiameter} />
+      <div className="w-full flex-1 flex flex-col items-center justify-center my-auto px-2 sm:px-4 md:px-6 py-2 overflow-hidden">
+        <DiameterList 
+          diameters={diameters} 
+          tools={filteredByStack} 
+          onSelect={handleSelectDiameter} 
+        />
       </div>
     );
     if (currentLevel >= 3) return (
@@ -140,7 +145,7 @@ function App() {
     if (!options || options.length === 0) return null;
 
     return (
-      <div className="w-full max-w-6xl xl:max-w-7xl px-2 md:px-4 py-1 my-auto mx-auto flex flex-col justify-center items-center">
+      <div data-tour="catalog-categories" className="w-full max-w-6xl xl:max-w-7xl px-2 md:px-4 py-1 my-auto mx-auto flex flex-col justify-center items-center">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 w-fit mx-auto justify-center justify-items-center items-center">
           {options.map((opt, idx) => (
             <CategoryGridCard 
@@ -209,7 +214,7 @@ function App() {
                     <X size={12} /> <span className="hidden sm:inline">Resetta Tutto</span>
                   </button>
                 )}
-                <div className={`shrink-0 items-center bg-slate-900/5 dark:bg-white/5 p-1.5 rounded-2xl relative shadow-inner border border-slate-900/5 dark:border-white/5 ${viewMode === 'dropdown' ? 'hidden md:flex' : 'flex'}`}>
+                <div data-tour="view-mode-toggle" className={`shrink-0 items-center bg-slate-900/5 dark:bg-white/5 p-1.5 rounded-2xl relative shadow-inner border border-slate-900/5 dark:border-white/5 ${viewMode === 'dropdown' ? 'hidden md:flex' : 'flex'}`}>
                   <motion.div 
                     className="absolute top-1.5 bottom-1.5 w-[36px] bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-accent-blue/30 dark:border-accent-blue/30 overflow-hidden"
                     initial={false}
@@ -253,7 +258,7 @@ function App() {
                       <div className="w-full flex-1 flex flex-col items-center min-h-0">
                         <DropdownFilterView tools={tools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} initialFilters={Object.fromEntries(filterStack.map(f => [f.type, f.value]))}
                           onFilterChange={(newFilters) => {
-                            const newStack = Object.entries(newFilters).filter(([_, v]) => v).map(([k, v]) => ({ type: k, value: v }));
+                            const newStack = Object.entries(newFilters).filter(([, v]) => v).map(([k, v]) => ({ type: k, value: v }));
                             setFilterStack(newStack);
                           }}
                           viewMode={viewMode}
@@ -267,7 +272,7 @@ function App() {
               {view === 'history' && (
                 <ErrorBoundary>
                   <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
-                    <HistoryView key="history" history={history} setView={setView} />
+                    <HistoryView key="history" history={history} setView={setView} fetchHistory={fetchHistory} />
                   </Suspense>
                 </ErrorBoundary>
               )}
@@ -368,6 +373,16 @@ function App() {
           tools={tools} 
           onSelectTool={handleSelectToolFromGrid}
           isMobile={isMobile}
+        />
+
+        {/* Pulsante discreto in basso per riavviare la guida/tutorial */}
+        <HelpFloatingButton />
+
+        {/* Tutorial interattivo guidato */}
+        <AppTutorial 
+          onRequireSidebar={(needed) => setShowSidebarMobile(needed)}
+          viewMode={viewMode}
+          setViewMode={setViewMode}
         />
       </div>
     </div>

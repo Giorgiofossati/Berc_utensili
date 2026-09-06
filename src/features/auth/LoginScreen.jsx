@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { User, Lock, ArrowRight, Search } from 'lucide-react';
+import { User, Lock, ArrowRight, Search, Sparkles, CheckCircle2, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,12 @@ import { useAuthStore } from '../../store/useAuthStore';
 
 export default function LoginScreen() {
   const setCurrentUser = useAuthStore(state => state.setCurrentUser);
+  const [showMobileInfo, setShowMobileInfo] = useState(false);
   const [users, setUsers] = useState(() => {
     try {
       const cached = localStorage.getItem('berc_cached_users');
       return cached ? JSON.parse(cached) : [];
-    } catch (e) {
+    } catch {
       return [];
     }
   });
@@ -20,7 +21,7 @@ export default function LoginScreen() {
     try {
       const cached = localStorage.getItem('berc_cached_users');
       return !(cached && JSON.parse(cached).length > 0);
-    } catch (e) {
+    } catch {
       return true;
     }
   });
@@ -46,16 +47,16 @@ export default function LoginScreen() {
         console.warn('Supabase fetch users warning:', sbError);
         const cached = localStorage.getItem('berc_cached_users');
         if (cached) {
-          try { setUsers(JSON.parse(cached)); } catch (e) {}
+          try { setUsers(JSON.parse(cached)); } catch { /* ignore parse error */ }
         } else {
           setFetchError(true);
         }
       }
-    } catch (e) {
-      console.error('Error fetching users:', e);
+    } catch (err) {
+      console.error('Error fetching users:', err);
       const cached = localStorage.getItem('berc_cached_users');
       if (cached) {
-        try { setUsers(JSON.parse(cached)); } catch (err) {}
+        try { setUsers(JSON.parse(cached)); } catch { /* ignore parse error */ }
       } else {
         setFetchError(true);
       }
@@ -94,21 +95,71 @@ export default function LoginScreen() {
         <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-accent-orange/10 blur-[120px] rounded-full" />
       </div>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        transition={{ duration: 0.25 }}
-        className="relative z-10 w-full max-w-md my-auto glass-panel p-5 sm:p-8 rounded-[28px] sm:rounded-[36px] border-accent-blue/20 shadow-2xl"
-      >
-        <div className="flex justify-center mb-3 sm:mb-4">
-           <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-accent-blue/20 flex items-center justify-center text-accent-blue shadow-inner">
-             <User size={24} className="sm:w-8 sm:h-8" />
-           </div>
-        </div>
-        <h2 className="app-h2 text-center uppercase tracking-widest mb-1 leading-none">Login</h2>
-        <p className="app-overline text-accent-orange text-center mb-4 sm:mb-6 opacity-80">Identificati per continuare</p>
+      <div className="relative z-10 w-full max-w-5xl my-auto grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-center">
+        {/* Colonna Sinistra (Desktop): Presentazione & Scopo del Sistema */}
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }} 
+          animate={{ opacity: 1, x: 0 }} 
+          transition={{ duration: 0.25 }}
+          className="hidden md:flex md:col-span-5 flex-col glass-panel p-6 lg:p-8 rounded-[32px] border-accent-blue/20 shadow-2xl"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-accent-blue/20 flex items-center justify-center text-accent-blue border border-accent-blue/30 shadow-inner shrink-0">
+              <Sparkles size={24} className="text-accent-blue animate-pulse" />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-accent-orange">
+                Bercella S.r.l.
+              </span>
+              <h1 className="text-lg lg:text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white leading-tight">
+                Gestione Utensili CNC
+              </h1>
+            </div>
+          </div>
 
-        <AnimatePresence mode="wait">
+          <p className="text-xs lg:text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+            Piattaforma digitale per il tracciamento istantaneo di frese, punte e inserti.
+            Registra ogni prelievo e deposito in tempo reale per mantenere sincronizzate le giacenze ed eliminare i fermi macchina.
+          </p>
+
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/5 dark:border-white/5">
+              <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Giacenze sincronizzate in tempo reale</span>
+            </div>
+            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/5 dark:border-white/5">
+              <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Reperibilità immediata per CNC</span>
+            </div>
+            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/5 dark:border-white/5">
+              <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Azzeramento dei fermi macchina</span>
+            </div>
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-slate-900/10 dark:border-white/10 flex items-center justify-between text-[10px] font-mono text-slate-400">
+            <span>OFFICINA 4.0</span>
+            <span className="text-accent-blue font-bold">ATTIVO</span>
+          </div>
+        </motion.div>
+
+        {/* Colonna Destra: Card di Login Principale */}
+        <div className="md:col-span-7 w-full max-w-md mx-auto md:max-w-none flex flex-col items-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 0.25 }}
+            className="w-full glass-panel p-5 sm:p-8 rounded-[28px] sm:rounded-[36px] border-accent-blue/20 shadow-2xl"
+          >
+            <div className="flex justify-center mb-3 sm:mb-4">
+               <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-accent-blue/20 flex items-center justify-center text-accent-blue shadow-inner">
+                 <User size={24} className="sm:w-8 sm:h-8" />
+               </div>
+            </div>
+            <h2 className="app-h2 text-center uppercase tracking-widest mb-1 leading-none">Login</h2>
+            <p className="app-overline text-accent-orange text-center mb-4 sm:mb-6 opacity-80">Identificati per continuare</p>
+
+            <AnimatePresence mode="wait">
         {!selectedUser ? (
            <motion.div key="user-list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
              <div className="relative mb-4">
@@ -197,7 +248,39 @@ export default function LoginScreen() {
            </motion.div>
         )}
         </AnimatePresence>
-      </motion.div>
+          </motion.div>
+
+          {/* Su Mobile: pulsante discreto che non ruba spazio al login quotidiano */}
+          <div className="md:hidden w-full max-w-md mt-3 flex flex-col items-center">
+            <button
+              type="button"
+              onClick={() => setShowMobileInfo(prev => !prev)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full glass-panel border border-accent-blue/20 text-[11px] font-bold text-accent-blue shadow-sm active:scale-95 transition-all"
+            >
+              <Info size={13} />
+              <span>Cos&apos;è questo sistema?</span>
+              {showMobileInfo ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+            </button>
+            <AnimatePresence>
+              {showMobileInfo && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6, height: 0 }}
+                  animate={{ opacity: 1, y: 0, height: 'auto' }}
+                  exit={{ opacity: 0, y: -6, height: 0 }}
+                  className="overflow-hidden mt-2 w-full p-3.5 rounded-2xl glass-panel border border-accent-blue/20 text-center"
+                >
+                  <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-snug">
+                    <strong className="text-accent-blue font-black uppercase tracking-wider block mb-1">
+                      Bercella Utensili CNC
+                    </strong>
+                    Tracciamento digitale in tempo reale di carichi e scarichi per azzerare i fermi macchina e trovare subito ogni utensile a magazzino.
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

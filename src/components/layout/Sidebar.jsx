@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Database, Search, History, Users, 
   LogOut, ArrowDown, ArrowUp,
-  Sun, Moon, X
+  Sun, Moon, X, HelpCircle
 } from 'lucide-react';
 import { useTheme } from '../../lib/ThemeContext';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useMovementStore } from '../../store/useMovementStore';
+import { useTutorialStore } from '../../store/useTutorialStore';
 
 const NavItem = ({ icon, label, onClick, className = "", isActive = false }) => (
   <button 
@@ -41,6 +42,7 @@ const SidebarContent = ({
   const currentUser = useAuthStore(state => state.currentUser);
   const logout = useAuthStore(state => state.logout);
   const setOpType = useMovementStore(state => state.setOpType);
+  const startTutorial = useTutorialStore(state => state.startTutorial);
 
   return (
     <div className="w-full h-full flex flex-col bg-white/70 dark:bg-slate-950/70 backdrop-blur-2xl border-r border-slate-200/50 dark:border-white/10 shadow-2xl overflow-hidden relative">
@@ -81,7 +83,7 @@ const SidebarContent = ({
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-6">
         
         {/* Search Input Box with Shortcut Badge */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-tour="search-tools">
            <button 
               onClick={() => { onOpenSearch(); if(onClose) onClose(); }}
               className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-slate-100/80 dark:bg-slate-900/50 hover:bg-slate-200/80 dark:hover:bg-slate-800/80 text-slate-500 transition-all border border-slate-200/50 dark:border-white/5 group shadow-sm"
@@ -97,7 +99,7 @@ const SidebarContent = ({
         </div>
 
         {/* Primary Actions */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" data-tour="quick-actions">
           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-2 mb-1">Azioni Rapide</span>
           
           <button 
@@ -128,7 +130,7 @@ const SidebarContent = ({
         </div>
 
         {/* Navigation */}
-        <div className="flex flex-col gap-1 mt-2">
+        <div className="flex flex-col gap-1 mt-2" data-tour="menu-history">
           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-2 mb-1">Menu Navigazione</span>
           
           <NavItem 
@@ -153,11 +155,20 @@ const SidebarContent = ({
               isActive={view === 'operators'}
             />
           )}
+
+          <NavItem 
+            icon={<HelpCircle size={16} />} 
+            label="Guida & Tutorial" 
+            onClick={() => { 
+              startTutorial(); 
+              if(onClose) onClose(); 
+            }} 
+          />
         </div>
       </div>
 
       {/* Footer / User Profile Card */}
-      <div className="p-3 sm:p-4 border-t border-slate-200/50 dark:border-white/5 flex flex-col gap-2 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-4">
+      <div className="p-3 sm:p-4 border-t border-slate-200/50 dark:border-white/5 flex flex-col gap-2 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-4" data-tour="user-profile">
          <div className="flex items-center justify-between px-2 py-2 bg-slate-50/50 dark:bg-slate-900/30 rounded-2xl border border-slate-200/30 dark:border-white/5 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-accent-blue to-blue-600 flex items-center justify-center text-white shadow-inner shrink-0">
@@ -185,6 +196,7 @@ const SidebarContent = ({
          </div>
 
          <button 
+           data-tour="user-logout"
            onClick={() => { logout(); if(onClose) onClose(); }}
            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-500/10 text-slate-500 hover:text-rose-500 transition-colors mt-1"
          >
