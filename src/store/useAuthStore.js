@@ -1,11 +1,19 @@
 import { create } from 'zustand';
 
+const sanitizeUser = (user) => {
+  if (!user) return null;
+  // eslint-disable-next-line no-unused-vars
+  const { password, ...safeUser } = user;
+  return safeUser;
+};
+
 export const useAuthStore = create((set) => ({
   currentUser: (() => {
     const saved = localStorage.getItem('berc_user');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        return sanitizeUser(parsed);
       } catch (e) {
         console.error('Error parsing saved user', e);
       }
@@ -13,19 +21,23 @@ export const useAuthStore = create((set) => ({
     return null;
   })(),
   login: (user) => set(() => {
-    localStorage.setItem('berc_user', JSON.stringify(user));
-    return { currentUser: user };
+    const safeUser = sanitizeUser(user);
+    if (safeUser) {
+      localStorage.setItem('berc_user', JSON.stringify(safeUser));
+    }
+    return { currentUser: safeUser };
   }),
   logout: () => set(() => {
     localStorage.removeItem('berc_user');
     return { currentUser: null };
   }),
   setCurrentUser: (user) => set(() => {
-    if (user) {
-      localStorage.setItem('berc_user', JSON.stringify(user));
+    const safeUser = sanitizeUser(user);
+    if (safeUser) {
+      localStorage.setItem('berc_user', JSON.stringify(safeUser));
     } else {
       localStorage.removeItem('berc_user');
     }
-    return { currentUser: user };
+    return { currentUser: safeUser };
   })
 }));

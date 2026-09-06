@@ -28,8 +28,20 @@ export const useMovementStore = create((set, get) => ({
     const filterState = useFilterStore.getState();
     const { selectedToolsIds } = filterState;
 
-    const change = parseInt(modalQty);
-    const targets = isBulkMode ? tools.filter(t => selectedToolsIds.includes(t.id)) : [selectedTool];
+    const change = parseInt(modalQty, 10);
+    if (isNaN(change) || change <= 0) {
+      alert('Inserire una quantità valida maggiore di zero.');
+      return;
+    }
+
+    const targets = isBulkMode 
+      ? tools.filter(t => selectedToolsIds.includes(t.id)) 
+      : (selectedTool ? [selectedTool] : []);
+
+    if (targets.length === 0) {
+      alert('Nessun articolo valido selezionato.');
+      return;
+    }
     
     if (opType === 'scarico') {
       const insufficient = targets.filter(t => (t['Quantità'] || 0) < change);

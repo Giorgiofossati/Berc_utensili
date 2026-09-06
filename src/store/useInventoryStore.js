@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 
-export const useInventoryStore = create((set, get) => ({
+export const useInventoryStore = create((set) => ({
   tools: [],
   isLoading: true,
   setTools: (toolsOrCallback) => set((state) => ({

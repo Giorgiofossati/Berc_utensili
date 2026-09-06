@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, AlertTriangle, Activity, ChevronRight, Camera } from 'lucide-react';
-import { ToolIcon } from '../../lib/toolUtils';
+import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import BarcodeScanner from '../scanner/BarcodeScanner';
 
 const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
@@ -9,12 +9,16 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
   const [showCamera, setShowCamera] = useState(false);
   const inputRef = useRef(null);
 
+  const handleClose = () => {
+    setManualCode('');
+    setShowCamera(false);
+    onClose();
+  };
+
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-    } else {
-      setManualCode('');
-      setShowCamera(false);
+      const timer = setTimeout(() => inputRef.current?.focus(), 100);
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
@@ -49,7 +53,7 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose} 
+            onClick={handleClose} 
             className="fixed inset-0 dark:bg-slate-950/60 bg-slate-100/60 backdrop-blur-md" 
           />
           
@@ -65,7 +69,7 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
                 <h2 className="app-h2">Ricerca Globale</h2>
               </div>
               <button 
-                onClick={onClose} 
+                onClick={handleClose} 
                 className="glass-button p-2.5 sm:p-3.5 rounded-full text-accent-orange"
               >
                 <X size={20} className="sm:w-5 sm:h-5" />
@@ -160,15 +164,15 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
                               </div>
                               <div className="flex-1 min-w-0 text-left">
                                 <p className="app-h3 truncate">
-                                  {tool['Tipologia']} {tool['Forma'] ? `— ${tool['Forma']}` : ''} Ø{tool['Diametro']}
+                                  {buildDesc(tool)}
                                 </p>
-                                <p className="app-caption truncate mt-0.5">
+                                <p className="app-caption text-slate-400 dark:text-slate-500 truncate mt-0.5">
                                   {tool['Descrizione'] || `${tool['Tipologia']} ${tool['Forma'] || ''}`}
                                 </p>
                               </div>
                             </div>
                             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-3">
-                              <span className="app-caption">{tool['Ubicazione']}</span>
+                              {tool['Ubicazione'] && <span className="badge badge-orange app-caption font-bold px-2 py-0.5 hidden sm:inline-block">{tool['Ubicazione']}</span>}
                               {!isMobile && tool['Codice'] && <span className="badge badge-blue app-caption font-bold px-2 py-0.5">{tool['Codice']}</span>}
                               <span className={`app-qty-sm ${(tool['Quantità'] || 0) > 0 ? 'text-accent-emerald' : 'text-accent-rose'}`}>
                                 {tool['Quantità'] || 0}

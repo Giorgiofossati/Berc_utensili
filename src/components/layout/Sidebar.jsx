@@ -54,10 +54,10 @@ const SidebarContent = ({
               <Database size={18} className="text-accent-blue drop-shadow-sm" />
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="text-[10px] font-bold tracking-[0.15em] text-slate-400 dark:text-slate-500 uppercase leading-none">
+              <span className="app-overline text-slate-400 dark:text-slate-500 leading-none">
                 Magazzino
               </span>
-              <h1 className="text-sm font-black uppercase tracking-[0.1em] text-slate-800 dark:text-slate-100 leading-none mt-1">
+              <h1 className="app-h2 text-sm text-slate-800 dark:text-slate-100 leading-none mt-1">
                 Bercella
               </h1>
             </div>
@@ -74,7 +74,7 @@ const SidebarContent = ({
           )}
         </div>
         
-        <span className="text-[9px] font-bold tracking-[0.15em] text-slate-500 dark:text-slate-400 uppercase mt-1 block truncate">
+        <span className="app-caption text-slate-500 dark:text-slate-400 uppercase mt-1 block truncate">
           Gestione Utensili CNC
         </span>
       </div>
@@ -100,7 +100,7 @@ const SidebarContent = ({
 
         {/* Primary Actions */}
         <div className="flex flex-col gap-2" data-tour="quick-actions">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-2 mb-1">Azioni Rapide</span>
+          <span className="app-overline text-slate-400 dark:text-slate-500 ml-2 mb-1">Azioni Rapide</span>
           
           <button 
             onClick={() => { setOpType('carico'); setView('scanner'); if(onClose) onClose(); }} 
@@ -131,7 +131,7 @@ const SidebarContent = ({
 
         {/* Navigation */}
         <div className="flex flex-col gap-1 mt-2" data-tour="menu-history">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-2 mb-1">Menu Navigazione</span>
+          <span className="app-overline text-slate-400 dark:text-slate-500 ml-2 mb-1">Menu Navigazione</span>
           
           <NavItem 
             icon={<Database size={16} />} 
@@ -176,11 +176,11 @@ const SidebarContent = ({
               </div>
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 leading-none">{currentUser?.ruolo || 'Guest'}</span>
+                  <span className="app-overline text-slate-500 dark:text-slate-400 leading-none">{currentUser?.ruolo || 'Guest'}</span>
                   {/* Status Indicator Dot */}
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 </div>
-                <span className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate max-w-[110px] leading-none mt-1">{currentUser?.nome || 'Utente'}</span>
+                <span className="app-body font-bold text-slate-800 dark:text-slate-100 truncate max-w-[110px] leading-none mt-1">{currentUser?.nome || 'Utente'}</span>
               </div>
             </div>
             
@@ -201,7 +201,7 @@ const SidebarContent = ({
            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-500/10 text-slate-500 hover:text-rose-500 transition-colors mt-1"
          >
            <LogOut size={16} />
-           <span className="text-xs font-bold uppercase tracking-wider">Logout</span>
+           <span className="app-overline tracking-wider">Logout</span>
          </button>
       </div>
     </div>

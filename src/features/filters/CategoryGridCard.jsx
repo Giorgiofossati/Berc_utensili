@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { ToolIcon } from '../../lib/toolUtils';
 
-const CategoryGridCard = memo(({ opt, idx, handleSelectOption, isMobile }) => {
+const CategoryGridCard = memo(({ opt, handleSelectOption }) => {
   return (
     <div
       onClick={() => handleSelectOption(opt)}

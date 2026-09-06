@@ -19,12 +19,25 @@ Questo file serve come "memoria" e linea guida per l'assistente AI (Gemini) che 
 
 ### Caratteristiche Principali (Stack e Design)
 - **Tecnologie:** React, Vite, TailwindCSS, Supabase (per database e autenticazione), Framer Motion (per animazioni).
-- **Design System ("Industrial Professional Look"):** 
-  - Colori primari: Blu/Ciano (`#0ea5e9` o `#06b6d4`).
-  - Colori secondari: Arancione (`#f97316` o `#ea580c`) per alert/reset.
-  - Colori funzionali: Verde (Carico), Rosso (Scarico).
-  - Stile generale: Premium, minimale, leggero Glassmorphism.
-  - **NON USARE** il colore `indigo` (è stato rimosso per un look più industriale).
+- **Design System ("Industrial Professional Look")**:
+  - **Specifica Ufficiale:** Consulta sempre [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md) per le specifiche complete, le gerarchie e le dimensioni dei componenti.
+  - **Colori primari:** Blu/Ciano (`#0ea5e9` o `#06b6d4`).
+  - **Colori secondari:** Arancione (`#f97316` o `#ea580c`) per alert, overline evidenziati e reset.
+  - **Colori funzionali:** Verde Smeraldo (`#10b981` / `.action-btn-carica`), Rosso Cremisi (`#f43f5e` / `.action-btn-scarica`).
+  - **Stile generale:** Premium industriale, minimale, Glassmorphism denso (`backdrop-blur-xl`, bordi sottili `border-white/10` o `border-slate-900/10`).
+  - **DIVIETO ASSOLUTO:** NON USARE MAI il colore `indigo` (è stato rimosso per un look più industriale).
+  - **Classi Azione Standard (`src/index.css`):**
+    - `.action-btn-carica`: Pulsante verde primario per deposito / carico.
+    - `.action-btn-scarica`: Pulsante rosso primario per prelievo / scarico.
+    - `.action-btn-primary`: Pulsante ciano per azioni confermative generiche (login, salvataggi).
+    - `.action-btn-order`: Pulsante arancione per creazione ordini fornitore.
+    - `.glass-input`: Stile uniforme per tutti i campi `<input>` e `<textarea>`.
+  - **Font Ufficiali:**
+    - **UI Sans-Serif:** `Inter` (pesi 300-900 caricati in `index.html` e mappati in `@theme` a `--font-sans`).
+    - **Monospace Tecnico:** `JetBrains Mono` (pesi 400-800 caricati in `index.html` e mappati a `--font-mono`) per codici utensile, matricole, ID operatore, ubicazioni, date e quantità tabular.
+  - **Regola Dimensioni Card Affiancate (Sibling / Split Cards):**
+    - Quando due card sono affiancate (es. Login Screen), il container genitore **deve sempre usare `items-stretch`** e le card interne devono avere `h-full flex flex-col justify-between`.
+    - Vietato usare `items-center` con altezze libere asimmetriche. Le card affiancate devono condividere identico raggio `rounded-[32px]`, identico padding `p-6 sm:p-8`, e linee di base superiore e inferiore allineate.
 - **UX/UI Core:** Navigazione a cascata, caroselli per macro-categorie, griglie compatte senza scroll orizzontale, design fully responsive.
 
 ## 🚀 Funzionalità e Roadmap
@@ -100,8 +113,16 @@ Questo file serve come "memoria" e linea guida per l'assistente AI (Gemini) che 
 5. **Autenticazione e Redirect (Login Guard)**: Verificare sempre la validità dell'utente (sessione attiva) esclusivamente a livello radice o di routing (`App.jsx` tramite lo store) prima di far scattare logiche figlie. Evitare di condizionare chiamate API o l'apertura di modali a controlli di autenticazione asincroni ritardati che potrebbero causare un fastidioso e improvviso redirect al `LoginScreen` durante l'interazione.
 6. **Ordinamento Multi-Campo (Sorting)**: Quando vengono applicati ordinamenti su più colonne (Nome, Quantità, Ubicazione), questi devono essere gestiti nello strato dei dati (`useFilterStore`). Utilizzare metodi "locale-aware" come `localeCompare` con l'opzione `{ numeric: true }` in modo che stringhe contenenti numeri (come le misure dei diametri) vengano ordinate progressivamente (es. 2 prima di 10).
 
+7. **Sicurezza e Protezione Credenziali**:
+   - **Nessuna Backdoor o Password Hardcoded**: Mai introdurre password di fallback o master bypass (es. '1234') nel codice di autenticazione.
+   - **Esclusione Password da Query e Cache**: Non eseguire mai `select('*')` sulla tabella utenti. Richiedere solo i campi profilo pubblici (`id, nome, cognome, codice_id, ruolo, has_completed_tutorial`). Non salvare mai password in chiaro in `localStorage` (`berc_cached_users` o `berc_user`).
+   - **Segregazione Secret e Variabili d'Ambiente**: Tutte le chiavi API e gli URL devono essere caricati tramite `import.meta.env` da `.env`. I file `.env`, `passsupa.txt` o file con credenziali non devono **mai** essere tracciati o committati su Git.
+   - **Validazione Quantità e Movimenti**: Convalidare sempre che le quantità richieste o movimentate siano interi strettamente positivi (`p_change > 0`) sia lato client sia nelle RPC Supabase per impedire corruzioni di giacenza.
+   - **Privacy e Risorse Esterne Offline**: Nessun asset grafico o texture deve dipendere da domini esterni terzi non affidabili. Usare pattern SVG/CSS o asset locali in `/public` per garantire il funzionamento offline al 100% della PWA in officina.
+
 ### 📱 Ottimizzazioni per App Mobile
 1. **Supporto PWA e Installabilità**: Il progetto è configurato come PWA tramite Vite PWA Plugin. Quando si aggiungono nuove icone o rotte, assicurarsi che le cache di background del Service Worker siano aggiornate. Rispettare in modo categorico l'uso delle classi `env(safe-area-inset-*)` per il padding del container principale, altrimenti su mobile (aperto full-screen o da icona iOS) l'interfaccia si sovrapporrà all'hardware (notch, linea home).
+2. **Ottimizzazione Bundle & Chunking**: Utilizzare `manualChunks` in `vite.config.js` per scorporare librerie pesanti (`@tanstack/*`, `framer-motion`, `@supabase/*`, `lucide-react`) prevenendo bundle monolitici superiori a 500 kB e massimizzando il caching del browser nei terminali di officina.
 
 ---
 *Nota per l'AI: Aggiorna questo file man mano che impari nuove preferenze dell'utente, risolvi bug complessi o definisci nuovi standard di progetto.*

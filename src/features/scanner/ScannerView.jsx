@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Activity, Search, X, AlertTriangle, ChevronRight, Camera } from 'lucide-react';
 import BarcodeScanner from './BarcodeScanner';
+import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useInventoryStore } from '../../store/useInventoryStore';
@@ -140,10 +141,10 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
             </div>
             <div className="max-h-[45vh] overflow-y-auto custom-scrollbar">
               {filteredTools.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 dark:text-slate-400 text-slate-600">
-                  <AlertTriangle size={32} className="mb-4 text-slate-700" />
-                  <p className="font-bold text-sm uppercase tracking-widest">Nessun risultato trovato</p>
-                  <p className="text-xs text-slate-700 mt-2">Prova con un altro codice o descrizione</p>
+                <div className="flex flex-col items-center justify-center py-16 text-center text-slate-500">
+                  <AlertTriangle size={32} className="mb-3 text-slate-400 opacity-60" />
+                  <p className="app-overline mb-1">Nessun risultato trovato</p>
+                  <p className="app-caption text-slate-400">Prova con un altro codice o descrizione</p>
                 </div>
               ) : (
                 filteredTools.map((tool, i) => (
@@ -151,30 +152,30 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
                     key={tool.id || i}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.03 }}
+                    transition={{ delay: i * 0.02 }}
                     onClick={() => handleSelectResult(tool)}
-                    className="flex items-center justify-between px-6 py-4 hover:bg-white/[0.04] cursor-pointer transition-all border-b border-white/[0.03] last:border-b-0 group"
+                    className="flex items-center justify-between px-4 sm:px-6 py-3.5 hover:bg-white/[0.04] cursor-pointer transition-all border-b dark:border-white/[0.03] border-slate-900/5 last:border-b-0 group"
                   >
-                    <div className="flex items-center gap-4 flex-1 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-blue/20 transition-colors">
-                        <Activity size={16} className="text-accent-blue" />
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-blue/20 transition-colors overflow-hidden">
+                        <ToolIcon type={tool['Tipologia']} size={36} className="opacity-85 group-hover:opacity-100 transition-opacity" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-sm dark:text-white text-slate-900 truncate">
-                          {tool['Tipologia']} {tool['Forma'] ? `— ${tool['Forma']}` : ''} Ø{tool['Diametro']}
+                        <p className="app-h3 truncate">
+                          {buildDesc(tool)}
                         </p>
-                        <p className="text-[10px] dark:text-slate-300 text-slate-700 truncate mt-0.5">
-                          {tool['Descrizione'] || `${tool['Tipologia']} ${tool['Forma'] || ''} ${tool['Materiale'] || ''}`}
+                        <p className="app-caption text-slate-400 dark:text-slate-500 truncate mt-0.5">
+                          {tool['Descrizione'] || `${tool['Tipologia']} ${tool['Forma'] || ''}`}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 flex-shrink-0 ml-4">
-                      <span className="badge badge-blue text-[9px]">{tool['Codice']}</span>
-                      <span className={`badge text-[9px] ${(tool['Quantità'] || 0) > 0 ? 'badge-emerald' : 'badge-rose'}`}>
-                        QTY: {tool['Quantità'] || 0}
+                    <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-3">
+                      {tool['Codice'] && <span className="badge badge-blue app-caption font-bold px-2 py-0.5">{tool['Codice']}</span>}
+                      <span className={`app-qty-sm ${(tool['Quantità'] || 0) > 0 ? 'text-accent-emerald' : 'text-accent-rose'}`}>
+                        {tool['Quantità'] || 0}
                       </span>
-                      <span className="text-[10px] dark:text-slate-400 text-slate-600 font-mono">{tool['Ubicazione']}</span>
-                      <ChevronRight size={14} className="text-slate-700 group-hover:text-accent-blue transition-colors" />
+                      {tool['Ubicazione'] && <span className="badge badge-orange app-caption font-bold px-2 py-0.5 hidden sm:inline-block">{tool['Ubicazione']}</span>}
+                      <ChevronRight size={14} className="text-slate-400 group-hover:text-accent-blue transition-colors" />
                     </div>
                   </motion.div>
                 ))

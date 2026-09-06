@@ -176,10 +176,9 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
       dataToInsert['Quantità'] = Number(formData['Quantità']) || 0;
       dataToInsert['Descrizione Originale'] = buildDesc(formData);
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('Utensili_B1')
-        .insert([dataToInsert])
-        .select();
+        .insert([dataToInsert]);
 
       if (error) throw error;
 

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export const useFilterStore = create((set, get) => ({
+export const useFilterStore = create((set) => ({
   filterStack: [],
   viewMode: 'grid',
   isSelectionMode: false,
@@ -11,13 +11,13 @@ export const useFilterStore = create((set, get) => ({
     return { filterStack: nextStack };
   }),
   setViewMode: (mode) => set({ viewMode: mode }),
-  setIsSelectionMode: (val) => set((state) => {
+  setIsSelectionMode: (val) => set(() => {
     if (!val) {
       return { isSelectionMode: val, selectedToolsIds: [] };
     }
     return { isSelectionMode: val };
   }),
-  handleSetIsSelectionMode: (val) => set((state) => {
+  handleSetIsSelectionMode: (val) => set(() => {
     if (!val) {
       return { isSelectionMode: val, selectedToolsIds: [] };
     }

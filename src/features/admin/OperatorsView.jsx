@@ -5,6 +5,7 @@ import {
   Lock, Check, X, RefreshCw, Key, AlertTriangle, Eye, EyeOff,
   HelpCircle
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/useAuthStore';
 
@@ -151,7 +152,7 @@ const OperatorsView = memo(({ setView }) => {
       errors.codice_id = "Questo ID codice è già assegnato a un altro operatore";
     }
 
-    if (formData.ruolo === 'Admin' && !formData.password.trim()) {
+    if (formData.ruolo === 'Admin' && !editingUser && !formData.password.trim()) {
       errors.password = 'La password è obbligatoria per il ruolo Admin';
     }
 
@@ -169,9 +170,18 @@ const OperatorsView = memo(({ setView }) => {
         nome: formData.nome.trim(),
         cognome: formData.cognome.trim(),
         codice_id: formData.codice_id.trim(),
-        ruolo: formData.ruolo,
-        password: formData.ruolo === 'Admin' ? formData.password.trim() : null
+        ruolo: formData.ruolo
       };
+
+      if (formData.ruolo === 'Admin') {
+        if (formData.password.trim()) {
+          payload.password = formData.password.trim();
+        } else if (!editingUser) {
+          throw new Error('La password è obbligatoria per il ruolo Admin');
+        }
+      } else {
+        payload.password = null;
+      }
 
       let response;
       if (editingUser) {
@@ -475,10 +485,10 @@ const OperatorsView = memo(({ setView }) => {
             )}
             
             <div>
-              <p className="text-[10px] font-black text-accent-orange uppercase tracking-[0.2em] mb-1">
+              <p className="app-overline text-accent-orange mb-1">
                 {editingUser ? "Modalità Modifica" : "Aggiungi al Database"}
               </p>
-              <h3 className="text-2xl font-black uppercase italic tracking-tighter dark:text-white text-slate-900">
+              <h3 className="app-h2">
                 {editingUser ? "Modifica Profilo" : "Nuovo Operatore"}
               </h3>
             </div>
@@ -486,60 +496,60 @@ const OperatorsView = memo(({ setView }) => {
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               
               {/* Nome */}
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-black dark:text-slate-300 text-slate-700 uppercase tracking-widest px-1">Nome *</label>
+              <div className="flex flex-col gap-1.5">
+                <label className="app-overline text-slate-600 dark:text-slate-300 px-1">Nome *</label>
                 <input 
                   type="text" 
                   name="nome"
                   value={formData.nome}
                   onChange={handleInputChange}
                   placeholder="Es. Mario"
-                  className={`w-full dark:bg-slate-950/20 bg-slate-900/5 border ${formErrors.nome ? 'border-accent-rose' : 'dark:border-white/10 border-slate-900/10'} rounded-2xl py-3.5 px-4 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 transition-all font-medium`}
+                  className={`glass-input w-full border ${formErrors.nome ? 'border-accent-rose' : 'dark:border-white/10 border-slate-900/10'} rounded-2xl py-3 px-4 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all font-medium text-sm`}
                 />
                 {formErrors.nome && <span className="text-accent-rose text-[10px] font-bold px-1">{formErrors.nome}</span>}
               </div>
 
               {/* Cognome */}
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-black dark:text-slate-300 text-slate-700 uppercase tracking-widest px-1">Cognome *</label>
+              <div className="flex flex-col gap-1.5">
+                <label className="app-overline text-slate-600 dark:text-slate-300 px-1">Cognome *</label>
                 <input 
                   type="text" 
                   name="cognome"
                   value={formData.cognome}
                   onChange={handleInputChange}
                   placeholder="Es. Rossi"
-                  className={`w-full dark:bg-slate-950/20 bg-slate-900/5 border ${formErrors.cognome ? 'border-accent-rose' : 'dark:border-white/10 border-slate-900/10'} rounded-2xl py-3.5 px-4 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 transition-all font-medium`}
+                  className={`glass-input w-full border ${formErrors.cognome ? 'border-accent-rose' : 'dark:border-white/10 border-slate-900/10'} rounded-2xl py-3 px-4 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all font-medium text-sm`}
                 />
                 {formErrors.cognome && <span className="text-accent-rose text-[10px] font-bold px-1">{formErrors.cognome}</span>}
               </div>
 
               {/* Codice ID (Barcode) */}
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-black dark:text-slate-300 text-slate-700 uppercase tracking-widest px-1">Codice ID / Barcode *</label>
+              <div className="flex flex-col gap-1.5">
+                <label className="app-overline text-slate-600 dark:text-slate-300 px-1">Codice ID / Barcode *</label>
                 <input 
                   type="text" 
                   name="codice_id"
                   value={formData.codice_id}
                   onChange={handleInputChange}
                   placeholder="Es. 998877"
-                  className={`w-full dark:bg-slate-950/20 bg-slate-900/5 border ${formErrors.codice_id ? 'border-accent-rose' : 'dark:border-white/10 border-slate-900/10'} rounded-2xl py-3.5 px-4 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 transition-all font-medium font-mono`}
+                  className={`glass-input w-full border ${formErrors.codice_id ? 'border-accent-rose' : 'dark:border-white/10 border-slate-900/10'} rounded-2xl py-3 px-4 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all font-medium font-mono text-sm`}
                 />
                 {formErrors.codice_id && <span className="text-accent-rose text-[10px] font-bold px-1">{formErrors.codice_id}</span>}
               </div>
 
               {/* Ruolo */}
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-black dark:text-slate-300 text-slate-700 uppercase tracking-widest px-1">Ruolo Operativo *</label>
+              <div className="flex flex-col gap-1.5">
+                <label className="app-overline text-slate-600 dark:text-slate-300 px-1">Ruolo Operativo *</label>
                 <div className="relative">
                   <select 
                     value={formData.ruolo}
                     onChange={handleRoleChange}
-                    className="w-full dark:bg-slate-950/20 bg-slate-900/5 border dark:border-white/10 border-slate-900/10 rounded-2xl py-3.5 px-4 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 transition-all font-medium appearance-none"
+                    className="glass-input w-full border dark:border-white/10 border-slate-900/10 rounded-2xl py-3 px-4 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all font-medium appearance-none text-sm cursor-pointer"
                   >
                     <option value="Operatore">Operatore (Solo Prelievo/Deposito)</option>
                     <option value="Admin">Admin (Accesso Completo + Gestione)</option>
                   </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none dark:text-slate-400 text-slate-600">
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                     <Shield size={18} />
                   </div>
                 </div>
@@ -552,9 +562,9 @@ const OperatorsView = memo(({ setView }) => {
                     initial={{ opacity: 0, height: 0 }} 
                     animate={{ opacity: 1, height: 'auto' }} 
                     exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden flex flex-col gap-1"
+                    className="overflow-hidden flex flex-col gap-1.5"
                   >
-                    <label className="text-[10px] font-black dark:text-slate-300 text-slate-700 uppercase tracking-widest px-1 mt-2">Password Admin *</label>
+                    <label className="app-overline text-slate-600 dark:text-slate-300 px-1 mt-2">Password Admin *</label>
                     <div className="relative">
                       <input 
                         type={showPassword ? "text" : "password"} 
@@ -562,12 +572,12 @@ const OperatorsView = memo(({ setView }) => {
                         value={formData.password}
                         onChange={handleInputChange}
                         placeholder="••••••••"
-                        className={`w-full dark:bg-slate-950/20 bg-slate-900/5 border ${formErrors.password ? 'border-accent-rose' : 'dark:border-white/10 border-slate-900/10'} rounded-2xl py-3.5 pl-4 pr-12 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 transition-all font-mono`}
+                        className={`glass-input w-full border ${formErrors.password ? 'border-accent-rose' : 'dark:border-white/10 border-slate-900/10'} rounded-2xl py-3 pl-4 pr-12 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all font-mono text-sm`}
                       />
                       <button 
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 dark:text-slate-400 text-slate-600 hover:text-white"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
                       >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
@@ -584,7 +594,7 @@ const OperatorsView = memo(({ setView }) => {
                     type="button" 
                     onClick={resetForm}
                     disabled={actionLoading}
-                    className="flex-1 py-4 glass-button font-black rounded-2xl uppercase tracking-[0.1em] text-xs hover:text-accent-rose"
+                    className="flex-1 py-3.5 sm:py-4 glass-button font-bold rounded-xl sm:rounded-2xl uppercase tracking-wider text-xs hover:text-accent-rose transition-colors cursor-pointer"
                   >
                     Annulla
                   </button>
@@ -592,7 +602,7 @@ const OperatorsView = memo(({ setView }) => {
                 <button 
                   type="submit" 
                   disabled={actionLoading}
-                  className="flex-2 py-4 bg-accent-blue text-slate-950 font-black rounded-2xl uppercase tracking-[0.1em] text-xs hover:bg-sky-400 transition-all flex justify-center items-center gap-2 shadow-lg shadow-accent-blue/10 disabled:opacity-50"
+                  className="flex-2 py-3.5 sm:py-4 action-btn action-btn-primary rounded-xl sm:rounded-2xl text-xs sm:text-sm font-black uppercase tracking-wider flex justify-center items-center gap-2 disabled:opacity-50 cursor-pointer shadow-lg"
                 >
                   {actionLoading ? (
                     <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
@@ -612,74 +622,60 @@ const OperatorsView = memo(({ setView }) => {
 
       </div>
 
-      {/* CONFIRM DELETE MODAL */}
-      <AnimatePresence>
-        {deletingUser && (
-          <div className="fixed inset-0 z-[3000] flex items-center justify-center p-3 sm:p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }} 
-              onClick={() => setDeletingUser(null)} 
-              className="absolute inset-0 dark:bg-slate-950/80 bg-slate-50/80 backdrop-blur-md"
-            />
-            
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }} 
-              animate={{ opacity: 1, scale: 1, y: 0 }} 
-              exit={{ opacity: 0, scale: 0.9, y: 20 }} 
-              className="glass-panel w-full max-w-md p-5 sm:p-8 rounded-[28px] sm:rounded-[36px] z-[3001] relative overflow-hidden border-accent-rose/30 shadow-[0_0_50px_rgba(244,63,94,0.1)]"
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-accent-rose/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-              
-              <div className="flex flex-col items-center text-center gap-3 sm:gap-4">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-accent-rose/10 flex items-center justify-center text-accent-rose mb-1">
-                  <AlertTriangle size={24} className="sm:w-8 sm:h-8" />
-                </div>
-                
-                <div>
-                  <p className="text-[8px] sm:text-[9px] font-black text-accent-rose uppercase tracking-[0.25em] mb-0.5">RIMOZIONE OPERATORE</p>
-                  <h3 className="text-xl sm:text-2xl font-black uppercase italic tracking-tight dark:text-white text-slate-900">Sei sicuro?</h3>
-                </div>
-
-                <p className="text-xs sm:text-sm dark:text-slate-400 text-slate-600 leading-relaxed">
-                  Stai per eliminare definitivamente l'operatore <strong className="dark:text-white text-slate-900">{deletingUser.nome} {deletingUser.cognome}</strong> (ID: {deletingUser.codice_id}) dal database.
-                </p>
-
-                {deletingUser.id === currentUser.id && (
-                  <div className="w-full p-3 sm:p-4 bg-accent-orange/10 border border-accent-orange/20 rounded-xl sm:rounded-2xl flex items-start gap-2.5 text-left">
-                    <AlertTriangle size={16} className="text-accent-orange shrink-0 mt-0.5" />
-                    <p className="text-[11px] sm:text-xs text-accent-orange font-bold leading-normal">
-                      Attenzione: Stai eliminando il tuo stesso account. Verrai disconnesso immediatamente dal sistema.
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex gap-2.5 sm:gap-3 w-full mt-2">
-                  <button 
-                    onClick={() => setDeletingUser(null)} 
-                    disabled={actionLoading}
-                    className="flex-1 py-3 sm:py-4 glass-button font-black rounded-xl sm:rounded-2xl uppercase tracking-[0.1em] text-xs hover:text-accent-rose"
-                  >
-                    Annulla
-                  </button>
-                  <button 
-                    onClick={confirmDelete}
-                    disabled={actionLoading}
-                    className="flex-1 py-3 sm:py-4 bg-accent-rose text-white font-black rounded-xl sm:rounded-2xl uppercase tracking-[0.1em] text-xs hover:bg-rose-600 active:scale-[0.98] transition-all flex justify-center items-center gap-2 shadow-lg shadow-rose-500/20"
-                  >
-                    {actionLoading ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <>Sì, Elimina</>
-                    )}
-                  </button>
-                </div>
+      {/* CONFIRM DELETE MODAL (Shadcn Dialog standard) */}
+      <Dialog open={!!deletingUser} onOpenChange={(open) => !open && setDeletingUser(null)}>
+        <DialogContent showCloseButton={false} className="glass-panel w-[94vw] sm:w-full max-w-md p-5 sm:p-8 rounded-[28px] sm:rounded-[36px] z-[3001] border-accent-rose/30 shadow-[0_0_50px_rgba(244,63,94,0.1)] focus:outline-none">
+          <DialogTitle className="sr-only">Conferma Eliminazione Operatore</DialogTitle>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-accent-rose/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+          
+          {deletingUser && (
+            <div className="flex flex-col items-center text-center gap-3 sm:gap-4">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-accent-rose/10 flex items-center justify-center text-accent-rose mb-1">
+                <AlertTriangle size={24} className="sm:w-8 sm:h-8" />
               </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+              
+              <div>
+                <p className="app-overline text-accent-rose mb-0.5">RIMOZIONE OPERATORE</p>
+                <h3 className="app-h2">Sei sicuro?</h3>
+              </div>
+
+              <p className="app-body text-slate-600 dark:text-slate-300 leading-relaxed">
+                Stai per eliminare definitivamente l'operatore <strong className="dark:text-white text-slate-900">{deletingUser.nome} {deletingUser.cognome}</strong> (ID: {deletingUser.codice_id}) dal database.
+              </p>
+
+              {deletingUser.id === currentUser.id && (
+                <div className="w-full p-3 sm:p-4 bg-accent-orange/10 border border-accent-orange/20 rounded-xl sm:rounded-2xl flex items-start gap-2.5 text-left">
+                  <AlertTriangle size={16} className="text-accent-orange shrink-0 mt-0.5" />
+                  <p className="text-[11px] sm:text-xs text-accent-orange font-bold leading-normal">
+                    Attenzione: Stai eliminando il tuo stesso account. Verrai disconnesso immediatamente dal sistema.
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-2.5 sm:gap-3 w-full mt-2">
+                <button 
+                  onClick={() => setDeletingUser(null)} 
+                  disabled={actionLoading}
+                  className="flex-1 py-3 sm:py-4 glass-button font-bold rounded-xl sm:rounded-2xl uppercase tracking-wider text-xs hover:text-accent-rose transition-colors cursor-pointer"
+                >
+                  Annulla
+                </button>
+                <button 
+                  onClick={confirmDelete}
+                  disabled={actionLoading}
+                  className="flex-1 py-3 sm:py-4 action-btn action-btn-scarica rounded-xl sm:rounded-2xl text-xs font-black uppercase tracking-wider disabled:opacity-50 cursor-pointer shadow-lg shadow-rose-500/20"
+                >
+                  {actionLoading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>Sì, Elimina</>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* TOAST SYSTEM */}
       <AnimatePresence>

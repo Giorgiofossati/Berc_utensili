@@ -1,15 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useId } from 'react';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 
 const BarcodeScanner = ({ onScan }) => {
   const html5QrCodeRef = useRef(null);
-  const scannerId = useRef(`barcode-reader-${Math.random().toString(36).substr(2, 9)}`);
+  const reactId = useId();
+  const scannerDomId = `barcode-reader-${reactId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const config = {
       fps: 15,
-      qrbox: (viewfinderWidth, viewfinderHeight) => {
+      qrbox: (viewfinderWidth) => {
         const width = Math.min(viewfinderWidth * 0.8, 300);
         const height = width * 0.6;
         return { width, height };
@@ -24,7 +25,7 @@ const BarcodeScanner = ({ onScan }) => {
       ],
     };
 
-    const html5QrCode = new Html5Qrcode(scannerId.current);
+    const html5QrCode = new Html5Qrcode(scannerDomId);
     html5QrCodeRef.current = html5QrCode;
 
     const startScanner = async () => {
@@ -45,7 +46,7 @@ const BarcodeScanner = ({ onScan }) => {
             config,
             (decodedText) => {
               if ("vibrate" in navigator) {
-                try { navigator.vibrate(200); } catch (e) {}
+                try { navigator.vibrate(200); } catch { /* ignore */ }
               }
               onScan(decodedText);
             },
@@ -58,7 +59,7 @@ const BarcodeScanner = ({ onScan }) => {
             config,
             (decodedText) => {
               if ("vibrate" in navigator) {
-                try { navigator.vibrate(200); } catch (e) {}
+                try { navigator.vibrate(200); } catch { /* ignore */ }
               }
               onScan(decodedText);
             },
@@ -84,12 +85,12 @@ const BarcodeScanner = ({ onScan }) => {
         }
       }
     };
-  }, [onScan]);
+  }, [onScan, scannerDomId]);
 
   return (
     <div className="w-full dark:bg-slate-900/60 bg-slate-200/60 p-4 md:p-6 flex flex-col items-center">
       <div 
-        id={scannerId.current} 
+        id={scannerDomId} 
         className="w-full rounded-[32px] overflow-hidden border-2 dark:border-white/10 border-slate-900/10 bg-black min-h-[250px] shadow-2xl relative"
       >
         {error && (

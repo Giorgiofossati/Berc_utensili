@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   Wind, Target, Hash, Circle, Scan, Triangle, 
-  Scissors, Layers, Pen, Diamond, Maximize, Warehouse 
+  Scissors, Diamond, Warehouse 
 } from 'lucide-react';
 
 export const getToolImage = (type) => {

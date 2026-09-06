@@ -13,15 +13,21 @@ const OrderModal = ({ tool, onClose, currentUser }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const qtyNum = parseInt(qty, 10);
+    if (isNaN(qtyNum) || qtyNum <= 0) {
+      alert("La quantità richiesta deve essere un numero intero maggiore di zero.");
+      return;
+    }
+
     setIsLoading(true);
     
     try {
       const dataToInsert = {
         tool_id: tool.id,
-        quantita_richiesta: qty,
-        note: note,
+        quantita_richiesta: qtyNum,
+        note: (note || '').trim().slice(0, 500),
         stato: 'In Attesa',
-        utente: currentUser ? `${currentUser.nome} ${currentUser.cognome}` : 'Admin',
+        utente: currentUser ? `${currentUser.nome} ${currentUser.cognome}`.trim() : 'Admin',
       };
 
       const { error } = await supabase
@@ -87,12 +93,12 @@ const OrderModal = ({ tool, onClose, currentUser }) => {
                 required
                 value={qty} 
                 onChange={(e) => setQty(Number(e.target.value))} 
-                className="w-full h-auto p-3 sm:p-4 rounded-xl sm:rounded-2xl font-black text-xl sm:text-2xl text-center focus:border-accent-orange focus:ring-1 focus:ring-accent-orange transition-all" 
+                className="glass-input w-full h-auto p-3 sm:p-4 rounded-xl sm:rounded-2xl font-black text-xl sm:text-2xl text-center focus:border-accent-orange focus:ring-1 focus:ring-accent-orange transition-all" 
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest opacity-70 text-slate-700 dark:text-slate-300 px-1">Note Aggiuntive (Opzionale)</label>
+              <label className="app-overline opacity-70 text-slate-700 dark:text-slate-300 px-1">Note Aggiuntive (Opzionale)</label>
               <textarea 
                 rows="3"
                 value={note}
@@ -105,12 +111,12 @@ const OrderModal = ({ tool, onClose, currentUser }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 sm:p-6 shrink-0 bg-black/5 dark:bg-white/5 flex justify-end">
-          <Button 
+        <div className="p-4 sm:p-6 shrink-0 bg-black/5 dark:bg-white/5 flex justify-end border-t dark:border-white/5 border-slate-900/10">
+          <button 
             type="submit" 
             form="order-form"
             disabled={isLoading}
-            className="py-4 sm:py-5 px-6 flex items-center gap-2 rounded-xl sm:rounded-2xl shadow-xl disabled:opacity-50 w-full justify-center bg-[#f97316] text-white hover:bg-[#ea580c] active:scale-[0.98] transition-all font-black text-xs uppercase tracking-widest"
+            className="action-btn action-btn-order py-3.5 sm:py-4 px-6 rounded-xl sm:rounded-2xl w-full flex items-center justify-center gap-2 text-xs sm:text-sm font-black uppercase tracking-widest disabled:opacity-50 cursor-pointer"
           >
             {isLoading ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -120,7 +126,7 @@ const OrderModal = ({ tool, onClose, currentUser }) => {
                 <span>Invia Ordine</span>
               </>
             )}
-          </Button>
+          </button>
         </div>
       </DialogContent>
     </Dialog>

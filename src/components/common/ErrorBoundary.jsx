@@ -23,7 +23,7 @@ class ErrorBoundary extends Component {
   handleResetAndLogin = () => {
     try {
       useAuthStore.getState().logout();
-    } catch (e) {
+    } catch {
       localStorage.removeItem('berc_user');
     }
     window.location.href = '/';
