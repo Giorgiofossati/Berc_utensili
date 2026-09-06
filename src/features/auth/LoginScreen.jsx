@@ -30,6 +30,7 @@ export default function LoginScreen() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [verifyingPassword, setVerifyingPassword] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -39,7 +40,12 @@ export default function LoginScreen() {
     setLoading(true);
     setFetchError(false);
     try {
-      const { data, error: sbError } = await supabase.from('utenti').select('*').order('nome');
+      // Sicurezza: non selezioniamo mai il campo password nella lista pubblica
+      const { data, error: sbError } = await supabase
+        .from('utenti')
+        .select('id, nome, cognome, codice_id, ruolo, has_completed_tutorial')
+        .order('nome');
+
       if (!sbError && data && data.length > 0) {
         setUsers(data);
         localStorage.setItem('berc_cached_users', JSON.stringify(data));
@@ -79,12 +85,37 @@ export default function LoginScreen() {
     }
   };
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    if (password === selectedUser.password || password === '1234') { // Fallback 1234 from old PLANNING
-      setCurrentUser(selectedUser);
-    } else {
-      setError('Password errata. Riprova.');
+    if (!password) {
+      setError('Inserisci la password per continuare.');
+      return;
+    }
+
+    setVerifyingPassword(true);
+    setError('');
+
+    try {
+      // Verifica sicura della password su Supabase per il singolo account selezionato
+      const { data, error: sbError } = await supabase
+        .from('utenti')
+        .select('id, nome, cognome, codice_id, ruolo, has_completed_tutorial')
+        .eq('id', selectedUser.id)
+        .eq('password', password)
+        .maybeSingle();
+
+      if (sbError) throw sbError;
+
+      if (data) {
+        setCurrentUser(data);
+      } else {
+        setError('Password errata. Riprova.');
+      }
+    } catch (err) {
+      console.error('Errore durante la verifica della password:', err);
+      setError('Errore di connessione durante la verifica. Riprova.');
+    } finally {
+      setVerifyingPassword(false);
     }
   };
 
@@ -241,8 +272,12 @@ export default function LoginScreen() {
                 </div>
                 {error && <p className="text-rose-400 text-xs font-bold text-center mb-3 uppercase tracking-wider">{error}</p>}
                 
-                <Button type="submit" className="w-full h-11 sm:h-12 text-slate-950 bg-accent-blue hover:bg-sky-400 font-black uppercase tracking-widest rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-all active:scale-[0.98]">
-                   Accedi <ArrowRight size={18} />
+                <Button 
+                  type="submit" 
+                  disabled={verifyingPassword}
+                  className="w-full h-11 sm:h-12 text-slate-950 bg-accent-blue hover:bg-sky-400 font-black uppercase tracking-widest rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-all active:scale-[0.98] disabled:opacity-50"
+                >
+                   {verifyingPassword ? 'Verifica...' : <>Accedi <ArrowRight size={18} /></>}
                 </Button>
              </form>
            </motion.div>
