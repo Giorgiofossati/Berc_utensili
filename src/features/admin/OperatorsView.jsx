@@ -32,6 +32,14 @@ const withTimeout = (promise, timeoutMs = 5000) => {
 const OperatorsView = memo(({ setView }) => {
   const currentUser = useAuthStore(state => state.currentUser);
   const setCurrentUser = useAuthStore(state => state.setCurrentUser);
+
+  // Security Guard: Solo gli Admin possono accedere a questa schermata
+  useEffect(() => {
+    if (currentUser && currentUser.ruolo !== 'Admin') {
+      setView('home');
+    }
+  }, [currentUser, setView]);
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -317,6 +325,10 @@ const OperatorsView = memo(({ setView }) => {
       showToast('Errore durante il reset del tutorial', 'error');
     }
   };
+
+  if (!currentUser || currentUser.ruolo !== 'Admin') {
+    return null;
+  }
 
   return (
     <motion.div 

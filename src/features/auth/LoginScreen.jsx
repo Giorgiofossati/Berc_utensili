@@ -41,10 +41,20 @@ export default function LoginScreen() {
     setFetchError(false);
     try {
       // Sicurezza: non selezioniamo mai il campo password nella lista pubblica
-      const { data, error: sbError } = await supabase
+      let { data, error: sbError } = await supabase
         .from('utenti')
         .select('id, nome, cognome, codice_id, ruolo, has_completed_tutorial')
         .order('nome');
+
+      // Fallback resiliente se la colonna has_completed_tutorial non è ancora presente sul database
+      if (sbError && (sbError.code === '42703' || sbError.code === 'PGRST204' || sbError.message?.includes('has_completed_tutorial'))) {
+        const fallbackRes = await supabase
+          .from('utenti')
+          .select('id, nome, cognome, codice_id, ruolo')
+          .order('nome');
+        data = fallbackRes.data?.map(u => ({ ...u, has_completed_tutorial: false }));
+        sbError = fallbackRes.error;
+      }
 
       if (!sbError && data && data.length > 0) {
         setUsers(data);
@@ -96,13 +106,25 @@ export default function LoginScreen() {
     setError('');
 
     try {
-      // Verifica sicura della password su Supabase per il singolo account selezionato
-      const { data, error: sbError } = await supabase
+      // Verifica della password su Supabase per il singolo account selezionato
+      let { data, error: sbError } = await supabase
         .from('utenti')
         .select('id, nome, cognome, codice_id, ruolo, has_completed_tutorial')
         .eq('id', selectedUser.id)
         .eq('password', password)
         .maybeSingle();
+
+      // Fallback resiliente se la colonna has_completed_tutorial non è ancora presente sul database
+      if (sbError && (sbError.code === '42703' || sbError.code === 'PGRST204' || sbError.message?.includes('has_completed_tutorial'))) {
+        const fallbackRes = await supabase
+          .from('utenti')
+          .select('id, nome, cognome, codice_id, ruolo')
+          .eq('id', selectedUser.id)
+          .eq('password', password)
+          .maybeSingle();
+        data = fallbackRes.data ? { ...fallbackRes.data, has_completed_tutorial: false } : null;
+        sbError = fallbackRes.error;
+      }
 
       if (sbError) throw sbError;
 

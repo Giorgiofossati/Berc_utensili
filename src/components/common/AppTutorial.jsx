@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { useTutorialStore } from '../../store/useTutorialStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useNavigationStore } from '../../store/useNavigationStore';
+import { useFilterStore } from '../../store/useFilterStore';
 import { useTheme } from '../../lib/ThemeContext';
 
 export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode }) {
@@ -15,6 +17,11 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
   const nextStep = useTutorialStore(state => state.nextStep);
   const prevStep = useTutorialStore(state => state.prevStep);
   const completeTutorial = useTutorialStore(state => state.completeTutorial);
+
+  const currentView = useNavigationStore(state => state.currentView);
+  const setCurrentView = useNavigationStore(state => state.setCurrentView);
+  const resetFilters = useFilterStore(state => state.resetFilters);
+  const setStoreViewMode = useFilterStore(state => state.setViewMode);
 
   const currentUser = useAuthStore(state => state.currentUser);
   const setCurrentUser = useAuthStore(state => state.setCurrentUser);
@@ -28,25 +35,45 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
 
   const step = steps[currentStep] || steps[0];
 
-  // Gestione apertura automatica sidebar su mobile se lo step la richiede
+  // Coordinamento della vista, filtri e sidebar per lo step attivo del tutorial
   useEffect(() => {
-    if (!isOpen || !onRequireSidebar) return;
-    const isMobile = window.innerWidth < 768;
-    if (!isMobile) return;
+    if (!isOpen || !step) return;
 
-    const sidebarSteps = ['search-tools', 'quick-actions', 'menu-history', 'user-profile', 'user-logout'];
-    if (sidebarSteps.includes(step.id)) {
-      onRequireSidebar(true);
-    } else {
-      onRequireSidebar(false);
+    // 1. Sposta l'utente sulla vista richiesta dallo step (es. 'home', 'scanner', 'history', etc.)
+    if (step.targetView && currentView !== step.targetView) {
+      setCurrentView(step.targetView);
     }
-  }, [isOpen, step.id, onRequireSidebar]);
 
-  // Misura e traccia l'elemento target dinamicamente
+    // 2. Resetta i filtri se richiesto per far comparire il catalogo principale
+    if (step.resetFilters) {
+      resetFilters();
+    }
+
+    // 3. Imposta la viewMode richiesta (es. 'grid')
+    if (step.viewMode) {
+      if (setViewMode) setViewMode(step.viewMode);
+      setStoreViewMode(step.viewMode);
+    }
+
+    // 4. Gestione apertura automatica sidebar su mobile se lo step la richiede
+    if (onRequireSidebar) {
+      const isMobile = window.innerWidth < 768;
+      if (isMobile) {
+        if (step.requireSidebar !== undefined) {
+          onRequireSidebar(step.requireSidebar);
+        } else {
+          const sidebarSteps = ['search-tools', 'quick-actions', 'menu-history', 'user-profile', 'user-logout'];
+          onRequireSidebar(sidebarSteps.includes(step.id));
+        }
+      }
+    }
+  }, [isOpen, currentStep, step, currentView, setCurrentView, resetFilters, viewMode, setViewMode, setStoreViewMode, onRequireSidebar]);
+
+  // Misura e traccia l'elemento target dinamicamente con retry polling per gestire transizioni Framer Motion
   const updateRect = useCallback(() => {
     if (!step?.target) {
       setTargetRect(null);
-      return;
+      return false;
     }
 
     const el = document.querySelector(step.target);
@@ -59,16 +86,35 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
           width: rect.width,
           height: rect.height
         });
-        return;
+        return true;
       }
     }
     setTargetRect(null);
+    return false;
   }, [step]);
 
   useEffect(() => {
     if (!isOpen) return;
 
-    const rafId = requestAnimationFrame(updateRect);
+    let cancelled = false;
+    let retries = 0;
+    const maxRetries = 25; // 25 * 40ms = 1000ms
+
+    // Prova immediata
+    const found = updateRect();
+    
+    // Se non trovato subito (es. pagina o filtro in transizione), ritenta ogni 40ms
+    let interval = null;
+    if (!found) {
+      interval = setInterval(() => {
+        if (cancelled) return;
+        retries++;
+        if (updateRect() || retries >= maxRetries) {
+          clearInterval(interval);
+        }
+      }, 40);
+    }
+
     const handleResize = () => {
       setViewportSize({ width: window.innerWidth, height: window.innerHeight });
       updateRect();
@@ -78,13 +124,11 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll, true);
 
-    const timer = setTimeout(updateRect, 180);
-
     return () => {
-      cancelAnimationFrame(rafId);
+      cancelled = true;
+      if (interval) clearInterval(interval);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll, true);
-      clearTimeout(timer);
     };
   }, [isOpen, currentStep, updateRect]);
 

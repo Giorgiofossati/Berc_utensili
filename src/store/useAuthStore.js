@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { useNavigationStore } from './useNavigationStore';
+import { useFilterStore } from './useFilterStore';
 
 const sanitizeUser = (user) => {
   if (!user) return null;
@@ -24,19 +26,29 @@ export const useAuthStore = create((set) => ({
     const safeUser = sanitizeUser(user);
     if (safeUser) {
       localStorage.setItem('berc_user', JSON.stringify(safeUser));
+      if (safeUser.ruolo !== 'Admin' && useNavigationStore.getState().currentView === 'operators') {
+        useNavigationStore.getState().resetNavigation();
+      }
     }
     return { currentUser: safeUser };
   }),
   logout: () => set(() => {
     localStorage.removeItem('berc_user');
+    useNavigationStore.getState().resetNavigation();
+    useFilterStore.getState().resetFilters();
     return { currentUser: null };
   }),
   setCurrentUser: (user) => set(() => {
     const safeUser = sanitizeUser(user);
     if (safeUser) {
       localStorage.setItem('berc_user', JSON.stringify(safeUser));
+      if (safeUser.ruolo !== 'Admin' && useNavigationStore.getState().currentView === 'operators') {
+        useNavigationStore.getState().resetNavigation();
+      }
     } else {
       localStorage.removeItem('berc_user');
+      useNavigationStore.getState().resetNavigation();
+      useFilterStore.getState().resetFilters();
     }
     return { currentUser: safeUser };
   })

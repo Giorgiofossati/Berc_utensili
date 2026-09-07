@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+import { useNavigationStore } from './useNavigationStore';
+import { useFilterStore } from './useFilterStore';
 
 export const TUTORIAL_STEPS = [
   {
@@ -7,7 +9,11 @@ export const TUTORIAL_STEPS = [
     target: '[data-tour="catalog-categories"]',
     title: 'Catalogo & Tipologie Utensili',
     content: 'Seleziona la famiglia di utensili (Frese, Punte, Maschi, Inserti...) per accedere ai diametri e alle schede tecniche in magazzino.',
-    placement: 'bottom'
+    placement: 'bottom',
+    targetView: 'home',
+    resetFilters: true,
+    viewMode: 'grid',
+    requireSidebar: false
   },
   {
     id: 'view-mode-toggle',
@@ -15,42 +21,54 @@ export const TUTORIAL_STEPS = [
     title: 'Cambio Vista: Griglia o Elenco',
     content: 'Passa dalla vista a icone alla tabella compatta con filtri dinamici a cascata per diametri, forme e materiali. Prova subito a cambiare vista qui sotto!',
     placement: 'bottom',
-    interactive: true
+    interactive: true,
+    targetView: 'home',
+    requireSidebar: false
   },
   {
     id: 'search-tools',
     target: '[data-tour="search-tools"]',
     title: 'Ricerca Rapida & Scorciatoie',
     content: 'Trova qualsiasi utensile digitando codice, nome o diametro. Puoi usare anche la scorciatoia da tastiera ⌘K.',
-    placement: 'right'
+    placement: 'right',
+    targetView: 'home',
+    requireSidebar: true
   },
   {
     id: 'quick-actions',
     target: '[data-tour="quick-actions"]',
     title: 'Azioni Rapide: Deposita & Preleva',
     content: 'Registra i movimenti di magazzino in un tocco: PRELEVA per scaricare l\'utensile per la macchina CNC, DEPOSITA per caricarlo.',
-    placement: 'right'
+    placement: 'right',
+    targetView: 'home',
+    requireSidebar: true
   },
   {
     id: 'menu-history',
     target: '[data-tour="menu-history"]',
     title: 'Storico Movimenti & Supporto',
     content: 'Controlla tutti i log delle operazioni effettuate con data e operatore. Da qui puoi anche riavviare questo tutorial in qualsiasi momento.',
-    placement: 'top'
+    placement: 'top',
+    targetView: 'home',
+    requireSidebar: true
   },
   {
     id: 'user-profile',
     target: '[data-tour="user-profile"]',
     title: 'Profilo Utente & Privilegi',
     content: 'Verifica il tuo account e ruolo attivo (Operatore o Admin). Il pallino verde indica che sei autenticato e operativo nel sistema.',
-    placement: 'top'
+    placement: 'top',
+    targetView: 'home',
+    requireSidebar: true
   },
   {
     id: 'user-logout',
     target: '[data-tour="user-logout"]',
     title: 'Fine Turno & Logout',
     content: 'A fine turno, usa questo tasto per disconnetterti in sicurezza e lasciare il gestionale pronto per il login del collega successivo.',
-    placement: 'top'
+    placement: 'top',
+    targetView: 'home',
+    requireSidebar: true
   }
 ];
 
@@ -59,7 +77,22 @@ export const useTutorialStore = create((set, get) => ({
   currentStep: 0,
   steps: TUTORIAL_STEPS,
 
-  startTutorial: () => set({ isOpen: true, currentStep: 0 }),
+  startTutorial: () => {
+    const { steps } = get();
+    const firstStep = steps[0];
+    if (firstStep) {
+      if (firstStep.targetView) {
+        useNavigationStore.getState().setCurrentView(firstStep.targetView);
+      }
+      if (firstStep.resetFilters) {
+        useFilterStore.getState().resetFilters();
+      }
+      if (firstStep.viewMode) {
+        useFilterStore.getState().setViewMode(firstStep.viewMode);
+      }
+    }
+    set({ isOpen: true, currentStep: 0 });
+  },
   
   closeTutorial: () => set({ isOpen: false }),
 

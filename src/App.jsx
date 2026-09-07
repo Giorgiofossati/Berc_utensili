@@ -9,6 +9,7 @@ import { supabase } from './lib/supabase';
 import { useAuthStore } from './store/useAuthStore';
 import { useInventoryStore } from './store/useInventoryStore';
 import { useMovementStore } from './store/useMovementStore';
+import { useNavigationStore } from './store/useNavigationStore';
 import { useFilters } from './hooks/useFilters';
 
 // Lazy load only secondary admin/separate views
@@ -67,7 +68,16 @@ function App() {
   const setIsBulkMode = useMovementStore(state => state.setIsBulkMode);
   const handleMovement = useMovementStore(state => state.handleMovement);
 
-  const [view, setView] = useState('home');
+  const view = useNavigationStore(state => state.currentView);
+  const setView = useNavigationStore(state => state.setCurrentView);
+
+  // Security Guard: Se un utente con ruolo non-Admin si trova sulla vista operatori, reindirizza a 'home'
+  useEffect(() => {
+    if (currentUser && currentUser.ruolo !== 'Admin' && view === 'operators') {
+      setView('home');
+    }
+  }, [currentUser, view, setView]);
+
   const [history, setHistory] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);

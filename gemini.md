@@ -118,6 +118,21 @@ Questo file serve come "memoria" e linea guida per l'assistente AI (Gemini) che 
    - **Validazione Quantità e Movimenti**: Convalidare sempre che le quantità richieste o movimentate siano interi strettamente positivi (`p_change > 0`) sia lato client sia nelle RPC Supabase per impedire corruzioni di giacenza.
    - **Privacy e Risorse Esterne Offline**: Nessun asset grafico o texture deve dipendere da domini esterni terzi non affidabili. Usare pattern SVG/CSS o asset locali in `/public` per garantire il funzionamento offline al 100% della PWA in officina.
 
+8. **Controllo Accessi e Reset di Sessione (Logout/Login & Role Guard)**:
+   - Centralizzare sempre la navigazione tra le viste in `useNavigationStore` (`currentView`, `setCurrentView`, `resetNavigation`).
+   - Su ogni operazione di `logout` o cambio utente, la navigazione deve essere ripristinata immediatamente alla radice (`'home'`) e i filtri di catalogo azzerati (`resetFilters`).
+   - **Defense-in-depth per viste riservate (es. `OperatorsView`)**: Oltre a nascondere le voci di navigazione nella Sidebar, ogni componente con restrizioni di ruolo deve implementare un controllo di sicurezza interno (`currentUser?.ruolo === 'Admin'`) e reindirizzare forzatamente a `'home'` (`setView('home')`) restituendo `null` se un operatore non autorizzato tenta di accedervi.
+   - In `App.jsx`, vigilare reattivamente: se l'utente attivo non è `Admin` e la vista corrente è `'operators'`, forzare il redirect immediato a `'home'`.
+
+9. **Architettura Tutorial Interattivo Multi-Vista (`AppTutorial` & `useTutorialStore`)**:
+   - Ogni passaggio definito in `TUTORIAL_STEPS` deve specificare in modo dichiarativo i requisiti di contesto:
+     - `targetView`: vista dell'applicazione in cui vive il target (es. `'home'`, `'scanner'`, `'history'`).
+     - `resetFilters`: `true` se lo step richiede il catalogo principale pulito (es. macro-categorie a griglia).
+     - `viewMode`: `'grid'` o `'dropdown'` se lo step necessita di una determinata modalità grafica.
+     - `requireSidebar`: `true` o `false` per forzare l'apertura del Drawer Sidebar su schermi mobili.
+   - All'avvio del tutorial (`startTutorial()`) o durante lo scorrimento degli step (avanti/indietro), il sistema deve sincronizzare la vista dell'app prima di posizionare il tooltip.
+   - **Rilevamento Resiliente Elementi in Transizione**: Durante il cambio vista o filtro, le animazioni grafiche (Framer Motion) possono ritardare di qualche frame il montaggio dell'elemento target nel DOM. Utilizzare sempre un meccanismo di retry polling (es. verifiche ad alta frequenza ogni 40ms fino a 1s) per agganciare il rettangolo non appena compare, evitando card orfane o posizionate nel vuoto.
+
 ### 📱 Ottimizzazioni per App Mobile
 1. **Supporto PWA e Installabilità**: Il progetto è configurato come PWA tramite Vite PWA Plugin. Quando si aggiungono nuove icone o rotte, assicurarsi che le cache di background del Service Worker siano aggiornate. Rispettare in modo categorico l'uso delle classi `env(safe-area-inset-*)` per il padding del container principale, altrimenti su mobile (aperto full-screen o da icona iOS) l'interfaccia si sovrapporrà all'hardware (notch, linea home).
 2. **Ottimizzazione Bundle & Chunking**: Utilizzare `manualChunks` in `vite.config.js` per scorporare librerie pesanti (`@tanstack/*`, `framer-motion`, `@supabase/*`, `lucide-react`) prevenendo bundle monolitici superiori a 500 kB e massimizzando il caching del browser nei terminali di officina.
