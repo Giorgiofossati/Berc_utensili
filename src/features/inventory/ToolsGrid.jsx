@@ -257,7 +257,13 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, hideExtraFilters = fal
         <VirtualizedTable
           table={table}
           estimateRowSize={56}
-          onRowClick={(tool) => onSelectTool(tool)}
+          onRowClick={(tool) => {
+            if (isSelectionMode) {
+              onToggleSelect(tool.id);
+            } else if (onSelectTool) {
+              onSelectTool(tool);
+            }
+          }}
           getRowClassName={(tool) => (selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : '')}
           renderRowTrailing={() => (
             <ChevronRight

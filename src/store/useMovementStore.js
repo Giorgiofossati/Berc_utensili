@@ -9,11 +9,23 @@ export const useMovementStore = create((set, get) => ({
   modalQty: 1,
   isBulkMode: false,
   selectedTool: null,
+  showMoveModal: false,
 
   setOpType: (type) => set({ opType: type }),
   setModalQty: (qty) => set({ modalQty: qty }),
   setIsBulkMode: (mode) => set({ isBulkMode: mode }),
   setSelectedTool: (tool) => set({ selectedTool: tool }),
+  setShowMoveModal: (show) => set({
+    showMoveModal: show,
+    ...(!show ? { isBulkMode: false } : {})
+  }),
+  openToolDetail: (tool) => set({
+    selectedTool: tool,
+    opType: null,
+    modalQty: 1,
+    isBulkMode: false,
+    showMoveModal: true
+  }),
 
   handleMovement: async (showToastNotification, onSuccess) => {
     const state = get();

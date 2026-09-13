@@ -136,8 +136,9 @@ function App() {
     setSelectedTool(tool);
     setOpType(null);
     setModalQty(1);
+    setIsBulkMode(false);
     setShowMoveModal(true);
-  }, [setSelectedTool, setOpType, setModalQty, setShowMoveModal]);
+  }, [setSelectedTool, setOpType, setModalQty, setIsBulkMode, setShowMoveModal]);
 
   const renderGridHome = () => {
     if (currentLevel >= 2 && currentLevel < 3) return (

@@ -13,6 +13,7 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
   const setSelectedTool = useMovementStore(state => state.setSelectedTool);
   const setModalQty = useMovementStore(state => state.setModalQty);
   const setOpType = useMovementStore(state => state.setOpType);
+  const setIsBulkMode = useMovementStore(state => state.setIsBulkMode);
   const [manualCode, setManualCode] = useState('');
   const [showCamera, setShowCamera] = useState(false);
   const inputRef = useRef(null);
@@ -36,8 +37,9 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
     setSelectedTool(tool);
     setOpType(null); // Ensure detail modal opens first
     setModalQty(1);
+    setIsBulkMode(false);
     setShowMoveModal(true);
-  }, [setSelectedTool, setOpType, setModalQty, setShowMoveModal]);
+  }, [setSelectedTool, setOpType, setModalQty, setIsBulkMode, setShowMoveModal]);
 
   const handleScan = (decodedText) => {
     setManualCode(decodedText);
