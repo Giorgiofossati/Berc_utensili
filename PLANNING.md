@@ -81,6 +81,11 @@ App React per gestione magazzino utensili CNC con:
    - Chi, cosa, quando
    - Export dati
 
+6. **Gestione Utensili per Progetto**
+   - Associazione utensili a specifiche commesse/progetti
+   - Tracciamento dei consumi, prelievi e rientri per progetto
+   - Distinta e monitoraggio fabbisogno utensili per commessa
+
 ---
 
 ## 📊 Struttura Componenti React
@@ -118,6 +123,7 @@ Vedi **SUPABASE_SCHEMA.md** per dettagli completi:
 - **inventory** - Quantità disponibile
 - **movements_history** - Storico carico/scarico
 - **users** (opz) - Tracciamento operatore
+- **projects / commesse** (futura) - Gestione progetti e imputazione movimenti
 
 ---
 

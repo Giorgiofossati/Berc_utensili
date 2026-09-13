@@ -19,18 +19,26 @@ const BarcodeScanner = ({ onScan }) => {
       formatsToSupport: [
         Html5QrcodeSupportedFormats.CODE_128,
         Html5QrcodeSupportedFormats.CODE_39,
+        Html5QrcodeSupportedFormats.CODE_93,
         Html5QrcodeSupportedFormats.EAN_13,
         Html5QrcodeSupportedFormats.EAN_8,
-        Html5QrcodeSupportedFormats.QR_CODE
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.ITF,
+        Html5QrcodeSupportedFormats.QR_CODE,
+        Html5QrcodeSupportedFormats.DATA_MATRIX
       ],
     };
 
+    let isMounted = true;
     const html5QrCode = new Html5Qrcode(scannerDomId);
     html5QrCodeRef.current = html5QrCode;
 
     const startScanner = async () => {
       try {
         const devices = await Html5Qrcode.getCameras();
+        if (!isMounted) return;
+
         if (devices && devices.length > 0) {
           // Cerca una camera posteriore
           const backCamera = devices.find(device => 
@@ -45,6 +53,7 @@ const BarcodeScanner = ({ onScan }) => {
             cameraId,
             config,
             (decodedText) => {
+              if (!isMounted) return;
               if ("vibrate" in navigator) {
                 try { navigator.vibrate(200); } catch { /* ignore */ }
               }
@@ -58,6 +67,7 @@ const BarcodeScanner = ({ onScan }) => {
             { facingMode: "environment" },
             config,
             (decodedText) => {
+              if (!isMounted) return;
               if ("vibrate" in navigator) {
                 try { navigator.vibrate(200); } catch { /* ignore */ }
               }
@@ -66,9 +76,15 @@ const BarcodeScanner = ({ onScan }) => {
             () => {}
           );
         }
+
+        if (!isMounted && html5QrCode.isScanning) {
+          await html5QrCode.stop();
+          html5QrCode.clear();
+        }
       } catch (err) {
+        if (!isMounted) return;
         console.error("Errore avvio scanner:", err);
-        setError("Impossibile accedere alla fotocamera. Verifica i permessi o prova a ricaricare.");
+        setError("Impossibile accedere alla fotocamera. Verifica i permessi browser o prova a ricaricare.");
       }
     };
 
@@ -76,13 +92,18 @@ const BarcodeScanner = ({ onScan }) => {
     const timer = setTimeout(startScanner, 100);
 
     return () => {
+      isMounted = false;
       clearTimeout(timer);
       if (html5QrCodeRef.current) {
-        if (html5QrCodeRef.current.isScanning) {
-          html5QrCodeRef.current.stop().then(() => {
+        try {
+          if (html5QrCodeRef.current.isScanning) {
+            html5QrCodeRef.current.stop().then(() => {
+              html5QrCodeRef.current.clear();
+            }).catch(err => console.error("Errore stop scanner:", err));
+          } else {
             html5QrCodeRef.current.clear();
-          }).catch(err => console.error("Errore stop scanner:", err));
-        }
+          }
+        } catch { /* ignore cleanup error */ }
       }
     };
   }, [onScan, scannerDomId]);

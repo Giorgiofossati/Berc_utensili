@@ -23,3 +23,10 @@
 - **Acceptance Criteria**:
   - The system must allow users to generate reports based on various criteria (e.g., tool usage, maintenance history).
   - Reports must be exportable in multiple formats (PDF, Excel).
+
+## Feature: Project Tool Management (Gestione Utensili per Progetto)
+- **User Story**: As a CNC operator or project manager, I want to associate and track tools allocated to specific projects or production orders (commesse), so that tool usage, reservations, and consumption can be monitored per project.
+- **Acceptance Criteria**:
+  - The system must allow tools to be assigned, checked out, or tracked against specific project codes/names.
+  - Movement history and inventory logs must record the project reference when specified.
+  - Users can view tool requirements, allocated items, and usage history filtered by project.

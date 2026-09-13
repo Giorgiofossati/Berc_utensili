@@ -109,3 +109,9 @@
 - [ ] Implementare un modale (`AddToolModal`) per aggiungere un nuovo articolo non presente a magazzino.
 - [ ] Creare il form con tutti i campi del database `Utensili_B1` richiesti.
 - [ ] Collegare l'azione al pulsante "Nuovi Utensili" attualmente disconnesso nell'Header.
+
+### 12. Gestione Utensili per Progetto
+- [ ] Definire la struttura dati e lo schema per i Progetti/Commesse (es. codice progetto, nome, descrizione, stato attivo/chiuso).
+- [ ] Integrare l'assegnazione al Progetto nel flusso di Prelievo/Scarico e Deposito/Carico (imputazione del movimento a una specifica commessa).
+- [ ] Aggiungere la visualizzazione e il filtro per Progetto nello Storico Movimenti (`movements_history`).
+- [ ] Implementare una vista/sezione dedicata per consultare la distinta utensili impiegati, giacenze riservate o consumi per ciascun Progetto.

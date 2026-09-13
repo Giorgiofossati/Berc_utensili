@@ -23,15 +23,24 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
   }, [isOpen]);
 
   const filteredTools = useMemo(() => {
-    if (!manualCode || manualCode.length < 1) return [];
-    const q = manualCode.toLowerCase();
+    if (!manualCode || manualCode.trim().length < 1) return [];
+    const query = manualCode.trim().toLowerCase();
+    const terms = query.split(/\s+/).filter(Boolean);
+
     return (tools || []).filter(t => {
-      const codice = (t['Codice'] || '').toLowerCase();
-      const desc = (t['Descrizione'] || '').toLowerCase();
-      const tipologia = (t['Tipologia'] || '').toLowerCase();
-      const serialnumber = (t['Serial Number'] || t['SerialNumber'] || '').toLowerCase();
+      const codice = String(t['Codice'] || '').toLowerCase();
+      const desc = String(t['Descrizione'] || '').toLowerCase();
+      const tipologia = String(t['Tipologia'] || '').toLowerCase();
+      const forma = String(t['Forma'] || '').toLowerCase();
+      const fornitore = String(t['Fornitore'] || '').toLowerCase();
+      const ubicazione = String(t['Ubicazione'] || '').toLowerCase();
+      const serialnumber = String(t['Serial Number'] || t['SerialNumber'] || '').toLowerCase();
       const diametro = String(t['Diametro'] || '').toLowerCase();
-      return codice.includes(q) || desc.includes(q) || tipologia.includes(q) || serialnumber.includes(q) || diametro.includes(q);
+      const fullDesc = buildDesc(t).toLowerCase();
+
+      const targetText = `${codice} ${desc} ${tipologia} ${forma} ${diametro} ${fornitore} ${ubicazione} ${serialnumber} ${fullDesc}`;
+
+      return terms.every(term => targetText.includes(term));
     }).slice(0, 50);
   }, [manualCode, tools]);
 
@@ -141,9 +150,10 @@ const SearchOverlay = ({ isOpen, onClose, tools, onSelectTool, isMobile }) => {
                     
                     <div className="overflow-y-auto custom-scrollbar flex-1">
                       {filteredTools.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-12 text-slate-500">
-                          <AlertTriangle size={36} className="mb-3 opacity-30" />
-                          <p className="app-overline">Nessun Risultato</p>
+                        <div className="flex flex-col items-center justify-center py-12 text-slate-500 px-4 text-center">
+                          <AlertTriangle size={36} className="mb-3 text-accent-orange/70" />
+                          <p className="app-overline text-accent-orange mb-1">Nessun Risultato Trovato</p>
+                          <p className="app-caption text-slate-400 max-w-xs">Nessuna corrispondenza per "{manualCode.trim()}". Prova con un altro codice, misura o descrizione.</p>
                         </div>
                       ) : (
                         filteredTools.map((tool, i) => (

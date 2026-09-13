@@ -16,7 +16,13 @@ import { EXTRA_FILTER_KEYS } from './constants';
 
 const columnHelper = createColumnHelper();
 
-const ToolsGrid = memo(({ tools: toolsList, onSelectTool, hideExtraFilters = false }) => {
+const ToolsGrid = memo(({ 
+  tools: toolsList, 
+  onSelectTool, 
+  hideExtraFilters = false,
+  emptyTitle = "Nessun utensile trovato",
+  emptyDescription = null
+}) => {
   const selectedIds = useFilterStore(state => state.selectedToolsIds);
   const onToggleSelect = useFilterStore(state => state.toggleToolSelection);
   const isSelectionMode = useFilterStore(state => state.isSelectionMode);
@@ -272,7 +278,8 @@ const ToolsGrid = memo(({ tools: toolsList, onSelectTool, hideExtraFilters = fal
             />
           )}
           emptyIcon={AlertTriangle}
-          emptyTitle="Nessun utensile trovato"
+          emptyTitle={emptyTitle}
+          emptyDescription={emptyDescription}
         />
       </div>
     </motion.div>

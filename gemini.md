@@ -50,6 +50,7 @@ Questo file serve come "memoria" e linea guida per l'assistente AI (Gemini) che 
 - **Ottimizzazione Griglia e Layout Responsivo (Completata):** Nascondimento colonne non essenziali su mobile per evitare lo scroll orizzontale ed espansione a griglie di 6 colonne su schermi molto grandi.
 - **Migrazione a TanStack Table v8 (Completata):** Tabella inventario riscritta interamente con `@tanstack/react-table@8` e `@tanstack/react-virtual`. Dimensioni colonne bloccate (`getSize()`), ordinamento headless integrato, stato di selezione multi-utensile sincronizzato con Zustand (`useFilterStore`).
 - **Unificazione Griglia Inventario (Completata):** Centralizzato il rendering della tabella utensili; `DropdownFilterView.jsx` ora riutilizza direttamente `<ToolsGrid hideExtraFilters={true} />`, eliminando il codice duplicato della vecchia griglia flexbox.
+- **Unificazione Vista Ricerca Optical Scanner con TanStack Table (Completata):** Sostituita la vecchia lista a righe flex manuali in `ScannerView.jsx` con `<ToolsGrid hideExtraFilters={true} />`. Colonne perfettamente allineate, ordinamento interattivo su intestazioni, virtualizzazione infinita ad alte prestazioni (rimosso il limite artificiale di 20 elementi) e ricerca intelligente multi-parola su tutti i campi utensile (`Codice`, `Descrizione`, `Tipologia`, `Forma`, `Diametro`, `Fornitore`, `Ubicazione`, `SerialNumber`, `buildDesc`).
 - **Griglia Intelligente a Tessere per Diametri (`DiameterList.jsx`) (Completata & Perfezionata):** Selettore di livello 2 trasformato in griglia auto-adattiva a tessere responsive (`auto-fill / minmax`). Focus essenziale d'officina: Diametro centrato ad altissima gerarchia visiva (`text-xl sm:text-2xl font-black`), rimozione del badge superfluo "SIGLA", e visualizzazione esclusiva della quantità totale di pezzi a magazzino (`N pz` in verde per pezzi > 0, rosso per 0 pz) eliminando diciture ambigue come "Giacenza" o "N art.". Include micro-barra di ricerca rapida istantanea con pulizia filtro rapida (`X`) ed empty state dedicato.
 - **Tutorial Interattivo & Onboarding Operatori (Completata):**
   - **Login Informativo:** Card esplicativa su `LoginScreen.jsx` che sintetizza lo scopo del gestionale Bercella (tracciamento istantaneo, prelievo guidato, sincronizzazione giacenze ed eliminazione fermi macchina).
@@ -61,6 +62,7 @@ Questo file serve come "memoria" e linea guida per l'assistente AI (Gemini) che 
 ### Richieste Attuali / Future
 - **Dettaglio Utensile Modal Avanzato:** Ottimizzare o espandere il modale di dettaglio (che attualmente gestisce il movimento) per visualizzare comodamente tutte le info non presenti in griglia.
 - **Gestione Ordini:** Se un utensile non è presente o la quantità è insufficiente, creare il flusso per l'ordine automatico.
+- **Gestione Utensili per Progetto:** Tracciamento, allocazione e associazione degli utensili a specifici Progetti / Commesse (possibilità di prelevare, riservare o monitorare il consumo di utensili imputandoli a un progetto specifico, con riscontro nello storico movimenti e viste dedicate).
 - **Dark Mode Toggle:** Implementazione di un toggle globale per tema chiaro/scuro in alto a destra.
 
 ## 🧠 Cosa ho imparato e Regole da Seguire (Errori da evitare)
@@ -103,6 +105,9 @@ Questo file serve come "memoria" e linea guida per l'assistente AI (Gemini) che 
 15. **Precaricamento Immagini Statiche (Zero Flickering)**:
    - Tutte le immagini locali degli utensili (`/tool-images/*.png`) devono essere precaricate in memoria (`preloadToolImages()`) al bootstrap dell'app in `App.jsx`.
    - Su `ToolIcon` non usare `loading="lazy"` o `decoding="async"` per icone e immagini locali essenziali.
+16. **Tabelle e Viste di Ricerca (Zero Liste Flex Manuali Disallineate)**:
+   - Tutte le viste di consultazione ed esplorazione inventario (inclusa la ricerca Optical Scanner `ScannerView`) devono riutilizzare il componente unificato `<ToolsGrid hideExtraFilters={true} />` (TanStack Table v8 + `@tanstack/react-virtual`).
+   - Evitare assolutamente liste flex `justify-between` con larghezze libere, che provocano il disallineamento visivo orizzontale di descrizioni, badge e quantità.
 ### 💾 Regole di Sviluppo, Architettura e Backend
 1. **Database Supabase**: Quando si creano o modificano query, ricordare che ci interfacciamo con la tabella `Utensili_B1` (per la giacenza degli utensili) e `movements_history` (per i log dei movimenti), oltre alla futura tabella `utenti`.
 2. **Gestione dello Stato Globale (Zustand)**: L'app ha abbandonato il *prop-drilling* esteso in favore di **Zustand**. Ogni macro-area ha il suo Store dedicato (`src/store/useAuthStore`, `useInventoryStore`, `useFilterStore`, `useMovementStore`). Usare gli store in modo atomico per evitare re-render non necessari dei componenti figli.
