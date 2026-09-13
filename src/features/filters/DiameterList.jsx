@@ -1,6 +1,6 @@
 import React, { memo, useState, useMemo } from 'react';
 import { Search, X, SearchX } from 'lucide-react';
-import { formatDiameter, isNumericDiameter } from '../../lib/toolUtils';
+import { formatDiameter } from '../../lib/toolUtils';
 
 const DiameterList = memo(({ diameters = [], tools = [], onSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,18 +20,16 @@ const DiameterList = memo(({ diameters = [], tools = [], onSelect }) => {
     return map;
   }, [tools]);
 
-  // Aggregate diameter cards with formatted label, numeric detection, and stock
+  // Aggregate diameter cards with formatted label and stock
   const items = useMemo(() => {
     if (!diameters || !Array.isArray(diameters)) return [];
     return diameters.map((d) => {
       const dKey = String(d ?? '').trim();
       const stat = statsMap.get(dKey) || { totalQty: 0, count: 0 };
-      const isNum = isNumericDiameter(d);
       const formatted = formatDiameter(d);
       return {
         rawDiameter: d,
         formattedLabel: formatted,
-        isNumeric: isNum,
         totalQty: stat.totalQty,
         count: stat.count,
       };
@@ -55,13 +53,13 @@ const DiameterList = memo(({ diameters = [], tools = [], onSelect }) => {
       <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-b dark:border-white/5 border-slate-900/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 shrink-0 bg-slate-100/40 dark:bg-slate-900/40">
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
-            <p className="app-overline text-accent-blue">Livello 2 · Seleziona Diametro / Sigla</p>
+            <p className="app-overline text-accent-blue">Livello 2 · Seleziona Diametro</p>
             <span className="app-caption px-2 py-0.5 rounded-full bg-accent-blue/10 text-accent-blue border border-accent-blue/20 font-bold">
               {filteredItems.length} {filteredItems.length === 1 ? 'misura' : 'misure'}
             </span>
           </div>
           <h2 className="app-h3 text-slate-800 dark:text-slate-100 hidden sm:block mt-0.5">
-            Scegli la misura o il codice inserto desiderato
+            Scegli il diametro o la misura desiderata
           </h2>
         </div>
 
@@ -73,9 +71,9 @@ const DiameterList = memo(({ diameters = [], tools = [], onSelect }) => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cerca misura o sigla..."
+              placeholder="Cerca diametro o misura..."
               className="w-full bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none"
-              aria-label="Cerca diametro o codice inserto"
+              aria-label="Cerca diametro o misura"
             />
             {searchQuery && (
               <button
@@ -100,7 +98,7 @@ const DiameterList = memo(({ diameters = [], tools = [], onSelect }) => {
             </div>
             <p className="app-h3 text-slate-700 dark:text-slate-300">Nessuna misura trovata</p>
             <p className="app-body text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-sm">
-              Nessun diametro o codice corrisponde a &ldquo;<span className="font-semibold text-slate-700 dark:text-slate-200">{searchQuery}</span>&rdquo;.
+              Nessun diametro corrisponde a &ldquo;<span className="font-semibold text-slate-700 dark:text-slate-200">{searchQuery}</span>&rdquo;.
             </p>
             <button
               type="button"
@@ -111,46 +109,41 @@ const DiameterList = memo(({ diameters = [], tools = [], onSelect }) => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(130px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(145px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-2.5 sm:gap-3">
-            {filteredItems.map((item) => (
-              <button
-                key={item.rawDiameter}
-                type="button"
-                onClick={() => onSelect(item.rawDiameter)}
-                className="glass-button group flex flex-col justify-between p-3 sm:p-3.5 rounded-[16px] sm:rounded-[18px] border dark:border-white/10 border-slate-900/10 hover:border-accent-blue/50 dark:hover:border-accent-blue/50 hover:bg-accent-blue/5 dark:hover:bg-accent-blue/10 hover:shadow-[0_8px_24px_rgba(14,165,233,0.15)] active:scale-[0.97] transition-all duration-200 text-left focus-visible:ring-2 focus-visible:ring-accent-blue outline-none select-none min-h-[82px] sm:min-h-[88px] cursor-pointer"
-              >
-                {/* Top: Measure / Code Label */}
-                <div className="w-full flex items-start justify-between gap-1">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(115px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(130px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(145px,1fr))] gap-2.5 sm:gap-3">
+            {filteredItems.map((item) => {
+              const isLong = item.formattedLabel.length > 8;
+              return (
+                <button
+                  key={item.rawDiameter}
+                  type="button"
+                  onClick={() => onSelect(item.rawDiameter)}
+                  className="glass-button group flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-[16px] sm:rounded-[18px] border dark:border-white/10 border-slate-900/10 hover:border-accent-blue/50 dark:hover:border-accent-blue/50 hover:bg-accent-blue/5 dark:hover:bg-accent-blue/10 hover:shadow-[0_8px_24px_rgba(14,165,233,0.15)] active:scale-[0.97] transition-all duration-200 text-center focus-visible:ring-2 focus-visible:ring-accent-blue outline-none select-none min-h-[82px] sm:min-h-[88px] cursor-pointer"
+                >
+                  {/* Center Hero: Diametro con massima gerarchia visiva */}
                   <span
-                    className="app-h3 font-black text-slate-900 dark:text-white group-hover:text-accent-blue transition-colors truncate max-w-full leading-tight"
+                    className={`font-black text-slate-900 dark:text-white group-hover:text-accent-blue transition-colors duration-200 truncate max-w-full leading-none px-1 tracking-tight ${
+                      isLong ? 'text-sm sm:text-base' : 'text-xl sm:text-2xl'
+                    }`}
                     title={item.formattedLabel}
                   >
                     {item.formattedLabel}
                   </span>
-                  {!item.isNumeric && (
-                    <span className="app-overline text-[8px] text-accent-orange bg-accent-orange/10 px-1 py-0.5 rounded border border-accent-orange/20 shrink-0 ml-1">
-                      SIGLA
-                    </span>
-                  )}
-                </div>
 
-                {/* Bottom: Inventory Stock & Variant Count */}
-                <div className="w-full flex items-center justify-between gap-1.5 mt-2.5 pt-2 border-t border-slate-900/5 dark:border-white/5">
-                  <span className="app-caption text-[10px] text-slate-500 dark:text-slate-400 truncate">
-                    {item.count > 1 ? `${item.count} art.` : 'Giacenza'}
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-black tabular-nums border shrink-0 ${
-                      item.totalQty > 0
-                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.15)]'
-                        : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20'
-                    }`}
-                  >
-                    {item.totalQty > 0 ? `${item.totalQty} pz` : '0 pz'}
-                  </span>
-                </div>
-              </button>
-            ))}
+                  {/* Quantità essenziale (N pz) */}
+                  <div className="mt-2.5 flex items-center justify-center">
+                    <span
+                      className={`px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-black tabular-nums border shrink-0 transition-colors ${
+                        item.totalQty > 0
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.12)]'
+                          : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20'
+                      }`}
+                    >
+                      {item.totalQty > 0 ? `${item.totalQty} pz` : '0 pz'}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
