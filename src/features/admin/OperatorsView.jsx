@@ -64,12 +64,20 @@ const OperatorsView = memo(({ setView }) => {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const fetchPromise = supabase
+      let fetchPromise = supabase
         .from('utenti')
-        .select('*')
+        .select('id, nome, cognome, codice_id, ruolo, has_completed_tutorial')
         .order('nome', { ascending: true });
       
-      const { data, error } = await withTimeout(fetchPromise);
+      let { data, error } = await withTimeout(fetchPromise);
+      if (error && (error.code === '42703' || error.code === 'PGRST204' || error.message?.includes('has_completed_tutorial'))) {
+        const fallbackRes = await withTimeout(
+          supabase.from('utenti').select('id, nome, cognome, codice_id, ruolo').order('nome', { ascending: true })
+        );
+        data = fallbackRes.data;
+        error = fallbackRes.error;
+      }
+
       if (error) throw error;
       setUsers(data || []);
     } catch (err) {
@@ -126,7 +134,7 @@ const OperatorsView = memo(({ setView }) => {
       cognome: user.cognome || '',
       codice_id: user.codice_id || '',
       ruolo: user.ruolo || 'Operatore',
-      password: user.password || ''
+      password: ''
     });
     setFormErrors({});
     setShowPassword(false);

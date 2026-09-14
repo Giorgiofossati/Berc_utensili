@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Activity, Search, X, Camera } from 'lucide-react';
+import { ArrowLeft, ArrowDown, ArrowUp, Search, X, Camera } from 'lucide-react';
 import BarcodeScanner from './BarcodeScanner';
 import { buildDesc } from '../../lib/toolUtils';
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
   const tools = useInventoryStore(state => state.tools);
   const setSelectedTool = useMovementStore(state => state.setSelectedTool);
   const setModalQty = useMovementStore(state => state.setModalQty);
+  const opType = useMovementStore(state => state.opType);
   const setOpType = useMovementStore(state => state.setOpType);
   const setIsBulkMode = useMovementStore(state => state.setIsBulkMode);
   const [manualCode, setManualCode] = useState('');
@@ -45,11 +46,11 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
 
   const handleSelectResult = useCallback((tool) => {
     setSelectedTool(tool);
-    setOpType(null); // Ensure detail modal opens first
+    // Se l'operatore aveva scelto esplicitamente Carico o Scarico nella Sidebar, manteniamo l'intento!
     setModalQty(1);
     setIsBulkMode(false);
     setShowMoveModal(true);
-  }, [setSelectedTool, setOpType, setModalQty, setIsBulkMode, setShowMoveModal]);
+  }, [setSelectedTool, setModalQty, setIsBulkMode, setShowMoveModal]);
 
   const handleScan = useCallback((decodedText) => {
     setManualCode(decodedText);
@@ -74,10 +75,53 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
           <ArrowLeft size={16} />
         </Button>
         <div className="flex flex-col items-center">
-          <p className="app-overline text-accent-orange mb-0.5">Laser Recognition</p>
-          <h2 className="app-h1">Optical Scanner</h2>
+          <p className={`app-overline mb-0.5 ${opType === 'carico' ? 'text-accent-emerald' : opType === 'scarico' ? 'text-accent-rose' : 'text-accent-cyan'}`}>
+            {opType === 'carico' ? 'Operazione di Carico' : opType === 'scarico' ? 'Operazione di Scarico' : 'Riconoscimento Laser'}
+          </p>
+          <h2 className="app-h1">
+            {opType === 'carico' ? 'Deposito Rapido' : opType === 'scarico' ? 'Prelievo Rapido' : 'Optical Scanner'}
+          </h2>
         </div>
         <div className="w-9 h-9 sm:w-10 sm:h-10" />
+      </div>
+
+      {/* Mode Selector Pill: Esplora / Deposita / Preleva */}
+      <div className="flex items-center p-1 rounded-2xl glass-panel border-white/5 shrink-0 gap-1">
+        <button
+          type="button"
+          onClick={() => setOpType(null)}
+          className={`px-3 py-1 rounded-xl text-[10px] sm:text-xs font-bold uppercase transition-all ${
+            !opType 
+              ? 'bg-accent-blue/20 text-accent-blue border border-accent-blue/30 shadow-xs' 
+              : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+          }`}
+        >
+          Dettaglio
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpType('carico')}
+          className={`px-3 py-1 rounded-xl text-[10px] sm:text-xs font-bold uppercase transition-all flex items-center gap-1 ${
+            opType === 'carico' 
+              ? 'bg-emerald-500/20 text-accent-emerald border border-emerald-500/30 shadow-xs' 
+              : 'text-slate-500 hover:text-accent-emerald'
+          }`}
+        >
+          <ArrowDown size={11} />
+          Deposita
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpType('scarico')}
+          className={`px-3 py-1 rounded-xl text-[10px] sm:text-xs font-bold uppercase transition-all flex items-center gap-1 ${
+            opType === 'scarico' 
+              ? 'bg-rose-500/20 text-accent-rose border border-rose-500/30 shadow-xs' 
+              : 'text-slate-500 hover:text-accent-rose'
+          }`}
+        >
+          <ArrowUp size={11} />
+          Preleva
+        </button>
       </div>
 
       {/* Search Input and Camera Bar */}
@@ -90,7 +134,13 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
               autoFocus
               value={manualCode}
               onChange={(e) => setManualCode(e.target.value)}
-              placeholder="Digita codice, descrizione o misura..."
+              placeholder={
+                opType === 'carico'
+                  ? "Scansiona o cerca utensile da depositare..."
+                  : opType === 'scarico'
+                  ? "Scansiona o cerca utensile da prelevare..."
+                  : "Digita codice, descrizione o misura..."
+              }
               className="w-full h-auto glass-panel py-3.5 sm:py-5 pl-11 sm:pl-14 pr-10 sm:pr-14 rounded-[20px] sm:rounded-[24px] font-bold text-sm sm:text-lg outline-none border-accent-blue/20 focus:border-accent-blue/60 transition-all placeholder:text-slate-500 tracking-wide"
             />
             {manualCode && (
@@ -138,12 +188,21 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
           >
             <div className="glass-panel w-full rounded-[28px] sm:rounded-[36px] p-6 sm:p-10 flex flex-col items-center text-center border-accent-blue/20 shadow-2xl relative overflow-hidden">
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-accent-blue/10 border border-accent-blue/30 flex items-center justify-center text-accent-blue mb-4 shadow-inner">
-                <Search size={32} className="sm:w-9 sm:h-9 text-accent-cyan" />
+                <Search size={32} className={`sm:w-9 sm:h-9 ${opType === 'carico' ? 'text-accent-emerald' : opType === 'scarico' ? 'text-accent-rose' : 'text-accent-cyan'}`} />
               </div>
-              <p className="app-overline text-accent-cyan mb-1">Pronto alla ricerca</p>
-              <h3 className="app-h2 mb-2">Cerca un utensile</h3>
+              <p className={`app-overline mb-1 ${opType === 'carico' ? 'text-accent-emerald' : opType === 'scarico' ? 'text-accent-rose' : 'text-accent-cyan'}`}>
+                {opType === 'carico' ? 'Modalità Deposito' : opType === 'scarico' ? 'Modalità Prelievo' : 'Pronto alla ricerca'}
+              </p>
+              <h3 className="app-h2 mb-2">
+                {opType === 'carico' ? 'Seleziona utensile da depositare' : opType === 'scarico' ? 'Seleziona utensile da prelevare' : 'Cerca un utensile'}
+              </h3>
               <p className="app-body dark:text-slate-400 text-slate-600 max-w-md mb-6 leading-relaxed">
-                Digita un codice aziendale, una misura (es. <span className="font-bold dark:text-white text-slate-900">D16</span>) o una descrizione per trovare gli utensili a magazzino, oppure premi l'icona fotocamera per scansionare il codice a barre.
+                {opType === 'carico' 
+                  ? 'Digita codice, misura o descrizione oppure scansiona il barcode per caricare a magazzino.'
+                  : opType === 'scarico'
+                  ? 'Digita codice, misura o descrizione oppure scansiona il barcode per prelevare per la macchina CNC.'
+                  : "Digita un codice aziendale, una misura (es. D16) o una descrizione per trovare gli utensili a magazzino, oppure premi l'icona fotocamera per scansionare il codice a barre."
+                }
               </p>
 
               {/* Quick suggestion chips */}

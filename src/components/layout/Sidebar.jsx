@@ -3,17 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Database, History, Users, 
   LogOut, ArrowDown, ArrowUp,
-  Sun, Moon, X, HelpCircle
+  Sun, Moon, X, HelpCircle, ClipboardList
 } from 'lucide-react';
 import { useTheme } from '../../lib/ThemeContext';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useMovementStore } from '../../store/useMovementStore';
+import { useMultiMovementStore } from '../../store/useMultiMovementStore';
 import { useTutorialStore } from '../../store/useTutorialStore';
 
-const NavItem = ({ icon, label, onClick, className = "", isActive = false }) => (
+const NavItem = ({ icon, label, onClick, className = "", isActive = false, badge = null }) => (
   <button 
     onClick={onClick} 
-    className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-all duration-200 group relative
+    className={`flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 group relative
       ${isActive 
         ? 'bg-accent-blue/10 text-accent-blue font-bold shadow-sm' 
         : 'hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-medium'}
@@ -28,10 +29,17 @@ const NavItem = ({ icon, label, onClick, className = "", isActive = false }) => 
         transition={{ type: 'spring', stiffness: 350, damping: 30 }}
       />
     )}
-    <div className={`${isActive ? 'text-accent-blue' : 'text-slate-500 group-hover:text-accent-blue'} transition-colors`}>
-      {icon}
+    <div className="flex items-center gap-3 min-w-0">
+      <div className={`${isActive ? 'text-accent-blue' : 'text-slate-500 group-hover:text-accent-blue'} transition-colors`}>
+        {icon}
+      </div>
+      <span className="text-sm tracking-wide truncate">{label}</span>
     </div>
-    <span className="text-sm tracking-wide">{label}</span>
+    {badge !== null && badge !== undefined && (
+      <span className="bg-accent-blue text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm ml-1">
+        {badge}
+      </span>
+    )}
   </button>
 );
 
@@ -43,6 +51,7 @@ const SidebarContent = ({
   const logout = useAuthStore(state => state.logout);
   const setOpType = useMovementStore(state => state.setOpType);
   const startTutorial = useTutorialStore(state => state.startTutorial);
+  const multiMovementCount = useMultiMovementStore(state => state.items.length);
 
   return (
     <div className="w-full h-full flex flex-col bg-white/70 dark:bg-slate-950/70 backdrop-blur-2xl border-r border-slate-200/50 dark:border-white/10 shadow-2xl overflow-hidden relative">
@@ -122,6 +131,14 @@ const SidebarContent = ({
             label="Inventario" 
             onClick={() => { setView('home'); if(onClose) onClose(); }} 
             isActive={view === 'home'}
+          />
+
+          <NavItem 
+            icon={<ClipboardList size={16} />} 
+            label="Movimento Multiplo" 
+            badge={multiMovementCount > 0 ? multiMovementCount : null}
+            onClick={() => { setView('multimovement'); if(onClose) onClose(); }} 
+            isActive={view === 'multimovement'}
           />
 
           <NavItem 

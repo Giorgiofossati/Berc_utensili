@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy, useRef } from 'react';
 import {
   ArrowLeft, ArrowUp, ArrowDown, X,
-  List, LayoutGrid, CheckCircle2
+  List, LayoutGrid, CheckCircle2, AlertCircle, AlertTriangle, ClipboardList
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
@@ -9,6 +9,7 @@ import { supabase } from './lib/supabase';
 import { useAuthStore } from './store/useAuthStore';
 import { useInventoryStore } from './store/useInventoryStore';
 import { useMovementStore } from './store/useMovementStore';
+import { useMultiMovementStore } from './store/useMultiMovementStore';
 import { useNavigationStore } from './store/useNavigationStore';
 import { useFilters } from './hooks/useFilters';
 
@@ -20,7 +21,7 @@ const OperatorsView = lazy(() => import('./features/admin/OperatorsView'));
 // Standard imports for critical core UI to guarantee instant rendering and eliminate PWA logout chunk failures
 import Sidebar from './components/layout/Sidebar';
 import LoginScreen from './features/auth/LoginScreen';
-import SelectionDrawer from './components/layout/SelectionDrawer';
+import MultiMovementView from './features/inventory/MultiMovementView';
 import Header from './components/layout/Header';
 import CategoryGridCard from './features/filters/CategoryGridCard';
 import MovementModal from './features/inventory/MovementModal';
@@ -53,8 +54,12 @@ function App() {
   } = useFilters();
 
   const [toast, setToast] = useState(null);
-  const showToastNotification = useCallback((msg) => {
-    setToast(msg);
+  const showToastNotification = useCallback((msg, type = 'success') => {
+    if (typeof msg === 'object' && msg !== null) {
+      setToast(msg);
+    } else {
+      setToast({ message: msg, type });
+    }
     setTimeout(() => setToast(null), 4000);
   }, []);
 
@@ -81,7 +86,6 @@ function App() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [showSidebarMobile, setShowSidebarMobile] = useState(false);
-  const [showSelectionDrawer, setShowSelectionDrawer] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   const handleRequireSidebar = useCallback((needed) => {
@@ -126,13 +130,16 @@ function App() {
     }
   };
 
-  const handleBulkAction = (type) => {
+  const addMultiItem = useMultiMovementStore(state => state.addItem);
+
+  const handleTransferToMultiMovement = useCallback(() => {
     if (selectedToolsIds.length === 0) return;
-    setOpType(type);
-    setIsBulkMode(true);
-    setModalQty(1);
-    setShowMoveModal(true);
-  };
+    const targets = tools.filter(t => selectedToolsIds.includes(t.id));
+    targets.forEach(t => addMultiItem(t, 1));
+    setSelectedToolsIds([]);
+    setView('multimovement');
+    showToastNotification(`${targets.length} articol${targets.length === 1 ? 'o' : 'i'} trasferit${targets.length === 1 ? 'o' : 'i'} in Movimento Multiplo`, 'success');
+  }, [selectedToolsIds, tools, addMultiItem, setSelectedToolsIds, setView, showToastNotification]);
 
   const handleSelectToolFromGrid = useCallback((tool) => {
     setSelectedTool(tool);
@@ -302,55 +309,38 @@ function App() {
                   </Suspense>
                 </ErrorBoundary>
               )}
+              {view === 'multimovement' && (
+                <ErrorBoundary>
+                  <MultiMovementView showToastNotification={showToastNotification} />
+                </ErrorBoundary>
+              )}
             </AnimatePresence>
         </main>
 
-        {/* Contextual Bulk Action Bar */}
+        {/* Barra Contestuale: Trasferimento Selezione a Movimento Multiplo */}
         <AnimatePresence>
           {selectedToolsIds.length > 0 && view === 'home' && (
             <motion.div key="global-command-bar" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="w-full flex flex-col items-center px-2 md:px-4 z-[100] shrink-0 pt-2 pb-2 relative" style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }}>
-                  <div className="w-full max-w-2xl flex flex-col shrink-0 pointer-events-auto">
-                    <div className="pointer-events-auto flex items-center justify-between w-full bg-white/80 dark:bg-slate-900/80 rounded-[20px] md:rounded-[24px] p-2 md:p-3 md:px-4 border border-accent-blue/30 dark:border-accent-blue/30 gap-2 shadow-[0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:shadow-xl transition-all duration-300 backdrop-blur-3xl backdrop-saturate-150">
-                       <div className="flex items-center gap-2">
-                          <div className="bg-accent-blue text-white font-black text-xs md:text-sm w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center shadow-inner">{selectedToolsIds.length}</div>
-                          <span className="hidden sm:inline text-[10px] md:text-xs font-black uppercase tracking-[0.1em] dark:text-white text-slate-900">Selezionati</span>
-                       </div>
-                       <div className="flex flex-1 justify-center gap-2 px-2">
-                          <button onClick={() => handleBulkAction('carico')} className="action-btn action-btn-carica py-1.5 px-3 md:py-2.5 md:px-5 rounded-[12px] md:rounded-[16px] flex items-center justify-center gap-1.5 group shadow-sm hover:shadow-emerald-500/20 text-[10px] md:text-sm flex-1">
-                            <ArrowDown size={isMobile ? 14 : 16} className="group-hover:translate-y-1 transition-transform" />
-                            <span className="font-black tracking-wider">DEPOSITA</span>
-                          </button>
-                          <button onClick={() => handleBulkAction('scarico')} className="action-btn action-btn-scarica py-1.5 px-3 md:py-2.5 md:px-5 rounded-[12px] md:rounded-[16px] flex items-center justify-center gap-1.5 group shadow-sm hover:shadow-rose-500/20 text-[10px] md:text-sm flex-1">
-                            <ArrowUp size={isMobile ? 14 : 16} className="group-hover:-translate-y-1 transition-transform" />
-                            <span className="font-black tracking-wider">PRELEVA</span>
-                          </button>
-                       </div>
-                       <button onClick={() => setSelectedToolsIds([])} className="glass-button p-2 rounded-[12px] md:rounded-[16px] text-rose-400 hover:bg-rose-400/10 flex items-center justify-center shrink-0" title="Annulla Selezione">
-                         <X size={16} />
-                       </button>
-                    </div>
+              <div className="w-full max-w-xl flex flex-col shrink-0 pointer-events-auto">
+                <div className="pointer-events-auto flex items-center justify-between w-full bg-white/90 dark:bg-slate-900/90 rounded-[20px] md:rounded-[24px] p-2 md:p-3 md:px-4 border border-accent-blue/30 dark:border-accent-blue/30 gap-3 shadow-2xl backdrop-blur-3xl">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-accent-blue text-white font-black text-xs md:text-sm w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center shadow-inner">{selectedToolsIds.length}</div>
+                    <span className="hidden sm:inline text-[10px] md:text-xs font-black uppercase tracking-[0.1em] dark:text-white text-slate-900">Selezionati</span>
                   </div>
-                  <AnimatePresence>
-                    {selectedToolsIds.length > 0 && (
-                      <motion.button initial={{ opacity: 0, scale: 0.8, x: 20 }} animate={{ opacity: 1, scale: 1, x: 0 }} exit={{ opacity: 0, scale: 0.8, x: 20 }}
-                        onClick={() => setShowSelectionDrawer(true)} className="absolute right-6 -top-20 floating-badge-container z-[100] glass-panel bg-accent-blue/20 border-accent-blue/40 px-6 py-4 rounded-full flex items-center gap-4 group overflow-hidden shadow-lg hidden md:flex"
-                      >
-                        <div className="absolute inset-0 bg-accent-blue/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                        <div className="relative flex items-center gap-3"><span className="text-[10px] font-black uppercase tracking-[0.2em] dark:text-white text-slate-900">Gestisci Selezione Multipla</span></div>
-                      </motion.button>
-                    )}
-                  </AnimatePresence>
+                  <button 
+                    onClick={handleTransferToMultiMovement} 
+                    className="action-btn action-btn-primary py-2 sm:py-2.5 px-4 rounded-[14px] flex items-center justify-center gap-2 group shadow-sm text-xs md:text-sm flex-1 font-black tracking-wider"
+                  >
+                    <ClipboardList size={16} />
+                    <span>APRI IN MOVIMENTO MULTIPLO</span>
+                  </button>
+                  <button onClick={() => setSelectedToolsIds([])} className="glass-button p-2 rounded-[12px] md:rounded-[14px] text-rose-400 hover:bg-rose-400/10 flex items-center justify-center shrink-0" title="Annulla Selezione">
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
             </motion.div>
           )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-            {showSelectionDrawer && (
-              <>
-                <motion.div key="drawer-bg" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowSelectionDrawer(false)} className="fixed inset-0 dark:bg-slate-950/60 bg-slate-50/60 backdrop-blur-sm z-[1999]" />
-                <SelectionDrawer key="drawer" selectedIds={selectedToolsIds} tools={tools} onToggleSelect={toggleToolSelection} onBulkAction={(type) => { setShowSelectionDrawer(false); handleBulkAction(type); }} onClose={() => setShowSelectionDrawer(false)} setSelectedToolsIds={setSelectedToolsIds} />
-              </>
-            )}
         </AnimatePresence>
         
         <AnimatePresence>
@@ -362,17 +352,55 @@ function App() {
               });
             }} onOpenOrder={() => setShowOrderModal(true)} />}
             {showAddModal && <AddToolModal key="add-modal" tools={tools} onClose={() => setShowAddModal(false)} onToolAdded={fetchTools} currentUser={currentUser} />}
-            {showOrderModal && <OrderModal key="order-modal" tool={selectedTool} onClose={() => setShowOrderModal(false)} currentUser={currentUser} />}
+            {showOrderModal && (
+              <OrderModal 
+                key="order-modal" 
+                tool={selectedTool} 
+                onClose={() => setShowOrderModal(false)} 
+                currentUser={currentUser}
+                onSuccess={(msg) => showToastNotification(msg, 'success')} 
+              />
+            )}
         </AnimatePresence>
 
         <AnimatePresence>
           {toast && (
             <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed left-4 right-4 md:left-auto md:right-12 z-[9999] pointer-events-auto safe-toast-top">
-              <div className="glass-panel p-4 md:p-6 rounded-[24px] border-l-[8px] border-accent-blue flex items-center gap-4 shadow-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-accent-blue/20 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0"><CheckCircle2 className="text-accent-blue" size={24} /></div>
-                <div className="flex flex-col min-w-0">
-                  <p className="text-[9px] md:text-[10px] font-black text-accent-orange uppercase drop-shadow-md tracking-[0.3em] md:tracking-[0.5em] mb-0.5 md:mb-1">Notifica Sistema</p>
-                  <p className="font-black text-sm md:text-xl uppercase tracking-wider md:tracking-widest dark:text-white text-slate-900 truncate">{toast}</p>
+              <div className={`glass-panel p-3.5 sm:p-4 md:p-5 rounded-[22px] border-l-[6px] flex items-center gap-3.5 shadow-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl max-w-lg ${
+                toast.type === 'error' 
+                  ? 'border-accent-rose' 
+                  : toast.type === 'warning' 
+                  ? 'border-accent-orange' 
+                  : 'border-accent-emerald'
+              }`}>
+                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                  toast.type === 'error'
+                    ? 'bg-rose-500/15 text-accent-rose'
+                    : toast.type === 'warning'
+                    ? 'bg-orange-500/15 text-accent-orange'
+                    : 'bg-emerald-500/15 text-accent-emerald'
+                }`}>
+                  {toast.type === 'error' ? (
+                    <AlertCircle size={20} />
+                  ) : toast.type === 'warning' ? (
+                    <AlertTriangle size={20} />
+                  ) : (
+                    <CheckCircle2 size={20} />
+                  )}
+                </div>
+                <div className="flex flex-col min-w-0 pr-1">
+                  <p className={`text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 ${
+                    toast.type === 'error'
+                      ? 'text-accent-rose'
+                      : toast.type === 'warning'
+                      ? 'text-accent-orange'
+                      : 'text-accent-emerald'
+                  }`}>
+                    {toast.type === 'error' ? 'Errore Operativo' : toast.type === 'warning' ? 'Avviso' : 'Notifica Sistema'}
+                  </p>
+                  <p className="font-bold text-xs sm:text-sm tracking-wide dark:text-white text-slate-900 break-words leading-snug">
+                    {toast.message || toast}
+                  </p>
                 </div>
               </div>
             </motion.div>

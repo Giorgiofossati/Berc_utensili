@@ -130,12 +130,12 @@ const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
                     <>
                       <button onClick={() => setOpType('carico')} className="action-btn action-btn-carica py-3 sm:py-3.5 md:py-4 w-full flex flex-col items-center justify-center gap-1.5 group border border-accent-emerald/30 shadow-lg relative overflow-hidden rounded-xl sm:rounded-2xl active:scale-95 cursor-pointer">
                         <div className="absolute inset-0 bg-accent-emerald/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <ArrowUp size={20} className="group-hover:-translate-y-1 transition-transform relative z-10" />
+                        <ArrowDown size={20} className="group-hover:translate-y-1 transition-transform relative z-10" />
                         <span className="text-xs sm:text-sm font-black uppercase tracking-wider relative z-10">DEPOSITA</span>
                       </button>
                       <button onClick={() => setOpType('scarico')} className="action-btn action-btn-scarica py-3 sm:py-3.5 md:py-4 w-full flex flex-col items-center justify-center gap-1.5 group border border-accent-rose/30 shadow-lg relative overflow-hidden rounded-xl sm:rounded-2xl active:scale-95 cursor-pointer">
                         <div className="absolute inset-0 bg-accent-rose/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <ArrowDown size={20} className="group-hover:translate-y-1 transition-transform relative z-10" />
+                        <ArrowUp size={20} className="group-hover:-translate-y-1 transition-transform relative z-10" />
                         <span className="text-xs sm:text-sm font-black uppercase tracking-wider relative z-10">PRELEVA</span>
                       </button>
                     </>

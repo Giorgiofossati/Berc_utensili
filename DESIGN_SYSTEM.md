@@ -147,6 +147,17 @@ Tutti i testi dell'applicazione **devono utilizzare esclusivamente le classi sem
 - **Focus Rings:** Sempre visibili con `focus-visible:ring-2 focus-visible:ring-accent-blue/50 focus-visible:border-accent-blue`.
 - **Pulsante Cancella ('X'):** Ogni input di ricerca deve avere un pulsante dedicato per azzerare il campo con un tap.
 
+### F. Tabelle di Distinta & Selettori Tabellari Estesi (Movimento Multiplo)
+- **Griglia Immediata (Zero Empty-State Passivi):**
+  - Nelle viste a distinta o foglio operativo (come `MultiMovementView`), non utilizzare box vuoti o illustrazioni passive.
+  - La struttura tabellare con tutte le colonne (`#`, `Descrizione`, `Codice`, `Ubicazione`, `Giacenza`, `Quantità`, `Azioni`) compare fin dal primo frame.
+  - La prima riga è interattiva e cliccabile (bordo tratteggiato ciano, icona `+`, testo d'invito) accompagnata da righe segnaposto fisse per comunicare all'istante l'idea di un foglio di lavoro pronto alla compilazione.
+  - In coda alla tabella deve essere sempre presente la riga `+ Aggiungi riga N (seleziona un altro utensile)...`.
+- **Selettori Articoli a Schermo Esteso (`AddToolToMultiModal`):**
+  - Quando si seleziona un articolo da inserire in una distinta, è vietato utilizzare card flex compresse o elenchi stretti.
+  - Utilizzare dialog a schermo esteso (`max-w-6xl` o `max-w-7xl`, `w-[96vw]`, `h-[88dvh]`) integrando il componente ufficiale `<ToolsGrid hideExtraFilters={true} />` (TanStack Table v8).
+  - L'operatore visualizza istantaneamente tutte le colonne formattate (Icona, Descrizione, Codice, Ubicazione, Fornitore, Giacenza QTY) con ordinamento interattivo e ricerca fluida con autofocus.
+
 ---
 
 ## 6. Checklist di Controllo Qualità per ogni Modifica

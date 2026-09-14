@@ -42,7 +42,9 @@ export const useMovementStore = create((set, get) => ({
 
     const change = parseInt(modalQty, 10);
     if (isNaN(change) || change <= 0) {
-      alert('Inserire una quantità valida maggiore di zero.');
+      if (showToastNotification) {
+        showToastNotification('Inserire una quantità valida maggiore di zero.', 'warning');
+      }
       return;
     }
 
@@ -51,13 +53,20 @@ export const useMovementStore = create((set, get) => ({
       : (selectedTool ? [selectedTool] : []);
 
     if (targets.length === 0) {
-      alert('Nessun articolo valido selezionato.');
+      if (showToastNotification) {
+        showToastNotification('Nessun articolo valido selezionato.', 'warning');
+      }
       return;
     }
     
     if (opType === 'scarico') {
       const insufficient = targets.filter(t => (t['Quantità'] || 0) < change);
-      if (insufficient.length > 0) return alert(`Quantità insufficiente per: ${insufficient.map(t => t.Tipologia).join(', ')}`);
+      if (insufficient.length > 0) {
+        if (showToastNotification) {
+          showToastNotification(`Quantità insufficiente per: ${insufficient.map(t => t.Tipologia).join(', ')}`, 'error');
+        }
+        return;
+      }
     }
 
     // --- OPTIMISTIC UPDATE ---
@@ -79,13 +88,17 @@ export const useMovementStore = create((set, get) => ({
 
       if (rpcErr) throw rpcErr;
 
-      showToastNotification(`MAGAZZINO AGGIORNATO: ${opType.toUpperCase()} (${targets.length} articoli)`);
+      if (showToastNotification) {
+        showToastNotification(`MAGAZZINO AGGIORNATO: ${opType.toUpperCase()} (${targets.length} articoli)`, 'success');
+      }
       if (onSuccess) onSuccess();
     } catch (err) { 
       console.error(err);
       // ROLLBACK on error
       setTools(previousTools);
-      alert('Errore durante l\'aggiornamento: ' + (err.message || err));
+      if (showToastNotification) {
+        showToastNotification('Errore durante l\'aggiornamento: ' + (err.message || err), 'error');
+      }
     } finally { 
       fetchTools(); // Final sync
     }

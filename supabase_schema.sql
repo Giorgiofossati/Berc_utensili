@@ -136,3 +136,84 @@ BEGIN
 END;
 $$;
 
+-- ==========================================================
+-- 4. STORED PROCEDURE EVOLUTA: handle_multi_movement
+-- Gestione movimenti multipli a distinta con quantità individuali per articolo
+-- Supporta sia batch omogenei (tutti carico/scarico) sia operazioni miste per riga (futuro)
+-- Parametro p_items: array JSONB di oggetti [{"tool_id": "uuid", "quantity": int, "op_type": "carico"|"scarico"}]
+-- ==========================================================
+CREATE OR REPLACE FUNCTION public.handle_multi_movement(
+    p_items JSONB,
+    p_operator TEXT
+)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    item JSONB;
+    t_id UUID;
+    cur_qty INTEGER;
+    v_qty INTEGER;
+    v_op_type TEXT;
+BEGIN
+    IF p_items IS NULL OR jsonb_array_length(p_items) = 0 THEN
+        RAISE EXCEPTION 'Nessun articolo specificato per il movimento multiplo';
+    END IF;
+
+    FOR item IN SELECT * FROM jsonb_array_elements(p_items) LOOP
+        t_id := (item->>'tool_id')::UUID;
+        v_qty := (item->>'quantity')::INTEGER;
+        v_op_type := item->>'op_type';
+
+        IF v_qty IS NULL OR v_qty <= 0 THEN
+            RAISE EXCEPTION 'Quantità non valida per utensile ID % (deve essere maggiore di zero, ricevuto: %)', t_id, v_qty;
+        END IF;
+
+        IF v_op_type NOT IN ('carico', 'scarico') THEN
+            RAISE EXCEPTION 'Tipo di operazione non valido per utensile ID %: % (accettati solo: carico, scarico)', t_id, v_op_type;
+        END IF;
+
+        -- Blocca la riga per prevenire race conditions concorrenti
+        SELECT "Quantità" INTO cur_qty 
+        FROM public."Utensili_B1" 
+        WHERE id = t_id 
+        FOR UPDATE;
+
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Utensile con ID % non trovato a magazzino', t_id;
+        END IF;
+
+        IF v_op_type = 'scarico' THEN
+            IF COALESCE(cur_qty, 0) < v_qty THEN
+                RAISE EXCEPTION 'Giacenza insufficiente per utensile ID % (Disponibili: %, Richiesti: %)', t_id, COALESCE(cur_qty, 0), v_qty;
+            END IF;
+
+            UPDATE public."Utensili_B1"
+            SET "Quantità" = COALESCE("Quantità", 0) - v_qty
+            WHERE id = t_id;
+        ELSIF v_op_type = 'carico' THEN
+            UPDATE public."Utensili_B1"
+            SET "Quantità" = COALESCE("Quantità", 0) + v_qty
+            WHERE id = t_id;
+        END IF;
+
+        -- Registra log per ogni singolo articolo movimentato
+        INSERT INTO public.movements_history (
+            tool_id,
+            op_type,
+            quantity,
+            operator,
+            created_at
+        ) VALUES (
+            t_id,
+            v_op_type,
+            v_qty,
+            COALESCE(p_operator, 'Sconosciuto'),
+            now()
+        );
+    END LOOP;
+END;
+$$;
+
+
