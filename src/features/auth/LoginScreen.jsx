@@ -12,7 +12,8 @@ export default function LoginScreen() {
   const [users, setUsers] = useState(() => {
     try {
       const cached = localStorage.getItem('berc_cached_users');
-      return cached ? JSON.parse(cached) : [];
+      const parsed = cached ? JSON.parse(cached) : [];
+      return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
     } catch {
       return [];
     }
@@ -20,7 +21,8 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(() => {
     try {
       const cached = localStorage.getItem('berc_cached_users');
-      return !(cached && JSON.parse(cached).length > 0);
+      const parsed = cached ? JSON.parse(cached) : [];
+      return !(Array.isArray(parsed) && parsed.length > 0);
     } catch {
       return true;
     }
@@ -56,14 +58,20 @@ export default function LoginScreen() {
         sbError = fallbackRes.error;
       }
 
-      if (!sbError && data && data.length > 0) {
-        setUsers(data);
-        localStorage.setItem('berc_cached_users', JSON.stringify(data));
+      if (!sbError && data && Array.isArray(data) && data.length > 0) {
+        const validUsers = data.filter(Boolean);
+        setUsers(validUsers);
+        try {
+          localStorage.setItem('berc_cached_users', JSON.stringify(validUsers));
+        } catch { /* ignore storage error */ }
       } else if (sbError) {
         console.warn('Supabase fetch users warning:', sbError);
         const cached = localStorage.getItem('berc_cached_users');
         if (cached) {
-          try { setUsers(JSON.parse(cached)); } catch { /* ignore parse error */ }
+          try { 
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed)) setUsers(parsed.filter(Boolean));
+          } catch { /* ignore parse error */ }
         } else {
           setFetchError(true);
         }
@@ -72,7 +80,10 @@ export default function LoginScreen() {
       console.error('Error fetching users:', err);
       const cached = localStorage.getItem('berc_cached_users');
       if (cached) {
-        try { setUsers(JSON.parse(cached)); } catch { /* ignore parse error */ }
+        try { 
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed)) setUsers(parsed.filter(Boolean));
+        } catch { /* ignore parse error */ }
       } else {
         setFetchError(true);
       }
@@ -81,9 +92,12 @@ export default function LoginScreen() {
     }
   };
 
-  const filteredUsers = users.filter(u => 
-    `${u.nome} ${u.cognome}`.toLowerCase().includes(search.toLowerCase()) || 
-    (u.codice_id && String(u.codice_id).toLowerCase().includes(search.toLowerCase()))
+  const userList = Array.isArray(users) ? users : [];
+  const filteredUsers = userList.filter(u => 
+    u && (
+      `${u.nome || ''} ${u.cognome || ''}`.toLowerCase().includes(search.toLowerCase()) || 
+      (u.codice_id && String(u.codice_id).toLowerCase().includes(search.toLowerCase()))
+    )
   );
 
   const handleSelectUser = (user) => {

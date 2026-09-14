@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Database, Search, History, Users, 
+  Database, History, Users, 
   LogOut, ArrowDown, ArrowUp,
   Sun, Moon, X, HelpCircle
 } from 'lucide-react';
@@ -36,7 +36,7 @@ const NavItem = ({ icon, label, onClick, className = "", isActive = false }) => 
 );
 
 const SidebarContent = ({ 
-  setView, fetchHistory, setShowAddModal, onOpenSearch, onClose, view
+  setView, fetchHistory, setShowAddModal, onClose, view
 }) => {
   const { isDarkMode, toggleTheme } = useTheme();
   const currentUser = useAuthStore(state => state.currentUser);
@@ -81,22 +81,6 @@ const SidebarContent = ({
 
       {/* Main Content Scrollable */}
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-6">
-        
-        {/* Search Input Box with Shortcut Badge */}
-        <div className="flex flex-col gap-2" data-tour="search-tools">
-           <button 
-              onClick={() => { onOpenSearch(); if(onClose) onClose(); }}
-              className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-slate-100/80 dark:bg-slate-900/50 hover:bg-slate-200/80 dark:hover:bg-slate-800/80 text-slate-500 transition-all border border-slate-200/50 dark:border-white/5 group shadow-sm"
-           >
-              <div className="flex items-center gap-3 min-w-0">
-                 <Search size={16} className="group-hover:text-accent-blue transition-colors shrink-0" />
-                 <span className="text-sm font-medium group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors truncate">Cerca utensile...</span>
-              </div>
-              <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-0.5 rounded border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-1.5 font-mono text-[10px] font-bold text-slate-400 shadow-sm">
-                <span>⌘</span>K
-              </kbd>
-           </button>
-        </div>
 
         {/* Primary Actions */}
         <div className="flex flex-col gap-2" data-tour="quick-actions">

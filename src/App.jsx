@@ -27,7 +27,6 @@ import MovementModal from './features/inventory/MovementModal';
 import DiameterList from './features/filters/DiameterList';
 import ToolsGrid from './features/inventory/ToolsGrid';
 import DropdownFilterView from './features/filters/DropdownFilterView';
-import SearchOverlay from './features/filters/SearchOverlay';
 import AddToolModal from './features/inventory/AddToolModal';
 import OrderModal from './features/inventory/OrderModal';
 import ErrorBoundary from './components/common/ErrorBoundary';
@@ -83,8 +82,11 @@ function App() {
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [showSidebarMobile, setShowSidebarMobile] = useState(false);
   const [showSelectionDrawer, setShowSelectionDrawer] = useState(false);
-  const [showSearchOverlay, setShowSearchOverlay] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  const handleRequireSidebar = useCallback((needed) => {
+    setShowSidebarMobile(prev => (prev === needed ? prev : needed));
+  }, []);
 
   const mainRef = useRef(null);
 
@@ -185,7 +187,6 @@ function App() {
         setView={setView}
         fetchHistory={fetchHistory}
         setShowAddModal={setShowAddModal}
-        onOpenSearch={() => setShowSearchOverlay(true)}
         view={view}
       />
 
@@ -378,20 +379,12 @@ function App() {
           )}
         </AnimatePresence>
 
-        <SearchOverlay 
-          isOpen={showSearchOverlay} 
-          onClose={() => setShowSearchOverlay(false)} 
-          tools={tools} 
-          onSelectTool={handleSelectToolFromGrid}
-          isMobile={isMobile}
-        />
-
         {/* Pulsante discreto in basso per riavviare la guida/tutorial */}
         <HelpFloatingButton />
 
         {/* Tutorial interattivo guidato */}
         <AppTutorial 
-          onRequireSidebar={(needed) => setShowSidebarMobile(needed)}
+          onRequireSidebar={handleRequireSidebar}
           viewMode={viewMode}
           setViewMode={setViewMode}
         />

@@ -108,6 +108,27 @@ Questo file serve come "memoria" e linea guida per l'assistente AI (Gemini) che 
 16. **Tabelle e Viste di Ricerca (Zero Liste Flex Manuali Disallineate)**:
    - Tutte le viste di consultazione ed esplorazione inventario (inclusa la ricerca Optical Scanner `ScannerView`) devono riutilizzare il componente unificato `<ToolsGrid hideExtraFilters={true} />` (TanStack Table v8 + `@tanstack/react-virtual`).
    - Evitare assolutamente liste flex `justify-between` con larghezze libere, che provocano il disallineamento visivo orizzontale di descrizioni, badge e quantità.
+17. **Allineamento Rigoroso negli Header di Modali e Dialog (Divieto di Pulsanti 'X' Fluttuanti)**:
+   - Nei modali basati su shadcn / Radix UI, impostare SEMPRE `showCloseButton={false}` su `DialogContent` per impedire che il pulsante 'X' di default (`absolute top-2 right-2`) galleggi staccato e disallineato nell'angolo estremo del container.
+   - Inserire il pulsante di chiusura (`X`) direttamente nella barra flex dell'Header del modale (`flex items-center justify-between gap-3 w-full pb-3 border-b border-slate-200/60 dark:border-white/10`).
+   - L'icona a sinistra (in riquadro compatto e proporzionato, es. `w-10 h-10 rounded-[14px]`), il blocco centrale (Titolo + Badge + Sottotitolo) e il pulsante di chiusura a destra devono essere perfettamente calibrati e allineati sullo stesso asse orizzontale.
+   - Il badge di stato (es. "Live", "Attivo") deve essere centrato con il testo del titolo (`inline-flex items-center gap-1.5`) con linea di base coordinata (`leading-none`), senza salti di quota o padding verticali asimmetrici.
+18. **Divieto Assoluto di Font Monospace (`.app-caption`) per Frasi e Descrizioni**:
+   - `.app-caption` usa `font-mono` ed è riservato ESCLUSIVAMENTE a codici aziendali, SKU, serial number, codici a barre e timestamp.
+   - È SEVERAMENTE VIETATO usare `.app-caption` per istruzioni operative, sottotitoli o frasi discorsive nei modali e nelle card. Usare sempre `.app-body` o classi Inter sans-serif (`text-xs text-slate-500 font-medium leading-normal`).
+   - È SEVERAMENTE VIETATO applicare `truncate` a caso su frasi intere di istruzioni operative: provoca troncature orrende a metà parola (es. "Inquadra il codice... dell'uten..."). I testi devono avere spazio naturale o andare a capo in modo fluido.
+19. **Divieto di Scatole Annidate ("Box in a Box") e Sfondi Grigi Sparsi**:
+   - Evitare contenitori intermedi con sfondi grigi o bordi multipli annidati dentro un modale glassmorphic.
+   - Struttura standard obbligatoria per ogni dialog/modale:
+     1. **Header**: Icona + Titolo + Badge + Tasto Chiudi (`border-b pb-3`).
+     2. **Corpo Principale (Hero/Content)**: Proporzionato all'elemento contenuto (es. `aspect-[4/3]` nativo per la camera) senza bordi grigi spuri o padding asimmetrici.
+     3. **Footer**: Metadati o formati a sinistra, bottoni di conferma/annulla a destra (`border-t pt-2`).
+20. **Divieto di Testi Sparsi / Elementi Fluttuanti Fuori Contesto**:
+   - Non inserire scritte duplicanti o istruzioni sparse sotto o sopra elementi visivi. Ogni componente deve avere un'unica istruzione autorevole posizionata nell'Header.
+   - Nei flussi di fotocamera/scanner non posizionare pill o badge fluttuanti che coprono il flusso video; mantenere il mirino pulito con i soli reticoli e laser.
+21. **Architettura della Barra di Ricerca Globale**:
+   - La barra di ricerca risiede permanentemente nell'Header (`Header.jsx`), visibile al 100% sia su Desktop che su Mobile.
+   - Qualsiasi interazione con la ricerca (click, focus, digitazione, `⌘K`) attiva istantaneamente la vista elenco (`viewMode = 'dropdown'`), azzera filtri parziali residui (`resetFilters()`) e filtra in tempo reale la tabella senza modali intermediari o sfocature.
 ### 💾 Regole di Sviluppo, Architettura e Backend
 1. **Database Supabase**: Quando si creano o modificano query, ricordare che ci interfacciamo con la tabella `Utensili_B1` (per la giacenza degli utensili) e `movements_history` (per i log dei movimenti), oltre alla futura tabella `utenti`.
 2. **Gestione dello Stato Globale (Zustand)**: L'app ha abbandonato il *prop-drilling* esteso in favore di **Zustand**. Ogni macro-area ha il suo Store dedicato (`src/store/useAuthStore`, `useInventoryStore`, `useFilterStore`, `useMovementStore`). Usare gli store in modo atomico per evitare re-render non necessari dei componenti figli.

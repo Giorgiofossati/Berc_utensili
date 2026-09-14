@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useMemo, useCallback, memo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle2, List, LayoutGrid, Filter } from 'lucide-react';
+import { X, CheckCircle2, List, LayoutGrid, Filter, Search } from 'lucide-react';
 import ToolsGrid from '../inventory/ToolsGrid';
 import { EXTRA_FILTER_KEYS } from '../inventory/constants';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useFilterStore } from '../../store/useFilterStore';
+import { buildDesc } from '../../lib/toolUtils';
 
 const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, initialFilters = {}, onFilterChange, viewMode, setViewMode }) => {
   const isSelectionMode = useFilterStore(state => state.isSelectionMode);
   const setIsSelectionMode = useFilterStore(state => state.handleSetIsSelectionMode);
+  const searchQuery = useFilterStore(state => state.searchQuery);
+  const clearSearchQuery = useFilterStore(state => state.clearSearchQuery);
   const [filters, setFilters] = useState(initialFilters);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(!isMobile);
 
@@ -81,8 +84,30 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
         result = result.filter(t => String(t[key]) === String(value));
       }
     });
+
+    if (searchQuery && searchQuery.trim().length > 0) {
+      const query = searchQuery.trim().toLowerCase();
+      const terms = query.split(/\s+/).filter(Boolean);
+
+      result = result.filter(t => {
+        const codice = String(t['Codice'] || '').toLowerCase();
+        const desc = String(t['Descrizione'] || '').toLowerCase();
+        const tipologia = String(t['Tipologia'] || '').toLowerCase();
+        const forma = String(t['Forma'] || '').toLowerCase();
+        const fornitore = String(t['Fornitore'] || '').toLowerCase();
+        const ubicazione = String(t['Ubicazione'] || '').toLowerCase();
+        const serialnumber = String(t['Serial Number'] || t['SerialNumber'] || '').toLowerCase();
+        const diametro = String(t['Diametro'] || '').toLowerCase();
+        const fullDesc = buildDesc(t).toLowerCase();
+
+        const targetText = `${codice} ${desc} ${tipologia} ${forma} ${diametro} ${fornitore} ${ubicazione} ${serialnumber} ${fullDesc}`;
+
+        return terms.every(term => targetText.includes(term));
+      });
+    }
+
     return result;
-  }, [allTools, filters]);
+  }, [allTools, filters, searchQuery]);
 
   const cleanFilters = useCallback((newFilters, toolsList) => {
     const cleaned = { ...newFilters };
@@ -251,7 +276,28 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                     </motion.div>
                   );
                 })}
-                {Object.values(filters).some(v => v) && (
+                {searchQuery && (
+                  <motion.div
+                    layout
+                    key="active-search-chip"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-[12px] md:rounded-[14px] bg-accent-blue/15 border border-accent-blue/40 text-accent-blue app-overline"
+                  >
+                    <Search size={12} className="shrink-0" />
+                    <span className="truncate max-w-[120px] font-bold">"{searchQuery}"</span>
+                    <button
+                      type="button"
+                      onClick={clearSearchQuery}
+                      className="ml-1 hover:text-white p-0.5 rounded transition-colors"
+                      title="Cancella ricerca"
+                    >
+                      <X size={12} />
+                    </button>
+                  </motion.div>
+                )}
+                {(Object.values(filters).some(v => v) || searchQuery) && (
                   <motion.button
                     layout
                     key="reset"
@@ -259,7 +305,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.2 }}
-                    onClick={() => setFilters({})}
+                    onClick={() => { setFilters({}); clearSearchQuery(); }}
                     className="col-span-full md:col-auto w-full md:w-auto glass-button rounded-[12px] md:rounded-[14px] px-3 py-1.5 md:px-4 md:py-2 app-overline text-accent-rose hover:bg-accent-rose/10 transition-all flex items-center justify-center gap-1"
                   >
                     <X size={12} /> Reset
@@ -280,13 +326,18 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
         )}
       </AnimatePresence>
 
-      
       {/* Deleghiamo il rendering della griglia a ToolsGrid con TanStack Table */}
       <ToolsGrid 
         tools={filtered} 
         onSelectTool={onSelectTool} 
         isMobile={isMobile} 
         hideExtraFilters={true} 
+        emptyTitle={searchQuery ? "Nessun utensile trovato" : "Nessun utensile presente"}
+        emptyDescription={
+          searchQuery
+            ? `Nessun risultato corrispondente a "${searchQuery.trim()}". Controlla i caratteri inseriti o prova con un altro parametro.`
+            : null
+        }
       />
     </motion.div>
 

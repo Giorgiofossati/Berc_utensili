@@ -5,12 +5,25 @@ export const useFilterStore = create((set) => ({
   viewMode: 'grid',
   isSelectionMode: false,
   selectedToolsIds: [],
+  searchQuery: '',
+  
+  setSearchQuery: (query) => set((state) => {
+    if (state.searchQuery === query) return state;
+    return { searchQuery: query };
+  }),
+  clearSearchQuery: () => set((state) => {
+    if (!state.searchQuery) return state;
+    return { searchQuery: '' };
+  }),
   
   setFilterStack: (stackOrCallback) => set((state) => {
     const nextStack = typeof stackOrCallback === 'function' ? stackOrCallback(state.filterStack) : stackOrCallback;
     return { filterStack: nextStack };
   }),
-  setViewMode: (mode) => set({ viewMode: mode }),
+  setViewMode: (mode) => set((state) => {
+    if (state.viewMode === mode) return state;
+    return { viewMode: mode };
+  }),
   setIsSelectionMode: (val) => set(() => {
     if (!val) {
       return { isSelectionMode: val, selectedToolsIds: [] };
@@ -31,7 +44,10 @@ export const useFilterStore = create((set) => ({
       ? state.selectedToolsIds.filter(toolId => toolId !== id)
       : [...state.selectedToolsIds, id]
   })),
-  resetFilters: () => set({ filterStack: [] }),
+  resetFilters: () => set((state) => {
+    if (state.filterStack.length === 0) return state;
+    return { filterStack: [] };
+  }),
   handleSelectDiameter: (d) => set((state) => ({
     filterStack: [...state.filterStack, { type: 'Diametro', value: d }]
   })),

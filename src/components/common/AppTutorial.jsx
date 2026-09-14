@@ -18,10 +18,6 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
   const prevStep = useTutorialStore(state => state.prevStep);
   const completeTutorial = useTutorialStore(state => state.completeTutorial);
 
-  const currentView = useNavigationStore(state => state.currentView);
-  const setCurrentView = useNavigationStore(state => state.setCurrentView);
-  const resetFilters = useFilterStore(state => state.resetFilters);
-  const setStoreViewMode = useFilterStore(state => state.setViewMode);
 
   const currentUser = useAuthStore(state => state.currentUser);
   const setCurrentUser = useAuthStore(state => state.setCurrentUser);
@@ -40,34 +36,34 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
     if (!isOpen || !step) return;
 
     // 1. Sposta l'utente sulla vista richiesta dallo step (es. 'home', 'scanner', 'history', etc.)
-    if (step.targetView && currentView !== step.targetView) {
-      setCurrentView(step.targetView);
+    if (step.targetView && useNavigationStore.getState().currentView !== step.targetView) {
+      useNavigationStore.getState().setCurrentView(step.targetView);
     }
 
     // 2. Resetta i filtri se richiesto per far comparire il catalogo principale
-    if (step.resetFilters) {
-      resetFilters();
+    if (step.resetFilters && useFilterStore.getState().filterStack.length > 0) {
+      useFilterStore.getState().resetFilters();
     }
 
     // 3. Imposta la viewMode richiesta (es. 'grid')
-    if (step.viewMode) {
+    if (step.viewMode && useFilterStore.getState().viewMode !== step.viewMode) {
+      useFilterStore.getState().setViewMode(step.viewMode);
       if (setViewMode) setViewMode(step.viewMode);
-      setStoreViewMode(step.viewMode);
     }
 
     // 4. Gestione apertura automatica sidebar su mobile se lo step la richiede
     if (onRequireSidebar) {
-      const isMobile = window.innerWidth < 768;
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
       if (isMobile) {
         if (step.requireSidebar !== undefined) {
           onRequireSidebar(step.requireSidebar);
         } else {
-          const sidebarSteps = ['search-tools', 'quick-actions', 'menu-history', 'user-profile', 'user-logout'];
+          const sidebarSteps = ['quick-actions', 'menu-history', 'user-profile', 'user-logout'];
           onRequireSidebar(sidebarSteps.includes(step.id));
         }
       }
     }
-  }, [isOpen, currentStep, step, currentView, setCurrentView, resetFilters, viewMode, setViewMode, setStoreViewMode, onRequireSidebar]);
+  }, [isOpen, currentStep, step, onRequireSidebar, setViewMode]);
 
   // Misura e traccia l'elemento target dinamicamente con retry polling per gestire transizioni Framer Motion
   const updateRect = useCallback(() => {
@@ -80,16 +76,27 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
     if (el) {
       const rect = el.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) {
-        setTargetRect({
-          top: rect.top,
-          left: rect.left,
-          width: rect.width,
-          height: rect.height
+        setTargetRect(prev => {
+          if (
+            prev &&
+            Math.abs(prev.top - rect.top) < 1 &&
+            Math.abs(prev.left - rect.left) < 1 &&
+            Math.abs(prev.width - rect.width) < 1 &&
+            Math.abs(prev.height - rect.height) < 1
+          ) {
+            return prev;
+          }
+          return {
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height
+          };
         });
         return true;
       }
     }
-    setTargetRect(null);
+    setTargetRect(prev => (prev === null ? null : null));
     return false;
   }, [step]);
 

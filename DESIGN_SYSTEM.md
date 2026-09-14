@@ -127,12 +127,20 @@ Tutti i testi dell'applicazione **devono utilizzare esclusivamente le classi sem
   - QTY: `size: 64` (o `70px`), fissa, centrata.
   - Ubicazione / Fornitore / Stato: `size: 100-140px`, fisse.
 
-### D. Modali & Dialog (Single-Screen / No Scroll Interno Inutile)
+### D. Modali & Dialog (Allineamento Rigoroso & Struttura a 3 Livelli)
 - **Standard Obbligatorio:** Utilizzare sempre `@/components/ui/dialog` basato su Radix UI. Non creare div full-screen con overlay manuali (evita rotture di focus trap e scroll-lock).
-- **Dimensioni & Layout:**
-  - `max-w-3xl` per dettaglio/movimento, `max-w-md` per ordini o conferme.
-  - Altezza massima `max-h-[92dvh]`.
-  - Nessuno scroll interno forzato se il contenuto può stare comodamente a schermo. Usare griglie a 2/3 colonne compatte (`p-2.5`, testo compatto) per i parametri tecnici.
+- **Divieto di Pulsanti 'X' Fluttuanti (`showCloseButton={false}`):**
+  - Nei modali shadcn, impostare SEMPRE `showCloseButton={false}` su `<DialogContent>` per impedire che il pulsante 'X' di default (`absolute top-2 right-2`) galleggi staccato e disallineato nell'angolo del popup.
+  - Inserire il pulsante di chiusura (`X`) direttamente nella riga flex dell'Header del modale: `flex items-center justify-between gap-3 w-full pb-3 border-b border-slate-200/60 dark:border-white/10`.
+- **Allineamento Header Millimetrico:**
+  - **Sinistra:** Icona in box proporzionato (es. `w-10 h-10 rounded-[14px] bg-accent-blue/10 border border-accent-blue/25`).
+  - **Centro:** Titolo (`.app-h2` o `font-black uppercase`) + Badge di stato (`inline-flex items-center gap-1.5 leading-none`) allineati sulla stessa linea di base.
+  - **Sottotitolo:** Inter sans-serif (`text-xs text-slate-500 font-medium leading-normal mt-1`), MAI `font-mono` e MAI `truncate` su frasi intere (vietate le troncature a metà parola tipo "dell'uten...").
+  - **Destra:** Tasto Chiudi (`X`) allineato verticalmente con l'icona e il titolo.
+- **Divieto di Scatole Annidate ("Box in a Box"):**
+  - Non inserire contenitori grigi intermedi con bordi spuri dentro un modale. Il contenuto primario (es. mirino fotocamera o form) deve occupare proporzioni pulite native (es. `aspect-[4/3]`) senza involucri ridondanti.
+- **Divieto di Testi Sparsi / Ridondanti:**
+  - Un'unica voce autorevole per le istruzioni nell'Header. Vietato duplicare messaggi ("Scanner attivo", "Inquadra...") sparsi sopra o sotto gli elementi interattivi.
 
 ### E. Form & Campi di Input
 - **Touch-Friendly & No Auto-Zoom iOS:** Tutti gli input di testo devono avere `text-sm` (almeno 14-16px) per prevenire lo zoom automatico di Safari su iPhone.
@@ -146,8 +154,11 @@ Tutti i testi dell'applicazione **devono utilizzare esclusivamente le classi sem
 Prima di considerare conclusa qualsiasi modifica o nuova feature, verificare:
 1. [ ] **Nessun colore `indigo`** presente nel codice aggiunto o modificato.
 2. [ ] **Zero scroll orizzontale** su viewport mobile (375px - 428px).
-3. [ ] **Nessun testo con classi arbitrarie** (verificato l'uso di `.app-overline`, `.app-h1`, `.app-h2`, `.app-h3`, `.app-body`, `.app-caption`, `.app-qty-*`).
-4. [ ] **Touch target minimi:** tutti i bottoni e chip cliccabili hanno un'area utile confortevole (minimo 36-44px).
-5. [ ] **Dialog Shadcn nativi:** tutti i popup/modali usano `<Dialog>` e `<DialogContent>`, senza modali custom `fixed inset-0` orfani.
-6. [ ] **Doppio tema verificato:** il componente è perfettamente leggibile sia in Dark Mode (`.dark`) che in Light Mode.
-7. [ ] **Build pulita:** `npm run build` eseguito con esito positivo senza errori.
+3. [ ] **Nessun testo con classi arbitrarie** (verificato l'uso corretto di `.app-overline`, `.app-h1`, `.app-h2`, `.app-h3`, `.app-body`, `.app-caption`, `.app-qty-*`).
+4. [ ] **Nessun font monospace (`.app-caption`) per descrizioni o istruzioni**: il monospazio è riservato a codici aziendali/timestamp. Le istruzioni usano sempre Inter sans-serif senza troncature a metà parola (`truncate` rimosso da frasi discorsive).
+5. [ ] **Header dei Modali perfettamente allineato:** `showCloseButton={false}` applicato su `DialogContent`, icona, titolo, badge e 'X' allineati sulla stessa riga con bordo divisorio `border-b`.
+6. [ ] **Nessuna scatola annidata ("box in a box")** con sfondi grigi spuri o testi duplicati sparsi nei componenti.
+7. [ ] **Touch target minimi:** tutti i bottoni e chip cliccabili hanno un'area utile confortevole (minimo 36-44px).
+8. [ ] **Dialog Shadcn nativi:** tutti i popup/modali usano `<Dialog>` e `<DialogContent>`, senza modali custom `fixed inset-0` orfani.
+9. [ ] **Doppio tema verificato:** il componente è perfettamente leggibile sia in Dark Mode (`.dark`) che in Light Mode.
+10. [ ] **Build pulita:** `npm run build` eseguito con esito positivo senza errori.

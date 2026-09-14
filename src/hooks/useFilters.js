@@ -17,6 +17,9 @@ export function useFilters() {
   const toggleToolSelection = useFilterStore((state) => state.toggleToolSelection);
   const resetFilters = useFilterStore((state) => state.resetFilters);
   const handleSelectDiameter = useFilterStore((state) => state.handleSelectDiameter);
+  const searchQuery = useFilterStore((state) => state.searchQuery);
+  const setSearchQuery = useFilterStore((state) => state.setSearchQuery);
+  const clearSearchQuery = useFilterStore((state) => state.clearSearchQuery);
   
   const handleSelectOptionStore = useFilterStore((state) => state.handleSelectOption);
 
@@ -73,7 +76,8 @@ export function useFilters() {
     isSelectionMode, handleSetIsSelectionMode, setIsSelectionMode,
     selectedToolsIds, setSelectedToolsIds, toggleToolSelection,
     filteredByStack, options, diameters, finalTools, currentLevel,
-    handleSelectOption, handleSelectDiameter, resetFilters, breadcrumbText
+    handleSelectOption, handleSelectDiameter, resetFilters, breadcrumbText,
+    searchQuery, setSearchQuery, clearSearchQuery
   };
 }
 

@@ -29,10 +29,10 @@ export const TUTORIAL_STEPS = [
     id: 'search-tools',
     target: '[data-tour="search-tools"]',
     title: 'Ricerca Rapida & Scorciatoie',
-    content: 'Trova qualsiasi utensile digitando codice, nome o diametro. Puoi usare anche la scorciatoia da tastiera ⌘K.',
-    placement: 'right',
+    content: 'Trova qualsiasi utensile digitando codice, misura o descrizione. Puoi usare la scorciatoia ⌘K o la fotocamera per il codice a barre.',
+    placement: 'bottom',
     targetView: 'home',
-    requireSidebar: true
+    requireSidebar: false
   },
   {
     id: 'quick-actions',

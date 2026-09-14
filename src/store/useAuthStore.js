@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { useNavigationStore } from './useNavigationStore';
 import { useFilterStore } from './useFilterStore';
+import { useTutorialStore } from './useTutorialStore';
 
 const sanitizeUser = (user) => {
   if (!user) return null;
@@ -11,21 +12,25 @@ const sanitizeUser = (user) => {
 
 export const useAuthStore = create((set) => ({
   currentUser: (() => {
-    const saved = localStorage.getItem('berc_user');
-    if (saved) {
-      try {
+    try {
+      const saved = localStorage.getItem('berc_user');
+      if (saved) {
         const parsed = JSON.parse(saved);
         return sanitizeUser(parsed);
-      } catch (e) {
-        console.error('Error parsing saved user', e);
       }
+    } catch (e) {
+      console.error('Error parsing saved user', e);
     }
     return null;
   })(),
   login: (user) => set(() => {
     const safeUser = sanitizeUser(user);
     if (safeUser) {
-      localStorage.setItem('berc_user', JSON.stringify(safeUser));
+      try {
+        localStorage.setItem('berc_user', JSON.stringify(safeUser));
+      } catch (e) {
+        console.warn('localStorage error', e);
+      }
       if (safeUser.ruolo !== 'Admin' && useNavigationStore.getState().currentView === 'operators') {
         useNavigationStore.getState().resetNavigation();
       }
@@ -33,7 +38,12 @@ export const useAuthStore = create((set) => ({
     return { currentUser: safeUser };
   }),
   logout: () => set(() => {
-    localStorage.removeItem('berc_user');
+    try {
+      localStorage.removeItem('berc_user');
+    } catch { /* ignore */ }
+    try {
+      useTutorialStore.getState().closeTutorial();
+    } catch { /* ignore */ }
     useNavigationStore.getState().resetNavigation();
     useFilterStore.getState().resetFilters();
     return { currentUser: null };
@@ -41,12 +51,21 @@ export const useAuthStore = create((set) => ({
   setCurrentUser: (user) => set(() => {
     const safeUser = sanitizeUser(user);
     if (safeUser) {
-      localStorage.setItem('berc_user', JSON.stringify(safeUser));
+      try {
+        localStorage.setItem('berc_user', JSON.stringify(safeUser));
+      } catch (e) {
+        console.warn('localStorage error', e);
+      }
       if (safeUser.ruolo !== 'Admin' && useNavigationStore.getState().currentView === 'operators') {
         useNavigationStore.getState().resetNavigation();
       }
     } else {
-      localStorage.removeItem('berc_user');
+      try {
+        localStorage.removeItem('berc_user');
+      } catch { /* ignore */ }
+      try {
+        useTutorialStore.getState().closeTutorial();
+      } catch { /* ignore */ }
       useNavigationStore.getState().resetNavigation();
       useFilterStore.getState().resetFilters();
     }

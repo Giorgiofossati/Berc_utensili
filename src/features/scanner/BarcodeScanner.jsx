@@ -1,21 +1,24 @@
 import React, { useEffect, useRef, useState, useId } from 'react';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
+import { motion } from 'framer-motion';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 
 const BarcodeScanner = ({ onScan }) => {
   const html5QrCodeRef = useRef(null);
   const reactId = useId();
   const scannerDomId = `barcode-reader-${reactId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const config = {
-      fps: 15,
-      qrbox: (viewfinderWidth) => {
-        const width = Math.min(viewfinderWidth * 0.8, 300);
-        const height = width * 0.6;
-        return { width, height };
+      fps: 20,
+      aspectRatio: 1.333333,
+      qrbox: (viewfinderWidth, viewfinderHeight) => {
+        const w = Math.min(viewfinderWidth * 0.85, 320);
+        const h = Math.min(viewfinderHeight * 0.65, 200);
+        return { width: Math.floor(w), height: Math.floor(h) };
       },
-      aspectRatio: 1.0,
       formatsToSupport: [
         Html5QrcodeSupportedFormats.CODE_128,
         Html5QrcodeSupportedFormats.CODE_39,
@@ -40,7 +43,6 @@ const BarcodeScanner = ({ onScan }) => {
         if (!isMounted) return;
 
         if (devices && devices.length > 0) {
-          // Cerca una camera posteriore
           const backCamera = devices.find(device => 
             device.label.toLowerCase().includes('back') || 
             device.label.toLowerCase().includes('rear') ||
@@ -62,7 +64,6 @@ const BarcodeScanner = ({ onScan }) => {
             () => {}
           );
         } else {
-          // Fallback se non riesce a listare i device
           await html5QrCode.start(
             { facingMode: "environment" },
             config,
@@ -84,11 +85,10 @@ const BarcodeScanner = ({ onScan }) => {
       } catch (err) {
         if (!isMounted) return;
         console.error("Errore avvio scanner:", err);
-        setError("Impossibile accedere alla fotocamera. Verifica i permessi browser o prova a ricaricare.");
+        setError("Impossibile accedere alla fotocamera. Verifica i permessi del browser.");
       }
     };
 
-    // Un piccolo ritardo per assicurarsi che il DOM sia pronto
     const timer = setTimeout(startScanner, 100);
 
     return () => {
@@ -106,34 +106,55 @@ const BarcodeScanner = ({ onScan }) => {
         } catch { /* ignore cleanup error */ }
       }
     };
-  }, [onScan, scannerDomId]);
+  }, [onScan, scannerDomId, retryCount]);
 
   return (
-    <div className="w-full dark:bg-slate-900/60 bg-slate-200/60 p-4 md:p-6 flex flex-col items-center">
+    <div className="relative w-full h-full min-h-[260px] flex items-center justify-center overflow-hidden bg-black select-none">
+      {/* Target DOM per HTML5 QR Code */}
       <div 
         id={scannerDomId} 
-        className="w-full rounded-[32px] overflow-hidden border-2 dark:border-white/10 border-slate-900/10 bg-black min-h-[250px] shadow-2xl relative"
-      >
-        {error && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center dark:bg-slate-950/90 bg-slate-50/90 z-20">
-            <p className="text-rose-400 font-bold uppercase tracking-tighter mb-2">Errore Camera</p>
-            <p className="text-xs dark:text-slate-400 text-slate-600 font-medium uppercase tracking-widest leading-relaxed">{error}</p>
-          </div>
-        )}
-      </div>
-      
+        className="w-full h-full relative"
+      />
+
+      {/* Laser di Scansione Ottica Animato */}
       {!error && (
-        <>
-          <div className="flex items-center gap-3 mt-4">
-            <div className="w-2 h-2 bg-accent-blue rounded-full animate-pulse" />
-            <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-accent-blue">
-              Scanner Ottico Attivo
-            </p>
+        <motion.div 
+          className="absolute left-6 right-6 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_14px_#06b6d4] pointer-events-none z-20"
+          animate={{ top: ['20%', '80%', '20%'] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      )}
+
+      {/* Reticoli Angolari di Puntamento */}
+      {!error && (
+        <div className="absolute inset-8 sm:inset-10 pointer-events-none z-10 flex flex-col justify-between">
+          <div className="flex justify-between w-full">
+            <div className="w-5 h-5 border-t-2 border-l-2 border-cyan-400 rounded-tl-md shadow-[0_0_8px_rgba(6,182,212,0.6)]" />
+            <div className="w-5 h-5 border-t-2 border-r-2 border-cyan-400 rounded-tr-md shadow-[0_0_8px_rgba(6,182,212,0.6)]" />
           </div>
-          <p className="text-[8px] md:text-[9px] text-center mt-1 font-bold uppercase tracking-[0.2em] text-slate-500 max-w-[200px]">
-            Inquadra il codice per il riconoscimento automatico
-          </p>
-        </>
+          <div className="flex justify-between w-full">
+            <div className="w-5 h-5 border-b-2 border-l-2 border-cyan-400 rounded-bl-md shadow-[0_0_8px_rgba(6,182,212,0.6)]" />
+            <div className="w-5 h-5 border-b-2 border-r-2 border-cyan-400 rounded-br-md shadow-[0_0_8px_rgba(6,182,212,0.6)]" />
+          </div>
+        </div>
+      )}
+
+      {/* Overlay Errore Fotocamera */}
+      {error && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center p-6 text-center bg-slate-950/95 backdrop-blur-md">
+          <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-3 shadow-inner">
+            <AlertCircle size={22} />
+          </div>
+          <p className="app-h3 text-white mb-1">Accesso Fotocamera Necessario</p>
+          <p className="app-caption text-slate-400 max-w-xs mb-4 leading-relaxed">{error}</p>
+          <button
+            type="button"
+            onClick={() => { setError(null); setRetryCount(c => c + 1); }}
+            className="glass-button px-4 py-2 rounded-xl text-accent-cyan text-xs font-bold uppercase tracking-wider border border-cyan-400/30 flex items-center gap-1.5 hover:bg-cyan-400/10 transition-colors"
+          >
+            <RefreshCw size={14} /> Riprova
+          </button>
+        </div>
       )}
     </div>
   );

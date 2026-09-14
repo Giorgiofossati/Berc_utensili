@@ -41,9 +41,18 @@ export function ThemeProvider({ children }) {
     window.getComputedStyle(css).opacity;
 
     // Remove the style tag after a tiny delay
-    setTimeout(() => {
-      document.head.removeChild(css);
+    const timer = setTimeout(() => {
+      if (css.parentNode) {
+        css.parentNode.removeChild(css);
+      }
     }, 10);
+
+    return () => {
+      clearTimeout(timer);
+      if (css.parentNode) {
+        css.parentNode.removeChild(css);
+      }
+    };
   }, [isDarkMode]);
 
   const toggleTheme = () => setIsDarkMode(prev => !prev);
