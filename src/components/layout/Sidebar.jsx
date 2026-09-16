@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Database, History, Users, 
   LogOut, ArrowDown, ArrowUp,
-  Sun, Moon, X, HelpCircle, ClipboardList
+  Sun, Moon, X, HelpCircle, ClipboardList, Settings,
+  FolderKanban
 } from 'lucide-react';
 import { useTheme } from '../../lib/ThemeContext';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -44,7 +45,7 @@ const NavItem = ({ icon, label, onClick, className = "", isActive = false, badge
 );
 
 const SidebarContent = ({ 
-  setView, fetchHistory, setShowAddModal, onClose, view
+  setView, fetchHistory, setShowAddModal, setShowSettingsModal, onClose, view
 }) => {
   const { isDarkMode, toggleTheme } = useTheme();
   const currentUser = useAuthStore(state => state.currentUser);
@@ -142,6 +143,13 @@ const SidebarContent = ({
           />
 
           <NavItem 
+            icon={<FolderKanban size={16} />} 
+            label="Commesse" 
+            onClick={() => { setView('commesse'); if(onClose) onClose(); }} 
+            isActive={view === 'commesse'}
+          />
+
+          <NavItem 
             icon={<History size={16} />} 
             label="Storico Log" 
             onClick={() => { setView('history'); fetchHistory(); if(onClose) onClose(); }} 
@@ -170,9 +178,18 @@ const SidebarContent = ({
 
       {/* Footer / User Profile Card */}
       <div className="p-3 sm:p-4 border-t border-slate-200/50 dark:border-white/5 flex flex-col gap-2 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-4" data-tour="user-profile">
-         <div className="flex items-center justify-between px-2 py-2 bg-slate-50/50 dark:bg-slate-900/30 rounded-2xl border border-slate-200/30 dark:border-white/5 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-accent-blue to-blue-600 flex items-center justify-center text-white shadow-inner shrink-0">
+         <div className="flex items-center justify-between px-2.5 py-2 bg-slate-50/50 dark:bg-slate-900/30 rounded-2xl border border-slate-200/30 dark:border-white/5 shadow-sm">
+            {/* Clickable Profile Info Badge */}
+            <button
+              type="button"
+              onClick={() => {
+                if (setShowSettingsModal) setShowSettingsModal(true);
+                if (onClose) onClose();
+              }}
+              className="flex items-center gap-2.5 min-w-0 text-left hover:opacity-85 transition-opacity cursor-pointer group/user"
+              title="Apri Impostazioni Utente"
+            >
+              <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-accent-blue to-blue-600 flex items-center justify-center text-white shadow-inner shrink-0 group-hover/user:scale-105 transition-transform">
                 <span className="font-bold text-sm uppercase">{currentUser?.nome?.charAt(0) || 'U'}</span>
               </div>
               <div className="flex flex-col min-w-0">
@@ -181,19 +198,37 @@ const SidebarContent = ({
                   {/* Status Indicator Dot */}
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 </div>
-                <span className="app-body font-bold text-slate-800 dark:text-slate-100 truncate max-w-[110px] leading-none mt-1">{currentUser?.nome || 'Utente'}</span>
+                <span className="app-body font-bold text-slate-800 dark:text-slate-100 truncate max-w-[95px] sm:max-w-[110px] leading-none mt-1">{currentUser?.nome || 'Utente'}</span>
               </div>
-            </div>
+            </button>
             
-            <motion.button 
-              whileHover={{ rotate: 15, scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={toggleTheme}
-              className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-accent-orange transition-colors"
-              title="Cambia Tema"
-            >
-              {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
-            </motion.button>
+            {/* Action buttons: Rotellina Impostazioni & Cambio Tema */}
+            <div className="flex items-center gap-0.5 shrink-0">
+              <motion.button 
+                whileHover={{ rotate: 90, scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  if (setShowSettingsModal) setShowSettingsModal(true);
+                  if (onClose) onClose();
+                }}
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-accent-blue transition-colors cursor-pointer"
+                title="Impostazioni Utente"
+                aria-label="Impostazioni Utente"
+              >
+                <Settings size={16} />
+              </motion.button>
+
+              <motion.button 
+                whileHover={{ rotate: 15, scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={toggleTheme}
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-accent-orange transition-colors cursor-pointer"
+                title="Cambia Tema"
+                aria-label="Cambia Tema"
+              >
+                {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+              </motion.button>
+            </div>
          </div>
 
          <button 

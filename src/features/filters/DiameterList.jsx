@@ -79,10 +79,10 @@ const DiameterList = memo(({ diameters = [], tools = [], onSelect }) => {
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="p-0.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none transition-colors ml-1 cursor-pointer"
+                className="w-7 h-7 sm:w-8 sm:h-8 -mr-1 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none transition-colors ml-1 cursor-pointer shrink-0"
                 aria-label="Cancella ricerca"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             )}
           </div>

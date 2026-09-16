@@ -2,7 +2,18 @@ import { create } from 'zustand';
 
 export const useFilterStore = create((set) => ({
   filterStack: [],
-  viewMode: 'grid',
+  viewMode: (() => {
+    try {
+      const userStr = localStorage.getItem('berc_user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        const savedView = localStorage.getItem(`berc_viewMode_${user.id}`);
+        if (savedView) return savedView;
+        if (user.ruolo === 'Admin') return 'dropdown';
+      }
+    } catch {}
+    return 'grid';
+  })(),
   isSelectionMode: false,
   selectedToolsIds: [],
   searchQuery: '',

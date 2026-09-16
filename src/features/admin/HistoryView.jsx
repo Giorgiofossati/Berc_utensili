@@ -243,6 +243,27 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
       },
     }),
 
+    columnHelper.accessor(row => row.commesse?.codice || '', {
+      id: 'Commessa',
+      header: 'Commessa',
+      size: 110,
+      meta: { className: 'shrink-0 hidden lg:flex' },
+      sortingFn: (rowA, rowB, columnId) => {
+        return String(rowA.getValue(columnId) || '').localeCompare(String(rowB.getValue(columnId) || ''));
+      },
+      cell: info => {
+        const val = info.getValue();
+        if (!val) return <div className="w-full flex items-center justify-center"><span className="app-caption text-slate-400">—</span></div>;
+        return (
+          <div className="w-full h-full flex items-center justify-center px-2">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 app-caption font-mono font-medium text-slate-600 dark:text-slate-300 truncate max-w-[100px]" title={val}>
+              {val}
+            </span>
+          </div>
+        );
+      }
+    }),
+
     columnHelper.accessor('tipo_operazione', {
       header: 'Flusso',
       size: 95,
@@ -586,6 +607,15 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
                     <span className="app-overline text-slate-400 mb-1">Ubicazione</span>
                     <span className="app-body font-bold text-accent-orange truncate mt-1">
                       {selectedLog.Utensili_B1.Ubicazione}
+                    </span>
+                  </div>
+                )}
+
+                {selectedLog.commesse && (
+                  <div className="p-3 rounded-xl glass-panel dark:border-white/5 border-slate-900/10 flex flex-col col-span-2 sm:col-span-1">
+                    <span className="app-overline text-slate-400 mb-1">Commessa</span>
+                    <span className="app-body font-bold text-accent-blue truncate mt-1">
+                      {selectedLog.commesse.codice}
                     </span>
                   </div>
                 )}

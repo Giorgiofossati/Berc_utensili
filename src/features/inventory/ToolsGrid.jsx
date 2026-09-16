@@ -66,13 +66,13 @@ const ToolsGrid = memo(({
       columnHelper.accessor(row => buildDesc(row), {
         id: 'Descrizione',
         header: () => (
-          <div className="flex items-center gap-2 sm:gap-3 h-full pl-3 sm:pl-4 md:pl-6">
+          <div className="flex items-center gap-2 sm:gap-3 h-full pl-3 sm:pl-4 md:pl-6 min-w-0 overflow-hidden">
             {isSelectionMode && <div className="w-5 sm:w-6 flex-shrink-0" />}
             <div className="w-8 sm:w-9 md:w-10 flex-shrink-0" />
-            <span className="ml-1">Descrizione</span>
+            <span className="ml-1 truncate">Descrizione</span>
           </div>
         ),
-        meta: { isFlex: true },
+        meta: { isFlex: true, flex: '2.2 1 0%', minWidth: 220 },
         size: 0,
         sortingFn: (rowA, rowB, columnId) => {
           return String(rowA.getValue(columnId) || '').localeCompare(
@@ -84,7 +84,7 @@ const ToolsGrid = memo(({
         cell: info => {
           const tool = info.row.original;
           return (
-            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 h-full pl-3 sm:pl-4 md:pl-6">
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 h-full pl-3 sm:pl-4 md:pl-6 overflow-hidden">
               {isSelectionMode && (
                 <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center flex-shrink-0 w-5 sm:w-6">
                   <Checkbox
@@ -104,26 +104,35 @@ const ToolsGrid = memo(({
           );
         },
       }),
-      columnHelper.accessor('Quantità', {
-        header: 'QTY',
-        size: 64,
+      columnHelper.accessor('Codice', {
+        header: 'Codice Aziendale',
         sortingFn: (rowA, rowB, columnId) => {
-          const a = Number(rowA.getValue(columnId)) || 0;
-          const b = Number(rowB.getValue(columnId)) || 0;
-          return a - b;
+          return String(rowA.getValue(columnId) || '').localeCompare(
+            String(rowB.getValue(columnId) || ''),
+            undefined,
+            { numeric: true }
+          );
         },
-        meta: { className: 'shrink-0' },
-        cell: info => (
-          <div className="w-full truncate text-center">
-             <span className={`app-qty-sm ${Number(info.getValue()) > 0 ? 'text-accent-emerald' : 'text-accent-rose'}`}>
-              {info.getValue() || 0}
-            </span>
-          </div>
-        )
+        meta: { 
+          className: 'hidden xl:flex justify-center', 
+          isFlex: true, 
+          flex: '1.2 1 0%', 
+          minWidth: 195 
+        },
+        cell: info => {
+          const val = info.getValue();
+          if (!val) return <div className="w-full truncate text-center"><span className="text-slate-700 opacity-20">—</span></div>;
+          return (
+            <div className="w-full truncate text-center px-1">
+              <span className="badge badge-blue font-mono text-[11px] font-bold px-2.5 py-0.5 whitespace-nowrap tracking-tight">
+                {val}
+              </span>
+            </div>
+          );
+        }
       }),
       columnHelper.accessor('Ubicazione', {
         header: 'Ubicazione',
-        size: 120,
         sortingFn: (rowA, rowB, columnId) => {
           return String(rowA.getValue(columnId) || '').localeCompare(
             String(rowB.getValue(columnId) || ''), 
@@ -131,28 +140,43 @@ const ToolsGrid = memo(({
             { numeric: true }
           );
         },
-        meta: { className: 'hidden md:flex' },
+        meta: { 
+          className: 'hidden md:flex justify-center', 
+          isFlex: true, 
+          flex: '0.9 1 0%', 
+          minWidth: 115, 
+          maxWidth: 160 
+        },
         cell: info => {
           const val = info.getValue();
           if (!val) return <div className="w-full truncate text-center"><span className="text-slate-700 opacity-20">—</span></div>;
-          return <div className="w-full truncate text-center"><span className="badge badge-orange app-caption font-bold px-2.5 py-0.5">{val}</span></div>;
+          return (
+            <div className="w-full truncate text-center px-1">
+              <span className="badge badge-orange app-caption font-bold px-2.5 py-0.5 truncate inline-block max-w-full">
+                {val}
+              </span>
+            </div>
+          );
         }
       }),
       columnHelper.accessor('Stato', {
         header: 'Stato',
-        size: 100,
+        size: 105,
         sortingFn: (rowA, rowB, columnId) => {
           return String(rowA.getValue(columnId) || '').localeCompare(
             String(rowB.getValue(columnId) || '')
           );
         },
-        meta: { className: 'hidden md:flex' },
+        meta: { 
+          className: 'hidden lg:flex justify-center', 
+          minWidth: 100 
+        },
         cell: info => {
           const val = info.getValue();
           if (!val) return <div className="w-full truncate text-center"><span className="text-slate-700 opacity-20">—</span></div>;
           const isOk = val === 'Disponibile' || val === 'NUOVO';
           return (
-            <div className="w-full truncate text-center">
+            <div className="w-full truncate text-center px-1">
               <span className={`badge text-[10px] font-black px-2.5 py-0.5 ${isOk ? 'badge-emerald' : 'badge-rose'}`}>
                 {val}
               </span>
@@ -160,9 +184,8 @@ const ToolsGrid = memo(({
           );
         }
       }),
-      columnHelper.accessor('Fornitore', {
-        header: 'Fornitore',
-        size: 110,
+      columnHelper.accessor('Lavorazione', {
+        header: 'Lavorazione',
         sortingFn: (rowA, rowB, columnId) => {
           return String(rowA.getValue(columnId) || '').localeCompare(
             String(rowB.getValue(columnId) || ''),
@@ -170,29 +193,41 @@ const ToolsGrid = memo(({
             { numeric: true }
           );
         },
-        meta: { className: 'hidden md:flex' },
+        meta: { 
+          className: 'hidden 2xl:flex justify-center', 
+          isFlex: true, 
+          flex: '1 1 0%', 
+          minWidth: 115, 
+          maxWidth: 155 
+        },
         cell: info => {
           const val = info.getValue();
           if (!val) return <div className="w-full truncate text-center"><span className="text-slate-700 opacity-20">—</span></div>;
-          return <div className="w-full truncate text-center"><span className="app-caption font-bold">{val}</span></div>;
+          return (
+            <div className="w-full truncate text-center px-1">
+              <span className="badge dark:bg-slate-800 dark:text-slate-300 bg-slate-100 text-slate-700 border dark:border-white/10 border-slate-200 app-caption font-bold px-2.5 py-0.5 truncate inline-block max-w-full">
+                {val}
+              </span>
+            </div>
+          );
         }
       }),
-      columnHelper.accessor('Codice', {
-        header: 'Codice Aziendale',
-        size: 140,
+      columnHelper.accessor('Quantità', {
+        header: 'QTY',
+        size: 72,
         sortingFn: (rowA, rowB, columnId) => {
-          return String(rowA.getValue(columnId) || '').localeCompare(
-            String(rowB.getValue(columnId) || ''),
-            undefined,
-            { numeric: true }
-          );
+          const a = Number(rowA.getValue(columnId)) || 0;
+          const b = Number(rowB.getValue(columnId)) || 0;
+          return a - b;
         },
-        meta: { className: 'hidden md:flex' },
-        cell: info => {
-          const val = info.getValue();
-          if (!val) return <div className="w-full truncate text-center"><span className="text-slate-700 opacity-20">—</span></div>;
-          return <div className="w-full truncate text-center"><span className="badge badge-blue app-caption font-bold px-2.5 py-0.5">{val}</span></div>;
-        }
+        meta: { className: 'shrink-0 justify-center', minWidth: 64 },
+        cell: info => (
+          <div className="w-full truncate text-center pr-1 sm:pr-2">
+            <span className={`app-qty-sm ${Number(info.getValue()) > 0 ? 'text-accent-emerald' : 'text-accent-rose'}`}>
+              {info.getValue() || 0}
+            </span>
+          </div>
+        )
       })
     ];
   }, [isSelectionMode, selectedIds, onToggleSelect]);

@@ -87,7 +87,7 @@ const Header = memo(({ onOpenSidebar }) => {
           data-tour="search-tools"
           className="flex-1 max-w-2xl md:mx-auto relative flex items-center min-w-0"
         >
-          <div className="relative flex items-center w-full glass-panel rounded-[16px] md:rounded-[20px] bg-white/70 dark:bg-slate-900/70 border border-slate-200/60 dark:border-white/10 shadow-sm focus-within:border-accent-blue/60 focus-within:ring-2 focus-within:ring-accent-blue/20 transition-all px-3 sm:px-4 py-1.5 md:py-2">
+          <div className="relative flex items-center w-full glass-panel rounded-[16px] md:rounded-[20px] bg-white/70 dark:bg-slate-900/70 border border-slate-200/60 dark:border-white/10 shadow-sm focus-within:border-orange-500/60 focus-within:ring-2 focus-within:ring-orange-500/20 transition-all px-3 sm:px-4 py-1.5 md:py-2">
             <Search size={17} className="text-slate-400 dark:text-slate-500 mr-2.5 shrink-0 pointer-events-none" />
             
             <input
@@ -104,8 +104,9 @@ const Header = memo(({ onOpenSidebar }) => {
               <button
                 type="button"
                 onClick={clearSearchQuery}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors shrink-0 mr-1.5"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors shrink-0 mr-1 cursor-pointer"
                 title="Cancella ricerca"
+                aria-label="Cancella ricerca"
               >
                 <X size={15} />
               </button>

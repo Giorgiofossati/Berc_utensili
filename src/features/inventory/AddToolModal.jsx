@@ -1,6 +1,6 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { X, Save, Database, List, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Save, Database, List, CheckCircle2, ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -68,6 +68,7 @@ const CustomSelectField = ({
 };
 
 const AddToolModal = ({ onClose, onToolAdded, tools = [] }) => {
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const {
     isLoading,
     showSuccess,
@@ -111,7 +112,7 @@ const AddToolModal = ({ onClose, onToolAdded, tools = [] }) => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="app-caption uppercase tracking-widest text-slate-500 text-center"
+              className="app-body text-slate-500 dark:text-slate-400 text-center"
             >
               L'articolo è stato registrato nel sistema
             </motion.p>
@@ -136,21 +137,19 @@ const AddToolModal = ({ onClose, onToolAdded, tools = [] }) => {
             <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 md:p-8">
               <form id="add-tool-form" onSubmit={handleSubmit} className="flex flex-col gap-6 sm:gap-8">
                 <div className="p-5 sm:p-6 md:p-8 rounded-3xl bg-slate-950/5 dark:bg-white/5 border dark:border-white/5 border-slate-900/5 flex flex-col gap-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
-                  <div className="flex items-center gap-2 border-b dark:border-white/5 border-slate-900/5 pb-3">
-                    <span className="app-overline text-accent-blue bg-accent-blue/10 px-2 py-0.5 rounded">1</span>
-                    <h3 className="app-h3 uppercase tracking-wider dark:text-white text-slate-800">Informazioni Principali e Geometriche</h3>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b dark:border-white/5 border-slate-900/5 pb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="app-overline text-accent-blue bg-accent-blue/10 px-2 py-0.5 rounded">1</span>
+                      <h3 className="app-h3 uppercase tracking-wider dark:text-white text-slate-800">Informazioni Principali e Geometriche</h3>
+                    </div>
                   </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {/* Campi Essenziali Sempre Visibili */}
                     <CustomSelectField 
                       name="Tipologia" label="Tipologia"
                       value={formData.Tipologia} options={dbOptions.Tipologia}
                       isCustom={customInputFields.Tipologia} onCustomToggle={() => toggleCustomField('Tipologia')}
-                      onChange={handleChange}
-                    />
-                    <CustomSelectField 
-                      name="Forma" label="Forma" isVisible={isFieldVisible('Forma')}
-                      value={formData.Forma} options={dbOptions.Forma}
-                      isCustom={customInputFields.Forma} onCustomToggle={() => toggleCustomField('Forma')}
                       onChange={handleChange}
                     />
                     <CustomSelectField 
@@ -160,37 +159,9 @@ const AddToolModal = ({ onClose, onToolAdded, tools = [] }) => {
                       onChange={handleChange}
                     />
                     <CustomSelectField 
-                      name="Tolleranza" label="Tolleranza" isVisible={isFieldVisible('Tolleranza')} customPlaceholder="es. H7"
-                      value={formData.Tolleranza} options={dbOptions.Tolleranza}
-                      isCustom={customInputFields.Tolleranza} onCustomToggle={() => toggleCustomField('Tolleranza')}
-                      onChange={handleChange}
-                    />
-                    
-                    {isFieldVisible('Lunghezza') && (
-                      <div className="flex flex-col gap-1.5">
-                        <label className="app-overline text-slate-600 dark:text-slate-300 px-1">Lunghezza (Opzionale)</label>
-                        <div className="border border-slate-900/[0.08] dark:border-white/[0.08] bg-slate-950/[0.01] dark:bg-white/[0.01] p-2 rounded-2xl focus-within:border-accent-blue/30 focus-within:bg-white/[0.03] transition-all">
-                          <Input type="text" name="Lunghezza" value={formData.Lunghezza} onChange={handleChange} className={`glass-input w-full p-3.5 h-auto border-none shadow-none bg-transparent rounded-xl focus-visible:ring-1 focus-visible:ring-accent-blue transition-all ${formData.Lunghezza ? 'font-bold text-text-main' : 'font-normal text-text-main/40'}`} placeholder="es. 150mm" />
-                        </div>
-                      </div>
-                    )}
-
-                    <CustomSelectField 
                       name="Ubicazione" label="Ubicazione"
                       value={formData.Ubicazione} options={dbOptions.Ubicazione}
                       isCustom={customInputFields.Ubicazione} onCustomToggle={() => toggleCustomField('Ubicazione')}
-                      onChange={handleChange}
-                    />
-                    <CustomSelectField 
-                      name="Materiale" label="Materiale"
-                      value={formData.Materiale} options={dbOptions.Materiale}
-                      isCustom={customInputFields.Materiale} onCustomToggle={() => toggleCustomField('Materiale')}
-                      onChange={handleChange}
-                    />
-                    <CustomSelectField 
-                      name="Rivestimento" label="Rivestimento"
-                      value={formData.Rivestimento} options={dbOptions.Rivestimento}
-                      isCustom={customInputFields.Rivestimento} onCustomToggle={() => toggleCustomField('Rivestimento')}
                       onChange={handleChange}
                     />
                     <CustomSelectField 
@@ -199,30 +170,89 @@ const AddToolModal = ({ onClose, onToolAdded, tools = [] }) => {
                       isCustom={customInputFields.Fornitore} onCustomToggle={() => toggleCustomField('Fornitore')}
                       onChange={handleChange}
                     />
-                    <CustomSelectField 
-                      name="Lavorazione" label="Lavorazione"
-                      value={formData.Lavorazione} options={dbOptions.Lavorazione}
-                      isCustom={customInputFields.Lavorazione} onCustomToggle={() => toggleCustomField('Lavorazione')}
-                      onChange={handleChange}
-                    />
-                    <CustomSelectField 
-                      name="Passo" label="Passo" isVisible={isFieldVisible('Passo')} customPlaceholder="es. 1.5"
-                      value={formData.Passo} options={dbOptions.Passo}
-                      isCustom={customInputFields.Passo} onCustomToggle={() => toggleCustomField('Passo')}
-                      onChange={handleChange}
-                    />
-                    <CustomSelectField 
-                      name="Raggio" label="Raggio" isVisible={isFieldVisible('Raggio')} customPlaceholder="es. R0.5"
-                      value={formData.Raggio} options={dbOptions.Raggio}
-                      isCustom={customInputFields.Raggio} onCustomToggle={() => toggleCustomField('Raggio')}
-                      onChange={handleChange}
-                    />
-                    <CustomSelectField 
-                      name="Angolo" label="Angolo" isVisible={isFieldVisible('Angolo')} customPlaceholder="es. 90°"
-                      value={formData.Angolo} options={dbOptions.Angolo}
-                      isCustom={customInputFields.Angolo} onCustomToggle={() => toggleCustomField('Angolo')}
-                      onChange={handleChange}
-                    />
+                  </div>
+                  
+                  {/* Accordion Attributi Avanzati */}
+                  <div className="mt-2 border border-slate-900/10 dark:border-white/10 rounded-2xl overflow-hidden bg-slate-950/5 dark:bg-white/5">
+                    <button
+                      type="button"
+                      onClick={() => setIsAccordionOpen(!isAccordionOpen)}
+                      className="w-full flex items-center justify-between p-4 bg-transparent hover:bg-slate-900/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3">
+                        <h3 className="app-h3 uppercase tracking-wider dark:text-white text-slate-800">Attributi Avanzati</h3>
+                        <span className="app-caption bg-accent-blue/10 text-accent-blue px-2 py-0.5 rounded-full font-bold">+9</span>
+                      </div>
+                      <ChevronDown 
+                        size={20} 
+                        className={`text-slate-500 transition-transform duration-300 ${isAccordionOpen ? 'rotate-180' : ''}`} 
+                      />
+                    </button>
+                    
+                    {isAccordionOpen && (
+                      <div className="p-4 border-t border-slate-900/10 dark:border-white/10">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                          <CustomSelectField 
+                            name="Forma" label="Forma" 
+                            value={formData.Forma} options={dbOptions.Forma}
+                            isCustom={customInputFields.Forma} onCustomToggle={() => toggleCustomField('Forma')}
+                            onChange={handleChange}
+                          />
+                          <CustomSelectField 
+                            name="Tolleranza" label="Tolleranza" 
+                            customPlaceholder="es. H7"
+                            value={formData.Tolleranza} options={dbOptions.Tolleranza}
+                            isCustom={customInputFields.Tolleranza} onCustomToggle={() => toggleCustomField('Tolleranza')}
+                            onChange={handleChange}
+                          />
+                          <div className="flex flex-col gap-1.5">
+                            <label className="app-overline text-slate-600 dark:text-slate-300 px-1">Lunghezza (Opzionale)</label>
+                            <div className="border border-slate-900/[0.08] dark:border-white/[0.08] bg-slate-950/[0.01] dark:bg-white/[0.01] p-2 rounded-2xl focus-within:border-accent-blue/30 focus-within:bg-white/[0.03] transition-all">
+                              <Input type="text" name="Lunghezza" value={formData.Lunghezza} onChange={handleChange} className={`glass-input w-full p-3.5 h-auto border-none shadow-none bg-transparent rounded-xl focus-visible:ring-1 focus-visible:ring-accent-blue transition-all ${formData.Lunghezza ? 'font-bold text-text-main' : 'font-normal text-text-main/40'}`} placeholder="es. 150mm" />
+                            </div>
+                          </div>
+                          <CustomSelectField 
+                            name="Materiale" label="Materiale"
+                            value={formData.Materiale} options={dbOptions.Materiale}
+                            isCustom={customInputFields.Materiale} onCustomToggle={() => toggleCustomField('Materiale')}
+                            onChange={handleChange}
+                          />
+                          <CustomSelectField 
+                            name="Rivestimento" label="Rivestimento"
+                            value={formData.Rivestimento} options={dbOptions.Rivestimento}
+                            isCustom={customInputFields.Rivestimento} onCustomToggle={() => toggleCustomField('Rivestimento')}
+                            onChange={handleChange}
+                          />
+                          <CustomSelectField 
+                            name="Lavorazione" label="Lavorazione"
+                            value={formData.Lavorazione} options={dbOptions.Lavorazione}
+                            isCustom={customInputFields.Lavorazione} onCustomToggle={() => toggleCustomField('Lavorazione')}
+                            onChange={handleChange}
+                          />
+                          <CustomSelectField 
+                            name="Passo" label="Passo" 
+                            customPlaceholder="es. 1.5"
+                            value={formData.Passo} options={dbOptions.Passo}
+                            isCustom={customInputFields.Passo} onCustomToggle={() => toggleCustomField('Passo')}
+                            onChange={handleChange}
+                          />
+                          <CustomSelectField 
+                            name="Raggio" label="Raggio" 
+                            customPlaceholder="es. R0.5"
+                            value={formData.Raggio} options={dbOptions.Raggio}
+                            isCustom={customInputFields.Raggio} onCustomToggle={() => toggleCustomField('Raggio')}
+                            onChange={handleChange}
+                          />
+                          <CustomSelectField 
+                            name="Angolo" label="Angolo" 
+                            customPlaceholder="es. 90°"
+                            value={formData.Angolo} options={dbOptions.Angolo}
+                            isCustom={customInputFields.Angolo} onCustomToggle={() => toggleCustomField('Angolo')}
+                            onChange={handleChange}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 

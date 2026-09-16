@@ -7,8 +7,10 @@ export const useMultiMovementStore = create((set, get) => ({
   items: [],
   batchOpType: 'scarico', // 'scarico' | 'carico'
   isExecuting: false,
+  selectedCommessaId: null,
 
   setBatchOpType: (type) => set({ batchOpType: type }),
+  setSelectedCommessaId: (id) => set({ selectedCommessaId: id }),
 
   addItem: (tool, qty = 1) => {
     if (!tool || !tool.id) return;
@@ -51,10 +53,34 @@ export const useMultiMovementStore = create((set, get) => ({
     }));
   },
 
-  clearItems: () => set({ items: [] }),
+  clearItems: () => set({ items: [], selectedCommessaId: null }),
 
-  executeMultiMovement: async (showToastNotification, onSuccess) => {
+  executeMultiMovement: async (arg1, arg2, arg3) => {
+    let showToastNotification;
+    let onSuccess;
+    let commessaId = undefined;
+
+    if (typeof arg1 === 'function') {
+      showToastNotification = arg1;
+      if (typeof arg2 === 'function') {
+        onSuccess = arg2;
+        commessaId = arg3;
+      } else if (typeof arg2 === 'string' || arg2 === null) {
+        commessaId = arg2;
+        onSuccess = typeof arg3 === 'function' ? arg3 : null;
+      }
+    } else if (typeof arg1 === 'string' || arg1 === null) {
+      commessaId = arg1;
+      showToastNotification = typeof arg2 === 'function' ? arg2 : null;
+      onSuccess = typeof arg3 === 'function' ? arg3 : null;
+    } else if (typeof arg1 === 'object' && arg1 !== null) {
+      showToastNotification = arg1.showToastNotification;
+      onSuccess = arg1.onSuccess;
+      commessaId = arg1.commessaId;
+    }
+
     const state = get();
+    const targetCommessaId = commessaId !== undefined ? commessaId : state.selectedCommessaId;
     const { items, batchOpType, isExecuting } = state;
     if (isExecuting) return;
 
@@ -125,12 +151,14 @@ export const useMultiMovementStore = create((set, get) => ({
       const payload = items.map(item => ({
         tool_id: item.tool.id,
         quantity: item.quantity,
-        op_type: item.opType || batchOpType
+        op_type: item.opType || batchOpType,
+        commessa_id: item.commessa_id || targetCommessaId || null
       }));
 
       const { error: rpcErr } = await supabase.rpc('handle_multi_movement', {
         p_items: payload,
-        p_operator: operatorName
+        p_operator: operatorName,
+        p_commessa_id: targetCommessaId || null
       });
 
       if (rpcErr) {
@@ -154,9 +182,10 @@ export const useMultiMovementStore = create((set, get) => ({
               .from('movements_history')
               .insert({
                 tool_id: item.tool.id,
-                op_type: item.opType || batchOpType,
-                quantity: item.quantity,
-                operator: operatorName,
+                tipo_operazione: item.opType || batchOpType,
+                quantita: item.quantity,
+                operatore: operatorName,
+                commessa_id: item.commessa_id || targetCommessaId || null,
                 created_at: new Date().toISOString()
               });
           }
@@ -173,7 +202,7 @@ export const useMultiMovementStore = create((set, get) => ({
         );
       }
 
-      set({ items: [] });
+      set({ items: [], selectedCommessaId: null });
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error('Errore durante executeMultiMovement:', err);

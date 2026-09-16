@@ -17,6 +17,7 @@ import { useFilters } from './hooks/useFilters';
 const HistoryView = lazy(() => import('./features/admin/HistoryView'));
 const ScannerView = lazy(() => import('./features/scanner/ScannerView'));
 const OperatorsView = lazy(() => import('./features/admin/OperatorsView'));
+const CommesseView = lazy(() => import('./features/admin/CommesseView'));
 
 // Standard imports for critical core UI to guarantee instant rendering and eliminate PWA logout chunk failures
 import Sidebar from './components/layout/Sidebar';
@@ -30,6 +31,7 @@ import ToolsGrid from './features/inventory/ToolsGrid';
 import DropdownFilterView from './features/filters/DropdownFilterView';
 import AddToolModal from './features/inventory/AddToolModal';
 import OrderModal from './features/inventory/OrderModal';
+import UserSettingsModal from './features/auth/UserSettingsModal';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import AppTutorial from './components/common/AppTutorial';
 import HelpFloatingButton from './components/common/HelpFloatingButton';
@@ -48,19 +50,19 @@ function App() {
   const {
     filterStack, setFilterStack,
     viewMode, setViewMode,
-    selectedToolsIds, setSelectedToolsIds, toggleToolSelection,
+    selectedToolsIds, setSelectedToolsIds,
     filteredByStack, options, diameters, finalTools, currentLevel,
     handleSelectOption, handleSelectDiameter, resetFilters, breadcrumbText
   } = useFilters();
 
   const [toast, setToast] = useState(null);
+  const toastTimerRef = useRef(null);
   const showToastNotification = useCallback((msg, type = 'success') => {
-    if (typeof msg === 'object' && msg !== null) {
-      setToast(msg);
-    } else {
-      setToast({ message: msg, type });
-    }
-    setTimeout(() => setToast(null), 4000);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    const toastObj = typeof msg === 'object' && msg !== null ? msg : { message: msg, type };
+    setToast(toastObj);
+    const duration = toastObj.onUndo ? 6000 : 4000;
+    toastTimerRef.current = setTimeout(() => setToast(null), duration);
   }, []);
 
   const setOpType = useMovementStore(state => state.setOpType);
@@ -82,9 +84,36 @@ function App() {
     }
   }, [currentUser, view, setView]);
 
+  // Sincronizzazione route '/commesse'
+  useEffect(() => {
+    if (window.location.pathname === '/commesse') {
+      setView('commesse');
+    }
+    const handlePopState = () => {
+      if (window.location.pathname === '/commesse') {
+        setView('commesse');
+      } else {
+        setView('home');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [setView]);
+
+  useEffect(() => {
+    if (view === 'commesse') {
+      if (window.location.pathname !== '/commesse') {
+        window.history.pushState(null, '', '/commesse');
+      }
+    } else if (window.location.pathname === '/commesse') {
+      window.history.pushState(null, '', '/');
+    }
+  }, [view]);
+
   const [history, setHistory] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showSidebarMobile, setShowSidebarMobile] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -123,7 +152,7 @@ function App() {
 
   const fetchHistory = async () => {
     try {
-      const { data } = await supabase.from('movements_history').select('*, Utensili_B1(*)').order('created_at', { ascending: false });
+      const { data } = await supabase.from('movements_history').select('*, Utensili_B1(*), commesse(codice, ubicazione)').order('created_at', { ascending: false });
       setHistory(data || []);
     } catch(e) {
       console.error(e);
@@ -194,6 +223,7 @@ function App() {
         setView={setView}
         fetchHistory={fetchHistory}
         setShowAddModal={setShowAddModal}
+        setShowSettingsModal={setShowSettingsModal}
         view={view}
       />
 
@@ -309,6 +339,13 @@ function App() {
                   </Suspense>
                 </ErrorBoundary>
               )}
+              {view === 'commesse' && (
+                <ErrorBoundary>
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+                    <CommesseView key="commesse" setView={setView} showToastNotification={showToastNotification} />
+                  </Suspense>
+                </ErrorBoundary>
+              )}
               {view === 'multimovement' && (
                 <ErrorBoundary>
                   <MultiMovementView showToastNotification={showToastNotification} />
@@ -344,12 +381,12 @@ function App() {
         </AnimatePresence>
         
         <AnimatePresence>
-            {showMoveModal && <MovementModal key="move-modal" setShowMoveModal={(val) => { setShowMoveModal(val); if (!val) setIsBulkMode(false); }} onConfirm={() => {
+            {showMoveModal && <MovementModal key="move-modal" setShowMoveModal={(val) => { setShowMoveModal(val); if (!val) setIsBulkMode(false); }} onConfirm={(commessaId) => {
               handleMovement(showToastNotification, () => {
                 setShowMoveModal(false);
                 setSelectedToolsIds([]);
                 setIsBulkMode(false);
-              });
+              }, commessaId);
             }} onOpenOrder={() => setShowOrderModal(true)} />}
             {showAddModal && <AddToolModal key="add-modal" tools={tools} onClose={() => setShowAddModal(false)} onToolAdded={fetchTools} currentUser={currentUser} />}
             {showOrderModal && (
@@ -359,6 +396,13 @@ function App() {
                 onClose={() => setShowOrderModal(false)} 
                 currentUser={currentUser}
                 onSuccess={(msg) => showToastNotification(msg, 'success')} 
+              />
+            )}
+            {showSettingsModal && (
+              <UserSettingsModal
+                key="settings-modal"
+                isOpen={showSettingsModal}
+                onClose={() => setShowSettingsModal(false)}
               />
             )}
         </AnimatePresence>
@@ -388,7 +432,7 @@ function App() {
                     <CheckCircle2 size={20} />
                   )}
                 </div>
-                <div className="flex flex-col min-w-0 pr-1">
+                <div className="flex flex-col min-w-0 pr-1 flex-1">
                   <p className={`text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 ${
                     toast.type === 'error'
                       ? 'text-accent-rose'
@@ -402,6 +446,19 @@ function App() {
                     {toast.message || toast}
                   </p>
                 </div>
+                {toast.onUndo && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const undoFn = toast.onUndo;
+                      setToast(null);
+                      undoFn();
+                    }}
+                    className="ml-auto px-3 py-1.5 rounded-xl bg-accent-orange/15 hover:bg-accent-orange/25 border border-accent-orange/30 text-accent-orange text-[10px] sm:text-xs font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer shrink-0"
+                  >
+                    Annulla
+                  </button>
+                )}
               </div>
             </motion.div>
           )}

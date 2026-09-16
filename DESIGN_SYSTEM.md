@@ -1,7 +1,8 @@
 # Design System: Bercella Utensili CNC
 
 Documento di riferimento ufficiale per l'interfaccia utente di **Bercella Utensili**.  
-Qualsiasi nuova schermata, componente o modifica deve conformarsi **rigorosamente** a queste specifiche, senza introdurre stili arbitrari o deviazioni.
+Qualsiasi nuova schermata, componente o modifica deve conformarsi **rigorosamente** a queste specifiche, senza introdurre stili arbitrari o deviazioni.  
+> **Standard Scientifici & Self-Audit:** Consulta [`SYSTEM_AUDIT_RULES.md`](./SYSTEM_AUDIT_RULES.md) per le basi matematiche ed ergonomiche (Fitts, Hick, Miller, ISO 9241, WCAG 2.1 AA) e la checklist di validazione obbligatoria per agenti.
 
 ---
 
@@ -127,20 +128,35 @@ Tutti i testi dell'applicazione **devono utilizzare esclusivamente le classi sem
   - QTY: `size: 64` (o `70px`), fissa, centrata.
   - Ubicazione / Fornitore / Stato: `size: 100-140px`, fisse.
 
-### D. Modali & Dialog (Allineamento Rigoroso & Struttura a 3 Livelli)
+### D. Modali & Dialog (Scala Dimensionale Standard & Struttura a 3 Livelli)
 - **Standard Obbligatorio:** Utilizzare sempre `@/components/ui/dialog` basato su Radix UI. Non creare div full-screen con overlay manuali (evita rotture di focus trap e scroll-lock).
-- **Divieto di Pulsanti 'X' Fluttuanti (`showCloseButton={false}`):**
-  - Nei modali shadcn, impostare SEMPRE `showCloseButton={false}` su `<DialogContent>` per impedire che il pulsante 'X' di default (`absolute top-2 right-2`) galleggi staccato e disallineato nell'angolo del popup.
-  - Inserire il pulsante di chiusura (`X`) direttamente nella riga flex dell'Header del modale: `flex items-center justify-between gap-3 w-full pb-3 border-b border-slate-200/60 dark:border-white/10`.
-- **Allineamento Header Millimetrico:**
-  - **Sinistra:** Icona in box proporzionato (es. `w-10 h-10 rounded-[14px] bg-accent-blue/10 border border-accent-blue/25`).
-  - **Centro:** Titolo (`.app-h2` o `font-black uppercase`) + Badge di stato (`inline-flex items-center gap-1.5 leading-none`) allineati sulla stessa linea di base.
-  - **Sottotitolo:** Inter sans-serif (`text-xs text-slate-500 font-medium leading-normal mt-1`), MAI `font-mono` e MAI `truncate` su frasi intere (vietate le troncature a metà parola tipo "dell'uten...").
-  - **Destra:** Tasto Chiudi (`X`) allineato verticalmente con l'icona e il titolo.
-- **Divieto di Scatole Annidate ("Box in a Box"):**
-  - Non inserire contenitori grigi intermedi con bordi spuri dentro un modale. Il contenuto primario (es. mirino fotocamera o form) deve occupare proporzioni pulite native (es. `aspect-[4/3]`) senza involucri ridondanti.
-- **Divieto di Testi Sparsi / Ridondanti:**
-  - Un'unica voce autorevole per le istruzioni nell'Header. Vietato duplicare messaggi ("Scanner attivo", "Inquadra...") sparsi sopra o sotto gli elementi interattivi.
+- **Risoluzione Automatica `max-w` (`dialog.jsx`):** `<DialogContent>` non deve mai forzare classi restrittive (come `sm:max-w-sm`) sopra le classi dell'interfaccia. La classe di default `sm:max-w-lg` si disattiva automaticamente se il modale definisce un proprio `max-w-*` o `sm:max-w-*`.
+
+#### Scala Dimensionale Ufficiale dei Modali (Modal Sizing Tiers)
+| Tier | Classe Tailwind | Larghezza Pixel | Utilizzo e Casi d'Uso | Struttura Interna & Layout |
+| :--- | :--- | :--- | :--- | :--- |
+| **Tier 1: Alert & Conferme** | `w-[94vw] sm:w-full max-w-md sm:max-w-md` | ~448px | Dialoghi di conferma eliminazione, alert distruttivi, richieste rapide di sicurezza. | Colonna singola centrata, padding `p-6 sm:p-8`, 2 bottoni (Annulla / Azione). |
+| **Tier 2: Form Operativi** | `w-[95vw] sm:w-full sm:max-w-2xl md:max-w-3xl` | ~672px – 768px | Form anagrafici, gestione commesse, configurazioni utente, schede con 3-6 campi. | Griglia 2 colonne su desktop (`sm:grid-cols-2`), textarea full-width, selettori stato a card touch (`min-h-[56px]`), padding `p-6 sm:p-8`. |
+| **Tier 3: Dettaglio Tecnico** | `w-[95vw] sm:w-full sm:max-w-3xl md:max-w-4xl` | ~768px – 896px | Modale Movimento Utensile (`MovementModal`), carrelli d'ordine, analisi lotti. | Hero centrale con QTY grande, stepper numerici ergonomici, form movimento, padding `p-6 sm:p-8 md:p-10`. |
+| **Tier 4: Catalogo & Distinte** | `w-[96vw] max-w-6xl md:max-w-7xl h-[88dvh]` | ~1152px – 1280px | Ricerca e aggiunta utensili a distinta (`AddToolToMultiModal`), selezione tabellare massiva. | Griglia TanStack Table v8 integrata, ricerca live fissa, virtualizzazione, full-height. |
+
+#### Regole Ergonomiche di Padding, Titoli e Bottoni Modali
+1. **Zero Troncature Arbitrarie nei Titoli:**
+   - È severamente vietato troncare con `truncate` i titoli operativi dei modali su frasi o codici brevi (es. mai generare "MODIFICA COMME...").
+   - Quando il titolo include un codice aziendale o identificativo, separare visivamente il tipo di azione (`.app-h2`) dal codice, formattando quest'ultimo in un badge mono dedicato: `<span className="app-caption font-mono px-2.5 py-0.5 rounded-lg bg-accent-blue/10 text-accent-blue font-black">{codice}</span>`.
+2. **Zero Text Wrapping sui Bottoni di Azione Principale:**
+   - I pulsanti di salvataggio/conferma (es. "SALVA MODIFICHE", "CONFERMA E CREA") **non devono mai spezzarsi su due righe**. Utilizzare sempre `whitespace-nowrap font-black tracking-wider` e assicurare spazio sufficiente nel container footer.
+3. **Divieto di Pulsanti 'X' Fluttuanti (`showCloseButton={false}`):**
+   - Nei modali shadcn, impostare SEMPRE `showCloseButton={false}` su `<DialogContent>` per impedire che il pulsante 'X' di default (`absolute top-2 right-2`) galleggi staccato e disallineato nell'angolo del popup.
+   - Inserire il pulsante di chiusura (`X`) direttamente nella riga flex dell'Header del modale, allineato orizzontalmente con icona e titolo, con touch target garantito $\ge 44\times 44\text{px}$ (`min-w-[44px] min-h-[44px] w-11 h-11 rounded-2xl`).
+4. **Allineamento Header Millimetrico:**
+   - **Sinistra:** Icona in box proporzionato (`w-12 h-12 rounded-[18px] bg-accent-blue/10 border border-accent-blue/20 text-accent-blue shadow-xs`).
+   - **Centro:** Overline tematico (`.app-overline`) + Eventuale badge di stato (es. pill verde `Attiva`) + Titolo gerarchico (`.app-h2`) + Sottotitolo descrittivo (`.app-body text-xs sm:text-sm text-slate-500 mt-0.5`).
+   - **Destra:** Tasto Chiudi (`X`) allineato verticalmente.
+5. **Divieto di Scatole Annidate ("Box in a Box"):**
+   - Non inserire contenitori grigi intermedi con bordi spuri dentro un modale. Il contenuto primario deve respirare direttamente sulla superficie glass principale.
+6. **Divieto di Testi Sparsi / Ridondanti:**
+   - Un'unica voce autorevole per le istruzioni nell'Header. Vietato duplicare messaggi sparsi sopra o sotto gli elementi interattivi.
 
 ### E. Form & Campi di Input
 - **Touch-Friendly & No Auto-Zoom iOS:** Tutti gli input di testo devono avere `text-sm` (almeno 14-16px) per prevenire lo zoom automatico di Safari su iPhone.
@@ -160,7 +176,37 @@ Tutti i testi dell'applicazione **devono utilizzare esclusivamente le classi sem
 
 ---
 
-## 6. Checklist di Controllo Qualità per ogni Modifica
+## 6. Gerarchia delle Azioni (Scala di Enfasi)
+
+> **Perché esiste questa sezione:** ad ogni nuova funzione aggiunta si ripeteva lo stesso problema — troppi pulsanti a pari peso visivo, senza gerarchia, che rendono la vista pesante e poco leggibile (es. `CommesseView`: card con 4 punti di interazione sovrapposti; `MovementModal`: 3 pulsanti identici per Deposita/Preleva/Crea Ordine). Questa non è una nuova palette o un nuovo stile: è una **regola su quando usare quale peso visivo** tra quelli già esistenti.
+
+### Regola Fondamentale
+> **In ogni vista o modale può esistere UNA sola azione Primaria attiva alla volta.**  
+> Le azioni distruttive (elimina, chiudi commessa, disattiva) non sono **mai** Primarie: al massimo Secondarie, di norma relegate a un'azione Icona dentro un menu `⋮`.
+
+### I 4 Livelli di Enfasi
+| Livello | Stile | Quando usarlo |
+| :--- | :--- | :--- |
+| **1. Primaria** | Fill pieno (`.action-btn-carica/-scarica/-primary/-order`), massimo peso visivo. | L'unica azione "consigliata" della vista/modale (es. Salva, Conferma). Se un contesto ha due azioni realmente complementari e a pari dignità (es. Deposita/Preleva), **entrambe** possono restare a peso Primario: non è una gerarchia tra loro, ma tra loro e le azioni accessorie. |
+| **2. Secondaria** | Outline, stesso ingombro del bottone Primario ma senza fill. | Alternativa valida ma non prioritaria (es. Duplica, Esporta) oppure un'azione Primaria "orfana" quando è l'unica disponibile nel contesto (es. Crea Ordine su un articolo esaurito). |
+| **3. Terziaria** | Solo testo + icona, nessun bordo/sfondo. | Azioni poco frequenti o di navigazione, che devono restare visibili ma non competere con le azioni principali (es. Crea Ordine quando Deposita/Preleva sono già presenti, Vedi Storico). |
+| **4. Icona** | Icon-button 44×44px minimo, glass o ghost, sempre con `aria-label`/tooltip. | Azioni di utility su card/righe (modifica, elimina, cambia stato). **Oltre 2 azioni icona sulla stessa card → raggrupparle in un menu `⋮`** invece di affiancarle. |
+
+### Applicazioni di Riferimento (già implementate)
+- **`MovementModal.jsx` — Step "Dettaglio":** Deposita e Preleva restano Livello 1 (a pari peso, sono operazioni complementari); "Crea Ordine" è sceso a Livello 3 (solo testo+icona) quando le prime due sono visibili, oppure sale a Livello 2 (outline) quando è l'unica azione disponibile (articolo esaurito).
+- Le mockup comparative delle 3 alternative valutate (Overflow / Peso Differenziato / Flusso Progressivo) prima di scegliere questo approccio sono in [`docs/design/screenshots/02-gerarchia-azioni.png`](./docs/design/screenshots/02-gerarchia-azioni.png).
+
+### Reference visivo (screenshot dei prototipi)
+| File | Contenuto |
+| :--- | :--- |
+| [`docs/design/screenshots/01-style-guide.png`](./docs/design/screenshots/01-style-guide.png) | Palette, tipografia, componenti glass/badge e la Scala di Enfasi a colpo d'occhio. |
+| [`docs/design/screenshots/02-gerarchia-azioni.png`](./docs/design/screenshots/02-gerarchia-azioni.png) | I 3 approcci a confronto valutati per `MovementModal` prima di applicare "Peso Differenziato". |
+| [`docs/design/screenshots/03-commesse-redesign.png`](./docs/design/screenshots/03-commesse-redesign.png) | `CommesseView`: Prima (4 affordance ridondanti) → Dopo (click unico + badge + menu `⋮`) — redesign non ancora applicato al codice. |
+| [`docs/design/screenshots/04-addtool-redesign.png`](./docs/design/screenshots/04-addtool-redesign.png) | `AddToolModal`: Prima (toggle piatto "mostra tutto") → Dopo (accordion "Attributi Avanzati") — redesign non ancora applicato al codice. |
+
+---
+
+## 7. Checklist di Controllo Qualità per ogni Modifica
 
 Prima di considerare conclusa qualsiasi modifica o nuova feature, verificare:
 1. [ ] **Nessun colore `indigo`** presente nel codice aggiunto o modificato.

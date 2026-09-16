@@ -36,42 +36,52 @@ export const VirtualizedTable = memo(({
   return (
     <div
       ref={parentRef}
-      className={`overflow-y-auto custom-scrollbar overflow-x-hidden md:overflow-x-auto flex-1 min-h-0 relative w-full flex flex-col ${className}`}
+      className={`overflow-y-auto custom-scrollbar overflow-x-auto flex-1 min-h-0 relative w-full flex flex-col ${className}`}
     >
       {/* Sticky Header */}
       {rows.length > 0 && (
-        <div className="sticky top-0 z-[10] border-b dark:border-white/10 border-slate-900/10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur flex w-full shrink-0 shadow-sm">
+        <div className="sticky top-0 z-[10] border-b dark:border-white/10 border-slate-900/10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur flex min-w-full w-fit md:w-full shrink-0 shadow-sm">
           {table.getHeaderGroups().map((headerGroup) => (
             <div
               key={headerGroup.id}
-              className="flex flex-1 w-full app-overline dark:text-slate-400 text-slate-600 select-none"
+              className="flex flex-1 min-w-full app-overline dark:text-slate-400 text-slate-600 select-none"
             >
               {headerGroup.headers.map((header) => {
+                const meta = header.column.columnDef.meta;
                 const isFlex =
-                  header.column.columnDef.meta?.isFlex ??
+                  meta?.isFlex ??
                   header.column.columnDef.size === 0;
                 const colSize = header.getSize();
                 const canSort = header.column.getCanSort();
-                const customSortIcon = header.column.columnDef.meta?.customSortIcon;
+                const customSortIcon = meta?.customSortIcon;
+                const minWidth = meta?.minWidth 
+                  ? `${meta.minWidth}px` 
+                  : (isFlex ? '180px' : `${colSize}px`);
+                const flexStyle = meta?.flex || (isFlex ? '1 1 0%' : undefined);
+                const maxWidth = meta?.maxWidth 
+                  ? `${meta.maxWidth}px` 
+                  : (isFlex ? undefined : `${colSize}px`);
+                const width = isFlex ? undefined : `${colSize}px`;
 
                 return (
                   <div
                     key={header.id}
-                    className={`flex items-center gap-2 py-2.5 transition-colors group relative ${
+                    className={`flex items-center gap-2 py-2.5 transition-colors group relative overflow-hidden ${
                       canSort ? 'cursor-pointer hover:text-slate-900 dark:hover:text-slate-200' : ''
-                    } ${header.column.columnDef.meta?.className || ''} ${
-                      isFlex ? 'flex-1 min-w-0' : 'flex-shrink-0 justify-center'
+                    } ${meta?.className || ''} ${
+                      isFlex ? 'min-w-0' : 'flex-shrink-0 justify-center'
                     }`}
                     style={{
-                      width: isFlex ? undefined : `${colSize}px`,
-                      maxWidth: isFlex ? undefined : `${colSize}px`,
-                      minWidth: isFlex ? '0px' : `${colSize}px`,
+                      flex: flexStyle,
+                      width: width,
+                      maxWidth: maxWidth,
+                      minWidth: minWidth,
                     }}
                     onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
                   >
                     {flexRender(header.column.columnDef.header, header.getContext())}
                     {canSort && !customSortIcon && (
-                      <div className={`flex items-center ${isFlex ? 'ml-2' : 'absolute right-1 sm:right-2'}`}>
+                      <div className={`flex items-center shrink-0 ${isFlex ? 'ml-1.5' : 'absolute right-1 sm:right-2'}`}>
                         <SortIcon column={header.column} />
                       </div>
                     )}
@@ -91,7 +101,7 @@ export const VirtualizedTable = memo(({
 
       {/* Virtualized Body */}
       <div
-        className="w-full shrink-0"
+        className="w-full min-w-full shrink-0"
         style={{
           height: `${rowVirtualizer.getTotalSize()}px`,
           position: 'relative',
@@ -102,7 +112,7 @@ export const VirtualizedTable = memo(({
             <EmptyIcon size={36} className="mb-3 text-slate-500 opacity-60" />
             <p className="app-overline mb-1">{emptyTitle}</p>
             {emptyDescription && (
-              <p className="app-caption text-slate-400 max-w-sm mb-4">{emptyDescription}</p>
+              <p className="app-body text-slate-500 dark:text-slate-400 max-w-sm mb-4">{emptyDescription}</p>
             )}
             {emptyAction && <div className="mt-2">{emptyAction}</div>}
           </div>
@@ -122,31 +132,42 @@ export const VirtualizedTable = memo(({
                   top: 0,
                   left: 0,
                   width: '100%',
+                  minWidth: '100%',
                   transform: `translateY(${virtualRow.start}px)`,
                 }}
                 onClick={() => onRowClick && onRowClick(row.original, row)}
-                className={`flex items-center w-full hover:bg-white/[0.06] active:bg-accent-blue/10 ${
+                className={`flex items-center min-w-full w-fit md:w-full hover:bg-white/[0.06] active:bg-accent-blue/10 ${
                   onRowClick ? 'cursor-pointer' : ''
                 } transition-colors border-b dark:border-white/[0.03] border-slate-900/5 group select-none ${
                   isSelected ? 'bg-accent-blue/5' : ''
                 } ${customClassName}`}
               >
                 {row.getVisibleCells().map((cell) => {
+                  const meta = cell.column.columnDef.meta;
                   const isFlex =
-                    cell.column.columnDef.meta?.isFlex ??
+                    meta?.isFlex ??
                     cell.column.columnDef.size === 0;
                   const colSize = cell.column.getSize();
+                  const minWidth = meta?.minWidth 
+                    ? `${meta.minWidth}px` 
+                    : (isFlex ? '180px' : `${colSize}px`);
+                  const flexStyle = meta?.flex || (isFlex ? '1 1 0%' : undefined);
+                  const maxWidth = meta?.maxWidth 
+                    ? `${meta.maxWidth}px` 
+                    : (isFlex ? undefined : `${colSize}px`);
+                  const width = isFlex ? undefined : `${colSize}px`;
 
                   return (
                     <div
                       key={cell.id}
-                      className={`flex items-center py-2.5 sm:py-2 ${
-                        cell.column.columnDef.meta?.className || ''
-                      } ${isFlex ? 'flex-1 min-w-0' : 'flex-shrink-0 justify-center'}`}
+                      className={`flex items-center py-2.5 sm:py-2 overflow-hidden ${
+                        meta?.className || ''
+                      } ${isFlex ? 'min-w-0' : 'flex-shrink-0 justify-center'}`}
                       style={{
-                        width: isFlex ? undefined : `${colSize}px`,
-                        maxWidth: isFlex ? undefined : `${colSize}px`,
-                        minWidth: isFlex ? '0px' : `${colSize}px`,
+                        flex: flexStyle,
+                        width: width,
+                        maxWidth: maxWidth,
+                        minWidth: minWidth,
                       }}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

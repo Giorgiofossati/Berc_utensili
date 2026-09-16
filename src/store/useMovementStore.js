@@ -10,25 +10,52 @@ export const useMovementStore = create((set, get) => ({
   isBulkMode: false,
   selectedTool: null,
   showMoveModal: false,
+  selectedCommessaId: null,
 
   setOpType: (type) => set({ opType: type }),
   setModalQty: (qty) => set({ modalQty: qty }),
   setIsBulkMode: (mode) => set({ isBulkMode: mode }),
   setSelectedTool: (tool) => set({ selectedTool: tool }),
+  setSelectedCommessaId: (id) => set({ selectedCommessaId: id }),
   setShowMoveModal: (show) => set({
     showMoveModal: show,
-    ...(!show ? { isBulkMode: false } : {})
+    ...(!show ? { isBulkMode: false, selectedCommessaId: null } : {})
   }),
   openToolDetail: (tool) => set({
     selectedTool: tool,
     opType: null,
     modalQty: 1,
     isBulkMode: false,
+    selectedCommessaId: null,
     showMoveModal: true
   }),
 
-  handleMovement: async (showToastNotification, onSuccess) => {
+  executeMovement: async (arg1, arg2, arg3) => {
+    let showToastNotification;
+    let onSuccess;
+    let commessaId = undefined;
+
+    if (typeof arg1 === 'function') {
+      showToastNotification = arg1;
+      if (typeof arg2 === 'function') {
+        onSuccess = arg2;
+        commessaId = arg3;
+      } else if (typeof arg2 === 'string' || arg2 === null) {
+        commessaId = arg2;
+        onSuccess = typeof arg3 === 'function' ? arg3 : null;
+      }
+    } else if (typeof arg1 === 'string' || arg1 === null) {
+      commessaId = arg1;
+      showToastNotification = typeof arg2 === 'function' ? arg2 : null;
+      onSuccess = typeof arg3 === 'function' ? arg3 : null;
+    } else if (typeof arg1 === 'object' && arg1 !== null) {
+      showToastNotification = arg1.showToastNotification;
+      onSuccess = arg1.onSuccess;
+      commessaId = arg1.commessaId;
+    }
+
     const state = get();
+    const targetCommessaId = commessaId !== undefined ? commessaId : state.selectedCommessaId;
     const { opType, modalQty, isBulkMode, selectedTool } = state;
     
     const inventoryState = useInventoryStore.getState();
@@ -79,17 +106,34 @@ export const useMovementStore = create((set, get) => ({
     }));
 
     try {
+      const operatorName = currentUser ? `${currentUser.nome} ${currentUser.cognome}`.trim() : 'Admin';
       const { error: rpcErr } = await supabase.rpc('handle_bulk_movement', {
         p_tool_ids: targets.map(t => t.id),
         p_op_type: opType,
         p_change: change,
-        p_operator: currentUser ? `${currentUser.nome} ${currentUser.cognome}` : 'Admin'
+        p_operator: operatorName,
+        p_commessa_id: targetCommessaId || null
       });
 
       if (rpcErr) throw rpcErr;
 
+      set({
+        lastMovement: {
+          toolIds: targets.map(t => t.id),
+          opType,
+          change,
+          operator: operatorName,
+          commessaId: targetCommessaId || null,
+          timestamp: Date.now()
+        }
+      });
+
       if (showToastNotification) {
-        showToastNotification(`MAGAZZINO AGGIORNATO: ${opType.toUpperCase()} (${targets.length} articoli)`, 'success');
+        showToastNotification({
+          message: `MAGAZZINO AGGIORNATO: ${opType.toUpperCase()} (${targets.length} ${targets.length === 1 ? 'articolo' : 'articoli'})`,
+          type: 'success',
+          onUndo: () => get().undoLastMovement(showToastNotification)
+        });
       }
       if (onSuccess) onSuccess();
     } catch (err) { 
@@ -101,6 +145,66 @@ export const useMovementStore = create((set, get) => ({
       }
     } finally { 
       fetchTools(); // Final sync
+    }
+  },
+
+  handleMovement: async (...args) => {
+    return get().executeMovement(...args);
+  },
+
+  undoLastMovement: async (showToastNotification) => {
+    const { lastMovement } = get();
+    if (!lastMovement) {
+      if (showToastNotification) {
+        showToastNotification('Nessuna operazione recente da annullare.', 'warning');
+      }
+      return;
+    }
+
+    const { toolIds, opType, change, operator, commessaId } = lastMovement;
+    const reverseOpType = opType === 'carico' ? 'scarico' : 'carico';
+
+    const inventoryState = useInventoryStore.getState();
+    const { tools, setTools, fetchTools } = inventoryState;
+
+    // Optimistic reversal
+    const previousTools = [...tools];
+    setTools(tools.map(t => {
+      if (toolIds.includes(t.id)) {
+        return { 
+          ...t, 
+          'Quantità': reverseOpType === 'carico' 
+            ? (Number(t['Quantità']) || 0) + change 
+            : Math.max(0, (Number(t['Quantità']) || 0) - change) 
+        };
+      }
+      return t;
+    }));
+
+    set({ lastMovement: null });
+
+    try {
+      const { error: rpcErr } = await supabase.rpc('handle_bulk_movement', {
+        p_tool_ids: toolIds,
+        p_op_type: reverseOpType,
+        p_change: change,
+        p_operator: `${operator} (ANNULLO)`,
+        p_commessa_id: commessaId || null
+      });
+
+      if (rpcErr) throw rpcErr;
+
+      if (showToastNotification) {
+        showToastNotification(`Movimento annullato con successo! Ripristinati ${change} pz.`, 'success');
+      }
+    } catch (err) {
+      console.error(err);
+      setTools(previousTools);
+      if (showToastNotification) {
+        showToastNotification('Errore durante l\'annullamento: ' + (err.message || err), 'error');
+      }
+    } finally {
+      fetchTools();
     }
   }
 }));

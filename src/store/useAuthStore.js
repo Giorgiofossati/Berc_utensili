@@ -34,6 +34,15 @@ export const useAuthStore = create((set) => ({
       if (safeUser.ruolo !== 'Admin' && useNavigationStore.getState().currentView === 'operators') {
         useNavigationStore.getState().resetNavigation();
       }
+      
+      const savedView = localStorage.getItem(`berc_viewMode_${safeUser.id}`);
+      if (savedView) {
+        useFilterStore.getState().setViewMode(savedView);
+      } else if (safeUser.ruolo === 'Admin') {
+        useFilterStore.getState().setViewMode('dropdown');
+      } else {
+        useFilterStore.getState().setViewMode('grid');
+      }
     }
     return { currentUser: safeUser };
   }),
@@ -58,6 +67,14 @@ export const useAuthStore = create((set) => ({
       }
       if (safeUser.ruolo !== 'Admin' && useNavigationStore.getState().currentView === 'operators') {
         useNavigationStore.getState().resetNavigation();
+      }
+      const savedView = localStorage.getItem(`berc_viewMode_${safeUser.id}`);
+      if (savedView) {
+        useFilterStore.getState().setViewMode(savedView);
+      } else if (safeUser.ruolo === 'Admin') {
+        useFilterStore.getState().setViewMode('dropdown');
+      } else {
+        useFilterStore.getState().setViewMode('grid');
       }
     } else {
       try {

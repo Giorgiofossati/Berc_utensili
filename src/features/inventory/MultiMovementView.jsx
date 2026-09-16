@@ -1,12 +1,13 @@
-import React, { useState, useMemo, memo } from 'react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ClipboardList, Plus, Minus, Trash2, ArrowDown, ArrowUp, 
-  AlertTriangle, RotateCcw
+  AlertTriangle, RotateCcw, Briefcase, ChevronDown
 } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { useMultiMovementStore } from '../../store/useMultiMovementStore';
 import { useInventoryStore } from '../../store/useInventoryStore';
+import { useCommesseStore } from '../../store/useCommesseStore';
 import AddToolToMultiModal from './AddToolToMultiModal';
 
 const MultiMovementView = memo(({ showToastNotification }) => {
@@ -20,8 +21,32 @@ const MultiMovementView = memo(({ showToastNotification }) => {
   const clearItems = useMultiMovementStore(state => state.clearItems);
   const executeMultiMovement = useMultiMovementStore(state => state.executeMultiMovement);
   const isExecuting = useMultiMovementStore(state => state.isExecuting);
+  const selectedCommessaId = useMultiMovementStore(state => state.selectedCommessaId);
+  const setSelectedCommessaId = useMultiMovementStore(state => state.setSelectedCommessaId);
+
+  const commesse = useCommesseStore(state => state.commesse);
+  const isLoadingCommesse = useCommesseStore(state => state.isLoading);
+  const fetchCommesse = useCommesseStore(state => state.fetchCommesse);
 
   const tools = useInventoryStore(state => state.tools);
+
+  useEffect(() => {
+    fetchCommesse();
+  }, [fetchCommesse]);
+
+  const activeCommesse = useMemo(
+    () => commesse.filter(c => c.stato === 'Attiva'),
+    [commesse]
+  );
+  const closedCommesse = useMemo(
+    () => commesse.filter(c => c.stato === 'Chiusa'),
+    [commesse]
+  );
+
+  const selectedCommessa = useMemo(
+    () => commesse.find(c => c.id === selectedCommessaId),
+    [commesse, selectedCommessaId]
+  );
 
   // Mappa live per avere giacenze sempre sincronizzate
   const liveToolsMap = useMemo(() => {
@@ -51,7 +76,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
 
   const handleConfirm = () => {
     if (items.length === 0) return;
-    executeMultiMovement(showToastNotification);
+    executeMultiMovement(showToastNotification, undefined, selectedCommessaId);
   };
 
   return (
@@ -71,6 +96,56 @@ const MultiMovementView = memo(({ showToastNotification }) => {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          {/* Assegna Commessa Globale */}
+          <div className="relative min-w-[200px] sm:min-w-[240px]">
+            <div className="relative flex items-center">
+              <div className="absolute left-3 pointer-events-none text-accent-blue">
+                <Briefcase size={15} />
+              </div>
+              <select
+                value={selectedCommessaId || ''}
+                onChange={(e) => setSelectedCommessaId(e.target.value || null)}
+                disabled={isLoadingCommesse}
+                className="glass-input w-full border border-slate-300/60 dark:border-white/10 rounded-xl sm:rounded-2xl py-2 pl-9 pr-9 text-xs sm:text-sm font-medium dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all appearance-none cursor-pointer dark:bg-slate-900 bg-white"
+                aria-label="Assegna commessa a tutto il lotto"
+              >
+                <option value="" className="dark:bg-slate-900 dark:text-white bg-white text-slate-900">
+                  {isLoadingCommesse ? 'Caricamento commesse...' : 'Nessuna commessa (Generale)'}
+                </option>
+                {activeCommesse.length > 0 && (
+                  <optgroup label="Commesse Attive" className="dark:bg-slate-900 dark:text-white bg-white text-slate-900 font-bold">
+                    {activeCommesse.map((c) => (
+                      <option
+                        key={c.id}
+                        value={c.id}
+                        className="dark:bg-slate-900 dark:text-white bg-white text-slate-900 font-normal"
+                      >
+                        {c.codice}{c.ubicazione ? ` — ${c.ubicazione}` : ''}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                {closedCommesse.length > 0 && (
+                  <optgroup label="Commesse Chiuse (riattivare per selezionare)" className="dark:bg-slate-900 dark:text-slate-400 bg-white text-slate-400 font-bold">
+                    {closedCommesse.map((c) => (
+                      <option
+                        key={c.id}
+                        value={c.id}
+                        disabled
+                        className="dark:bg-slate-900 dark:text-slate-500 bg-white text-slate-400 font-normal italic"
+                      >
+                        {c.codice} (Chiusa)
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+              </select>
+              <div className="absolute right-3 pointer-events-none text-slate-400">
+                <ChevronDown size={15} />
+              </div>
+            </div>
+          </div>
+
           {/* Toggle Prelievo / Deposito */}
           <div className="flex items-center p-1 rounded-2xl bg-slate-200/50 dark:bg-slate-900/50 border border-slate-300/50 dark:border-white/10 shadow-inner">
             <button
@@ -376,7 +451,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
       <div className="p-3 sm:p-4 rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-slate-200/60 dark:border-white/10 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0 mb-2">
         <div className="flex flex-col min-w-0">
           <span className="app-overline text-accent-blue leading-none">Riepilogo Distinta</span>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
             <span className="app-h2 text-sm sm:text-base dark:text-white text-slate-900">
               {items.length} {items.length === 1 ? 'articolo' : 'articoli'}
             </span>
@@ -384,6 +459,15 @@ const MultiMovementView = memo(({ showToastNotification }) => {
             <span className="app-qty-sm text-sm sm:text-base text-accent-blue">
               {totalPieces} pezzi totali
             </span>
+            {selectedCommessa && (
+              <>
+                <span className="text-slate-400">•</span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs font-bold">
+                  <Briefcase size={12} />
+                  <span>Commessa: {selectedCommessa.codice}</span>
+                </span>
+              </>
+            )}
           </div>
           {hasInsufficientStock && (
             <span className="text-[11px] font-bold text-accent-rose flex items-center gap-1 mt-0.5">

@@ -1,182 +1,133 @@
 # Regole e Contesto Progetto: Bercella Utensili (gemini.md)
 
-Questo file serve come "memoria" e linea guida per l'assistente AI (Gemini) che lavora su questo progetto. Contiene le caratteristiche principali, le funzionalità richieste e le lezioni imparate durante lo sviluppo per evitare errori ripetuti.
+Questo file serve come linea guida e memoria di sistema per gli agenti AI su questo progetto.
+Contiene le regole architetturali, i requisiti di sistema, le lezioni apprese e il protocollo di audit obbligatorio.
 
 ## 🎯 Panoramica del Progetto
-**Berc_utensili** è un'applicazione web (React + Vite, TailwindCSS) per la gestione avanzata del magazzino utensili CNC. L'obiettivo è fornire una dashboard pulita, intuitiva e orientata all'azione per operatori e amministratori.
+**Berc_utensili** è una web app (React + Vite, TailwindCSS, Supabase) per la gestione del magazzino utensili CNC Bercella.
+Offre tracciamento in tempo reale, prelievo guidato, carico/scarico rapido e prevenzione fermi macchina.
 
 ### Workflow Operativo Magazzino
-**CASO 1: Prelievo (Scarico)**
-1. **Ricerca Utensile:** L'operatore cerca l'utensile verificandone presenza, quantità e ubicazione.
-2. **Scarico:** Se l'utensile è presente nella quantità richiesta, si procede allo scarico. *(Nota: se la quantità scende a 0, l'utensile rimane visibile in griglia con quantità 0).*
-3. **Gestione Ordini (Da Implementare):** Se l'utensile non è presente o la quantità è insufficiente, si procede alla creazione di un ordine.
+- **Prelievo (Scarico)**: Ricerca utensile -> Verifica giacenza e ubicazione -> Scarico quantità. (Se giacenza = 0, l'utensile resta visibile con 0 pz).
+- **Deposito (Carico)**: Consegna -> Ricerca esistenza a sistema -> Carico quantità. Se assente -> Creazione nuovo articolo (Admin).
 
-**CASO 2: Deposito (Carico/Nuovo Articolo)**
-1. **Consegna:** L'utensile viene consegnato e deve essere inserito a magazzino.
-2. **Ricerca Utensile:** Verifica dell'esistenza a sistema.
-3. **Deposito:** Se già presente, si procede al carico (aggiornamento quantità).
-4. **Nuovo Articolo (Da Implementare):** Se non presente, deve essere creato un nuovo articolo compilando tutti i campi nel database.
-
-### Caratteristiche Principali (Stack e Design)
-- **Tecnologie:** React, Vite, TailwindCSS, Supabase (per database e autenticazione), Framer Motion (per animazioni).
-- **Design System ("Industrial Professional Look")**:
-  - **Specifica Ufficiale:** Consulta sempre [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md) per le specifiche complete, le gerarchie e le dimensioni dei componenti.
-  - **Colori primari:** Blu/Ciano (`#0ea5e9` o `#06b6d4`).
-  - **Colori secondari:** Arancione (`#f97316` o `#ea580c`) per alert, overline evidenziati e reset.
-  - **Colori funzionali:** Verde Smeraldo (`#10b981` / `.action-btn-carica`), Rosso Cremisi (`#f43f5e` / `.action-btn-scarica`).
-  - **Stile generale:** Premium industriale, minimale, Glassmorphism denso (`backdrop-blur-xl`, bordi sottili `border-white/10` o `border-slate-900/10`).
-  - **DIVIETO ASSOLUTO:** NON USARE MAI il colore `indigo` (è stato rimosso per un look più industriale).
-  - **Classi Azione Standard (`src/index.css`):**
-    - `.action-btn-carica`: Pulsante verde primario per deposito / carico.
-    - `.action-btn-scarica`: Pulsante rosso primario per prelievo / scarico.
-    - `.action-btn-primary`: Pulsante ciano per azioni confermative generiche (login, salvataggi).
-    - `.action-btn-order`: Pulsante arancione per creazione ordini fornitore.
-    - `.glass-input`: Stile uniforme per tutti i campi `<input>` e `<textarea>`.
-  - **Font Ufficiale:** `Inter` (caricato in `index.html` e applicato globalmente via `--font-inter`). Nessun altro font esterno deve essere introdotto.
-  - **Regola Dimensioni Card Affiancate (Sibling / Split Cards):**
-    - Quando due card sono affiancate (es. Login Screen), il container genitore **deve sempre usare `items-stretch`** e le card interne devono avere `h-full flex flex-col justify-between`.
-    - Vietato usare `items-center` con altezze libere asimmetriche. Le card affiancate devono condividere identico raggio `rounded-[32px]`, identico padding `p-6 sm:p-8`, e linee di base superiore e inferiore allineate.
-- **UX/UI Core:** Navigazione a cascata, caroselli per macro-categorie, griglie compatte senza scroll orizzontale, design fully responsive.
-
-## 🚀 Funzionalità e Roadmap
-### Funzionalità Implementate
-- Ricerca manuale tramite Barcode con filtro parziale real-time.
-- Toggle tra visualizzazione a Carosello e Filtri a tendina.
-- Navigazione a livelli (Tipologia -> Forma -> Diametro -> Lista Utensili a griglia compatta).
-- Filtri dinamici: se una colonna ha tutti valori `null` per la classe selezionata, il filtro viene nascosto.
-- Navbar con informazioni utente e data; bottoni azione in linea.
-- **Gestione Utenti e Privilegi (Completata):** Sistema di Login screen. Gli Operatori eseguono operazioni base; gli Admin hanno accesso completo (es. aggiunta nuovi utensili).
-- **Movimento Multiplo (Ex-Bulk / Distinta Operativa) (Completata & Perfezionata):** Sostituito l'obsoleto drawer flottante con una schermata dedicata e autosufficiente (`MultiMovementView.jsx` e store dedicato `useMultiMovementStore.js`). All'apertura presenta immediatamente una griglia tabellare pronta da compilare (nessun empty-state vuoto con icona), con la prima riga attiva e cliccabile con `+` per selezionare il primo utensile, e righe segnaposto tratteggiate fisse. Consente la gestione di quantità individuali per articolo (`[-] [ QTY ] [+]`), la validazione live della giacenza (blocco preventivo e avviso se scarico > pezzi a magazzino), e l'esecuzione atomica transazionale via stored procedure PostgreSQL (`handle_multi_movement`). Per la ricerca utensili utilizza un modale a schermo esteso (`AddToolToMultiModal.jsx`) che integra la tabella ufficiale completa `ToolsGrid` (TanStack Table v8) per una consultazione ampia, professionale e ordinabile.
-- **Ottimizzazione Griglia e Layout Responsivo (Completata):** Nascondimento colonne non essenziali su mobile per evitare lo scroll orizzontale ed espansione a griglie di 6 colonne su schermi molto grandi.
-- **Migrazione a TanStack Table v8 (Completata):** Tabella inventario riscritta interamente con `@tanstack/react-table@8` e `@tanstack/react-virtual`. Dimensioni colonne bloccate (`getSize()`), ordinamento headless integrato, stato di selezione multi-utensile sincronizzato con Zustand (`useFilterStore`).
-- **Unificazione Griglia Inventario (Completata):** Centralizzato il rendering della tabella utensili; `DropdownFilterView.jsx` ora riutilizza direttamente `<ToolsGrid hideExtraFilters={true} />`, eliminando il codice duplicato della vecchia griglia flexbox.
-- **Unificazione Vista Ricerca Optical Scanner con TanStack Table (Completata):** Sostituita la vecchia lista a righe flex manuali in `ScannerView.jsx` con `<ToolsGrid hideExtraFilters={true} />`. Colonne perfettamente allineate, ordinamento interattivo su intestazioni, virtualizzazione infinita ad alte prestazioni (rimosso il limite artificiale di 20 elementi) e ricerca intelligente multi-parola su tutti i campi utensile (`Codice`, `Descrizione`, `Tipologia`, `Forma`, `Diametro`, `Fornitore`, `Ubicazione`, `SerialNumber`, `buildDesc`).
-- **Griglia Intelligente a Tessere per Diametri (`DiameterList.jsx`) (Completata & Perfezionata):** Selettore di livello 2 trasformato in griglia auto-adattiva a tessere responsive (`auto-fill / minmax`). Focus essenziale d'officina: Diametro centrato ad altissima gerarchia visiva (`text-xl sm:text-2xl font-black`), rimozione del badge superfluo "SIGLA", e visualizzazione esclusiva della quantità totale di pezzi a magazzino (`N pz` in verde per pezzi > 0, rosso per 0 pz) eliminando diciture ambigue come "Giacenza" o "N art.". Include micro-barra di ricerca rapida istantanea con pulizia filtro rapida (`X`) ed empty state dedicato.
-- **Tutorial Interattivo & Onboarding Operatori (Completata):**
-  - **Login Informativo:** Card esplicativa su `LoginScreen.jsx` che sintetizza lo scopo del gestionale Bercella (tracciamento istantaneo, prelievo guidato, sincronizzazione giacenze ed eliminazione fermi macchina).
-  - **Tutorial Pratico Guidato (`AppTutorial.jsx`):** Sistema spotlight con maschera SVG dinamica (`mask`), alone pulsante ciano (`#0ea5e9`) e sfocatura del resto dello schermo (`backdrop-blur`). Card numerata (`1 / 5`) con due frecce direzionali (`<` e `>`) per scorrere avanti e indietro, navigazione da tastiera e testi concisi per operatori d'officina.
-  - **Gestione Stato & Persistenza Ibrida (`has_completed_tutorial`):** Script SQL per la tabella `utenti` in `supabase_schema.sql`. Il tutorial si avvia automaticamente al primo ingresso di ogni utente (inclusi i nuovi utenti creati dall'Admin in `OperatorsView.jsx`). Al completamento, sincronizza Supabase e `localStorage`. In `OperatorsView.jsx` è presente anche il pulsante per reimpostare il tutorial a qualsiasi utente.
-  - **Riavvio Rapido:** Accessibile sempre da voce dedicata "Guida & Tutorial" nella Sidebar e da un pulsante discreto circolare flottante con icona punto interrogativo (`HelpFloatingButton.jsx`) nell'angolo inferiore della schermata.
-
-
-### Richieste Attuali / Future
-- **Dettaglio Utensile Modal Avanzato:** Ottimizzare o espandere il modale di dettaglio (che attualmente gestisce il movimento) per visualizzare comodamente tutte le info non presenti in griglia.
-- **Gestione Ordini:** Se un utensile non è presente o la quantità è insufficiente, creare il flusso per l'ordine automatico.
-- **Gestione Utensili per Progetto:** Tracciamento, allocazione e associazione degli utensili a specifici Progetti / Commesse (possibilità di prelevare, riservare o monitorare il consumo di utensili imputandoli a un progetto specifico, con riscontro nello storico movimenti e viste dedicate).
-- **Dark Mode Toggle:** Implementazione di un toggle globale per tema chiaro/scuro in alto a destra.
-
-## 🧠 Cosa ho imparato e Regole da Seguire (Errori da evitare)
-
-### 🎨 Regole di UX/UI e Design
-1. **Mai reinserire il colore "indigo"**: Il cliente ha richiesto specificamente un restyling verso il blu/ciano e arancione. Evitare l'utilizzo di `indigo` in nuove classi Tailwind.
-2. **Attenzione allo scroll orizzontale e Layout Responsivo (Mobile vs Desktop)**: Le tabelle/griglie devono essere sempre visibili senza scroll orizzontale. 
-   - **Su Mobile:** Le colonne accessorie (Ubicazione, Stato, Codice, Fornitore) devono essere nascoste via CSS (es. `hidden md:flex`) mostrando solo le info vitali (Icona, Descrizione, Quantità) per evitare sbordamenti. Tutti i dettagli secondari sono sempre consultabili cliccando la riga (Modale Dettaglio).
-   - **Su Desktop/XL:** Sfruttare tutto lo spazio orizzontale disponibile espandendo i container (es. `max-w-7xl` o `max-w-[1600px]`) e incrementando le colonne delle griglie dinamicamente (es. `lg:grid-cols-5`, `xl:grid-cols-6`), evitando di sprecare spazio bianco laterale.
-3. **Proporzioni, Spaziature e Safe Zones (Ottimizzazione UI):** Il design deve massimizzare lo spazio dedicato ai contenuti utili, mantenendo il focus visivo al centro della schermata senza sprechi.
-   - **Contenitori proporzionati:** Evitare riquadri o padding eccessivamente grandi attorno a elementi piccoli (es. icone o immagini). L'immagine e il testo principale devono dominare il contenitore in modo bilanciato ed essere chiaramente leggibili, evitando "scatole vuote" che tolgono spazio al resto degli elementi.
-   - **Prevenzione Sovrapposizioni (Safe Area):** Gli elementi fissi (come i bottoni flottanti in basso o header sticky) non devono **mai** coprire i contenuti. Prevedere sempre un margine o `padding-bottom` abbondante (es. `pb-28`) nei contenitori scrollabili per far scorrere la lista oltre i bottoni.
-   - **Layout Puliti:** Utilizzare strutture CSS robuste (`flex`, `grid` con i relativi `gap`) per distanziare gli elementi in modo omogeneo, evitando `absolute` posizionati manualmente se non per scopi precisi.
-4. **Layout UX e Bottoni Flottanti**: I bottoni macro (Deposita/Preleva) possono coprire la lista su schermi piccoli. Assicurarsi di implementare logiche a scomparsa durante lo scroll con ricomparsa dopo inattività (es. 15s).
-5. **Dettaglio vs Azione**: Non dare per scontato che un click su un utensile significhi "Movimento immediato". Il flusso corretto è: `Click su Riga -> Apri Modale Dettagli -> Visiona info -> Scegli Carico/Scarico -> Conferma Transazione`.
-6. **Ricerca Barcode**: Non forzare l'utente a premere "Enter" per vedere i risultati. La ricerca deve filtrare la lista compatta in tempo reale digitando i caratteri (modalità ricerca manuale).
-7. **Filtri dinamici**: Ricordarsi sempre che i filtri a tendina (nel Livello 3) devono essere dinamici e reagire ai dati. Non mostrare filtri che per le categorie selezionate risulterebbero completamente vuoti (tutti `null`).
-8. **Layout App-Like (Single Screen 100vh)**: L'applicazione utilizza un layout a schermo fisso (App-like). L'altezza globale è bloccata a `100vh` (o `100dvh` per mobile) con `overflow-hidden` sul root. Lo scrolling è delegato esclusivamente ai contenitori interni specifici (come la lista/griglia utensili usando `flex-1 overflow-y-auto`). L'header e gli elementi di controllo principali devono rimanere sempre visibili, ma l'attenzione visiva (e lo spazio) deve essere focalizzata sui dati scrollabili. Su schermi piccoli, l'header si compatta per lasciare massimo spazio vitale alla lista.
-9. **Prevenzione del Taglio dei Contorni (Active Outlines & Rings Safe-Zone)**: Nei contenitori scrollabili con `overflow-y-auto`, i contorni di focus/selezione (come i bordi `ring` arancioni) e le ombreggiature esterne (`box-shadow`) degli elementi estremi (il primo e l'ultimo della lista) vengono tagliati dal perimetro del contenitore di overflow. 
-   - Aggiungere sempre un padding interno al contenitore scrollabile (es. `p-2 pb-6` o `px-2 pb-6`) per garantire zone sicure dove i contorni e le ombreggiature possano essere renderizzati interamente senza essere tranciati dal clip dell'overflow.
-   - Forzare `shrink-0` (o `flex-shrink-0`) sulle righe o schede della lista per evitare che il browser ne alteri l'altezza per farli rientrare nel viewport, causando sovrapposizioni.
-   - Evitare la doppia nidificazione di contenitori `.glass-panel` (es. card glass dentro una dashboard glass) poiché ombre multiple e sfocature sovrapposte riducono le performance e creano spiacevoli collisioni grafiche.
-10. **Modali e Dialog (shadcn/ui vs custom)**: Per la gestione di modali e overlay (come Dettaglio Utensile o Login), utilizzare sempre i componenti nativi basati su Radix UI (es. `Dialog` di shadcn) al posto di overlay custom basati su `framer-motion` e div a tutto schermo. Questo risolve in modo nativo e robusto i problemi di focus-trap, scroll-lock del body e sovrapposizioni z-index non volute. Lo stile "glass" può essere facilmente applicato sovrascrivendo le classi del `DialogContent`.
-11. **Nessuno Scroll Interno nei Modali di Dettaglio**: L'utente preferisce un design in cui **tutto il contenuto del modale sia visibile in un colpo d'occhio senza barre di scorrimento** (impostando `overflow-hidden` anziché `overflow-y-auto`). Per far stare tutto (dettagli, bottoni, testi) in una schermata (`max-h-[95vh]`), è necessario bilanciare accuratamente i padding (es. `p-6` o `p-8` massimo), ridurre il text-size, le icone e l'altezza dei pulsanti di azione. L'obiettivo è un popup denso, pulito e immediatamente fruibile senza scroll.
-12. **Ottimizzazione Transizioni Dark Mode**: Le transizioni CSS prolungate (es. `duration-500`) su proprietà complesse come `backdrop-blur`, `box-shadow` e gradienti radiali di background causano gravi cali di frame rate. Limitare le transizioni grafiche per i cambi di tema esclusivamente a `background-color`, `border-color` e `color`.
-13. **Design System Tipografico Semantico (`src/index.css`)**:
-   - Utilizzare sempre le classi semantiche unificate per garantire coerenza grafica in tutta l'applicazione:
-     - `.app-overline`: micro-titoli, tag di categoria, overlines (`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.25em]`).
-     - `.app-h1`: titoli principali delle pagine e viste (`text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight`).
-     - `.app-h2`: titoli di modali, dialog e sezioni primarie (`text-lg sm:text-xl md:text-2xl font-black uppercase tracking-tight`).
-     - `.app-h3`: titoli articoli in liste, card e drawer (`text-xs sm:text-sm font-bold uppercase tracking-tight`).
-     - `.app-body`: testo standard e descrizioni form (`text-xs sm:text-sm font-medium`).
-     - `.app-caption`: metadati, codici aziendali, timestamp (`text-[10px] sm:text-xs font-mono`).
-     - `.app-qty-sm`: quantità in tabelle e liste (`text-xs sm:text-sm md:text-base font-black tabular-nums`).
-     - `.app-qty-lg`: quantità in evidenza e giacenza modali (`text-2xl sm:text-3xl md:text-4xl font-black tabular-nums`).
-   - Evitare stili tipografici arbitrari e disconnessi (es. `text-5xl` sproporzionati).
-14. **Tabelle e Liste Mobile-First (Zero Scroll Orizzontale)**:
-   - Le tabelle su smartphone devono essere visibili al 100% della larghezza senza alcuna barra di scorrimento orizzontale.
-   - Non usare `min-w-max` o `min-w-[150px]` su smartphone. Impostare `min-w-0 flex-1 truncate` per i testi estesi (es. descrizione utensile) e larghezze calibrate (`w-12 sm:w-16` / `min-w-[48px]`) per la colonna quantità `.app-qty-sm`.
-15. **Precaricamento Immagini Statiche (Zero Flickering)**:
-   - Tutte le immagini locali degli utensili (`/tool-images/*.png`) devono essere precaricate in memoria (`preloadToolImages()`) al bootstrap dell'app in `App.jsx`.
-   - Su `ToolIcon` non usare `loading="lazy"` o `decoding="async"` per icone e immagini locali essenziali.
-16. **Tabelle e Viste di Ricerca (Zero Liste Flex Manuali Disallineate)**:
-   - Tutte le viste di consultazione ed esplorazione inventario (inclusa la ricerca Optical Scanner `ScannerView`) devono riutilizzare il componente unificato `<ToolsGrid hideExtraFilters={true} />` (TanStack Table v8 + `@tanstack/react-virtual`).
-   - Evitare assolutamente liste flex `justify-between` con larghezze libere, che provocano il disallineamento visivo orizzontale di descrizioni, badge e quantità.
-17. **Allineamento Rigoroso negli Header di Modali e Dialog (Divieto di Pulsanti 'X' Fluttuanti)**:
-   - Nei modali basati su shadcn / Radix UI, impostare SEMPRE `showCloseButton={false}` su `DialogContent` per impedire che il pulsante 'X' di default (`absolute top-2 right-2`) galleggi staccato e disallineato nell'angolo estremo del container.
-   - Inserire il pulsante di chiusura (`X`) direttamente nella barra flex dell'Header del modale (`flex items-center justify-between gap-3 w-full pb-3 border-b border-slate-200/60 dark:border-white/10`).
-   - L'icona a sinistra (in riquadro compatto e proporzionato, es. `w-10 h-10 rounded-[14px]`), il blocco centrale (Titolo + Badge + Sottotitolo) e il pulsante di chiusura a destra devono essere perfettamente calibrati e allineati sullo stesso asse orizzontale.
-   - Il badge di stato (es. "Live", "Attivo") deve essere centrato con il testo del titolo (`inline-flex items-center gap-1.5`) con linea di base coordinata (`leading-none`), senza salti di quota o padding verticali asimmetrici.
-18. **Divieto Assoluto di Font Monospace (`.app-caption`) per Frasi e Descrizioni**:
-   - `.app-caption` usa `font-mono` ed è riservato ESCLUSIVAMENTE a codici aziendali, SKU, serial number, codici a barre e timestamp.
-   - È SEVERAMENTE VIETATO usare `.app-caption` per istruzioni operative, sottotitoli o frasi discorsive nei modali e nelle card. Usare sempre `.app-body` o classi Inter sans-serif (`text-xs text-slate-500 font-medium leading-normal`).
-   - È SEVERAMENTE VIETATO applicare `truncate` a caso su frasi intere di istruzioni operative: provoca troncature orrende a metà parola (es. "Inquadra il codice... dell'uten..."). I testi devono avere spazio naturale o andare a capo in modo fluido.
-19. **Divieto di Scatole Annidate ("Box in a Box") e Sfondi Grigi Sparsi**:
-   - Evitare contenitori intermedi con sfondi grigi o bordi multipli annidati dentro un modale glassmorphic.
-   - Struttura standard obbligatoria per ogni dialog/modale:
-     1. **Header**: Icona + Titolo + Badge + Tasto Chiudi (`border-b pb-3`).
-     2. **Corpo Principale (Hero/Content)**: Proporzionato all'elemento contenuto (es. `aspect-[4/3]` nativo per la camera) senza bordi grigi spuri o padding asimmetrici.
-     3. **Footer**: Metadati o formati a sinistra, bottoni di conferma/annulla a destra (`border-t pt-2`).
-20. **Divieto di Testi Sparsi / Elementi Fluttuanti Fuori Contesto**:
-   - Non inserire scritte duplicanti o istruzioni sparse sotto o sopra elementi visivi. Ogni componente deve avere un'unica istruzione autorevole posizionata nell'Header.
-   - Nei flussi di fotocamera/scanner non posizionare pill o badge fluttuanti che coprono il flusso video; mantenere il mirino pulito con i soli reticoli e laser.
-21. **Architettura della Barra di Ricerca Globale**:
-   - La barra di ricerca risiede permanentemente nell'Header (`Header.jsx`), visibile al 100% sia su Desktop che su Mobile.
-   - Qualsiasi interazione con la ricerca (click, focus, digitazione, `⌘K`) attiva istantaneamente la vista elenco (`viewMode = 'dropdown'`), azzera filtri parziali residui (`resetFilters()`) e filtra in tempo reale la tabella senza modali intermediari o sfocature.
-22. **Schermate Operative a Foglio/Distinta (Zero Empty-State Passivi)**:
-   - Nelle schermate operative a foglio o distinta di lavoro (come `Movimento Multiplo`), **è severamente vietato mostrare box o card centrali vuoti con sole icone di attesa**.
-   - Renderizzare immediatamente l'intera testata della tabella e la griglia con le sue colonne (`#`, `Descrizione`, `Codice`, `Ubicazione`, `Giacenza`, `Quantità`, `Azioni`).
-   - La prima riga deve essere interattiva e cliccabile fin dal primo frame: bordo tratteggiato ciano, icona `+` e testo d'invito (`+ Clicca per selezionare il 1° utensile...`), accompagnata da righe segnaposto fisse soffuse per trasmettere istantaneamente la sensazione di un foglio di lavoro pronto alla compilazione.
-   - Sotto gli articoli inseriti deve sempre rimanere accessibile la riga `+ Aggiungi riga N (seleziona un altro utensile)...`.
-23. **Selettori Utensili & Modali di Ricerca (Standard Tabella Completa `ToolsGrid`)**:
-   - Quando l'operatore deve selezionare uno o più utensili da aggiungere a una distinta o ordine, **non usare card ristrette o elenchi compressi**.
-   - Utilizzare finestre ampie a schermo esteso (`max-w-6xl` o `max-w-7xl`, `h-[88dvh]`) integrando direttamente il componente unificato `<ToolsGrid hideExtraFilters={true} />` (TanStack Table v8).
-   - Questo garantisce allineamento orizzontale perfetto di tutte le colonne (Descrizione, Codice, Ubicazione, Stato, Fornitore, QTY), ordinamento interattivo headless e ricerca fluida multi-parola con autofocus.
-### 💾 Regole di Sviluppo, Architettura e Backend
-1. **Database Supabase**: Quando si creano o modificano query, ricordare che ci interfacciamo con la tabella `Utensili_B1` (per la giacenza degli utensili) e `movements_history` (per i log dei movimenti), oltre alla futura tabella `utenti`.
-2. **Gestione dello Stato Globale (Zustand)**: L'app ha abbandonato il *prop-drilling* esteso in favore di **Zustand**. Ogni macro-area ha il suo Store dedicato (`src/store/useAuthStore`, `useInventoryStore`, `useFilterStore`, `useMovementStore`, `useMultiMovementStore`). Usare gli store in modo atomico per evitare re-render non necessari dei componenti figli.
-3. **Separation of Concerns (SoC) e Custom Hooks**: Mai inserire massiccia logica di business (validazione campi dinamica, fetch API complessi) all'interno dei componenti UI (come i file `Modal.jsx`). Spostare sempre la logica all'interno di *Custom Hook* dedicati (es. `src/hooks/useAddToolForm.js`), mantenendo i file React come puri componenti visuali (View).
-4. **Navigazione ed Espansione Layout (Shadcn Sidebar)**: L'architettura globale del layout è gestita tramite `SidebarProvider` e il set di componenti Sidebar di shadcn/ui. Su desktop agisce da pannello comprimibile, su mobile collassa in un Drawer nativo. Non creare soluzioni di navigazione laterale custom, usare questo standard.
-5. **Autenticazione e Redirect (Login Guard)**: Verificare sempre la validità dell'utente (sessione attiva) esclusivamente a livello radice o di routing (`App.jsx` tramite lo store) prima di far scattare logiche figlie. Evitare di condizionare chiamate API o l'apertura di modali a controlli di autenticazione asincroni ritardati che potrebbero causare un fastidioso e improvviso redirect al `LoginScreen` durante l'interazione.
-6. **Ordinamento Multi-Campo (Sorting)**: Quando vengono applicati ordinamenti su più colonne (Nome, Quantità, Ubicazione), questi devono essere gestiti nello strato dei dati (`useFilterStore`). Utilizzare metodi "locale-aware" come `localeCompare` con l'opzione `{ numeric: true }` in modo che stringhe contenenti numeri (come le misure dei diametri) vengano ordinate progressivamente (es. 2 prima di 10).
-
-7. **Sicurezza e Protezione Credenziali**:
-   - **Nessuna Backdoor o Password Hardcoded**: Mai introdurre password di fallback o master bypass (es. '1234') nel codice di autenticazione.
-   - **Esclusione Password da Query e Cache**: Non eseguire mai `select('*')` sulla tabella utenti. Richiedere solo i campi profilo pubblici (`id, nome, cognome, codice_id, ruolo, has_completed_tutorial`). Non salvare mai password in chiaro in `localStorage` (`berc_cached_users` o `berc_user`).
-   - **Segregazione Secret e Variabili d'Ambiente**: Tutte le chiavi API e gli URL devono essere caricati tramite `import.meta.env` da `.env`. I file `.env`, `passsupa.txt` o file con credenziali non devono **mai** essere tracciati o committati su Git.
-   - **Validazione Quantità e Movimenti**: Convalidare sempre che le quantità richieste o movimentate siano interi strettamente positivi (`p_change > 0`) sia lato client sia nelle RPC Supabase per impedire corruzioni di giacenza.
-   - **Privacy e Risorse Esterne Offline**: Nessun asset grafico o texture deve dipendere da domini esterni terzi non affidabili. Usare pattern SVG/CSS o asset locali in `/public` per garantire il funzionamento offline al 100% della PWA in officina.
-
-8. **Controllo Accessi e Reset di Sessione (Logout/Login & Role Guard)**:
-   - Centralizzare sempre la navigazione tra le viste in `useNavigationStore` (`currentView`, `setCurrentView`, `resetNavigation`).
-   - Su ogni operazione di `logout` o cambio utente, la navigazione deve essere ripristinata immediatamente alla radice (`'home'`) e i filtri di catalogo azzerati (`resetFilters`).
-   - **Defense-in-depth per viste riservate (es. `OperatorsView`)**: Oltre a nascondere le voci di navigazione nella Sidebar, ogni componente con restrizioni di ruolo deve implementare un controllo di sicurezza interno (`currentUser?.ruolo === 'Admin'`) e reindirizzare forzatamente a `'home'` (`setView('home')`) restituendo `null` se un operatore non autorizzato tenta di accedervi.
-   - In `App.jsx`, vigilare reattivamente: se l'utente attivo non è `Admin` e la vista corrente è `'operators'`, forzare il redirect immediato a `'home'`.
-
-9. **Architettura Tutorial Interattivo Multi-Vista (`AppTutorial` & `useTutorialStore`)**:
-   - Ogni passaggio definito in `TUTORIAL_STEPS` deve specificare in modo dichiarativo i requisiti di contesto:
-     - `targetView`: vista dell'applicazione in cui vive il target (es. `'home'`, `'scanner'`, `'history'`).
-     - `resetFilters`: `true` se lo step richiede il catalogo principale pulito (es. macro-categorie a griglia).
-     - `viewMode`: `'grid'` o `'dropdown'` se lo step necessita di una determinata modalità grafica.
-     - `requireSidebar`: `true` o `false` per forzare l'apertura del Drawer Sidebar su schermi mobili.
-   - All'avvio del tutorial (`startTutorial()`) o durante lo scorrimento degli step (avanti/indietro), il sistema deve sincronizzare la vista dell'app prima di posizionare il tooltip.
-   - **Rilevamento Resiliente Elementi in Transizione**: Durante il cambio vista o filtro, le animazioni grafiche (Framer Motion) possono ritardare di qualche frame il montaggio dell'elemento target nel DOM. Utilizzare sempre un meccanismo di retry polling (es. verifiche ad alta frequenza ogni 40ms fino a 1s) per agganciare il rettangolo non appena compare, evitando card orfane o posizionate nel vuoto.
-
-10. **Gestione Movimenti Multipli a Distinta (`useMultiMovementStore` & `handle_multi_movement`)**:
-   - Lo stato della distinta è gestito in modo isolato in `useMultiMovementStore.js` (array `items`, quantità differenziate per articolo, `batchOpType`).
-   - **Validazione Quantità e Giacenze Live**: Impedire conferme se anche solo un articolo ha quantità <= 0 o se, durante un'operazione di scarico/prelievo, la quantità richiesta supera i pezzi effettivamente disponibili a magazzino (`liveStock < item.quantity`).
-   - **Esecuzione Transazionale Atomica**: La stored procedure `handle_multi_movement(p_items JSONB, p_operator TEXT)` esegue il lock esplicito `FOR UPDATE` sulle righe di `Utensili_B1`, aggiorna le giacenze e inserisce i singoli log in `movements_history`.
-   - **Fallback Resiliente**: Il client esegue un fallback trasparente qualora la stored procedure non sia ancora stata applicata sul database Supabase remoto, prevenendo il blocco operativo dell'utente.
-
-### 📱 Ottimizzazioni per App Mobile
-1. **Supporto PWA e Installabilità**: Il progetto è configurato come PWA tramite Vite PWA Plugin. Quando si aggiungono nuove icone o rotte, assicurarsi che le cache di background del Service Worker siano aggiornate. Rispettare in modo categorico l'uso delle classi `env(safe-area-inset-*)` per il padding del container principale, altrimenti su mobile (aperto full-screen o da icona iOS) l'interfaccia si sovrapporrà all'hardware (notch, linea home).
-2. **Ottimizzazione Bundle & Chunking**: Utilizzare `manualChunks` in `vite.config.js` per scorporare librerie pesanti (`@tanstack/*`, `framer-motion`, `@supabase/*`, `lucide-react`) prevenendo bundle monolitici superiori a 500 kB e massimizzando il caching del browser nei terminali di officina.
+### Documenti di Riferimento Ufficiali
+- [`SYSTEM_AUDIT_RULES.md`](./SYSTEM_AUDIT_RULES.md): **Protocollo Scientifico e Matrice di Self-Audit UX/UI** (HCI, Fitts, Hick, Miller, Gestalt, ISO 9241, WCAG 2.1 AA).
+- [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md): Token cromatici, classi semantiche `.app-*`, raggi di curvatura e layout.
+- [`CHANGELOG.md`](./CHANGELOG.md): **Registro Modifiche Software (Log Obbligatorio)**: Tracciamento sintetico di ogni implementazione, bugfix o refactor.
 
 ---
-*Nota per l'AI: Aggiorna questo file man mano che impari nuove preferenze dell'utente, risolvi bug complessi o definisci nuovi standard di progetto.*
+
+## 📝 Regola Tassativa: Tracciamento Modifiche nel Log (`CHANGELOG.md`)
+
+> **OBBLIGO PER TUTTI GLI AGENTI E LE SESSIONI DI SVILUPPO**:  
+> Ad ogni implementazione, modifica al codice, bugfix o refactoring completato con successo, **l'agente DEVE obbligatoriamente registrare le novità nel file [`CHANGELOG.md`](./CHANGELOG.md)** prima di concludere il task.
+
+### Come compilare il log (sintetico ed essenziale):
+- **Posizione**: Inserire la nuova voce **in cima** al file (ordine cronologico inverso).
+- **Contenuto essenziale**:
+  - Data: `[YYYY-MM-DD]` e Titolo sintetico dell'intervento.
+  - Tag: `[FEAT]`, `[FIX]`, `[UX/UI]`, `[REFACTOR]`, `[PERF]`, o `[DOCS]`.
+  - Descrizione breve (2-4 punti concisi: motivazione o comportamento implementato).
+  - Elenco dei file principali creati o modificati.
+- **Brevità**: Evitare spiegazioni verbose o prolisse; il log deve restare pulito, schematico e consultabile a colpo d'occhio.
+
+---
+
+## 🔬 Protocollo Scientifico di Usabilità & Self-Audit Obbligatorio (HCI, ISO 9241, WCAG)
+
+> **PRINCIPIO FONDAMENTALE**: La progettazione di UX/UI in questo gestionale industriale è una disciplina ingegneristica basata su modelli matematici, ergonomia cognitiva e standard ISO. Non è "gusto soggettivo".  
+> Prima di confermare qualsiasi modifica al codice, **ogni agente AI DEVE porsi due domande**:
+>
+> 1. *"La cosa che sto realizzando o modificando infrange queste regole o leggi ergonomiche?"*  
+> 2. *"Se sì, come la miglioro immediatamente per portarla allo standard ottimale?"*
+
+### Matrice Rapida di Self-Audit per gli Agenti:
+1. **Legge di Fitts & Ergonomia Touch**:
+   - *Audit*: Target con area interattiva < 44×44px o azioni frequenti lontane dalla mano?
+   - *Risoluzione*: Forzare `min-h-[44px] min-w-[44px]` (o `p-2.5 sm:p-3`), raggruppare i comandi vicino al punto di tocco.
+2. **Legge di Hick & Miller (Carico Cognitivo & Chunking)**:
+   - *Audit*: Troppe opzioni contemporanee (> 5-7), form monolitici o codici lunghi non segmentati?
+   - *Risoluzione*: Suddividere i codici in blocchi discreti (*chunking*), nascondere colonne secondarie su mobile, filtrare proprietà con tutti valori nulli, strutturare flussi guidati.
+3. **Principi della Gestalt (Regione Comune, Simmetria & Continuità)**:
+   - *Audit*: Elementi correlati slegati, liste flex disallineate o card affiancate con altezze e padding disuguali?
+   - *Risoluzione*: Raggruppare in card delimitate (`.glass-panel`), unificare con `<ToolsGrid hideExtraFilters={true} />` (TanStack Table v8), forzare `items-stretch` e `h-full` su card affiancate.
+4. **Legge di Jakob & Affordance (Don Norman)**:
+   - *Audit*: Pattern insoliti, bottoni che sembrano etichette o violazione della palette semantica?
+   - *Risoluzione*: Rispettare i modelli consolidati. Palette funzionale fissa: Verde=Carico (`.action-btn-carica`), Rosso=Scarico (`.action-btn-scarica`), Ciano=Conferma (`.action-btn-primary`), Arancione=Alert/Ordini (`.action-btn-order`). **DIVIETO ASSOLUTO del colore `indigo`**.
+5. **Euristiche di Nielsen & ISO 9241 (Prevenzione Errori & Feedback)**:
+   - *Audit*: L'operatore può prelevare più pezzi di quelli a magazzino o il sistema non dà feedback visivo immediato (< 100ms)?
+   - *Risoluzione*: Blocco preventivo del tasto (`disabled={qty > stock}`), messaggi di alert live, spinner e testi di caricamento inequivocabili.
+6. **WCAG 2.1 AA & Tipografia Semantica**:
+   - *Audit*: Font monospace (`.app-caption`) usato per istruzioni operative causando troncature? Contrasti < 4.5:1? Classi non standard come `text-5xl`?
+   - *Risoluzione*: Usare `.app-caption` solo per codici/SKU/timestamp; usare `.app-body` per spiegazioni; contrasto minimo 4.5:1; font solo `Inter`.
+7. **Layout App-Like (Single Screen 100vh) & Mobile Safe-Zones**:
+   - *Audit*: Scroll orizzontale su mobile o elementi tagliati dall'overflow?
+   - *Risoluzione*: Root a `100vh/100dvh` con `overflow-hidden`; scroll solo nei contenitori interni (`overflow-y-auto`) con safe-padding `p-2 pb-24` per non tagliare ring e ombreggiature.
+
+---
+
+## 🧠 Regole di UX/UI e Design (Errori da Evitare)
+
+1. **Divieto Assoluto del Colore `indigo`**: Sostituito ovunque da ciano/blu (`#0ea5e9`, `#06b6d4`) e arancione industriale (`#f97316`).
+2. **Mobile First & Zero Scroll Orizzontale**: Nascondere colonne accessorie su mobile (`hidden md:flex`) mostrando solo Icona, Descrizione e Quantità. Su schermi grandi espandere dinamicamente (`max-w-7xl`, `lg:grid-cols-5`, `xl:grid-cols-6`).
+3. **Proporzioni e Safe Zones**: Evitare padding sproporzionati intorno a icone piccole. Riservare sempre `padding-bottom` (es. `pb-28`) nei contenitori scrollabili per non finire sotto bottoni flottanti.
+4. **Comportamento Bottoni Flottanti**: Se i pulsanti macro (Carico/Scarico) coprono la lista su mobile, nasconderli durante lo scroll e ripristinarli dopo 15s di inattività.
+5. **Dettaglio vs Azione**: Click su riga apre il Modale Dettagli con tutte le info; da lì l'utente seleziona Carico o Scarico e conferma la transazione.
+6. **Ricerca Barcode Live**: Il filtro sul catalogo si aggiorna in tempo reale durante la digitazione, senza costringere a premere "Invio".
+7. **Filtri Dinamici Reattivi**: Nascondere i filtri a tendina le cui proprietà risultano interamente `null` per la classe/categoria selezionata.
+8. **Layout App-Like (100vh/100dvh)**: L'intera applicazione è bloccata a schermo intero (`overflow-hidden`). Lo scroll appartiene solo a contenitori dedicati (`flex-1 min-h-0 overflow-y-auto`).
+9. **Prevenzione Taglio Bordi (Clip Outlines & Rings)**: Aggiungere safe padding (`p-2 pb-6`) su contenitori scrollabili per non tagliare ring di focus e ombre. Usare `shrink-0` sulle card riga. Vietata la doppia nidificazione di `.glass-panel`.
+10. **Modali e Dialog (shadcn/ui Radix)**: Usare sempre `Dialog` nativi Radix/shadcn anziché overlay custom basati su framer-motion (evita bug di focus-trap, z-index e scroll-lock).
+11. **Nessuno Scroll Interno nei Modali di Dettaglio**: L'intero contenuto del modale deve essere visibile a colpo d'occhio (`overflow-hidden`, `max-h-[95vh]`, padding calibrati `p-6`).
+12. **Transizioni Dark Mode Leggere**: Limitare le animazioni CSS di cambio tema a `background-color`, `border-color` e `color`. Vietate transizioni lente su `backdrop-blur` e ombre.
+13. **Classi Tipografiche Semantiche (`src/index.css`)**: Usare solo `.app-overline`, `.app-h1`, `.app-h2`, `.app-h3`, `.app-body`, `.app-caption`, `.app-qty-sm`, `.app-qty-lg`.
+14. **Tabelle Mobile-First**: Testi estesi con `min-w-0 flex-1 truncate` e colonna quantità calibrata (`w-12 sm:w-16` / `min-w-[48px]`).
+15. **Precaricamento Immagini Statiche**: Precaricare le icone utensili (`preloadToolImages()`) al boot in `App.jsx`. Nessun lazy-loading sulle icone catalogo.
+16. **Tabelle e Viste Unificate con TanStack Table**: Tutte le liste utensili (inclusa `ScannerView`) devono riutilizzare `<ToolsGrid hideExtraFilters={true} />`. Vietate liste flex manuali con colonne disallineate.
+17. **Allineamento Header Modali**: Impostare sempre `showCloseButton={false}` su `DialogContent`. La 'X' deve risiedere nella barra flex dell'Header, allineata orizzontalmente con icona e titolo.
+18. **Divieto di `.app-caption` per Frasi Operative**: `.app-caption` (`font-mono`) è solo per codici e timestamp. Istruzioni e descrizioni usano `.app-body` senza `truncate` arbitrari.
+19. **Divieto di Box Annidati ("Box in a Box")**: Struttura fissa: Header (Icona+Titolo+X) -> Body (Hero/Content proporzionato) -> Footer (Metadati a sx, bottoni a dx).
+20. **Divieto di Testi Sparsi Fuori Contesto**: Istruzioni operative collocate esclusivamente nell'Header, nessun testo duplicante o badge fluttuante sul mirino video.
+21. **Barra di Ricerca Globale Permanente**: Posizionata permanentemente in `Header.jsx`. Al focus attiva `dropdownView`, resetta filtri parziali e filtra la tabella in tempo reale.
+22. **Schermate a Distinta (Zero Empty-State Passivi)**: In `MultiMovementView` renderizzare subito la tabella con testata e righe segnaposto fisse. Prima riga attiva e cliccabile con `+`.
+23. **Modali di Ricerca a Schermo Esteso**: Per selezionare utensili da aggiungere a distinte/ordini, usare modali estesi (`max-w-6xl`/`7xl`, `h-[88dvh]`) con `<ToolsGrid hideExtraFilters={true} />`.
+24. **Scala Dimensionale Standard dei Modali & Divieto Troncature**:
+    - Rispettare i 4 Tier dimensionali: Tier 1 Alert (`sm:max-w-md`), Tier 2 Form Operativi/Commesse (`sm:max-w-2xl md:max-w-3xl`), Tier 3 Dettaglio Tecnico (`sm:max-w-3xl md:max-w-4xl`), Tier 4 Catalogo Fullscreen (`sm:max-w-6xl md:max-w-7xl`).
+    - Mai troncare titoli operativi dei modali con `truncate` (es. mai generare "MODIFICA COMME..."). Separare l'azione dal codice e mostrare il codice in un badge mono dedicato.
+    - I pulsanti di azione primaria non devono mai andare a capo su due righe (`whitespace-nowrap font-black tracking-wider`). In `DialogContent`, consentire alle classi `max-w-*` personalizzate di applicarsi senza essere scavalcate da default rigidi.
+
+---
+
+## 💾 Regole di Sviluppo, Architettura e Backend
+
+1. **Database Supabase**: Interfacciamento su `Utensili_B1` (inventario), `movements_history` (log transazioni) e `utenti` (profili/ruoli).
+2. **Stato Globale Isolato (Zustand)**: Store atomici dedicati (`useAuthStore`, `useInventoryStore`, `useFilterStore`, `useMovementStore`, `useMultiMovementStore`). Nessun prop-drilling esteso.
+3. **Separation of Concerns (SoC) & Custom Hooks**: Logica di business e validazioni estratte in hook dedicati (es. `useAddToolForm.js`). Componenti JSX come pure viste.
+4. **Navigazione Shadcn Sidebar**: Architettura standard basata su `SidebarProvider`. Pannello comprimibile su desktop, drawer nativo su mobile.
+5. **Autenticazione e Login Guard**: Verifica sessione centralizzata a livello radice in `App.jsx`. Nessun redirect asincrono improvviso durante l'interazione nei modali.
+6. **Ordinamento Multi-Campo (Sorting)**: Ordinamenti gestiti in `useFilterStore` tramite `localeCompare(..., { numeric: true })` per ordinare correttamente stringhe numeriche (es. D2 prima di D10).
+7. **Sicurezza Credenziali e Dati**:
+   - Nessuna password hardcoded o backdoor di bypass ('1234').
+   - Nessuna `select(*)` sulla tabella utenti; escludere sempre le password da query e cache locale (`localStorage`).
+   - Variabili d'ambiente via `import.meta.env`; mai committare `.env` o credenziali.
+   - Validazione quantità positive (`p_change > 0`) sia client-side sia nelle RPC Supabase.
+   - Funzionamento 100% offline per la PWA: nessun asset grafico caricato da CDN esterne non sicure.
+8. **Controllo Accessi e Reset di Sessione**:
+   - Navigazione gestita in `useNavigationStore`. Al logout: redirect a 'home' e reset filtri catalogo.
+   - Defense-in-depth: viste riservate (`OperatorsView`) verificano `ruolo === 'Admin'` sia a livello sidebar che nel corpo del componente e in `App.jsx`.
+9. **Architettura Tutorial Interattivo Multi-Vista (`AppTutorial` & `useTutorialStore`)**:
+   - Passaggi dichiarativi con `targetView`, `resetFilters`, `viewMode`, `requireSidebar`.
+   - Polling resiliente (40ms fino a 1s) per agganciare elementi con animazioni Framer Motion.
+10. **Movimenti Multipli a Distinta (`useMultiMovementStore` & `handle_multi_movement`)**:
+    - Validazione live: blocco preventivo se quantità <= 0 o scarico > pezzi a magazzino.
+    - Esecuzione transazionale atomica via stored procedure PostgreSQL `handle_multi_movement` con blocco `FOR UPDATE`, con fallback trasparente client-side.
+11. **Aggiornamento Log Obbligatorio a Chiusura Task**:
+    - Prima di considerare terminato un task, aggiornare tassativamente [`CHANGELOG.md`](./CHANGELOG.md) riassumendo in 2-4 punti sintetici cosa è stato modificato e i file principali coinvolti.
+
+---
+
+## 📱 Ottimizzazioni Mobile e Performance PWA
+
+1. **PWA & Safe Areas**: Rispetto categorico di `env(safe-area-inset-*)` per evitare sovrapposizioni con notch e barre di sistema.
+2. **Chunking Bundle Vite**: Scorporo librerie pesanti (`@tanstack/*`, `framer-motion`, `@supabase/*`, `lucide-react`) in `manualChunks` in `vite.config.js` per garantire bundle sotto 500 kB e cache veloce nei terminali d'officina.
