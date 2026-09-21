@@ -66,12 +66,12 @@ class ErrorBoundary extends Component {
 
       return (
         <div className="min-h-[100dvh] h-[100dvh] w-full flex flex-col items-center justify-center p-4 dark:bg-slate-950 bg-slate-50 text-slate-800 dark:text-slate-100">
-          <div className="w-full max-w-md glass-panel p-6 sm:p-8 rounded-[28px] sm:rounded-[36px] flex flex-col items-center text-center shadow-2xl border dark:border-white/10 border-slate-900/10 max-h-[92vh] overflow-y-auto custom-scrollbar">
+          <div className="w-full max-w-md glass-panel p-6 sm:p-8 rounded-3xl sm:rounded-full flex flex-col items-center text-center shadow-2xl border dark:border-white/10 border-slate-900/10 max-h-[92vh] overflow-y-auto custom-scrollbar">
             <div className="w-16 h-16 rounded-2xl bg-accent-orange/20 flex items-center justify-center text-accent-orange mb-4 shadow-inner shrink-0">
               <AlertTriangle size={32} />
             </div>
             
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-orange mb-1">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-accent-orange mb-1">
               Sistema di Ripristino
             </p>
             <h2 className="text-xl sm:text-2xl font-black uppercase italic tracking-tight mb-2">
@@ -101,35 +101,35 @@ class ErrorBoundary extends Component {
 
             {/* Dettagli tecnici dell'errore consultabili e copiabili direttamente da mobile */}
             {error && (
-              <div className="w-full mt-5 pt-4 border-t border-slate-900/10 dark:border-white/10 flex flex-col items-center">
+              <div className="w-full mt-6 pt-4 border-t border-slate-900/10 dark:border-white/10 flex flex-col items-center">
                 <button
                   type="button"
                   onClick={() => this.setState(prev => ({ showDetails: !prev.showDetails }))}
-                  className="text-[11px] font-bold text-slate-500 hover:text-accent-blue flex items-center gap-1.5 transition-colors cursor-pointer py-1"
+                  className="text-xs font-bold text-slate-500 hover:text-accent-blue flex items-center gap-1.5 transition-colors cursor-pointer py-1"
                 >
                   <span>{showDetails ? 'Nascondi dettagli tecnici' : 'Mostra dettagli errore'}</span>
-                  {showDetails ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                  {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                 </button>
 
                 {showDetails && (
-                  <div className="mt-3 w-full p-3 rounded-2xl bg-slate-950/90 text-slate-200 border border-white/10 text-left font-mono text-[10px] flex flex-col gap-2 shadow-inner">
+                  <div className="mt-3 w-full p-3 rounded-2xl bg-slate-950/90 text-slate-200 border border-white/10 text-left font-mono text-xs flex flex-col gap-2 shadow-inner">
                     <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
-                      <span className="text-rose-400 font-bold truncate text-[11px]">
+                      <span className="text-rose-400 font-bold truncate text-xs">
                         {String(error?.name || 'Error')}: {String(error?.message || error)}
                       </span>
                       <button
                         type="button"
                         onClick={this.handleCopyError}
-                        className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-accent-blue flex items-center gap-1 shrink-0 active:scale-95 transition-all text-[9px] font-bold uppercase tracking-wider cursor-pointer"
+                        className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-accent-blue flex items-center gap-1 shrink-0 active:scale-95 transition-all text-xs font-bold uppercase tracking-wider cursor-pointer"
                         title="Copia errore negli appunti"
                       >
-                        {copied ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
+                        {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                         <span>{copied ? 'Copiato' : 'Copia'}</span>
                       </button>
                     </div>
 
                     {error?.stack && (
-                      <pre className="text-slate-400 whitespace-pre-wrap break-all text-[9px] max-h-36 overflow-y-auto custom-scrollbar leading-relaxed">
+                      <pre className="text-slate-400 whitespace-pre-wrap break-all text-xs max-h-36 overflow-y-auto custom-scrollbar leading-relaxed">
                         {error.stack}
                       </pre>
                     )}

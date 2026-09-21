@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "lint": "eslint . && npm run lint:tokens",
+    "preview": "vite preview",
+    "lint:tokens": "node scripts/check-tailwind-tokens.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -20,6 +21,7 @@
     "framer-motion": "^12.35.2",
     "html5-qrcode": "^2.3.8",
     "lucide-react": "^0.577.0",
+    "prop-types": "^15.8.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "shadcn": "^4.8.0",

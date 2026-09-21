@@ -1,8 +1,8 @@
-import React, { memo, useState, useEffect, useMemo } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowUp, ArrowDown, ShoppingCart, AlertTriangle, Briefcase, ChevronDown } from 'lucide-react';
 import { buildDesc } from '../../lib/toolUtils';
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/dialog";
 import { useCommesseStore } from '../../store/useCommesseStore';
 
 import { useMovementStore } from '../../store/useMovementStore';
@@ -105,10 +105,10 @@ const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3">
         {details.map(([key, value]) => (
           <div key={key} className="dark:bg-white/5 bg-slate-900/5 border border-white/5 p-2.5 md:p-3 rounded-2xl flex flex-col hover:bg-white/[0.08] transition-colors group">
-            <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-accent-orange mb-1 opacity-60 group-hover:opacity-100 transition-opacity truncate">
+            <span className="text-xs md:text-xs font-black uppercase tracking-widest text-accent-orange mb-1 opacity-60 group-hover:opacity-100 transition-opacity truncate">
               {displayLabelMap[key] || key}
             </span>
-            <span className="text-xs md:text-[13px] font-bold dark:text-white text-slate-900 leading-tight truncate">{value}</span>
+            <span className="text-xs md:text-xs font-bold dark:text-white text-slate-900 leading-tight truncate">{value}</span>
           </div>
         ))}
       </div>
@@ -117,38 +117,26 @@ const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
 
   return (
     <Dialog open={true} onOpenChange={(open) => { if (!open) setShowMoveModal(false); }}>
-      <DialogContent showCloseButton={false} className="glass-panel w-[94vw] sm:w-full max-w-3xl max-h-[92dvh] overflow-hidden p-4 sm:p-6 md:p-8 rounded-[28px] sm:rounded-[36px] md:rounded-[40px] z-[1001] bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border dark:border-white/10 border-slate-900/10 shadow-2xl flex flex-col gap-3 md:gap-5 !max-w-3xl focus:outline-none">
-        <DialogTitle className="sr-only">Dettaglio Utensile</DialogTitle>
+      <DialogContent size="lg" className="p-0 gap-0 overflow-hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl">
+        <ModalHeader
+          overline={isDetailsStep ? "Dettaglio Utensile" : opType === 'carico' ? "Conferma Deposito" : "Conferma Prelievo"}
+          title={typeof selectedTool === 'object' && selectedTool !== null ? buildDesc(selectedTool) : `${selectedTool || 0} Articoli`}
+          badge={typeof selectedTool === 'object' && selectedTool !== null && selectedTool?.Codice ? (
+            <div className="app-caption uppercase tracking-widest dark:bg-white/5 bg-slate-900/5 py-0.5 px-2 rounded-full border border-white/5">
+              CODICE AZIENDALE: <span className="dark:text-white text-slate-900 ml-1 font-bold">{selectedTool.Codice}</span>
+            </div>
+          ) : null}
+        />
         
         {/* Glow decoration */}
         <div className="absolute top-0 right-0 w-48 h-48 md:w-64 md:h-64 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 transition-all duration-700 pointer-events-none" 
           style={{ backgroundColor: opType === 'carico' ? 'rgba(16, 185, 129, 0.15)' : opType === 'scarico' ? 'rgba(244, 63, 94, 0.15)' : 'rgba(14, 165, 233, 0.15)' }} 
         />
 
-        {/* Header Block */}
-        <div className="flex justify-between items-start relative z-10 shrink-0">
-          <div className="flex flex-col flex-1 pr-3 overflow-hidden">
-            <p className={`app-overline mb-0.5 drop-shadow-md ${isDetailsStep ? 'text-accent-orange' : opType === 'carico' ? 'text-accent-emerald' : 'text-accent-rose'}`}>
-              {isDetailsStep ? "Dettaglio Utensile" : opType === 'carico' ? "Conferma Deposito" : "Conferma Prelievo"}
-            </p>
-            <h3 className="app-h2 uppercase tracking-tight leading-tight mb-1 truncate">
-              {typeof selectedTool === 'object' && selectedTool !== null ? buildDesc(selectedTool) : `${selectedTool || 0} Articoli`}
-            </h3>
-            {typeof selectedTool === 'object' && selectedTool !== null && selectedTool?.Codice && (
-              <p className="app-caption uppercase tracking-widest dark:bg-white/5 bg-slate-900/5 py-0.5 px-2 rounded-full self-start border border-white/5 mt-0.5 truncate max-w-full">
-                CODICE AZIENDALE: <span className="dark:text-white text-slate-900 ml-1 font-bold">{selectedTool.Codice}</span>
-              </p>
-            )}
-          </div>
-          <button onClick={() => setShowMoveModal(false)} className="glass-button p-2.5 sm:p-3 rounded-full flex-shrink-0 text-slate-400 hover:text-white hover:bg-rose-500/20 transition-all"><X size={18} className="sm:w-5 sm:h-5" /></button>
-        </div>
-
-        {/* Main Content Area */}
-        <div className="relative z-10 w-full flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pr-1 md:pr-3">
-          <AnimatePresence mode="wait">
-            {isDetailsStep ? (
-              <motion.div key="details" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-3 md:gap-4 pb-2">
-                
+        <AnimatePresence mode="wait">
+          {isDetailsStep ? (
+            <motion.div key="details" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col flex-1 min-h-0">
+              <ModalBody>
                 <div>
                   <div className="flex items-end justify-between mb-2 sm:mb-3 border-b dark:border-white/10 border-slate-900/10 pb-2">
                      <div>
@@ -161,11 +149,12 @@ const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
                   </div>
                   {renderDetails()}
                 </div>
-
+              </ModalBody>
+              <ModalFooter>
                 {(() => {
                   const showPrimaryActions = !(!isBulkMode && selectedTool && (selectedTool?.['Quantità'] || 0) <= 0 && currentUser?.ruolo !== 'Admin');
                   return (
-                    <div className="flex flex-col gap-2 sm:gap-3 mt-1">
+                    <div className="flex flex-col gap-2 sm:gap-3 w-full">
                       {showPrimaryActions && (
                         <div className="grid grid-cols-2 gap-2 sm:gap-3">
                           <button onClick={() => setOpType('carico')} className="action-btn action-btn-carica py-3 sm:py-3.5 md:py-4 w-full flex flex-col items-center justify-center gap-1.5 group border border-accent-emerald/30 shadow-lg relative overflow-hidden rounded-xl sm:rounded-2xl active:scale-95 cursor-pointer">
@@ -188,7 +177,7 @@ const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
                           </button>
                         ) : (
                           <button onClick={() => { setShowMoveModal(false); if(onOpenOrder) onOpenOrder(); }} className="w-full flex items-center justify-center gap-2 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl border border-accent-orange/40 text-accent-orange font-black text-xs sm:text-sm uppercase tracking-wider hover:bg-accent-orange/10 transition-all cursor-pointer">
-                            <ShoppingCart size={18} />
+                            <ShoppingCart size={20} />
                             <span>Crea Ordine</span>
                           </button>
                         )
@@ -196,195 +185,199 @@ const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
                     </div>
                   );
                 })()}
-              </motion.div>
-            ) : (
-              <motion.div key="operation" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex flex-col h-full justify-center gap-3 sm:gap-5 my-auto py-2">
-                
-                {/* Feedforward: Visual Stock Indicator */}
-                <div className="flex flex-col items-center justify-center gap-1 text-center">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-xs">
-                    <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      {opType === 'scarico' ? 'Disponibili a magazzino:' : 'Giacenza attuale:'}
-                    </span>
-                    <span className={`text-xs sm:text-sm font-black tabular-nums ${minAvailableStock > 0 ? 'text-accent-emerald' : 'text-accent-rose'}`}>
-                      {minAvailableStock} pz
-                    </span>
-                    {opType === 'carico' && (
-                      <span className="text-[10px] sm:text-[11px] font-bold text-slate-400">
-                        → <strong className="text-accent-emerald font-black">{minAvailableStock + (Number(modalQty) || 0)} pz</strong>
+              </ModalFooter>
+            </motion.div>
+          ) : (
+            <motion.div key="operation" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex flex-col flex-1 min-h-0">
+              <ModalBody>
+                <div className="flex flex-col justify-center gap-3 sm:gap-6 py-2">
+                  {/* Feedforward: Visual Stock Indicator */}
+                  <div className="flex flex-col items-center justify-center gap-1 text-center">
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-xs">
+                      <span className="text-xs sm:text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        {opType === 'scarico' ? 'Disponibili a magazzino:' : 'Giacenza attuale:'}
                       </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Main Stepper */}
-                <div className="flex items-center gap-3 sm:gap-6 md:gap-8 justify-center">
-                  <button 
-                    type="button"
-                    onClick={() => setModalQty(Math.max(1, (Number(modalQty) || 1) - 1))} 
-                    className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 glass-button rounded-full text-lg sm:text-xl md:text-2xl font-black shrink-0 hover:bg-white/10 hover:scale-110 active:scale-95 transition-all cursor-pointer"
-                    aria-label="Riduci quantità"
-                  >
-                    -
-                  </button>
-                  <div className="flex flex-col items-center">
-                    <p className={`app-overline mb-1 text-center ${opType === 'scarico' ? 'text-accent-rose' : 'text-accent-emerald'}`}>
-                      Quantità {opType === 'carico' ? 'da Depositare' : 'da Prelevare'}
-                    </p>
-                    <input 
-                      type="number" 
-                      inputMode="numeric" 
-                      min="1"
-                      max={opType === 'scarico' ? Math.max(1, minAvailableStock) : undefined}
-                      value={modalQty} 
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value, 10);
-                        setModalQty(isNaN(val) ? '' : val);
-                      }} 
-                      className={`w-24 sm:w-28 md:w-32 bg-transparent text-center text-3xl sm:text-4xl md:text-5xl font-black outline-none tabular-nums border-b-2 pb-1 transition-all ${
-                        isExceedingStock 
-                          ? 'text-accent-rose border-accent-rose focus:border-accent-rose' 
-                          : 'dark:text-white text-slate-900 dark:border-white/10 border-slate-900/10 focus:border-accent-blue'
-                      }`} 
-                    />
-                  </div>
-                  <button 
-                    type="button"
-                    disabled={opType === 'scarico' && currentQtyNum >= minAvailableStock}
-                    onClick={() => setModalQty((Number(modalQty) || 0) + 1)} 
-                    className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 glass-button rounded-full text-lg sm:text-xl md:text-2xl font-black shrink-0 transition-all ${
-                      opType === 'scarico' && currentQtyNum >= minAvailableStock
-                        ? 'opacity-30 cursor-not-allowed pointer-events-none'
-                        : 'hover:bg-white/10 hover:scale-110 active:scale-95 cursor-pointer'
-                    }`}
-                    aria-label="Aumenta quantità"
-                  >
-                    +
-                  </button>
-                </div>
-
-                {/* Exceeding alert */}
-                {isExceedingStock && (
-                  <div className="flex items-center justify-center gap-1.5 text-accent-rose text-xs font-bold text-center px-3 py-1.5 bg-rose-500/10 rounded-xl border border-rose-500/20 max-w-sm mx-auto">
-                    <AlertTriangle size={15} className="shrink-0" />
-                    <span>Quantità superiore alla giacenza ({minAvailableStock} pz)</span>
-                  </div>
-                )}
-
-                {/* Quick Presets (Fitts's Law) */}
-                <div className="flex flex-wrap items-center justify-center gap-2 max-w-sm mx-auto">
-                  {opType === 'scarico' ? (
-                    <>
-                      {[1, 2, 5].filter(q => q <= minAvailableStock && q !== minAvailableStock).map(preset => (
-                        <button
-                          key={preset}
-                          type="button"
-                          onClick={() => setModalQty(preset)}
-                          className={`px-3 py-1 rounded-xl text-xs font-bold transition-all glass-button cursor-pointer ${
-                            modalQty === preset ? 'bg-accent-blue/20 text-accent-blue border-accent-blue/40 shadow-xs' : 'text-slate-600 dark:text-slate-300'
-                          }`}
-                        >
-                          {preset} pz
-                        </button>
-                      ))}
-                      {minAvailableStock > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => setModalQty(minAvailableStock)}
-                          className={`px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider transition-all border cursor-pointer ${
-                            modalQty === minAvailableStock 
-                              ? 'bg-accent-rose text-white border-accent-rose shadow-sm' 
-                              : 'bg-rose-500/10 text-accent-rose border-rose-500/30 hover:bg-rose-500/20'
-                          }`}
-                        >
-                          MAX ({minAvailableStock} pz)
-                        </button>
+                      <span className={`text-xs sm:text-sm font-black tabular-nums ${minAvailableStock > 0 ? 'text-accent-emerald' : 'text-accent-rose'}`}>
+                        {minAvailableStock} pz
+                      </span>
+                      {opType === 'carico' && (
+                        <span className="text-xs sm:text-xs font-bold text-slate-400">
+                          → <strong className="text-accent-emerald font-black">{minAvailableStock + (Number(modalQty) || 0)} pz</strong>
+                        </span>
                       )}
-                    </>
-                  ) : (
-                    <>
-                      {[1, 5, 10, 20].map(preset => (
-                        <button
-                          key={preset}
-                          type="button"
-                          onClick={() => setModalQty(preset)}
-                          className={`px-3 py-1 rounded-xl text-xs font-bold transition-all glass-button cursor-pointer ${
-                            modalQty === preset ? 'bg-emerald-500/20 text-accent-emerald border-emerald-500/40 shadow-xs' : 'text-slate-600 dark:text-slate-300'
-                          }`}
-                        >
-                          +{preset} pz
-                        </button>
-                      ))}
-                    </>
+                    </div>
+                  </div>
+
+                  {/* Main Stepper */}
+                  <div className="flex items-center gap-3 sm:gap-6 md:gap-8 justify-center">
+                    <button 
+                      type="button"
+                      onClick={() => setModalQty(Math.max(1, (Number(modalQty) || 1) - 1))} 
+                      className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 glass-button rounded-full text-lg sm:text-xl md:text-2xl font-black shrink-0 hover:bg-white/10 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+                      aria-label="Riduci quantità"
+                    >
+                      -
+                    </button>
+                    <div className="flex flex-col items-center">
+                      <p className={`app-overline mb-1 text-center ${opType === 'scarico' ? 'text-accent-rose' : 'text-accent-emerald'}`}>
+                        Quantità {opType === 'carico' ? 'da Depositare' : 'da Prelevare'}
+                      </p>
+                      <input 
+                        type="number" 
+                        inputMode="numeric" 
+                        min="1"
+                        max={opType === 'scarico' ? Math.max(1, minAvailableStock) : undefined}
+                        value={modalQty} 
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          setModalQty(isNaN(val) ? '' : val);
+                        }} 
+                        className={`w-24 sm:w-28 md:w-32 bg-transparent text-center text-3xl sm:text-4xl md:text-5xl font-black outline-none tabular-nums border-b-2 pb-1 transition-all ${
+                          isExceedingStock 
+                            ? 'text-accent-rose border-accent-rose focus:border-accent-rose' 
+                            : 'dark:text-white text-slate-900 dark:border-white/10 border-slate-900/10 focus:border-accent-blue'
+                        }`} 
+                      />
+                    </div>
+                    <button 
+                      type="button"
+                      disabled={opType === 'scarico' && currentQtyNum >= minAvailableStock}
+                      onClick={() => setModalQty((Number(modalQty) || 0) + 1)} 
+                      className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 glass-button rounded-full text-lg sm:text-xl md:text-2xl font-black shrink-0 transition-all ${
+                        opType === 'scarico' && currentQtyNum >= minAvailableStock
+                          ? 'opacity-30 cursor-not-allowed pointer-events-none'
+                          : 'hover:bg-white/10 hover:scale-110 active:scale-95 cursor-pointer'
+                      }`}
+                      aria-label="Aumenta quantità"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  {/* Exceeding alert */}
+                  {isExceedingStock && (
+                    <div className="flex items-center justify-center gap-1.5 text-accent-rose text-xs font-bold text-center px-3 py-1.5 bg-rose-500/10 rounded-xl border border-rose-500/20 max-w-sm mx-auto">
+                      <AlertTriangle size={16} className="shrink-0" />
+                      <span>Quantità superiore alla giacenza ({minAvailableStock} pz)</span>
+                    </div>
                   )}
-                </div>
 
-                {/* Selezione Commessa (Mobile-First Native Form) */}
-                <div className="w-full max-w-sm mx-auto flex flex-col gap-1 px-1">
-                  <div className="flex items-center justify-between">
-                    <label 
-                      htmlFor="movement-commessa-select"
-                      className="app-overline text-slate-500 dark:text-slate-400 flex items-center gap-1.5"
-                    >
-                      <Briefcase size={12} className="text-accent-blue shrink-0" />
-                      <span>Commessa di riferimento</span>
-                    </label>
-                    {selectedCommessaId && (
-                      <button
-                        type="button"
-                        onClick={() => setSelectedCommessaId(null)}
-                        className="text-[10px] font-bold text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
-                      >
-                        Resetta
-                      </button>
+                  {/* Quick Presets (Fitts's Law) */}
+                  <div className="flex flex-wrap items-center justify-center gap-2 max-w-sm mx-auto">
+                    {opType === 'scarico' ? (
+                      <>
+                        {[1, 2, 5].filter(q => q <= minAvailableStock && q !== minAvailableStock).map(preset => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() => setModalQty(preset)}
+                            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all glass-button cursor-pointer ${
+                              modalQty === preset ? 'bg-accent-blue/20 text-accent-blue border-accent-blue/40 shadow-xs' : 'text-slate-600 dark:text-slate-300'
+                            }`}
+                          >
+                            {preset} pz
+                          </button>
+                        ))}
+                        {minAvailableStock > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setModalQty(minAvailableStock)}
+                            className={`px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider transition-all border cursor-pointer ${
+                              modalQty === minAvailableStock 
+                                ? 'bg-accent-rose text-white border-accent-rose shadow-sm' 
+                                : 'bg-rose-500/10 text-accent-rose border-rose-500/30 hover:bg-rose-500/20'
+                            }`}
+                          >
+                            MAX ({minAvailableStock} pz)
+                          </button>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {[1, 5, 10, 20].map(preset => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() => setModalQty(preset)}
+                            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all glass-button cursor-pointer ${
+                              modalQty === preset ? 'bg-emerald-500/20 text-accent-emerald border-emerald-500/40 shadow-xs' : 'text-slate-600 dark:text-slate-300'
+                            }`}
+                          >
+                            +{preset} pz
+                          </button>
+                        ))}
+                      </>
                     )}
                   </div>
-                  <div className="relative">
-                    <select
-                      id="movement-commessa-select"
-                      value={selectedCommessaId || ''}
-                      onChange={(e) => setSelectedCommessaId(e.target.value || null)}
-                      disabled={isLoadingCommesse}
-                      className="glass-input w-full border dark:border-white/10 border-slate-900/10 rounded-xl sm:rounded-2xl py-2.5 sm:py-3 pl-3.5 pr-10 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all font-medium appearance-none text-xs sm:text-sm cursor-pointer dark:bg-slate-900 bg-white"
-                    >
-                      <option value="" className="dark:bg-slate-900 dark:text-white bg-white text-slate-900">
-                        {isLoadingCommesse ? 'Caricamento commesse...' : 'Nessuna commessa (Magazzino centrale)'}
-                      </option>
-                      {activeCommesse.length > 0 && (
-                        <optgroup label="Commesse Attive" className="dark:bg-slate-900 dark:text-white bg-white text-slate-900 font-bold">
-                          {activeCommesse.map((c) => (
-                            <option
-                              key={c.id}
-                              value={c.id}
-                              className="dark:bg-slate-900 dark:text-white bg-white text-slate-900 font-normal"
-                            >
-                              {c.codice}{c.ubicazione ? ` — ${c.ubicazione}` : ''}
-                            </option>
-                          ))}
-                        </optgroup>
+
+                  {/* Selezione Commessa (Mobile-First Native Form) */}
+                  <div className="w-full max-w-sm mx-auto flex flex-col gap-1 px-1">
+                    <div className="flex items-center justify-between">
+                      <label 
+                        htmlFor="movement-commessa-select"
+                        className="app-overline text-slate-500 dark:text-slate-400 flex items-center gap-1.5"
+                      >
+                        <Briefcase size={14} className="text-accent-blue shrink-0" />
+                        <span>Commessa di riferimento</span>
+                      </label>
+                      {selectedCommessaId && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedCommessaId(null)}
+                          className="text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
+                        >
+                          Resetta
+                        </button>
                       )}
-                      {closedCommesse.length > 0 && (
-                        <optgroup label="Commesse Chiuse (riattivare per selezionare)" className="dark:bg-slate-900 dark:text-slate-400 bg-white text-slate-400 font-bold">
-                          {closedCommesse.map((c) => (
-                            <option
-                              key={c.id}
-                              value={c.id}
-                              disabled
-                              className="dark:bg-slate-900 dark:text-slate-500 bg-white text-slate-400 font-normal italic"
-                            >
-                              {c.codice} (Chiusa)
-                            </option>
-                          ))}
-                        </optgroup>
-                      )}
-                    </select>
-                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                      <ChevronDown size={16} />
+                    </div>
+                    <div className="relative">
+                      <select
+                        id="movement-commessa-select"
+                        value={selectedCommessaId || ''}
+                        onChange={(e) => setSelectedCommessaId(e.target.value || null)}
+                        disabled={isLoadingCommesse}
+                        className="glass-input w-full border dark:border-white/10 border-slate-900/10 rounded-xl sm:rounded-2xl py-2.5 sm:py-3 pl-3.5 pr-10 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all font-medium appearance-none text-xs sm:text-sm cursor-pointer dark:bg-slate-900 bg-white"
+                      >
+                        <option value="" className="dark:bg-slate-900 dark:text-white bg-white text-slate-900">
+                          {isLoadingCommesse ? 'Caricamento commesse...' : 'Nessuna commessa (Magazzino centrale)'}
+                        </option>
+                        {activeCommesse.length > 0 && (
+                          <optgroup label="Commesse Attive" className="dark:bg-slate-900 dark:text-white bg-white text-slate-900 font-bold">
+                            {activeCommesse.map((c) => (
+                              <option
+                                key={c.id}
+                                value={c.id}
+                                className="dark:bg-slate-900 dark:text-white bg-white text-slate-900 font-normal"
+                              >
+                                {c.codice}{c.ubicazione ? ` — ${c.ubicazione}` : ''}
+                              </option>
+                            ))}
+                          </optgroup>
+                        )}
+                        {closedCommesse.length > 0 && (
+                          <optgroup label="Commesse Chiuse (riattivare per selezionare)" className="dark:bg-slate-900 dark:text-slate-400 bg-white text-slate-400 font-bold">
+                            {closedCommesse.map((c) => (
+                              <option
+                                key={c.id}
+                                value={c.id}
+                                disabled
+                                className="dark:bg-slate-900 dark:text-slate-500 bg-white text-slate-400 font-normal italic"
+                              >
+                                {c.codice} (Chiusa)
+                              </option>
+                            ))}
+                          </optgroup>
+                        )}
+                      </select>
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <ChevronDown size={16} />
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-3 md:gap-4 w-full mt-2">
+              </ModalBody>
+              <ModalFooter>
+                <div className="flex items-center gap-3 md:gap-4 w-full">
                   {!isBulkMode && (
                     <button onClick={() => setOpType(null)} className="glass-button px-4 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl dark:text-slate-400 text-slate-600 hover:dark:text-white text-slate-900 w-auto shrink-0 flex items-center justify-center transition-all group cursor-pointer">
                        <span className="text-xs sm:text-sm font-bold uppercase tracking-wider group-hover:-translate-x-0.5 transition-transform">Indietro</span>
@@ -404,10 +397,10 @@ const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
                     CONFERMA {opType === 'carico' ? 'DEPOSITO' : 'PRELIEVO'}
                   </button>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+              </ModalFooter>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </DialogContent>
     </Dialog>
   );

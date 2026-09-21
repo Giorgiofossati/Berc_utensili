@@ -1,4 +1,10 @@
 import React, { useState, useMemo, useCallback, memo } from 'react';
+
+import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
+import { StateBlock } from '@/components/common/StateBlock';
+import { StatTile } from '@/components/ui/stat-tile';
+import { SegmentedControl } from '@/components/ui/segmented-control';
+import { IconButton } from '@/components/ui/icon-button';
 import { 
   useReactTable, 
   getCoreRowModel, 
@@ -8,12 +14,12 @@ import {
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft, ArrowDown, ArrowUp, Search, X, 
-  RefreshCw, User, Calendar, FilterX, Info, Copy, Check 
+  RefreshCw, User, Calendar, FilterX, Info, Copy, Check, Layers 
 } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { VirtualizedTable } from '../../components/common/DataTable';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, ModalHeader, ModalBody, ModalFooter, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const formatDateLong = (dateStr) => {
   if (!dateStr) return '—';
@@ -50,7 +56,7 @@ const isSameDay = (d1, d2) =>
 
 const columnHelper = createColumnHelper();
 
-const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
+const HistoryView = memo(({ history = [], isLoading, error, setView, fetchHistory }) => {
   // Sorting State - default: data più recente per prima
   const [sorting, setSorting] = useState([{ id: 'created_at', desc: true }]);
 
@@ -58,7 +64,7 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOperator, setSelectedOperator] = useState('all');
   const [opTypeFilter, setOpTypeFilter] = useState('all'); // 'all' | 'carico' | 'scarico'
-  const [timeframeFilter, setTimeframeFilter] = useState('all'); // 'all' | 'today' | '7d' | '30d' | 'this_month' | 'custom'
+  const [timeframeFilter, setTimeframeFilter] = useState('30d'); // 'all' | 'today' | '7d' | '30d' | 'this_month' | 'custom'
   const [customDate, setCustomDate] = useState('');
 
   // UI State
@@ -179,7 +185,7 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
   const columns = useMemo(() => [
     columnHelper.accessor('created_at', {
       header: 'Data & Ora',
-      size: 130,
+      size: 150,
       meta: { className: 'shrink-0' },
       sortingFn: (rowA, rowB, columnId) => {
         const timeA = new Date(rowA.getValue(columnId) || 0).getTime();
@@ -277,7 +283,7 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
         const isCarico = info.getValue() === 'carico';
         return (
           <div className="w-full truncate text-center">
-            <span className={`badge text-[9px] font-black uppercase px-2.5 py-0.5 ${isCarico ? 'badge-emerald' : 'badge-rose'}`}>
+            <span className={`badge text-xs font-black uppercase px-2.5 py-0.5 ${isCarico ? 'badge-emerald' : 'badge-rose'}`}>
               {isCarico ? 'Carico' : 'Scarico'}
             </span>
           </div>
@@ -321,7 +327,7 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
         return (
           <div className="w-full flex items-center justify-start gap-1.5 px-3 truncate">
             <div className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center shrink-0">
-              <User size={11} className="text-slate-500" />
+              <User size={14} className="text-slate-500" />
             </div>
             <span className="app-caption font-bold uppercase truncate text-slate-700 dark:text-slate-300">
               {val || '—'}
@@ -348,42 +354,32 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
     setTimeout(() => setCopiedId(false), 2000);
   };
 
+  // Stato Densità
+  const [density, setDensity] = useState('compact');
+
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.99 }} 
-      animate={{ opacity: 1, scale: 1 }} 
-      transition={{ duration: 0.15 }}
-      className="w-full max-w-[1600px] h-full flex flex-col flex-1 gap-2 md:gap-3 px-2 sm:px-4 min-h-0 pb-3"
-    >
-      {/* Header Bar */}
-      <div className="flex w-full justify-between items-center px-1 shrink-0 pt-1">
-        <div>
-          <p className="app-overline text-accent-orange drop-shadow-md mb-0.5">Tracciamento Log</p>
-          <h2 className="app-h1">Storico Movimenti</h2>
-        </div>
-        <div className="flex items-center gap-2">
-          {fetchHistory && (
+    <PageTemplate className="max-w-[1600px]">
+      <PageHeader
+        title="Storico movimenti"
+        breadcrumb="Magazzino"
+        showBack={true}
+        onBack={() => setView('home')}
+        action={
+          fetchHistory && (
             <button 
               onClick={handleRefresh} 
               disabled={isRefreshing}
               title="Ricarica storico movimenti"
-              className="glass-button p-2 sm:px-3 sm:py-2 rounded-[14px] sm:rounded-[18px] font-bold text-xs text-slate-700 dark:text-slate-300 flex items-center gap-1.5 hover:scale-105 active:scale-95 transition-all"
+              className="glass-button p-2 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl font-bold text-xs text-slate-700 dark:text-slate-300 flex items-center gap-1.5 hover:scale-105 active:scale-95 transition-all"
             >
               <RefreshCw size={14} className={isRefreshing ? "animate-spin text-accent-blue" : ""} />
               <span className="hidden sm:inline">Aggiorna</span>
             </button>
-          )}
-          <button 
-            onClick={() => setView('home')} 
-            className="glass-panel px-3.5 py-2 sm:px-5 sm:py-2 rounded-[14px] sm:rounded-[18px] font-bold text-xs sm:text-sm text-accent-blue flex items-center gap-1.5 hover:scale-105 active:scale-95 transition-all shadow-sm"
-          >
-            <ArrowLeft size={16} /> Home
-          </button>
-        </div>
-      </div>
-
+          )
+        }
+      />
       {/* Filter Toolbar */}
-      <div className="flex flex-col gap-2 shrink-0">
+      <PageToolbar>
         <div className="flex flex-wrap items-center gap-2">
           {/* Omni Search Bar */}
           <div className="relative flex-1 min-w-[200px] sm:min-w-[280px]">
@@ -393,7 +389,7 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cerca utensile, codice o operatore..."
-              className="w-full pl-8 pr-8 py-2 rounded-[12px] md:rounded-[14px] glass-panel bg-transparent text-xs sm:text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 dark:text-slate-200 text-slate-800 border dark:border-white/10 border-slate-900/10 focus:outline-none focus:ring-2 focus:ring-accent-blue/40 transition-all"
+              className="w-full pl-8 pr-8 py-2 rounded-xl md:rounded-xl glass-panel bg-transparent text-xs sm:text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 dark:text-slate-200 text-slate-800 border dark:border-white/10 border-slate-900/10 focus:outline-none focus:ring-2 focus:ring-accent-blue/40 transition-all"
             />
             {searchQuery && (
               <button
@@ -411,10 +407,10 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
               value={selectedOperator} 
               onValueChange={setSelectedOperator}
             >
-              <SelectTrigger className="glass-button rounded-[12px] md:rounded-[14px] px-3 py-1.5 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all w-full text-xs">
+              <SelectTrigger className="glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all w-full text-xs">
                 <SelectValue placeholder="Operatore" />
               </SelectTrigger>
-              <SelectContent className="glass-panel z-[2000] border-white/10 dark:bg-slate-950/95 bg-white/95 backdrop-blur-xl max-h-60">
+              <SelectContent className="glass-panel z-50 border-white/10 dark:bg-slate-950/95 bg-white/95 backdrop-blur-xl max-h-60">
                 <SelectItem value="all" className="cursor-pointer font-bold opacity-75">Tutti gli Operatori</SelectItem>
                 {uniqueOperators.map(op => (
                   <SelectItem key={op} value={op} className="cursor-pointer font-bold">{op}</SelectItem>
@@ -423,40 +419,18 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
             </Select>
           </div>
 
-          {/* Flusso (Segmented Pills) */}
-          <div className="flex items-center p-1 rounded-[12px] md:rounded-[14px] glass-panel dark:border-white/10 border-slate-900/10 shrink-0">
-            <button
-              onClick={() => setOpTypeFilter('all')}
-              className={`px-2.5 py-1 rounded-[8px] md:rounded-[10px] app-overline transition-all text-[10px] sm:text-xs ${
-                opTypeFilter === 'all'
-                  ? 'bg-slate-200 dark:bg-white/15 text-slate-900 dark:text-slate-100 font-black shadow-xs'
-                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 opacity-70 hover:opacity-100'
-              }`}
-            >
-              Tutti
-            </button>
-            <button
-              onClick={() => setOpTypeFilter('carico')}
-              className={`px-2.5 py-1 rounded-[8px] md:rounded-[10px] app-overline transition-all text-[10px] sm:text-xs flex items-center gap-1 ${
-                opTypeFilter === 'carico'
-                  ? 'bg-emerald-500/20 text-accent-emerald border border-emerald-500/40 font-black shadow-xs'
-                  : 'text-slate-500 hover:text-accent-emerald opacity-70 hover:opacity-100'
-              }`}
-            >
-              <ArrowDown size={10} className="text-accent-emerald" /> Carichi
-            </button>
-            <button
-              onClick={() => setOpTypeFilter('scarico')}
-              className={`px-2.5 py-1 rounded-[8px] md:rounded-[10px] app-overline transition-all text-[10px] sm:text-xs flex items-center gap-1 ${
-                opTypeFilter === 'scarico'
-                  ? 'bg-rose-500/20 text-accent-rose border border-rose-500/40 font-black shadow-xs'
-                  : 'text-slate-500 hover:text-accent-rose opacity-70 hover:opacity-100'
-              }`}
-            >
-              <ArrowUp size={10} className="text-accent-rose" /> Scarichi
-            </button>
+          {/* Flusso (SegmentedControl) */}
+          <div className="shrink-0">
+            <SegmentedControl
+              value={opTypeFilter}
+              onValueChange={setOpTypeFilter}
+              options={[
+                { value: 'all', label: 'Tutti' },
+                { value: 'carico', label: 'Deposita', icon: <ArrowDown size={14} /> },
+                { value: 'scarico', label: 'Preleva', icon: <ArrowUp size={14} /> }
+              ]}
+            />
           </div>
-
           {/* Periodo / Giorni Presets */}
           <div className="relative min-w-[130px] sm:min-w-[150px]">
             <Select 
@@ -466,10 +440,10 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
                 if (val !== 'custom') setCustomDate('');
               }}
             >
-              <SelectTrigger className="glass-button rounded-[12px] md:rounded-[14px] px-3 py-1.5 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all w-full text-xs">
+              <SelectTrigger className="glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all w-full text-xs">
                 <SelectValue placeholder="Periodo" />
               </SelectTrigger>
-              <SelectContent className="glass-panel z-[2000] border-white/10 dark:bg-slate-950/95 bg-white/95 backdrop-blur-xl">
+              <SelectContent className="glass-panel z-50 border-white/10 dark:bg-slate-950/95 bg-white/95 backdrop-blur-xl">
                 <SelectItem value="all" className="cursor-pointer font-bold opacity-75">Tutti i periodi</SelectItem>
                 <SelectItem value="today" className="cursor-pointer font-bold">Oggi</SelectItem>
                 <SelectItem value="7d" className="cursor-pointer font-bold">Ultimi 7 giorni</SelectItem>
@@ -488,7 +462,7 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
                 type="date"
                 value={customDate}
                 onChange={(e) => setCustomDate(e.target.value)}
-                className="pl-8 pr-3 py-1.5 rounded-[12px] glass-panel bg-transparent text-xs font-mono dark:text-slate-200 text-slate-800 border dark:border-white/10 border-slate-900/10 focus:outline-none focus:ring-2 focus:ring-accent-blue/40"
+                className="pl-8 pr-3 py-1.5 rounded-xl glass-panel bg-transparent text-xs font-mono dark:text-slate-200 text-slate-800 border dark:border-white/10 border-slate-900/10 focus:outline-none focus:ring-2 focus:ring-accent-blue/40"
               />
             </div>
           )}
@@ -497,84 +471,118 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
           {activeFiltersCount > 0 && (
             <button
               onClick={handleResetFilters}
-              className="glass-button rounded-[12px] md:rounded-[14px] px-3 py-1.5 md:py-2 app-overline text-accent-orange bg-accent-orange/10 border border-accent-orange/30 hover:bg-accent-orange/20 transition-all flex items-center gap-1.5 shrink-0"
+              className="glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:py-2 app-overline text-accent-orange bg-accent-orange/10 border border-accent-orange/30 hover:bg-accent-orange/20 transition-all flex items-center gap-1.5 shrink-0"
             >
-              <X size={12} /> Reset filtri ({activeFiltersCount})
+              <X size={14} /> Reset filtri ({activeFiltersCount})
             </button>
           )}
+
+          {/* Density Toggle */}
+          <button
+            onClick={() => setDensity(d => d === 'compact' ? 'comfortable' : 'compact')}
+            className="glass-button ml-auto rounded-xl md:rounded-xl px-3 py-1.5 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 hover:bg-accent-blue/[0.06] transition-all flex items-center gap-1.5 shrink-0"
+          >
+            Densità: {density === 'compact' ? 'Compatta' : 'Comoda'}
+          </button>
         </div>
-      </div>
-
+      </PageToolbar>
       {/* Main Table Container */}
-      <div className="glass-panel rounded-[20px] md:rounded-[24px] overflow-hidden flex flex-col flex-1 min-h-0 shadow-xl">
-        {/* KPI & Count Subheader */}
-        <div className="px-4 md:px-6 py-2 border-b dark:border-white/5 border-slate-900/10 flex items-center justify-between bg-white/[0.02] shrink-0">
-          <p className="app-overline text-accent-orange">
-            {filteredHistory.length} moviment{filteredHistory.length === 1 ? 'o' : 'i'} trovat{filteredHistory.length === 1 ? 'o' : 'i'}
-          </p>
-
-          <div className="flex items-center gap-3">
-            <span className="app-caption font-bold text-accent-emerald flex items-center gap-1">
-              <ArrowDown size={12} /> +{totalCarichiQty} pz
-            </span>
-            <span className="app-caption font-bold text-accent-rose flex items-center gap-1">
-              <ArrowUp size={12} /> -{totalScarichiQty} pz
-            </span>
+      <PageContent className="glass-panel rounded-3xl md:rounded-3xl shadow-xl p-0 sm:p-0 md:p-0 lg:p-0 flex flex-col overflow-hidden">
+        {/* KPI & Count Subheader con StatTile e @container */}
+        <div className="@container border-b dark:border-white/5 border-slate-900/10 bg-white/[0.02] shrink-0 p-4 sm:p-6">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 @sm:grid-cols-2 @xl:grid-cols-4">
+            <StatTile 
+              icon={Layers} 
+              label="Totale Movimenti" 
+              value={filteredHistory.length} 
+              accent="blue" 
+            />
+            <StatTile 
+              icon={ArrowDown} 
+              label="Carichi" 
+              value={totalCarichiQty} 
+              accent="emerald" 
+              delta={{ direction: 'up', text: "pz" }}
+            />
+            <StatTile 
+              icon={ArrowUp} 
+              label="Scarichi" 
+              value={totalScarichiQty} 
+              accent="rose" 
+              delta={{ direction: 'down', text: "pz" }}
+            />
+            <StatTile 
+              icon={User} 
+              label="Operatori Coinvolti" 
+              value={uniqueOperators.length} 
+              accent="orange" 
+            />
           </div>
         </div>
 
-        {/* TanStack Virtualized Table */}
-        <VirtualizedTable
-          table={table}
-          estimateRowSize={56}
-          onRowClick={(item) => setSelectedLog(item)}
-          renderRowTrailing={() => (
-            <Info size={14} className="text-slate-400 group-hover:text-accent-blue transition-colors" />
-          )}
-          emptyIcon={FilterX}
-          emptyTitle="Nessun movimento trovato"
-          emptyDescription={
-            activeFiltersCount > 0
-              ? "Nessun record corrisponde ai filtri impostati. Prova a reimpostare i filtri."
-              : "Non è ancora stato registrato alcun movimento nel magazzino."
-          }
-          emptyAction={
-            activeFiltersCount > 0 ? (
+        {/* TanStack Virtualized Table or StateBlock */}
+        {error ? (
+          <StateBlock
+            state="error"
+            description={error}
+            action={fetchHistory && (
+              <button 
+                onClick={handleRefresh}
+                className="mt-2 px-6 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold hover:opacity-90 transition-opacity"
+              >
+                Riprova
+              </button>
+            )}
+          />
+        ) : isLoading && filteredHistory.length === 0 ? (
+          <StateBlock state="loading" title="Caricamento storico..." skeletonShape="row" loadingMode="skeleton" />
+        ) : filteredHistory.length === 0 ? (
+          <StateBlock 
+            state="empty" 
+            emptyVariant={activeFiltersCount > 0 ? "filtered" : "generic"}
+            action={activeFiltersCount > 0 ? (
               <button
                 onClick={handleResetFilters}
                 className="glass-button rounded-xl px-4 py-2 app-overline text-accent-orange bg-accent-orange/10 border border-accent-orange/30 hover:bg-accent-orange/20 transition-all flex items-center gap-1.5 mx-auto"
               >
-                <X size={12} /> Resetta tutti i filtri
+                <X size={14} /> Resetta tutti i filtri
               </button>
-            ) : null
-          }
-        />
-      </div>
+            ) : null}
+          />
+        ) : (
+          <VirtualizedTable
+            table={table}
+            density={density}
+            estimateRowSize={density === 'compact' ? 44 : 56}
+            onRowClick={(item) => setSelectedLog(item)}
+            renderRowTrailing={() => (
+              <Info size={14} className="text-slate-400 group-hover:text-accent-blue transition-colors" />
+            )}
+          />
+        )}
+      </PageContent>
 
       {/* Log Detail Modal */}
       <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
-        <DialogContent className="glass-panel max-w-md border-white/10 dark:bg-slate-950/95 bg-white/95 backdrop-blur-2xl rounded-2xl p-5 sm:p-6 shadow-2xl">
-          <DialogHeader className="flex flex-col gap-1 text-left">
-            <div className="flex items-center justify-between gap-2">
-              <span className={`badge text-[10px] font-black uppercase px-2.5 py-0.5 ${selectedLog?.tipo_operazione === 'carico' ? 'badge-emerald' : 'badge-rose'}`}>
+        <DialogContent size="sm" showCloseButton={false} className="p-0">
+          <ModalHeader
+            title="Dettaglio Movimento"
+            subtitle="Riepilogo completo della transazione registrata nello storico movimenti."
+            badge={
+              <span className={`badge text-xs font-black uppercase px-2.5 py-0.5 ${selectedLog?.tipo_operazione === 'carico' ? 'badge-emerald' : 'badge-rose'}`}>
                 {selectedLog?.tipo_operazione === 'carico' ? 'Movimento di Carico' : 'Movimento di Scarico'}
               </span>
-              <span className="app-caption text-slate-400">
-                {selectedLog && formatDateLong(selectedLog.created_at)}
-              </span>
-            </div>
-            <DialogTitle className="app-h2 mt-1">Dettaglio Movimento</DialogTitle>
-            <DialogDescription className="app-caption text-slate-400">
-              Riepilogo completo della transazione registrata nel log di sistema.
-            </DialogDescription>
-          </DialogHeader>
+            }
+            overline={selectedLog && formatDateLong(selectedLog.created_at)}
+          />
 
-          {selectedLog && (
-            <div className="flex flex-col gap-3.5 my-2">
+          <ModalBody>
+            {selectedLog && (
+              <div className="flex flex-col gap-3.5 my-2">
               {/* Tool Card */}
               <div className="flex items-center gap-3 p-3 rounded-xl glass-panel border dark:border-white/10 border-slate-900/10 bg-white/[0.02]">
                 <div className="w-12 h-12 rounded-xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center shrink-0">
-                  <ToolIcon type={selectedLog.Utensili_B1?.Tipologia} size={42} className="opacity-90" />
+                  <ToolIcon type={selectedLog.Utensili_B1?.Tipologia} size={40} className="opacity-90" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="app-h3 truncate">{buildDesc(selectedLog.Utensili_B1)}</p>
@@ -634,7 +642,7 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
               <div className="p-2.5 rounded-xl glass-panel dark:border-white/5 border-slate-900/10 flex items-center justify-between gap-2">
                 <div className="flex flex-col min-w-0">
                   <span className="app-overline text-slate-500">ID Transazione</span>
-                  <span className="app-caption font-mono text-[10px] text-slate-400 truncate">
+                  <span className="app-caption font-mono text-xs text-slate-400 truncate">
                     {selectedLog.id}
                   </span>
                 </div>
@@ -646,11 +654,12 @@ const HistoryView = memo(({ history = [], setView, fetchHistory }) => {
                   {copiedId ? <Check size={14} className="text-accent-emerald" /> : <Copy size={14} />}
                 </button>
               </div>
-            </div>
-          )}
+              </div>
+            )}
+          </ModalBody>
         </DialogContent>
       </Dialog>
-    </motion.div>
+    </PageTemplate>
   );
 });
 

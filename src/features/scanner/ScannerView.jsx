@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowDown, ArrowUp, Search, X, Camera } from 'lucide-react';
+import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
 import BarcodeScanner from './BarcodeScanner';
 import { buildDesc } from '../../lib/toolUtils';
 import { Input } from "@/components/ui/input";
@@ -62,73 +63,60 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
       initial={{ opacity: 0, scale: 0.98 }} 
       animate={{ opacity: 1, scale: 1 }} 
       transition={{ duration: 0.15 }}
-      className="w-full max-w-[1600px] flex flex-col items-center flex-1 min-h-0 gap-3 sm:gap-4 px-2 sm:px-4 pb-2 md:pb-4"
+      className="h-full w-full"
     >
+      <PageTemplate>
       {/* Top Header Bar */}
-      <div className="w-full flex justify-between items-center px-1 shrink-0">
-        <Button 
-          variant="glass" 
-          size="icon" 
-          onClick={() => setView('home')} 
-          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full text-accent-orange"
-        >
-          <ArrowLeft size={16} />
-        </Button>
-        <div className="flex flex-col items-center">
-          <p className={`app-overline mb-0.5 ${opType === 'carico' ? 'text-accent-emerald' : opType === 'scarico' ? 'text-accent-rose' : 'text-accent-cyan'}`}>
-            {opType === 'carico' ? 'Operazione di Carico' : opType === 'scarico' ? 'Operazione di Scarico' : 'Riconoscimento Laser'}
-          </p>
-          <h2 className="app-h1">
-            {opType === 'carico' ? 'Deposito Rapido' : opType === 'scarico' ? 'Prelievo Rapido' : 'Optical Scanner'}
-          </h2>
-        </div>
-        <div className="w-9 h-9 sm:w-10 sm:h-10" />
-      </div>
-
-      {/* Mode Selector Pill: Esplora / Deposita / Preleva */}
-      <div className="flex items-center p-1 rounded-2xl glass-panel border-white/5 shrink-0 gap-1">
-        <button
-          type="button"
-          onClick={() => setOpType(null)}
-          className={`px-3 py-1 rounded-xl text-[10px] sm:text-xs font-bold uppercase transition-all ${
-            !opType 
-              ? 'bg-accent-blue/20 text-accent-blue border border-accent-blue/30 shadow-xs' 
-              : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-          }`}
-        >
-          Dettaglio
-        </button>
-        <button
-          type="button"
-          onClick={() => setOpType('carico')}
-          className={`px-3 py-1 rounded-xl text-[10px] sm:text-xs font-bold uppercase transition-all flex items-center gap-1 ${
-            opType === 'carico' 
-              ? 'bg-emerald-500/20 text-accent-emerald border border-emerald-500/30 shadow-xs' 
-              : 'text-slate-500 hover:text-accent-emerald'
-          }`}
-        >
-          <ArrowDown size={11} />
-          Deposita
-        </button>
-        <button
-          type="button"
-          onClick={() => setOpType('scarico')}
-          className={`px-3 py-1 rounded-xl text-[10px] sm:text-xs font-bold uppercase transition-all flex items-center gap-1 ${
-            opType === 'scarico' 
-              ? 'bg-rose-500/20 text-accent-rose border border-rose-500/30 shadow-xs' 
-              : 'text-slate-500 hover:text-accent-rose'
-          }`}
-        >
-          <ArrowUp size={11} />
-          Preleva
-        </button>
-      </div>
-
+      <PageHeader 
+        title="Scanner"
+        showBack={true}
+        onBack={() => setView('home')}
+        action={
+          <div className="flex items-center p-1 rounded-2xl glass-panel border-white/5 shrink-0 gap-1">
+            <button
+              type="button"
+              onClick={() => setOpType(null)}
+              className={`px-3 py-1 rounded-xl text-xs sm:text-xs font-bold uppercase transition-all ${
+                !opType 
+                  ? 'bg-accent-blue/20 text-accent-blue border border-accent-blue/30 shadow-xs' 
+                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              Dettaglio
+            </button>
+            <button
+              type="button"
+              onClick={() => setOpType('carico')}
+              className={`px-3 py-1 rounded-xl text-xs sm:text-xs font-bold uppercase transition-all flex items-center gap-1 ${
+                opType === 'carico' 
+                  ? 'bg-emerald-500/20 text-accent-emerald border border-emerald-500/30 shadow-xs' 
+                  : 'text-slate-500 hover:text-accent-emerald'
+              }`}
+            >
+              <ArrowDown size={14} />
+              Deposita
+            </button>
+            <button
+              type="button"
+              onClick={() => setOpType('scarico')}
+              className={`px-3 py-1 rounded-xl text-xs sm:text-xs font-bold uppercase transition-all flex items-center gap-1 ${
+                opType === 'scarico' 
+                  ? 'bg-rose-500/20 text-accent-rose border border-rose-500/30 shadow-xs' 
+                  : 'text-slate-500 hover:text-accent-rose'
+              }`}
+            >
+              <ArrowUp size={14} />
+              Preleva
+            </button>
+          </div>
+        }
+      />
+      <div className="flex-1 min-h-0 flex flex-col w-full pb-24 p-2 sm:p-4 gap-4 items-center">
       {/* Search Input and Camera Bar */}
       <div className="w-full max-w-4xl relative shrink-0">
         <div className="relative flex items-center gap-2 sm:gap-4">
           <div className="relative flex-1 flex items-center">
-            <Search size={18} className="absolute left-4 sm:left-6 dark:text-slate-300 text-slate-700 pointer-events-none z-10" />
+            <Search size={20} className="absolute left-4 sm:left-6 dark:text-slate-300 text-slate-700 pointer-events-none z-10" />
             <Input
               ref={inputRef}
               autoFocus
@@ -141,7 +129,7 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
                   ? "Scansiona o cerca utensile da prelevare..."
                   : "Digita codice, descrizione o misura..."
               }
-              className="w-full h-auto glass-panel py-3.5 sm:py-5 pl-11 sm:pl-14 pr-10 sm:pr-14 rounded-[20px] sm:rounded-[24px] font-bold text-sm sm:text-lg outline-none border-accent-blue/20 focus:border-accent-blue/60 transition-all placeholder:text-slate-500 tracking-wide"
+              className="w-full h-auto glass-panel py-3.5 sm:py-4 pl-11 sm:pl-14 pr-10 sm:pr-14 rounded-3xl sm:rounded-3xl font-bold text-sm sm:text-lg outline-none border-accent-blue/20 focus:border-accent-blue/60 transition-all placeholder:text-slate-500 tracking-wide"
             />
             {manualCode && (
               <Button 
@@ -157,7 +145,7 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
           <Button 
             variant="glass"
             onClick={() => setShowCamera(prev => !prev)}
-            className={`w-12 h-12 sm:w-16 sm:h-16 rounded-[18px] sm:rounded-[24px] flex-shrink-0 ${showCamera ? 'text-accent-orange border-accent-orange/40' : 'text-accent-blue border-accent-blue/20'}`}
+            className={`w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl flex-shrink-0 ${showCamera ? 'text-accent-orange border-accent-orange/40' : 'text-accent-blue border-accent-blue/20'}`}
           >
             <Camera size={20} className="sm:w-6 sm:h-6" />
           </Button>
@@ -168,7 +156,7 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="glass-panel w-full rounded-[32px] overflow-hidden mt-4 shrink-0"
+            className="glass-panel w-full rounded-3xl overflow-hidden mt-4 shrink-0"
           >
             <BarcodeScanner onScan={handleScan} />
           </motion.div>
@@ -186,7 +174,7 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
             transition={{ duration: 0.2 }}
             className="flex-1 w-full max-w-3xl flex flex-col items-center justify-center min-h-0 my-auto py-6 px-2"
           >
-            <div className="glass-panel w-full rounded-[28px] sm:rounded-[36px] p-6 sm:p-10 flex flex-col items-center text-center border-accent-blue/20 shadow-2xl relative overflow-hidden">
+            <div className="glass-panel w-full rounded-3xl sm:rounded-full p-6 sm:p-10 flex flex-col items-center text-center border-accent-blue/20 shadow-2xl relative overflow-hidden">
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-accent-blue/10 border border-accent-blue/30 flex items-center justify-center text-accent-blue mb-4 shadow-inner">
                 <Search size={32} className={`sm:w-9 sm:h-9 ${opType === 'carico' ? 'text-accent-emerald' : opType === 'scarico' ? 'text-accent-rose' : 'text-accent-cyan'}`} />
               </div>
@@ -241,6 +229,8 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
           </motion.div>
         ) : null}
       </AnimatePresence>
+      </div>
+    </PageTemplate>
     </motion.div>
   );
 });

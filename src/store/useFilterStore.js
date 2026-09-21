@@ -11,7 +11,7 @@ export const useFilterStore = create((set) => ({
         if (savedView) return savedView;
         if (user.ruolo === 'Admin') return 'dropdown';
       }
-    } catch {}
+    } catch { /* ignore */ }
     return 'grid';
   })(),
   isSelectionMode: false,

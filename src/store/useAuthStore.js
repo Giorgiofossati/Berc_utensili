@@ -87,5 +87,15 @@ export const useAuthStore = create((set) => ({
       useFilterStore.getState().resetFilters();
     }
     return { currentUser: safeUser };
+  }),
+  completeTutorial: () => set((state) => {
+    if (!state.currentUser) return state;
+    const updated = { ...state.currentUser, has_completed_tutorial: true };
+    try {
+      localStorage.setItem('berc_user', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('localStorage error', e);
+    }
+    return { currentUser: updated };
   })
 }));

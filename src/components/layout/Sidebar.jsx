@@ -12,13 +12,15 @@ import { useMovementStore } from '../../store/useMovementStore';
 import { useMultiMovementStore } from '../../store/useMultiMovementStore';
 import { useTutorialStore } from '../../store/useTutorialStore';
 
-const NavItem = ({ icon, label, onClick, className = "", isActive = false, badge = null }) => (
+const NavItem = ({ icon, label, onClick, className = "", isActive = false, badge = null, disabled = false }) => (
   <button 
-    onClick={onClick} 
+    onClick={disabled ? undefined : onClick}
+    disabled={disabled}
     className={`flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 group relative
       ${isActive 
         ? 'bg-accent-blue/10 text-accent-blue font-bold shadow-sm' 
-        : 'hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-medium'}
+        : 'hover:bg-accent-blue/[0.06] text-slate-700 dark:text-slate-300 font-medium'}
+      ${disabled ? 'opacity-40 cursor-not-allowed pointer-events-none' : ''}
       ${className}
     `}
   >
@@ -37,7 +39,7 @@ const NavItem = ({ icon, label, onClick, className = "", isActive = false, badge
       <span className="text-sm tracking-wide truncate">{label}</span>
     </div>
     {badge !== null && badge !== undefined && (
-      <span className="bg-accent-blue text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm ml-1">
+      <span className="bg-accent-blue text-white text-xs font-black px-2 py-0.5 rounded-full shadow-sm ml-1">
         {badge}
       </span>
     )}
@@ -60,8 +62,8 @@ const SidebarContent = ({
       <div className="pb-4 px-6 pt-[max(1rem,env(safe-area-inset-top))] flex flex-col border-b border-slate-200/50 dark:border-white/5 shrink-0">
         <div className="flex items-center justify-between gap-3 mb-2">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-accent-blue/20 to-accent-blue/5 flex items-center justify-center border border-accent-blue/20 shadow-inner shrink-0">
-              <Database size={18} className="text-accent-blue drop-shadow-sm" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-blue/20 to-accent-blue/5 flex items-center justify-center border border-accent-blue/20 shadow-inner shrink-0">
+              <Database size={20} className="text-accent-blue drop-shadow-sm" />
             </div>
             <div className="flex flex-col min-w-0">
               <span className="app-overline text-slate-400 dark:text-slate-500 leading-none">
@@ -79,7 +81,7 @@ const SidebarContent = ({
               onClick={onClose} 
               className="md:hidden p-2 rounded-xl glass-button text-slate-500 hover:text-slate-800 dark:hover:text-white shrink-0 transition-colors"
             >
-              <X size={18} />
+              <X size={20} />
             </button>
           )}
         </div>
@@ -98,7 +100,7 @@ const SidebarContent = ({
           
           <button 
             onClick={() => { setOpType('carico'); setView('scanner'); if(onClose) onClose(); }} 
-            className="action-btn-carica w-full py-3 px-4 rounded-[16px] flex items-center justify-center gap-2 group shadow-sm hover:shadow-emerald-500/20"
+            className="action-btn-carica w-full py-3 px-4 rounded-2xl flex items-center justify-center gap-2 group shadow-sm hover:shadow-emerald-500/20"
           >
             <ArrowDown size={16} className="group-hover:translate-y-1 transition-transform animate-pulse" />
             <span className="text-sm font-black tracking-wider">DEPOSITA</span>
@@ -106,7 +108,7 @@ const SidebarContent = ({
           
           <button 
             onClick={() => { setOpType('scarico'); setView('scanner'); if(onClose) onClose(); }} 
-            className="action-btn-scarica w-full py-3 px-4 rounded-[16px] flex items-center justify-center gap-2 group shadow-sm hover:shadow-rose-500/20"
+            className="action-btn-scarica w-full py-3 px-4 rounded-2xl flex items-center justify-center gap-2 group shadow-sm hover:shadow-rose-500/20"
           >
             <ArrowUp size={16} className="group-hover:-translate-y-1 transition-transform animate-pulse" />
             <span className="text-sm font-black tracking-wider">PRELEVA</span>
@@ -115,7 +117,7 @@ const SidebarContent = ({
           {currentUser?.ruolo === 'Admin' && (
              <button 
                onClick={() => { setShowAddModal(true); if(onClose) onClose(); }} 
-               className="mt-2 w-full py-3 px-4 rounded-[16px] text-accent-blue border border-accent-blue/30 hover:bg-accent-blue/10 flex items-center justify-center gap-2 group shadow-sm transition-all hover:scale-[1.02] duration-300"
+               className="mt-2 w-full py-3 px-4 rounded-2xl text-accent-blue border border-accent-blue/30 hover:bg-accent-blue/10 flex items-center justify-center gap-2 group shadow-sm transition-all hover:scale-[1.02] duration-300"
              >
                <span className="text-base font-black leading-none group-hover:rotate-90 transition-transform duration-300">+</span>
                <span className="text-sm font-bold tracking-wider">NUOVO UTENSILE</span>
@@ -137,7 +139,7 @@ const SidebarContent = ({
           <NavItem 
             icon={<ClipboardList size={16} />} 
             label="Movimento Multiplo" 
-            badge={multiMovementCount > 0 ? multiMovementCount : null}
+            badge={multiMovementCount > 99 ? '99+' : (multiMovementCount > 0 ? multiMovementCount : null)}
             onClick={() => { setView('multimovement'); if(onClose) onClose(); }} 
             isActive={view === 'multimovement'}
           />
@@ -151,7 +153,7 @@ const SidebarContent = ({
 
           <NavItem 
             icon={<History size={16} />} 
-            label="Storico Log" 
+            label="Storico movimenti" 
             onClick={() => { setView('history'); fetchHistory(); if(onClose) onClose(); }} 
             isActive={view === 'history'}
           />
@@ -167,7 +169,7 @@ const SidebarContent = ({
 
           <NavItem 
             icon={<HelpCircle size={16} />} 
-            label="Guida & Tutorial" 
+            label="Guida" 
             onClick={() => { 
               startTutorial(); 
               if(onClose) onClose(); 
@@ -189,7 +191,7 @@ const SidebarContent = ({
               className="flex items-center gap-2.5 min-w-0 text-left hover:opacity-85 transition-opacity cursor-pointer group/user"
               title="Apri Impostazioni Utente"
             >
-              <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-accent-blue to-blue-600 flex items-center justify-center text-white shadow-inner shrink-0 group-hover/user:scale-105 transition-transform">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-blue to-blue-600 flex items-center justify-center text-white shadow-inner shrink-0 group-hover/user:scale-105 transition-transform">
                 <span className="font-bold text-sm uppercase">{currentUser?.nome?.charAt(0) || 'U'}</span>
               </div>
               <div className="flex flex-col min-w-0">
@@ -257,14 +259,14 @@ export default function Sidebar(props) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[2000]"
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[var(--z-drawer)]"
             />
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed top-0 left-0 bottom-0 w-[280px] max-w-[85vw] h-[100dvh] min-h-[100dvh] z-[2001] shadow-2xl"
+              className="fixed top-0 left-0 bottom-0 w-[280px] max-w-[85vw] h-[100dvh] min-h-[100dvh] z-[var(--z-drawer)] shadow-2xl"
             >
               <SidebarContent {...props} />
             </motion.div>
@@ -275,7 +277,7 @@ export default function Sidebar(props) {
   }
 
   return (
-    <aside className="w-64 lg:w-72 h-full shrink-0 hidden md:block z-[40]">
+    <aside className="w-64 lg:w-72 h-full shrink-0 hidden md:block z-50">
        <SidebarContent {...props} />
     </aside>
   );

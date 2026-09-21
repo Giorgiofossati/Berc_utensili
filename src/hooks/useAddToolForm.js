@@ -5,6 +5,7 @@ import { buildDesc } from '../lib/toolUtils';
 export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [error, setError] = useState(null);
   const [dbOptions, setDbOptions] = useState({
     Tipologia: [],
     Forma: [],
@@ -151,8 +152,9 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.Tipologia || !formData.Codice || !formData['Serial Number']) {
-      alert("Tipologia, Codice Aziendale e Codice Produttore sono campi obbligatori.");
+    setError(null);
+    if (!formData.Codice || !formData['Serial Number'] || !formData.Tipologia) {
+      setError("Codice Aziendale, Codice Produttore e Tipologia sono obbligatori.");
       return;
     }
 
@@ -193,7 +195,7 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
       }, 2000);
     } catch (err) {
       console.error(err);
-      alert("Errore durante l'inserimento: " + err.message);
+      setError("Errore durante l'inserimento: " + err.message);
     } finally {
       setIsLoading(false);
     }
@@ -202,6 +204,7 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
   return {
     isLoading,
     showSuccess,
+    error,
     dbOptions,
     customInputFields,
     formData,

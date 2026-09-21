@@ -48,7 +48,7 @@ const DiameterList = memo(({ diameters = [], tools = [], onSelect }) => {
   }, [items, searchQuery]);
 
   return (
-    <div className="w-full max-w-5xl xl:max-w-6xl max-h-[75vh] sm:max-h-[78vh] flex flex-col glass-panel rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-2xl transition-all duration-300">
+    <div className="w-full max-w-5xl xl:max-w-6xl max-h-[75vh] sm:max-h-[78vh] flex flex-col glass-panel rounded-3xl sm:rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 @container">
       {/* Header bar: Titles, Count chip and Micro-Search input */}
       <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-b dark:border-white/5 border-slate-900/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 shrink-0 bg-slate-100/40 dark:bg-slate-900/40">
         <div className="flex flex-col">
@@ -90,7 +90,7 @@ const DiameterList = memo(({ diameters = [], tools = [], onSelect }) => {
       </div>
 
       {/* Fluid Intelligent Card Grid with safe scroll padding */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4 md:p-5 pb-8">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4 md:p-6 pb-8">
         {filteredItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
             <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 flex items-center justify-center mb-3 shadow-inner">
@@ -109,7 +109,7 @@ const DiameterList = memo(({ diameters = [], tools = [], onSelect }) => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(115px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(130px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(145px,1fr))] gap-2.5 sm:gap-3">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(115px,1fr))] @sm:grid-cols-[repeat(auto-fill,minmax(130px,1fr))] @md:grid-cols-[repeat(auto-fill,minmax(145px,1fr))] gap-2.5 @sm:gap-3">
             {filteredItems.map((item) => {
               const isLong = item.formattedLabel.length > 8;
               return (
@@ -117,7 +117,7 @@ const DiameterList = memo(({ diameters = [], tools = [], onSelect }) => {
                   key={item.rawDiameter}
                   type="button"
                   onClick={() => onSelect(item.rawDiameter)}
-                  className="glass-button group flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-[16px] sm:rounded-[18px] border dark:border-white/10 border-slate-900/10 hover:border-accent-blue/50 dark:hover:border-accent-blue/50 hover:bg-accent-blue/5 dark:hover:bg-accent-blue/10 hover:shadow-[0_8px_24px_rgba(14,165,233,0.15)] active:scale-[0.97] transition-all duration-200 text-center focus-visible:ring-2 focus-visible:ring-accent-blue outline-none select-none min-h-[82px] sm:min-h-[88px] cursor-pointer"
+                  className="glass-button group flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl sm:rounded-2xl border dark:border-white/10 border-slate-900/10 hover:border-accent-blue/50 dark:hover:border-accent-blue/50 hover:bg-accent-blue/5 dark:hover:bg-accent-blue/10 hover:shadow-[0_8px_24px_rgba(14,165,233,0.15)] active:scale-[0.97] transition-all duration-200 text-center focus-visible:ring-2 focus-visible:ring-accent-blue outline-none select-none min-h-[82px] sm:min-h-[88px] cursor-pointer"
                 >
                   {/* Center Hero: Diametro con massima gerarchia visiva */}
                   <span
@@ -132,7 +132,7 @@ const DiameterList = memo(({ diameters = [], tools = [], onSelect }) => {
                   {/* Quantità essenziale (N pz) */}
                   <div className="mt-2.5 flex items-center justify-center">
                     <span
-                      className={`px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-black tabular-nums border shrink-0 transition-colors ${
+                      className={`px-2.5 py-0.5 rounded-full text-xs sm:text-xs font-black tabular-nums border shrink-0 transition-colors ${
                         item.totalQty > 0
                           ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.12)]'
                           : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20'
@@ -150,11 +150,11 @@ const DiameterList = memo(({ diameters = [], tools = [], onSelect }) => {
 
       {/* Bottom informational footer bar */}
       <div className="px-4 sm:px-6 py-2 border-t dark:border-white/5 border-slate-900/5 flex items-center justify-between text-slate-500 dark:text-slate-400 shrink-0 bg-slate-50/50 dark:bg-slate-900/30">
-        <span className="app-caption text-[10px]">
+        <span className="app-caption text-xs">
           💡 Clicca su una tessera per visualizzare l&apos;elenco utensili corrispondente
         </span>
         {searchQuery && (
-          <span className="app-caption text-[10px] text-accent-blue font-semibold">
+          <span className="app-caption text-xs text-accent-blue font-semibold">
             Filtro attivo: &ldquo;{searchQuery}&rdquo;
           </span>
         )}

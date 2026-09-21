@@ -124,6 +124,9 @@ Offre tracciamento in tempo reale, prelievo guidato, carico/scarico rapido e pre
     - Esecuzione transazionale atomica via stored procedure PostgreSQL `handle_multi_movement` con blocco `FOR UPDATE`, con fallback trasparente client-side.
 11. **Aggiornamento Log Obbligatorio a Chiusura Task**:
     - Prima di considerare terminato un task, aggiornare tassativamente [`CHANGELOG.md`](./CHANGELOG.md) riassumendo in 2-4 punti sintetici cosa è stato modificato e i file principali coinvolti.
+12. **🚨 PREVENZIONE REFERENCE ERROR (ESLINT BLIND SPOT)**:
+    - ATTENZIONE: La configurazione attuale di `eslint.config.js` **non rileva le dipendenze React mancanti** (i `ReferenceError` per componenti non importati) poiché manca il plugin rigoroso per `jsx-no-undef`.
+    - **REGOLA ASSOLUTA**: Quando un agente refattorizza o utilizza un componente (es. `PageTemplate`, `StateBlock`), DEVE **sempre** verificare manualmente la presenza degli `import` in cima al file. Non fidarsi mai ciecamente dell'esito di `npm run lint`. Un lint verde non garantisce l'assenza di crash a runtime causati da moduli non importati.
 
 ---
 

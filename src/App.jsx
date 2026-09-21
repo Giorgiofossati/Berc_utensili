@@ -37,6 +37,7 @@ import AppTutorial from './components/common/AppTutorial';
 import HelpFloatingButton from './components/common/HelpFloatingButton';
 import { useTutorialStore } from './store/useTutorialStore';
 import { preloadToolImages } from './lib/toolUtils';
+import { PageTemplate, PageHeader, PageToolbar, PageContent, PageFooter } from './components/layout/PageTemplate';
 
 // Preload static tool images in memory immediately
 preloadToolImages();
@@ -84,6 +85,7 @@ function App() {
     }
   }, [currentUser, view, setView]);
 
+
   // Sincronizzazione route '/commesse'
   useEffect(() => {
     if (window.location.pathname === '/commesse') {
@@ -111,6 +113,8 @@ function App() {
   }, [view]);
 
   const [history, setHistory] = useState([]);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -151,11 +155,20 @@ function App() {
   }, [currentUser, startTutorial]);
 
   const fetchHistory = async () => {
+    setIsHistoryLoading(true);
+    setHistoryError(null);
     try {
-      const { data } = await supabase.from('movements_history').select('*, Utensili_B1(*), commesse(codice, ubicazione)').order('created_at', { ascending: false });
-      setHistory(data || []);
+      const { data, error } = await supabase.from('movements_history').select('*, Utensili_B1(*), commesse(codice, ubicazione)').order('created_at', { ascending: false });
+      if (error) {
+        setHistoryError(error.message);
+      } else {
+        setHistory(data || []);
+      }
     } catch(e) {
       console.error(e);
+      setHistoryError(e.message);
+    } finally {
+      setIsHistoryLoading(false);
     }
   };
 
@@ -194,8 +207,8 @@ function App() {
     if (!options || options.length === 0) return null;
 
     return (
-      <div data-tour="catalog-categories" className="w-full max-w-6xl xl:max-w-7xl px-2 md:px-4 py-1 my-auto mx-auto flex flex-col justify-center items-center">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 w-fit mx-auto justify-center justify-items-center items-center">
+      <div data-tour="catalog-categories" className="@container w-full max-w-6xl xl:max-w-7xl px-2 md:px-4 py-1 my-auto mx-auto flex flex-col justify-center items-center">
+        <div className="grid grid-cols-2 @sm:grid-cols-3 @lg:grid-cols-3 @xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 w-fit mx-auto justify-center justify-items-center items-center">
           {options.map((opt, idx) => (
             <CategoryGridCard 
               key={`${opt.label}-${idx}`} 
@@ -230,75 +243,67 @@ function App() {
       <div className="flex-1 flex flex-col gap-3 md:gap-4 relative overflow-hidden app-container custom-scrollbar min-w-0">
         <Header onOpenSidebar={() => setShowSidebarMobile(true)} />
 
-        {/* Top Controls: Breadcrumbs & Filters */}
-        <AnimatePresence>
-          {view === 'home' && (
-            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="w-full flex items-center justify-between z-[60] gap-2">
-              {filterStack.length > 0 ? (
-                <div className="flex items-center gap-2 min-w-0 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md px-3 py-1.5 md:px-4 md:py-2 rounded-[16px] border border-slate-200/50 dark:border-white/10 shadow-sm flex-1">
-                  <button onClick={() => { setFilterStack(prev => {
-                      let nextStack = [...prev];
-                      while (nextStack.length > 0) {
-                        const popped = nextStack.pop();
-                        if (!popped.skipped) break;
-                      }
-                      return nextStack;
-                    }); 
-                  }} className="p-1.5 glass-button rounded-full text-accent-orange hover:scale-110 flex-shrink-0"
-                  ><ArrowLeft size={isMobile ? 14 : 16} /></button>
-                  <div className="flex flex-col min-w-0 ml-1">
-                    <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-accent-orange opacity-80">Filtro Corrente</span>
-                    <h2 className="text-[10px] md:text-xs font-bold uppercase tracking-wide dark:text-white text-slate-900 truncate">
-                       {breadcrumbText}
-                    </h2>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex-1" />
-              )}
-              
-              <div className="flex items-center gap-2 ml-2">
-                {filterStack.length > 0 && (
-                  <button onClick={resetFilters} className="glass-button px-2 py-1 md:px-3 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-accent-orange flex items-center gap-1.5 shadow-sm hover:shadow-accent-orange/20 border border-accent-orange/20">
-                    <X size={12} /> <span className="hidden sm:inline">Resetta Tutto</span>
-                  </button>
-                )}
-                <div data-tour="view-mode-toggle" className={`shrink-0 items-center bg-slate-900/5 dark:bg-white/5 p-1.5 rounded-2xl relative shadow-inner border border-slate-900/5 dark:border-white/5 ${viewMode === 'dropdown' ? 'hidden md:flex' : 'flex'}`}>
-                  <motion.div 
-                    className="absolute top-1.5 bottom-1.5 w-[36px] bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-accent-blue/30 dark:border-accent-blue/30 overflow-hidden"
-                    initial={false}
-                    animate={{ x: viewMode === 'grid' ? 36 : 0 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  >
-                    <div className="absolute inset-0 bg-accent-blue/10 animate-pulse" />
-                  </motion.div>
-                  <button 
-                    type="button" 
-                    onClick={() => setViewMode('dropdown')} 
-                    title="Vista ad Elenco"
-                    className={`relative z-10 w-9 h-8 flex items-center justify-center transition-colors ${viewMode === 'dropdown' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
-                  >
-                    <List size={16} />
-                  </button>
-                  <button 
-                    type="button" 
-                    onClick={() => setViewMode('grid')} 
-                    title="Vista a Griglia"
-                    className={`relative z-10 w-9 h-8 flex items-center justify-center transition-colors ${viewMode === 'grid' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
-                  >
-                    <LayoutGrid size={16} />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        
 
         <main className="flex-1 w-full flex flex-col items-center justify-start relative min-h-0 overflow-hidden">
             <AnimatePresence mode="wait">
               {view === 'home' && (
                 <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="w-full h-full flex flex-col items-center relative">
-                  <div className="flex-1 w-full flex flex-col items-center justify-start min-h-0 px-2 mt-1 md:mt-1.5">
+                  <PageTemplate>
+                    <PageHeader 
+                      title="Inventario" 
+                      breadcrumb={filterStack.length > 0 ? breadcrumbText : 'Catalogo'}
+                      showBack={filterStack.length > 0}
+                      onBack={() => {
+                        setFilterStack(prev => {
+                          let nextStack = [...prev];
+                          while (nextStack.length > 0) {
+                            const popped = nextStack.pop();
+                            if (!popped.skipped) break;
+                          }
+                          return nextStack;
+                        });
+                      }}
+                      action={
+                        <div data-tour="view-mode-toggle" className={`shrink-0 items-center bg-slate-900/5 dark:bg-white/5 p-1.5 rounded-2xl relative shadow-inner border border-slate-900/5 dark:border-white/5 ${viewMode === 'dropdown' ? 'hidden md:flex' : 'flex'}`}>
+                          <motion.div 
+                            className="absolute top-1.5 bottom-1.5 w-[36px] bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-accent-blue/30 dark:border-accent-blue/30 overflow-hidden"
+                            initial={false}
+                            animate={{ x: viewMode === 'grid' ? 36 : 0 }}
+                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                          >
+                            <div className="absolute inset-0 bg-accent-blue/10 animate-pulse" />
+                          </motion.div>
+                          <button 
+                            type="button" 
+                            onClick={() => setViewMode('dropdown')} 
+                            title="Vista ad Elenco"
+                            className={`relative z-10 w-9 h-8 flex items-center justify-center transition-colors ${viewMode === 'dropdown' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                          >
+                            <List size={16} />
+                          </button>
+                          <button 
+                            type="button" 
+                            onClick={() => setViewMode('grid')} 
+                            title="Vista a Griglia"
+                            className={`relative z-10 w-9 h-8 flex items-center justify-center transition-colors ${viewMode === 'grid' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                          >
+                            <LayoutGrid size={16} />
+                          </button>
+                        </div>
+                      }
+                    />
+                    <PageToolbar>
+                      <div className="flex w-full items-center justify-between">
+                        <span className="app-overline text-slate-500">
+                          {filterStack.length > 0 && (
+                            <button onClick={resetFilters} className="glass-button px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-xs font-bold uppercase tracking-wider text-accent-orange flex items-center gap-1.5 shadow-sm hover:shadow-accent-orange/20 border border-accent-orange/20">
+                              <X size={14} /> <span className="hidden sm:inline">Resetta Tutto</span>
+                            </button>
+                          )}
+                        </span>
+                      </div>
+                    </PageToolbar>
                     {viewMode === 'grid' ? (
                       <div className={`w-full flex-1 flex flex-col items-center justify-center min-h-0 ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar py-2 md:py-0' : ''}`}>
                         {renderGridHome()}
@@ -315,13 +320,13 @@ function App() {
                         />
                       </div>
                     )}
-                  </div>
+                  </PageTemplate>
                 </motion.div>
               )}
               {view === 'history' && (
                 <ErrorBoundary>
                   <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
-                    <HistoryView key="history" history={history} setView={setView} fetchHistory={fetchHistory} />
+                    <HistoryView key="history" history={history} isLoading={isHistoryLoading} error={historyError} setView={setView} fetchHistory={fetchHistory} />
                   </Suspense>
                 </ErrorBoundary>
               )}
@@ -357,21 +362,21 @@ function App() {
         {/* Barra Contestuale: Trasferimento Selezione a Movimento Multiplo */}
         <AnimatePresence>
           {selectedToolsIds.length > 0 && view === 'home' && (
-            <motion.div key="global-command-bar" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="w-full flex flex-col items-center px-2 md:px-4 z-[100] shrink-0 pt-2 pb-2 relative" style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }}>
+            <motion.div key="global-command-bar" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="w-full flex flex-col items-center px-2 md:px-4 z-50 shrink-0 pt-2 pb-2 relative" style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }}>
               <div className="w-full max-w-xl flex flex-col shrink-0 pointer-events-auto">
-                <div className="pointer-events-auto flex items-center justify-between w-full bg-white/90 dark:bg-slate-900/90 rounded-[20px] md:rounded-[24px] p-2 md:p-3 md:px-4 border border-accent-blue/30 dark:border-accent-blue/30 gap-3 shadow-2xl backdrop-blur-3xl">
+                <div className="pointer-events-auto flex items-center justify-between w-full bg-white/90 dark:bg-slate-900/90 rounded-3xl md:rounded-3xl p-2 md:p-3 md:px-4 border border-accent-blue/30 dark:border-accent-blue/30 gap-3 shadow-2xl backdrop-blur-3xl">
                   <div className="flex items-center gap-2">
                     <div className="bg-accent-blue text-white font-black text-xs md:text-sm w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center shadow-inner">{selectedToolsIds.length}</div>
-                    <span className="hidden sm:inline text-[10px] md:text-xs font-black uppercase tracking-[0.1em] dark:text-white text-slate-900">Selezionati</span>
+                    <span className="hidden sm:inline text-xs md:text-xs font-black uppercase tracking-[0.1em] dark:text-white text-slate-900">Selezionati</span>
                   </div>
                   <button 
                     onClick={handleTransferToMultiMovement} 
-                    className="action-btn action-btn-primary py-2 sm:py-2.5 px-4 rounded-[14px] flex items-center justify-center gap-2 group shadow-sm text-xs md:text-sm flex-1 font-black tracking-wider"
+                    className="action-btn action-btn-primary py-2 sm:py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 group shadow-sm text-xs md:text-sm flex-1 font-black tracking-wider"
                   >
                     <ClipboardList size={16} />
                     <span>APRI IN MOVIMENTO MULTIPLO</span>
                   </button>
-                  <button onClick={() => setSelectedToolsIds([])} className="glass-button p-2 rounded-[12px] md:rounded-[14px] text-rose-400 hover:bg-rose-400/10 flex items-center justify-center shrink-0" title="Annulla Selezione">
+                  <button onClick={() => setSelectedToolsIds([])} className="glass-button p-2 rounded-xl md:rounded-xl text-rose-400 hover:bg-rose-400/10 flex items-center justify-center shrink-0" title="Annulla Selezione">
                     <X size={16} />
                   </button>
                 </div>
@@ -409,8 +414,8 @@ function App() {
 
         <AnimatePresence>
           {toast && (
-            <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed left-4 right-4 md:left-auto md:right-12 z-[9999] pointer-events-auto safe-toast-top">
-              <div className={`glass-panel p-3.5 sm:p-4 md:p-5 rounded-[22px] border-l-[6px] flex items-center gap-3.5 shadow-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl max-w-lg ${
+            <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed left-4 right-4 md:left-auto md:right-12 z-50 pointer-events-auto safe-toast-top">
+              <div className={`glass-panel p-3.5 sm:p-4 md:p-6 rounded-3xl border-l-[6px] flex items-center gap-3.5 shadow-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl max-w-lg ${
                 toast.type === 'error' 
                   ? 'border-accent-rose' 
                   : toast.type === 'warning' 
@@ -433,7 +438,7 @@ function App() {
                   )}
                 </div>
                 <div className="flex flex-col min-w-0 pr-1 flex-1">
-                  <p className={`text-[9px] font-black uppercase tracking-[0.2em] mb-0.5 ${
+                  <p className={`text-xs font-black uppercase tracking-[0.2em] mb-0.5 ${
                     toast.type === 'error'
                       ? 'text-accent-rose'
                       : toast.type === 'warning'
@@ -454,7 +459,7 @@ function App() {
                       setToast(null);
                       undoFn();
                     }}
-                    className="ml-auto px-3 py-1.5 rounded-xl bg-accent-orange/15 hover:bg-accent-orange/25 border border-accent-orange/30 text-accent-orange text-[10px] sm:text-xs font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer shrink-0"
+                    className="ml-auto px-3 py-1.5 rounded-xl bg-accent-orange/15 hover:bg-accent-orange/25 border border-accent-orange/30 text-accent-orange text-xs sm:text-xs font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer shrink-0"
                   >
                     Annulla
                   </button>

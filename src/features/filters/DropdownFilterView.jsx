@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, memo, useRef } from 'react';
+import { PageToolbar, PageContent } from '@/components/layout/PageTemplate';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2, List, LayoutGrid, Filter, Search } from 'lucide-react';
 import ToolsGrid from '../inventory/ToolsGrid';
@@ -195,7 +197,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
         >
           <Filter size={14} className="shrink-0" />
           <span className="truncate">{isFiltersExpanded ? 'Nascondi' : 'Mostra'}</span>
-          {activeFiltersCount > 0 && <span className="bg-accent-blue text-slate-950 w-4 h-4 rounded-full flex items-center justify-center text-[8px] shrink-0 font-black">{activeFiltersCount}</span>}
+          {activeFiltersCount > 0 && <span className="bg-accent-blue text-slate-950 w-4 h-4 rounded-full flex items-center justify-center text-xs shrink-0 font-black">{activeFiltersCount}</span>}
         </button>
         
         {setViewMode && (
@@ -213,14 +215,14 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
               onClick={() => setViewMode('dropdown')} 
               className={`relative z-10 w-8 h-7 flex items-center justify-center transition-colors ${viewMode === 'dropdown' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
             >
-              <List size={15} />
+              <List size={16} />
             </button>
             <button 
               type="button" 
               onClick={() => setViewMode('grid')} 
               className={`relative z-10 w-8 h-7 flex items-center justify-center transition-colors ${viewMode === 'grid' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
             >
-              <LayoutGrid size={15} />
+              <LayoutGrid size={16} />
             </button>
           </div>
         )}
@@ -234,6 +236,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
         </button>
       </div>
 
+      <PageToolbar className="flex-wrap h-auto min-h-[44px] py-1 border-b-0">
       <AnimatePresence>
         {(isFiltersExpanded || !isMobile) && (
           <motion.div 
@@ -261,10 +264,10 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                         value={filters[key] ? String(filters[key]) : undefined}
                         onValueChange={(val) => setFilter(key, val === 'all' ? '' : val)}
                       >
-                        <SelectTrigger className={`glass-button rounded-[12px] md:rounded-[14px] px-3 py-1.5 md:px-4 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all w-full ${filters[key] ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'}`}>
+                        <SelectTrigger className={`glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all w-full ${filters[key] ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'}`}>
                           <span className="truncate"><SelectValue placeholder={LABELS[key] || key} /></span>
                         </SelectTrigger>
-                        <SelectContent className="glass-panel z-[2000] border-white/10 dark:bg-slate-950/90 bg-white/90 backdrop-blur-xl">
+                        <SelectContent className="glass-panel z-50 border-white/10 dark:bg-slate-950/90 bg-white/90 backdrop-blur-xl">
                           <SelectItem value="all" className="cursor-pointer font-bold opacity-60 italic">{LABELS[key] || key} (Tutti)</SelectItem>
                           {(filterOptions[key] || []).map(val => (
                             <SelectItem key={val} value={String(val)} className="cursor-pointer font-bold">
@@ -283,9 +286,9 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-[12px] md:rounded-[14px] bg-accent-blue/15 border border-accent-blue/40 text-accent-blue app-overline"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl md:rounded-xl bg-accent-blue/15 border border-accent-blue/40 text-accent-blue app-overline"
                   >
-                    <Search size={12} className="shrink-0" />
+                    <Search size={14} className="shrink-0" />
                     <span className="truncate max-w-[120px] font-bold">"{searchQuery}"</span>
                     <button
                       type="button"
@@ -293,7 +296,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                       className="ml-1 hover:text-white p-0.5 rounded transition-colors"
                       title="Cancella ricerca"
                     >
-                      <X size={12} />
+                      <X size={14} />
                     </button>
                   </motion.div>
                 )}
@@ -306,17 +309,17 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.2 }}
                     onClick={() => { setFilters({}); clearSearchQuery(); }}
-                    className="col-span-full md:col-auto w-full md:w-auto glass-button rounded-[12px] md:rounded-[14px] px-3 py-1.5 md:px-4 md:py-2 app-overline text-accent-rose hover:bg-accent-rose/10 transition-all flex items-center justify-center gap-1"
+                    className="col-span-full md:col-auto w-full md:w-auto glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline text-accent-rose hover:bg-accent-rose/10 transition-all flex items-center justify-center gap-1"
                   >
-                    <X size={12} /> Reset
+                    <X size={14} /> Reset
                   </motion.button>
                 )}
                 <motion.div layout key="selection-mode" className="hidden md:block">
                   <button
                     onClick={() => setIsSelectionMode(!isSelectionMode)}
-                    className={`glass-button rounded-[14px] px-4 py-2 app-overline transition-all flex items-center gap-2 ${isSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600 opacity-60 hover:opacity-100'}`}
+                    className={`glass-button rounded-xl px-4 py-2 app-overline transition-all flex items-center gap-2 ${isSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600 opacity-60 hover:opacity-100'}`}
                   >
-                    {isSelectionMode ? <X size={12} /> : <List size={12} />}
+                    {isSelectionMode ? <X size={14} /> : <List size={14} />}
                     {isSelectionMode ? 'Cancella' : 'Seleziona'}
                   </button>
                 </motion.div>
@@ -325,13 +328,15 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
           </motion.div>
         )}
       </AnimatePresence>
+      </PageToolbar>
 
+      <div className="flex-1 min-h-0 flex flex-col w-full pb-24 p-0 sm:p-0 md:p-0 lg:p-0">
       {/* Deleghiamo il rendering della griglia a ToolsGrid con TanStack Table */}
       <ToolsGrid 
         tools={filtered} 
         onSelectTool={onSelectTool} 
         isMobile={isMobile} 
-        hideExtraFilters={true} 
+        hideExtraFilters={true} selectionMode={isSelectionMode ? "multiple" : "single"} 
         emptyTitle={searchQuery ? "Nessun utensile trovato" : "Nessun utensile presente"}
         emptyDescription={
           searchQuery
@@ -339,6 +344,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
             : null
         }
       />
+      </div>
     </motion.div>
 
   );

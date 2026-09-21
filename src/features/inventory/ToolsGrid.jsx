@@ -6,7 +6,7 @@ import {
   createColumnHelper
 } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
-import { X, List, AlertTriangle, ChevronRight } from 'lucide-react';
+import { X, List, AlertTriangle, ChevronRight, AlignJustify } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -21,15 +21,20 @@ const ToolsGrid = memo(({
   onSelectTool, 
   hideExtraFilters = false,
   emptyTitle = "Nessun utensile trovato",
-  emptyDescription = null
+  emptyDescription = null,
+  selectionMode = 'toggle',
+  showDensityToggle = false
 }) => {
   const selectedIds = useFilterStore(state => state.selectedToolsIds);
   const onToggleSelect = useFilterStore(state => state.toggleToolSelection);
-  const isSelectionMode = useFilterStore(state => state.isSelectionMode);
+  const isStoreSelectionMode = useFilterStore(state => state.isSelectionMode);
   const setIsSelectionMode = useFilterStore(state => state.handleSetIsSelectionMode);
+  
+  const isSelectionMode = selectionMode === 'pick' ? true : (selectionMode === 'toggle' ? isStoreSelectionMode : false);
   
   const [extraFilters, setExtraFilters] = useState({});
   const [sorting, setSorting] = useState([]);
+  const [density, setDensity] = useState('comfortable');
 
   const availableFilters = useMemo(() => {
     return EXTRA_FILTER_KEYS.filter(({ key }) =>
@@ -124,7 +129,7 @@ const ToolsGrid = memo(({
           if (!val) return <div className="w-full truncate text-center"><span className="text-slate-700 opacity-20">—</span></div>;
           return (
             <div className="w-full truncate text-center px-1">
-              <span className="badge badge-blue font-mono text-[11px] font-bold px-2.5 py-0.5 whitespace-nowrap tracking-tight">
+              <span className="badge badge-blue font-mono text-xs font-bold px-2.5 py-0.5 whitespace-nowrap tracking-tight">
                 {val}
               </span>
             </div>
@@ -177,7 +182,7 @@ const ToolsGrid = memo(({
           const isOk = val === 'Disponibile' || val === 'NUOVO';
           return (
             <div className="w-full truncate text-center px-1">
-              <span className={`badge text-[10px] font-black px-2.5 py-0.5 ${isOk ? 'badge-emerald' : 'badge-rose'}`}>
+              <span className={`badge text-xs font-black px-2.5 py-0.5 ${isOk ? 'badge-emerald' : 'badge-rose'}`}>
                 {val}
               </span>
             </div>
@@ -250,45 +255,60 @@ const ToolsGrid = memo(({
       transition={{ duration: 0.15 }}
       className="w-full max-w-[1600px] flex flex-col flex-1 gap-2 md:gap-4 min-h-0"
     >
-      {!hideExtraFilters && availableFilters.length > 0 && (
+      {((!hideExtraFilters && availableFilters.length > 0) || showDensityToggle || selectionMode === 'toggle') && (
         <div className="flex flex-wrap gap-1.5 sm:gap-2 px-2">
-          {availableFilters.map(({ key, label }) => (
-            <div key={key} className="relative">
-              <Select
-                value={extraFilters[key] ? String(extraFilters[key]) : undefined}
-                onValueChange={(val) => setFilter(key, val === 'all' ? '' : val)}
-              >
-                <SelectTrigger className={`glass-button rounded-[12px] md:rounded-[14px] px-3 py-1.5 md:px-4 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all min-w-[95px] md:min-w-[120px] ${extraFilters[key] && extraFilters[key] !== 'all' ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'}`}>
-                  <SelectValue placeholder={label} />
-                </SelectTrigger>
-                <SelectContent className="glass-panel z-[2000] border-white/10 dark:bg-slate-950/90 bg-white/90 backdrop-blur-xl">
-                  <SelectItem value="all" className="cursor-pointer font-bold opacity-60">Tutti</SelectItem>
-                  {(filterOptions[key] || []).map(val => (
-                    <SelectItem key={val} value={String(val)} className="cursor-pointer font-bold">{val}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ))}
-          {Object.values(extraFilters).some(v => v) && (
+          {!hideExtraFilters && availableFilters.length > 0 && (
+            <>
+              {availableFilters.map(({ key, label }) => (
+                <div key={key} className="relative">
+                  <Select
+                    value={extraFilters[key] ? String(extraFilters[key]) : undefined}
+                    onValueChange={(val) => setFilter(key, val === 'all' ? '' : val)}
+                  >
+                    <SelectTrigger className={`glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all min-w-[95px] md:min-w-[120px] ${extraFilters[key] && extraFilters[key] !== 'all' ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'}`}>
+                      <SelectValue placeholder={label} />
+                    </SelectTrigger>
+                    <SelectContent className="glass-panel z-50 border-white/10 dark:bg-slate-950/90 bg-white/90 backdrop-blur-xl">
+                      <SelectItem value="all" className="cursor-pointer font-bold opacity-60">Tutti</SelectItem>
+                      {(filterOptions[key] || []).map(val => (
+                        <SelectItem key={val} value={String(val)} className="cursor-pointer font-bold">{val}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
+              {Object.values(extraFilters).some(v => v) && (
+                <button
+                  onClick={() => setExtraFilters({})}
+                  className="glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline text-accent-orange hover:bg-accent-orange/10 transition-all flex items-center gap-1"
+                >
+                  <X size={14} /> Reset
+                </button>
+              )}
+            </>
+          )}
+          {showDensityToggle && (
             <button
-              onClick={() => setExtraFilters({})}
-              className="glass-button rounded-[12px] md:rounded-[14px] px-3 py-1.5 md:px-4 md:py-2 app-overline text-accent-orange hover:bg-accent-orange/10 transition-all flex items-center gap-1"
+              onClick={() => setDensity(d => d === 'comfortable' ? 'compact' : 'comfortable')}
+              className={`glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline transition-all flex items-center gap-1.5 ${density === 'compact' ? 'text-accent-blue bg-accent-blue/10 border-accent-blue/30' : 'dark:text-slate-400 text-slate-600 opacity-60 hover:opacity-100'}`}
             >
-              <X size={12} /> Reset
+              <AlignJustify size={14} />
+              {density === 'compact' ? 'Compatta' : 'Comoda'}
             </button>
           )}
-          <button
-            onClick={() => setIsSelectionMode(!isSelectionMode)}
-            className={`glass-button rounded-[12px] md:rounded-[14px] px-3 py-1.5 md:px-4 md:py-2 app-overline transition-all flex items-center gap-1.5 ${isSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600 opacity-60 hover:opacity-100'}`}
-          >
-            {isSelectionMode ? <X size={12} /> : <List size={12} />}
-            {isSelectionMode ? 'Cancella' : 'Seleziona'}
-          </button>
+          {selectionMode === 'toggle' && (
+            <button
+              onClick={() => setIsSelectionMode(!isStoreSelectionMode)}
+              className={`glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline transition-all flex items-center gap-1.5 ${isStoreSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600 opacity-60 hover:opacity-100'}`}
+            >
+              {isStoreSelectionMode ? <X size={14} /> : <List size={14} />}
+              {isStoreSelectionMode ? 'Cancella' : 'Seleziona'}
+            </button>
+          )}
         </div>
       )}
 
-      <div className="glass-panel rounded-[20px] md:rounded-[24px] overflow-hidden flex flex-col flex-1 min-h-0">
+      <div className="glass-panel rounded-3xl md:rounded-3xl overflow-hidden flex flex-col flex-1 min-h-0">
         <div className="px-4 md:px-6 py-2.5 md:py-3 border-b dark:border-white/5 border-slate-900/10 flex items-center justify-between bg-white/[0.02]">
           <p className="app-overline text-accent-orange">
             {rows.length} utensil{rows.length === 1 ? 'e' : 'i'} trovat{rows.length === 1 ? 'o' : 'i'}
@@ -297,6 +317,7 @@ const ToolsGrid = memo(({
 
         <VirtualizedTable
           table={table}
+          density={density}
           estimateRowSize={56}
           onRowClick={(tool) => {
             if (isSelectionMode) {

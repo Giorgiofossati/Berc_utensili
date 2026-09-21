@@ -1,0 +1,167 @@
+[
+{
+"viewport": [
+390,
+844
+],
+"mobile": true,
+"dpr": 2
+},
+{
+"goto": "https://berc-utensili.vercel.app/",
+"theme": "light",
+"clearUser": true
+},
+{
+"shot": "50-mobile-login"
+},
+{
+"goto": "https://berc-utensili.vercel.app/",
+"theme": "light"
+},
+{
+"shot": "51-mobile-home-lista"
+},
+{
+"click": "button[aria-label='Apri Menu']",
+"wait": 1200
+},
+{
+"shot": "52-mobile-sidebar"
+},
+{
+"eval": "const ov=document.querySelector('div.fixed.inset-0[class*=\"z-[2000]\"]'); if(ov) ov.click(); true",
+"wait": 900
+},
+{
+"click": "button[title='Vista a Griglia']",
+"wait": 1200,
+"optional": true
+},
+{
+"shot": "53-mobile-home-griglia"
+},
+{
+"eval": "__click(Array.from(document.querySelectorAll('div.glass-panel.cursor-pointer')).find(d=>d.innerText.replace(/\\s+/g,' ').includes('FRESA')))",
+"wait": 1200,
+"optional": true
+},
+{
+"eval": "__click(Array.from(document.querySelectorAll('div.glass-panel.cursor-pointer')).find(d=>d.innerText.replace(/\\s+/g,' ').includes('CANDELA')))",
+"wait": 1200,
+"optional": true
+},
+{
+"shot": "54-mobile-home-diametri"
+},
+{
+"clickText": "D10",
+"tag": "button",
+"wait": 1500,
+"optional": true
+},
+{
+"shot": "55-mobile-home-tabella-filtrata"
+},
+{
+"eval": "__click(Array.from(document.querySelectorAll('div.cursor-pointer')).find(r=>r.innerText.includes('FRESA · CANDELA · D10')))",
+"wait": 1200,
+"optional": true
+},
+{
+"shot": "56-mobile-modale-dettaglio"
+},
+{
+"clickText": "PRELEVA",
+"tag": "button",
+"wait": 1000,
+"optional": true
+},
+{
+"shot": "57-mobile-modale-prelievo"
+},
+{
+"key": "Escape",
+"wait": 800
+},
+{
+"click": "button[aria-label='Apri Menu']",
+"wait": 1000
+},
+{
+"clickText": "DEPOSITA",
+"tag": "button",
+"wait": 2000
+},
+{
+"shot": "58-mobile-scanner"
+},
+{
+"eval": "__setInput(Array.from(document.querySelectorAll('input')).find(i=>/Scansiona|scansiona/.test(i.placeholder)), 'BRCL01')",
+"wait": 1500,
+"optional": true
+},
+{
+"shot": "59-mobile-scanner-lista"
+},
+{
+"click": "button[aria-label='Apri Menu']",
+"wait": 1000
+},
+{
+"clickText": "Movimento Multiplo",
+"tag": "button",
+"wait": 1500
+},
+{
+"shot": "60-mobile-movimento-multiplo"
+},
+{
+"click": "button[aria-label='Apri Menu']",
+"wait": 1000
+},
+{
+"clickText": "Commesse",
+"tag": "button",
+"wait": 2000
+},
+{
+"shot": "61-mobile-commesse"
+},
+{
+"click": "button[aria-label='Apri Menu']",
+"wait": 1000
+},
+{
+"clickText": "Storico movimenti",
+"tag": "button",
+"wait": 2500
+},
+{
+"shot": "62-mobile-storico"
+},
+{
+"click": "button[aria-label='Apri Menu']",
+"wait": 1000
+},
+{
+"clickText": "Gestione Operatori",
+"tag": "button",
+"wait": 2000
+},
+{
+"shot": "63-mobile-operatori"
+},
+{
+"click": "button[aria-label='Apri Menu']",
+"wait": 1000
+},
+{
+"clickText": "NUOVO UTENSILE",
+"tag": "button",
+"wait": 1500
+},
+{
+"shot": "64-mobile-nuovo-utensile"
+}
+]

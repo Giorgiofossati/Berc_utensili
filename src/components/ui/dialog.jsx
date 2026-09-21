@@ -37,29 +37,35 @@ function DialogOverlay({
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        "fixed inset-0 isolate z-[var(--z-dialog)] bg-black/40 backdrop-blur-sm duration-200 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
         className
       )}
       {...props} />
   );
 }
 
+const dialogSizes = {
+  sm: "sm:max-w-[448px]",
+  md: "sm:max-w-[640px]",
+  lg: "sm:max-w-[768px]",
+  xl: "sm:max-w-[1024px]",
+};
+
 function DialogContent({
   className,
   children,
-  showCloseButton = true,
+  size = "md",
+  showCloseButton = false,
   ...props
 }) {
-  const hasCustomMaxW = className && (className.includes("max-w-") || className.includes("sm:max-w-"));
-
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
-          !hasCustomMaxW && "sm:max-w-lg",
+          "fixed top-1/2 left-1/2 z-[var(--z-dialog)] grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-modal,32px)] bg-background p-0 text-foreground border shadow-2xl duration-200 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 overflow-hidden",
+          dialogSizes[size] || dialogSizes.md,
           className
         )}
         {...props}>
@@ -68,7 +74,7 @@ function DialogContent({
           <DialogPrimitive.Close
             data-slot="dialog-close"
             render={
-              <Button variant="ghost" className="absolute top-2 right-2" size="icon-sm" />
+              <Button variant="ghost" className="absolute top-4 right-4" size="icon" />
             }>
             <XIcon />
             <span className="sr-only">Close</span>
@@ -79,6 +85,50 @@ function DialogContent({
   );
 }
 
+export function ModalHeader({ icon, overline, title, subtitle, badge, className }) {
+  return (
+    <div className={cn("flex items-start gap-4 p-6 sm:p-8 pb-4 shrink-0 border-b border-border/50", className)}>
+      {icon && (
+        <div className="w-12 h-12 rounded-2xl shrink-0 bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center text-accent-blue">
+          {icon}
+        </div>
+      )}
+      <div className="flex-1 min-w-0 flex flex-col justify-center min-h-[48px]">
+        {(overline || badge) && (
+          <div className="flex items-center gap-2 mb-1">
+            {overline && <span className="app-overline text-accent-orange">{overline}</span>}
+            {badge && badge}
+          </div>
+        )}
+        <DialogTitle className="app-h2">{title}</DialogTitle>
+        {subtitle && <DialogDescription className="app-body text-slate-500 mt-1">{subtitle}</DialogDescription>}
+      </div>
+      <DialogPrimitive.Close
+        className="shrink-0 w-11 h-11 rounded-[var(--radius-control,12px)] flex items-center justify-center bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors ml-4"
+        aria-label="Chiudi"
+      >
+        <XIcon className="w-5 h-5" />
+      </DialogPrimitive.Close>
+    </div>
+  );
+}
+
+export function ModalBody({ children, className }) {
+  return (
+    <div className={cn("p-6 sm:p-8 overflow-y-auto custom-scrollbar max-h-[85vh]", className)}>
+      {children}
+    </div>
+  );
+}
+
+export function ModalFooter({ children, className }) {
+  return (
+    <div className={cn("px-6 py-4 sm:px-8 border-t border-border/50 bg-muted/50 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 shrink-0", className)}>
+      {children}
+    </div>
+  );
+}
+
 function DialogHeader({
   className,
   ...props
@@ -86,7 +136,7 @@ function DialogHeader({
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-2", className)}
+      className={cn("flex flex-col gap-2 p-6", className)}
       {...props} />
   );
 }
@@ -101,7 +151,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
+        "flex flex-col-reverse gap-2 border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
         className
       )}
       {...props}>

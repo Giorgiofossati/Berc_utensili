@@ -156,7 +156,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="fixed inset-0 min-h-[100dvh] h-[100dvh] w-full overflow-y-auto overflow-x-hidden flex flex-col items-center justify-start sm:justify-center p-3 sm:p-6 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] dark:bg-slate-950 bg-slate-50 z-[9999] dark:text-slate-200 text-slate-800 custom-scrollbar">
+    <div className="fixed inset-0 min-h-[100dvh] h-[100dvh] w-full overflow-y-auto overflow-x-hidden flex flex-col items-center justify-start p-3 sm:p-6 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] dark:bg-slate-950 bg-slate-50 z-50 dark:text-slate-200 text-slate-800 custom-scrollbar">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-accent-blue/10 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-accent-orange/10 blur-[120px] rounded-full" />
@@ -168,7 +168,7 @@ export default function LoginScreen() {
           initial={{ opacity: 0, x: -20 }} 
           animate={{ opacity: 1, x: 0 }} 
           transition={{ duration: 0.25 }}
-          className="hidden md:flex md:col-span-5 flex-col justify-between glass-panel p-6 sm:p-8 rounded-[32px] border-accent-blue/20 shadow-2xl h-full"
+          className="hidden md:flex md:col-span-5 flex-col justify-between glass-panel p-6 sm:p-8 rounded-3xl border-accent-blue/20 shadow-2xl h-full"
         >
           <div>
             <div className="flex items-center gap-3 mb-4">
@@ -218,7 +218,7 @@ export default function LoginScreen() {
             initial={{ opacity: 0, y: 20 }} 
             animate={{ opacity: 1, y: 0 }} 
             transition={{ duration: 0.25 }}
-            className="w-full h-full flex flex-col justify-between glass-panel p-6 sm:p-8 rounded-[32px] border-accent-blue/20 shadow-2xl"
+            className="w-full h-full flex flex-col justify-between glass-panel p-6 sm:p-8 rounded-3xl border-accent-blue/20 shadow-2xl"
           >
             <div>
               <div className="flex justify-center mb-3 sm:mb-4">
@@ -227,14 +227,16 @@ export default function LoginScreen() {
                  </div>
               </div>
               <h2 className="app-h2 text-center uppercase tracking-widest mb-1 leading-none">Login</h2>
-              <p className="app-overline text-accent-orange text-center mb-4 sm:mb-6 opacity-80">Identificati per continuare</p>
+              <p className="app-overline text-slate-500 text-center mb-4 sm:mb-6 opacity-80">Identificati per continuare</p>
 
-              <AnimatePresence mode="wait">
+              <div className="flex-1 min-h-0 flex flex-col"><AnimatePresence mode="wait">
           {!selectedUser ? (
-             <motion.div key="user-list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+             <motion.div key="user-list" className="flex flex-col flex-1 min-h-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                <div className="relative mb-3">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 dark:text-slate-400 text-slate-600 pointer-events-none" size={18} />
+                  <label htmlFor="search-user" className="app-label sr-only">Cerca utente</label>
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 dark:text-slate-400 text-slate-600 pointer-events-none" size={20} />
                   <Input 
+                    id="search-user"
                     type="text" 
                     autoFocus
                     placeholder="Cerca per Nome o ID..." 
@@ -244,7 +246,7 @@ export default function LoginScreen() {
                   />
                </div>
                
-               <div className="flex flex-col gap-2 h-[260px] sm:h-[280px] overflow-y-auto p-1 pb-3 pr-1.5 custom-scrollbar">
+               <div className="flex flex-col gap-4 flex-1 min-h-[200px] overflow-y-auto p-1 pb-3 pr-1.5 custom-scrollbar">
                   {loading ? (
                     <div className="flex flex-col items-center justify-center p-6 gap-2">
                       <div className="w-8 h-8 border-3 border-accent-blue border-t-transparent rounded-full animate-spin" />
@@ -263,22 +265,68 @@ export default function LoginScreen() {
                   ) : filteredUsers.length === 0 ? (
                     <p className="text-center app-caption dark:text-slate-400 text-slate-600 font-bold p-6">Nessun utente trovato</p>
                   ) : (
-                    filteredUsers.map(u => (
-                      <Button 
-                        key={u.id}
-                        variant="ghost"
-                        onClick={() => handleSelectUser(u)}
-                        className="flex items-center justify-between p-3 sm:p-4 h-auto rounded-xl sm:rounded-2xl border border-white/5 hover:border-accent-blue/40 dark:bg-white/5 bg-slate-900/5 hover:bg-accent-blue/10 transition-all text-left group shrink-0 active:scale-[0.99]"
-                      >
-                        <div className="min-w-0 flex-1 pr-2">
-                          <p className="app-h3 group-hover:text-accent-blue transition-colors truncate">{u.nome} {u.cognome}</p>
-                          <p className="app-caption mt-0.5">ID: {u.codice_id || 'N/A'}</p>
-                        </div>
-                        <div className="app-overline dark:bg-slate-900/70 bg-slate-200/70 px-2.5 py-1 rounded-full text-accent-blue shrink-0 shadow-xs">
-                           {u.ruolo}
-                        </div>
-                      </Button>
-                    ))
+                    
+                      <>
+                        {(() => {
+                          const operatori = filteredUsers.filter(u => u.ruolo === 'Operatore');
+                          const admin = filteredUsers.filter(u => u.ruolo === 'Admin');
+                          
+                          return (
+                            <>
+                              {operatori.length > 0 && (
+                                <div className="flex flex-col gap-2">
+                                  <div className="flex items-center gap-2 px-2 pb-1">
+                                    <span className="app-caption font-black text-slate-500 uppercase tracking-widest">Accesso diretto</span>
+                                    <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
+                                  </div>
+                                  {operatori.map(u => (
+                                    <Button 
+                                      key={u.id}
+                                      variant="ghost"
+                                      onClick={() => handleSelectUser(u)}
+                                      className="flex items-center justify-between p-3 sm:p-4 h-auto rounded-xl sm:rounded-2xl border border-white/5 hover:border-accent-blue/40 dark:bg-white/5 bg-slate-900/5 hover:bg-accent-blue/10 transition-all text-left group shrink-0 active:scale-[0.99]"
+                                    >
+                                      <div className="min-w-0 flex-1 pr-2">
+                                        <p className="app-h3 group-hover:text-accent-blue transition-colors truncate">{u.nome} {u.cognome}</p>
+                                        <p className="app-caption mt-0.5">ID: {u.codice_id || 'N/A'}</p>
+                                      </div>
+                                      <div className="app-overline dark:bg-slate-900/70 bg-slate-200/70 px-2.5 py-1 rounded-full text-emerald-500 shrink-0 shadow-xs">
+                                        Senza PIN
+                                      </div>
+                                    </Button>
+                                  ))}
+                                </div>
+                              )}
+                              
+                              {admin.length > 0 && (
+                                <div className="flex flex-col gap-2 mt-2">
+                                  <div className="flex items-center gap-2 px-2 pb-1">
+                                    <span className="app-caption font-black text-slate-500 uppercase tracking-widest">Richiede Password</span>
+                                    <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
+                                  </div>
+                                  {admin.map(u => (
+                                    <Button 
+                                      key={u.id}
+                                      variant="ghost"
+                                      onClick={() => handleSelectUser(u)}
+                                      className="flex items-center justify-between p-3 sm:p-4 h-auto rounded-xl sm:rounded-2xl border border-white/5 hover:border-accent-blue/40 dark:bg-white/5 bg-slate-900/5 hover:bg-accent-blue/10 transition-all text-left group shrink-0 active:scale-[0.99]"
+                                    >
+                                      <div className="min-w-0 flex-1 pr-2">
+                                        <p className="app-h3 group-hover:text-accent-blue transition-colors truncate">{u.nome} {u.cognome}</p>
+                                        <p className="app-caption mt-0.5">ID: {u.codice_id || 'N/A'}</p>
+                                      </div>
+                                      <div className="app-overline dark:bg-slate-900/70 bg-slate-200/70 px-2.5 py-1 rounded-full text-accent-blue shrink-0 shadow-xs">
+                                        Admin
+                                      </div>
+                                    </Button>
+                                  ))}
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </>
+
                   )}
                </div>
              </motion.div>
@@ -299,8 +347,10 @@ export default function LoginScreen() {
 
                <form onSubmit={handlePasswordSubmit}>
                   <div className="relative mb-4">
-                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 dark:text-slate-400 text-slate-600 pointer-events-none" size={18} />
+                     <label htmlFor="password-input" className="app-label sr-only">Password</label>
+                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 dark:text-slate-400 text-slate-600 pointer-events-none" size={20} />
                      <Input
+                       id="password-input"
                        type="password"
                        autoFocus
                        placeholder="Inserisci password admin"
@@ -314,14 +364,14 @@ export default function LoginScreen() {
                   <Button 
                     type="submit" 
                     disabled={verifyingPassword}
-                    className="action-btn-primary w-full h-11 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 shadow-lg text-xs sm:text-sm font-black uppercase tracking-wider"
+                    className="action-btn-primary !text-white w-full h-11 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 shadow-lg text-xs sm:text-sm font-black uppercase tracking-wider"
                   >
-                     {verifyingPassword ? 'Verifica...' : <>Accedi <ArrowRight size={18} /></>}
+                     {verifyingPassword ? 'Verifica...' : <>Accedi <ArrowRight size={20} /></>}
                   </Button>
                </form>
              </motion.div>
           )}
-          </AnimatePresence>
+          </AnimatePresence></div>
             </div>
 
             <div className="mt-6 pt-4 border-t border-slate-900/10 dark:border-white/10 flex items-center justify-between app-caption text-slate-400">
@@ -335,11 +385,11 @@ export default function LoginScreen() {
             <button
               type="button"
               onClick={() => setShowMobileInfo(prev => !prev)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full glass-panel border border-accent-blue/20 text-[11px] font-bold text-accent-blue shadow-sm active:scale-95 transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full glass-panel border border-accent-blue/20 text-xs font-bold text-accent-blue shadow-sm active:scale-95 transition-all"
             >
-              <Info size={13} />
+              <Info size={14} />
               <span>Cos&apos;è questo sistema?</span>
-              {showMobileInfo ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+              {showMobileInfo ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
             <AnimatePresence>
               {showMobileInfo && (

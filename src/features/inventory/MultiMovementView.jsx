@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo, memo } from 'react';
+import { PageContent, PageFooter } from '@/components/layout/PageTemplate';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ClipboardList, Plus, Minus, Trash2, ArrowDown, ArrowUp, 
@@ -84,8 +86,8 @@ const MultiMovementView = memo(({ showToastNotification }) => {
       {/* 1. Header Superiore */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 pt-1 border-b border-slate-200/60 dark:border-white/10 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-[14px] bg-accent-blue/15 border border-accent-blue/30 flex items-center justify-center text-accent-blue shadow-inner shrink-0">
-            <ClipboardList size={22} />
+          <div className="w-10 h-10 rounded-xl bg-accent-blue/15 border border-accent-blue/30 flex items-center justify-center text-accent-blue shadow-inner shrink-0">
+            <ClipboardList size={24} />
           </div>
           <div className="flex flex-col min-w-0">
             <span className="app-overline text-accent-blue leading-none">Distinta Operativa</span>
@@ -100,7 +102,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
           <div className="relative min-w-[200px] sm:min-w-[240px]">
             <div className="relative flex items-center">
               <div className="absolute left-3 pointer-events-none text-accent-blue">
-                <Briefcase size={15} />
+                <Briefcase size={16} />
               </div>
               <select
                 value={selectedCommessaId || ''}
@@ -141,7 +143,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                 )}
               </select>
               <div className="absolute right-3 pointer-events-none text-slate-400">
-                <ChevronDown size={15} />
+                <ChevronDown size={16} />
               </div>
             </div>
           </div>
@@ -187,8 +189,8 @@ const MultiMovementView = memo(({ showToastNotification }) => {
       </div>
 
       {/* 2. Griglia Tabellare della Distinta (Sempre Visibile fin dall'apertura) */}
-      <div className="flex-1 overflow-hidden py-3 min-h-0 flex flex-col">
-        <div className="glass-panel rounded-[20px] md:rounded-[24px] overflow-hidden flex flex-col flex-1 min-h-0 border dark:border-white/10 border-slate-900/10 shadow-xl">
+      <PageContent className="flex flex-col">
+        <div className="glass-panel rounded-3xl md:rounded-3xl overflow-hidden flex flex-col flex-1 min-h-0 border dark:border-white/10 border-slate-900/10 shadow-xl">
           
           {/* Barra Info & Azioni Tabella */}
           <div className="px-4 md:px-6 py-2.5 md:py-3 border-b dark:border-white/5 border-slate-900/10 flex items-center justify-between bg-white/[0.02] shrink-0">
@@ -206,15 +208,15 @@ const MultiMovementView = memo(({ showToastNotification }) => {
               <button
                 type="button"
                 onClick={clearItems}
-                className="app-overline text-[10px] text-rose-400 hover:text-rose-500 transition-colors flex items-center gap-1"
+                className="app-overline text-xs text-rose-400 hover:text-rose-500 transition-colors flex items-center gap-1"
               >
-                <RotateCcw size={11} /> Svuota Distinta
+                <RotateCcw size={14} /> Svuota Distinta
               </button>
             )}
           </div>
 
           {/* Intestazione Colonne Tabella */}
-          <div className="flex items-center gap-2 px-3 sm:px-4 md:px-6 py-2.5 bg-slate-100/70 dark:bg-slate-900/80 border-b border-slate-200/60 dark:border-white/5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 shrink-0">
+          <div className="hidden md:flex items-center gap-2 px-3 sm:px-4 md:px-6 py-2.5 bg-slate-100/70 dark:bg-slate-900/80 border-b border-slate-200/60 dark:border-white/5 text-xs sm:text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 shrink-0">
             <div className="w-8 sm:w-10 text-center shrink-0">#</div>
             <div className="flex-1 min-w-0">Descrizione Articolo</div>
             <div className="w-28 text-center hidden sm:block shrink-0">Codice</div>
@@ -236,14 +238,14 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                 >
                   <div className="w-8 sm:w-10 flex items-center justify-center shrink-0">
                     <div className="w-8 h-8 rounded-xl bg-accent-blue/20 border border-accent-blue/40 flex items-center justify-center text-accent-blue group-hover:scale-110 group-hover:bg-accent-blue group-hover:text-white transition-all shadow-sm">
-                      <Plus size={18} />
+                      <Plus size={20} />
                     </div>
                   </div>
                   <div className="flex-1 min-w-0 pr-2">
                     <p className="app-h3 text-accent-blue group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                       + Clicca per selezionare il 1° utensile...
                     </p>
-                    <p className="app-body text-[11px] text-slate-500 dark:text-slate-400">
+                    <p className="app-body text-xs text-slate-500 dark:text-slate-400">
                       Scegli dal catalogo completo con visualizzazione tabella
                     </p>
                   </div>
@@ -257,7 +259,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                     <span className="text-slate-400 opacity-40 font-mono text-xs">--</span>
                   </div>
                   <div className="w-32 sm:w-36 text-center shrink-0">
-                    <span className="badge app-caption text-[10px] text-slate-400 opacity-60">Riga 1</span>
+                    <span className="badge app-caption text-xs text-slate-400 opacity-60">Riga 1</span>
                   </div>
                   <div className="w-10 text-center shrink-0" />
                 </div>
@@ -270,7 +272,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                     className="flex items-center gap-2 px-3 sm:px-4 md:px-6 py-3.5 opacity-30 hover:opacity-60 cursor-pointer transition-opacity select-none border-b border-dashed border-slate-300 dark:border-white/10"
                   >
                     <div className="w-8 sm:w-10 text-center shrink-0">
-                      <span className="app-caption text-[11px] text-slate-400">{rowNum}</span>
+                      <span className="app-caption text-xs text-slate-400">{rowNum}</span>
                     </div>
                     <div className="flex-1 min-w-0 text-slate-400 font-mono text-xs">
                       [ In attesa di selezione ]
@@ -324,25 +326,25 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                             </p>
                             <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
                               {item.tool['Codice'] && (
-                                <span className="sm:hidden badge badge-blue app-caption text-[9px] px-1.5 py-0.2">
+                                <span className="sm:hidden badge badge-blue app-caption text-xs px-1.5 py-0.2">
                                   {item.tool['Codice']}
                                 </span>
                               )}
                               {item.tool['Ubicazione'] && (
-                                <span className="md:hidden badge badge-orange app-caption text-[9px] px-1.5 py-0.2">
+                                <span className="md:hidden badge badge-orange app-caption text-xs px-1.5 py-0.2">
                                   {item.tool['Ubicazione']}
                                 </span>
                               )}
                               {item.tool['Fornitore'] && (
-                                <span className="app-caption text-[10px] text-slate-400 hidden xl:inline">
+                                <span className="app-caption text-xs text-slate-400 hidden xl:inline">
                                   {item.tool['Fornitore']}
                                 </span>
                               )}
                             </div>
                             {isInsufficient && (
                               <div className="flex items-center gap-1 text-accent-rose mt-1">
-                                <AlertTriangle size={12} className="shrink-0" />
-                                <span className="app-body text-[10px] font-bold">
+                                <AlertTriangle size={14} className="shrink-0" />
+                                <span className="app-body text-xs font-bold">
                                   Richiesti: {item.quantity} | Max disp: {liveStock}
                                 </span>
                               </div>
@@ -353,7 +355,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                         {/* Colonna Codice Aziendale */}
                         <div className="w-28 text-center hidden sm:block shrink-0">
                           {item.tool['Codice'] ? (
-                            <span className="badge badge-blue app-caption text-[10px] font-bold px-2 py-0.5">
+                            <span className="badge badge-blue app-caption text-xs font-bold px-2 py-0.5">
                               {item.tool['Codice']}
                             </span>
                           ) : (
@@ -364,7 +366,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                         {/* Colonna Ubicazione */}
                         <div className="w-28 text-center hidden md:block shrink-0">
                           {item.tool['Ubicazione'] ? (
-                            <span className="badge badge-orange app-caption text-[10px] font-bold px-2 py-0.5">
+                            <span className="badge badge-orange app-caption text-xs font-bold px-2 py-0.5">
                               {item.tool['Ubicazione']}
                             </span>
                           ) : (
@@ -389,7 +391,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                               className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white disabled:opacity-20 disabled:pointer-events-none hover:bg-white dark:hover:bg-slate-800 transition-colors"
                               title="Diminuisci quantità"
                             >
-                              <Minus size={13} />
+                              <Minus size={14} />
                             </button>
                             <input
                               type="number"
@@ -404,7 +406,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                               className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 transition-colors"
                               title="Aumenta quantità"
                             >
-                              <Plus size={13} />
+                              <Plus size={14} />
                             </button>
                           </div>
                         </div>
@@ -445,10 +447,11 @@ const MultiMovementView = memo(({ showToastNotification }) => {
             )}
           </div>
         </div>
-      </div>
+      </PageContent>
 
       {/* 3. Barra Azione Inferiore (Riepilogo & Conferma Atomica) */}
-      <div className="p-3 sm:p-4 rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-slate-200/60 dark:border-white/10 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0 mb-2">
+      <PageFooter className="justify-between">
+        <div className="flex items-center w-full justify-between gap-3">
         <div className="flex flex-col min-w-0">
           <span className="app-overline text-accent-blue leading-none">Riepilogo Distinta</span>
           <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -463,15 +466,15 @@ const MultiMovementView = memo(({ showToastNotification }) => {
               <>
                 <span className="text-slate-400">•</span>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs font-bold">
-                  <Briefcase size={12} />
+                  <Briefcase size={14} />
                   <span>Commessa: {selectedCommessa.codice}</span>
                 </span>
               </>
             )}
           </div>
           {hasInsufficientStock && (
-            <span className="text-[11px] font-bold text-accent-rose flex items-center gap-1 mt-0.5">
-              <AlertTriangle size={12} /> Riduci le quantità segnalate prima di confermare il prelievo
+            <span className="text-xs font-bold text-accent-rose flex items-center gap-1 mt-0.5">
+              <AlertTriangle size={14} /> Riduci le quantità segnalate prima di confermare il prelievo
             </span>
           )}
         </div>
@@ -502,7 +505,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
               </>
             ) : (
               <>
-                {batchOpType === 'scarico' ? <ArrowUp size={18} /> : <ArrowDown size={18} />}
+                {batchOpType === 'scarico' ? <ArrowUp size={20} /> : <ArrowDown size={20} />}
                 <span>
                   Conferma {batchOpType === 'scarico' ? 'Prelievo' : 'Deposito'} ({totalPieces} pz)
                 </span>
@@ -510,7 +513,8 @@ const MultiMovementView = memo(({ showToastNotification }) => {
             )}
           </button>
         </div>
-      </div>
+        </div>
+      </PageFooter>
 
       {/* Modale Ricerca Rapida Utensili (con TanStack Table completa) */}
       <AddToolToMultiModal

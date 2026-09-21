@@ -53,7 +53,7 @@ export const useMultiMovementStore = create((set, get) => ({
     }));
   },
 
-  clearItems: () => set({ items: [], selectedCommessaId: null }),
+  clearItems: () => set({ items: [], selectedCommessaId: null, batchOpType: 'scarico' }),
 
   executeMultiMovement: async (arg1, arg2, arg3) => {
     let showToastNotification;
@@ -202,7 +202,7 @@ export const useMultiMovementStore = create((set, get) => ({
         );
       }
 
-      set({ items: [], selectedCommessaId: null });
+      set({ items: [], selectedCommessaId: null, batchOpType: 'scarico' });
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error('Errore durante executeMultiMovement:', err);

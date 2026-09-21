@@ -1,0 +1,389 @@
+[
+{
+"goto": "https://berc-utensili.vercel.app/",
+"theme": "light"
+},
+{
+"shot": "03-home-lista-default"
+},
+{
+"click": "button[title='Vista a Griglia']",
+"wait": 1200
+},
+{
+"shot": "05-home-griglia-categorie"
+},
+{
+"eval": "__click(Array.from(document.querySelectorAll('div.glass-panel.cursor-pointer')).find(d=>d.innerText.replace(/\\s+/g,' ').includes('FRESA')))",
+"wait": 1200
+},
+{
+"shot": "06-home-griglia-forma"
+},
+{
+"eval": "__click(Array.from(document.querySelectorAll('div.glass-panel.cursor-pointer')).find(d=>d.innerText.replace(/\\s+/g,' ').includes('CANDELA')))",
+"wait": 1200
+},
+{
+"shot": "07-home-diametri"
+},
+{
+"clickText": "D10",
+"tag": "button",
+"wait": 1500
+},
+{
+"shot": "08-home-tabella-filtrata"
+},
+{
+"eval": "__click(Array.from(document.querySelectorAll('div.cursor-pointer')).find(r=>r.innerText.includes('FRESA · CANDELA · D10')))",
+"wait": 1200
+},
+{
+"shot": "09-modale-dettaglio-utensile"
+},
+{
+"clickText": "PRELEVA",
+"tag": "button",
+"wait": 1000
+},
+{
+"shot": "10-modale-prelievo-quantita"
+},
+{
+"clickText": "INDIETRO",
+"tag": "button",
+"wait": 800
+},
+{
+"clickText": "CREA ORDINE",
+"tag": "button",
+"wait": 1000
+},
+{
+"shot": "11-modale-crea-ordine"
+},
+{
+"key": "Escape",
+"wait": 800
+},
+{
+"eval": "const b=__byText('CREA ORDINE'); if(b){ const x=document.querySelector('button[aria-label*=\"Chiudi\"], [role=dialog] button'); }; true",
+"optional": true
+},
+{
+"clickText": "RESETTA TUTTO",
+"tag": "button",
+"wait": 1000,
+"optional": true
+},
+{
+"click": "button[title='Vista ad Elenco']",
+"wait": 1200
+},
+{
+"eval": "__click(document.querySelector('[role=combobox]'))",
+"wait": 900
+},
+{
+"shot": "12-home-filtro-dropdown-aperto"
+},
+{
+"key": "Escape",
+"wait": 600
+},
+{
+"clickText": "SELEZIONA",
+"tag": "button",
+"wait": 900
+},
+{
+"eval": "const cbs=document.querySelectorAll('[role=checkbox]'); __click(cbs[0]); __click(cbs[1]);",
+"wait": 1000
+},
+{
+"shot": "13-home-selezione-multipla"
+},
+{
+"clickText": "APRI IN MOVIMENTO MULTIPLO",
+"tag": "button",
+"wait": 600
+},
+{
+"shot": "14-movimento-multiplo-toast"
+},
+{
+"wait": 2500
+},
+{
+"shot": "15-movimento-multiplo-distinta"
+},
+{
+"clickText": "AGGIUNGI UTENSILE",
+"tag": "button",
+"wait": 1500
+},
+{
+"shot": "16-movimento-multiplo-picker"
+},
+{
+"key": "Escape",
+"wait": 800
+},
+{
+"clickText": "DEPOSITO",
+"tag": "button",
+"wait": 800
+},
+{
+"clickText": "ANNULLA",
+"tag": "button",
+"wait": 1000
+},
+{
+"shot": "17-movimento-multiplo-vuoto"
+},
+{
+"clickText": "Commesse",
+"tag": "button",
+"wait": 2000
+},
+{
+"shot": "18-commesse"
+},
+{
+"eval": "__click(Array.from(document.querySelectorAll('button')).find(b=>b.querySelector('svg[class*=ellipsis-vertical], svg[class*=more-vertical]')))",
+"wait": 800,
+"optional": true
+},
+{
+"shot": "19-commesse-menu-contestuale"
+},
+{
+"key": "Escape",
+"wait": 500
+},
+{
+"clickText": "NUOVA COMMESSA",
+"tag": "button",
+"wait": 1000
+},
+{
+"shot": "20-commesse-nuova-modale"
+},
+{
+"key": "Escape",
+"wait": 800
+},
+{
+"clickText": "Storico movimenti",
+"tag": "button",
+"wait": 2500
+},
+{
+"shot": "21-storico-movimenti"
+},
+{
+"clickText": "Gestione Operatori",
+"tag": "button",
+"wait": 2000
+},
+{
+"shot": "22-gestione-operatori"
+},
+{
+"eval": "const btn=Array.from(document.querySelectorAll('button')).filter(b=>b.querySelector('svg[class*=lucide-pen], svg[class*=edit-2], svg[class*=pencil]')).find(b=>/leonardi/i.test(b.closest('div[class*=rounded]')?.innerText||'') || /leonardi/i.test(b.parentElement.parentElement.innerText)); __click(btn)",
+"wait": 1000,
+"optional": true
+},
+{
+"shot": "23-gestione-operatori-modifica"
+},
+{
+"clickText": "ANNULLA",
+"tag": "button",
+"wait": 800,
+"optional": true
+},
+{
+"clickText": "NUOVO UTENSILE",
+"tag": "button",
+"wait": 1500
+},
+{
+"shot": "24-nuovo-utensile-modale"
+},
+{
+"clickText": "ATTRIBUTI AVANZATI",
+"tag": "button",
+"wait": 900,
+"optional": true
+},
+{
+"shot": "25-nuovo-utensile-attributi-avanzati"
+},
+{
+"key": "Escape",
+"wait": 800
+},
+{
+"clickText": "Inventario",
+"tag": "button",
+"wait": 1200
+},
+{
+"clickText": "Guida",
+"tag": "button",
+"wait": 1800
+},
+{
+"shot": "26-tutorial-step1"
+},
+{
+"eval": "__click(Array.from(document.querySelectorAll('button')).find(b=>b.querySelector('svg[class*=chevron-right]') && b.closest('[class*=fixed]')))",
+"wait": 1200,
+"optional": true
+},
+{
+"shot": "27-tutorial-step2"
+},
+{
+"clickText": "SALTA",
+"tag": "button",
+"wait": 900,
+"optional": true
+},
+{
+"key": "Escape",
+"wait": 500
+},
+{
+"click": "button[aria-label='Impostazioni Utente']",
+"wait": 1200
+},
+{
+"shot": "28-impostazioni-utente"
+},
+{
+"key": "Escape",
+"wait": 800
+},
+{
+"clickText": "DEPOSITA",
+"tag": "button",
+"wait": 2000
+},
+{
+"shot": "29-scanner-deposito-rapido"
+},
+{
+"eval": "__setInput(Array.from(document.querySelectorAll('input')).find(i=>/Scansiona|scansiona/.test(i.placeholder)), 'BRCL01')",
+"wait": 1500
+},
+{
+"shot": "30-scanner-lista-live"
+},
+{
+"clickText": "PRELEVA",
+"tag": "button",
+"wait": 1000
+},
+{
+"shot": "31-scanner-prelievo-rapido"
+},
+{
+"eval": "__click(Array.from(document.querySelectorAll('main button, button')).find(b=>b.querySelector('svg[class*=lucide-camera]') && !b.closest('header') && b.getAttribute('aria-label')!=='Scanner Fotocamera'))",
+"wait": 2000,
+"optional": true
+},
+{
+"shot": "32-scanner-camera-inline"
+},
+{
+"clickText": "DETTAGLIO",
+"tag": "button",
+"wait": 1000,
+"optional": true
+},
+{
+"shot": "33-scanner-dettaglio-tab"
+},
+{
+"clickText": "Inventario",
+"tag": "button",
+"wait": 1200
+},
+{
+"click": "button[aria-label='Scanner Fotocamera']",
+"wait": 2000
+},
+{
+"shot": "34-header-scanner-camera-modale"
+},
+{
+"key": "Escape",
+"wait": 800
+},
+{
+"type": "input[placeholder*='Cerca codice']",
+"text": "D16",
+"wait": 1500
+},
+{
+"shot": "35-header-ricerca-globale"
+},
+{
+"goto": "https://berc-utensili.vercel.app/",
+"theme": "dark"
+},
+{
+"shot": "40-dark-home-lista"
+},
+{
+"click": "button[title='Vista a Griglia']",
+"wait": 1200
+},
+{
+"shot": "41-dark-home-griglia"
+},
+{
+"clickText": "DEPOSITA",
+"tag": "button",
+"wait": 2000
+},
+{
+"shot": "42-dark-scanner"
+},
+{
+"clickText": "Commesse",
+"tag": "button",
+"wait": 2000
+},
+{
+"shot": "43-dark-commesse"
+},
+{
+"clickText": "Storico movimenti",
+"tag": "button",
+"wait": 2500
+},
+{
+"shot": "44-dark-storico"
+},
+{
+"clickText": "Movimento Multiplo",
+"tag": "button",
+"wait": 1500
+},
+{
+"shot": "45-dark-movimento-multiplo"
+},
+{
+"clickText": "Gestione Operatori",
+"tag": "button",
+"wait": 2000
+},
+{
+"shot": "46-dark-operatori"
+}
+]

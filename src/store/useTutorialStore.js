@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { useNavigationStore } from './useNavigationStore';
 import { useFilterStore } from './useFilterStore';
+import { useAuthStore } from './useAuthStore';
 
 export const TUTORIAL_STEPS = [
   {
@@ -46,8 +47,8 @@ export const TUTORIAL_STEPS = [
   {
     id: 'menu-history',
     target: '[data-tour="menu-history"]',
-    title: 'Storico Movimenti & Supporto',
-    content: 'Controlla tutti i log delle operazioni effettuate con data e operatore. Da qui puoi anche riavviare questo tutorial in qualsiasi momento.',
+    title: 'Storico movimenti & Guida',
+    content: 'Controlla tutti i movimenti effettuati con data e operatore. Dalla voce Guida puoi riavviare questo percorso in qualsiasi momento.',
     placement: 'top',
     targetView: 'home',
     requireSidebar: true
@@ -119,26 +120,14 @@ export const useTutorialStore = create((set, get) => ({
     }
   },
 
-  completeTutorial: async (currentUser, setCurrentUser) => {
+  completeTutorial: async (currentUser) => {
     set({ isOpen: false });
     if (!currentUser) return;
 
-    // 1. Salva localmente subito per massima reattività
-    try {
-      localStorage.setItem(`berc_tutorial_completed_${currentUser.id}`, 'true');
-    } catch (e) {
-      console.warn('Impossibile salvare flag tutorial in localStorage:', e);
-    }
+    // 1. Aggiorna lo stato auth locale senza resettare altre preferenze (es. viewMode)
+    useAuthStore.getState().completeTutorial();
 
-    // 2. Aggiorna lo stato auth locale
-    if (setCurrentUser) {
-      setCurrentUser({
-        ...currentUser,
-        has_completed_tutorial: true
-      });
-    }
-
-    // 3. Persisti su database Supabase (tabella utenti)
+    // 2. Persisti su database Supabase (tabella utenti)
     try {
       const { error } = await supabase
         .from('utenti')

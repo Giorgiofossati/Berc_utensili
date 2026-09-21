@@ -16,6 +16,7 @@ export const VirtualizedTable = memo(({
   emptyTitle = "Nessun dato trovato",
   emptyDescription,
   emptyAction,
+  density = 'comfortable',
   className = "",
   bottomSpacerClassName = "h-20 md:h-10",
   parentRef: externalParentRef,
@@ -40,7 +41,7 @@ export const VirtualizedTable = memo(({
     >
       {/* Sticky Header */}
       {rows.length > 0 && (
-        <div className="sticky top-0 z-[10] border-b dark:border-white/10 border-slate-900/10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur flex min-w-full w-fit md:w-full shrink-0 shadow-sm">
+        <div className="sticky top-0 z-50 border-b dark:border-white/10 border-slate-900/10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur flex min-w-full w-fit md:w-full shrink-0 shadow-sm">
           {table.getHeaderGroups().map((headerGroup) => (
             <div
               key={headerGroup.id}
@@ -66,7 +67,7 @@ export const VirtualizedTable = memo(({
                 return (
                   <div
                     key={header.id}
-                    className={`flex items-center gap-2 py-2.5 transition-colors group relative overflow-hidden ${
+                    className={`flex items-center gap-2 ${density === 'compact' ? 'py-2' : 'py-3.5'} transition-colors group relative overflow-hidden ${
                       canSort ? 'cursor-pointer hover:text-slate-900 dark:hover:text-slate-200' : ''
                     } ${meta?.className || ''} ${
                       isFlex ? 'min-w-0' : 'flex-shrink-0 justify-center'
@@ -136,10 +137,18 @@ export const VirtualizedTable = memo(({
                   transform: `translateY(${virtualRow.start}px)`,
                 }}
                 onClick={() => onRowClick && onRowClick(row.original, row)}
-                className={`flex items-center min-w-full w-fit md:w-full hover:bg-white/[0.06] active:bg-accent-blue/10 ${
+                onKeyDown={(e) => {
+                  if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault();
+                    onRowClick(row.original, row);
+                  }
+                }}
+                role={onRowClick ? "button" : undefined}
+                tabIndex={onRowClick ? 0 : undefined}
+                className={`flex items-center min-w-full w-fit md:w-full hover:bg-accent-blue/[0.06] active:bg-accent-blue/10 ${
                   onRowClick ? 'cursor-pointer' : ''
                 } transition-colors border-b dark:border-white/[0.03] border-slate-900/5 group select-none ${
-                  isSelected ? 'bg-accent-blue/5' : ''
+                  isSelected ? 'bg-accent-blue/10 shadow-[inset_3px_0_0_var(--color-accent-blue)]' : ''
                 } ${customClassName}`}
               >
                 {row.getVisibleCells().map((cell) => {
@@ -160,7 +169,7 @@ export const VirtualizedTable = memo(({
                   return (
                     <div
                       key={cell.id}
-                      className={`flex items-center py-2.5 sm:py-2 overflow-hidden ${
+                      className={`flex items-center ${density === 'compact' ? 'py-2' : 'py-3.5'} overflow-hidden ${
                         meta?.className || ''
                       } ${isFlex ? 'min-w-0' : 'flex-shrink-0 justify-center'}`}
                       style={{

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Send, ShoppingCart, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { buildDesc } from '../../lib/toolUtils';
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -63,7 +63,7 @@ const OrderModal = ({ tool, onClose, currentUser, onSuccess }) => {
 
   return (
     <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent showCloseButton={false} className="glass-panel w-[94vw] sm:w-full max-w-md max-h-[92dvh] flex flex-col rounded-[28px] sm:rounded-[36px] z-[2501] bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border dark:border-white/10 border-slate-900/10 shadow-2xl overflow-hidden p-0 gap-0 focus:outline-none">
+      <DialogContent showCloseButton={false} size="md" className="p-0 gap-0 overflow-hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border dark:border-white/10 border-slate-900/10 shadow-2xl focus:outline-none">
         <DialogTitle className="sr-only">Crea Ordine</DialogTitle>
         {showSuccess ? (
           <div className="flex flex-col items-center justify-center p-8 sm:p-12 min-h-[320px] text-center">
@@ -77,24 +77,14 @@ const OrderModal = ({ tool, onClose, currentUser, onSuccess }) => {
           </div>
         ) : (
           <>
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 sm:p-6 shrink-0 border-b dark:border-white/10 border-slate-900/10 bg-accent-orange/10">
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-10 h-10 rounded-xl bg-accent-orange/20 flex items-center justify-center shrink-0">
-                  <ShoppingCart className="text-accent-orange" size={20} />
-                </div>
-                <div>
-                  <p className="app-overline text-accent-orange">Riassortimento</p>
-                  <h2 className="app-h2">Crea Ordine</h2>
-                </div>
-              </div>
-              <Button variant="glass" size="icon" onClick={onClose} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center hover:rotate-90 transition-transform shrink-0">
-                <X size={18} />
-              </Button>
-            </div>
+            <ModalHeader 
+              icon={<ShoppingCart size={24} className="text-accent-orange" />}
+              overline="Riassortimento"
+              title="Crea Ordine"
+              className="bg-accent-orange/5"
+            />
 
-            {/* Body */}
-            <div className="p-4 sm:p-6 flex flex-col gap-4 sm:gap-6 overflow-y-auto custom-scrollbar flex-1">
+            <ModalBody className="flex flex-col gap-4 sm:gap-6">
               {errorMessage && (
                 <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-2 animate-in fade-in-50">
                   <span className="font-bold">Attenzione:</span> {errorMessage}
@@ -108,7 +98,7 @@ const OrderModal = ({ tool, onClose, currentUser, onSuccess }) => {
                 </p>
               </div>
 
-              <form id="order-form" onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-5">
+              <form id="order-form" onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-6 @container">
                 <div className="flex flex-col gap-1.5">
                   <label className="app-overline opacity-70 text-slate-700 dark:text-slate-300 px-1">Quantità da ordinare *</label>
                   <Input 
@@ -133,10 +123,9 @@ const OrderModal = ({ tool, onClose, currentUser, onSuccess }) => {
                   />
                 </div>
               </form>
-            </div>
+            </ModalBody>
 
-            {/* Footer */}
-            <div className="p-4 sm:p-6 shrink-0 bg-black/5 dark:bg-white/5 flex justify-end border-t dark:border-white/5 border-slate-900/10">
+            <ModalFooter>
               <button 
                 type="submit" 
                 form="order-form"
@@ -152,7 +141,7 @@ const OrderModal = ({ tool, onClose, currentUser, onSuccess }) => {
                   </>
                 )}
               </button>
-            </div>
+            </ModalFooter>
           </>
         )}
       </DialogContent>

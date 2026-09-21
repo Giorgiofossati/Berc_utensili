@@ -143,7 +143,7 @@ const BarcodeScanner = ({ onScan }) => {
       {error && (
         <div className="absolute inset-0 z-30 flex flex-col items-center justify-center p-6 text-center bg-slate-950/95 backdrop-blur-md">
           <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-3 shadow-inner">
-            <AlertCircle size={22} />
+            <AlertCircle size={24} />
           </div>
           <p className="app-h3 text-white mb-1">Accesso Fotocamera Necessario</p>
           <p className="app-caption text-slate-400 max-w-xs mb-4 leading-relaxed">{error}</p>
