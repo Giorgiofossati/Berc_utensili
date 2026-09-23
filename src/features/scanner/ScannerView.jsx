@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowDown, ArrowUp, Search, X, Camera } from 'lucide-react';
+import { ArrowDown, ArrowUp, Search, X, Camera } from 'lucide-react';
 import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
 import BarcodeScanner from './BarcodeScanner';
 import { toolMatchesQuery } from '../../lib/searchUtils';
@@ -206,6 +206,7 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
               onSelectTool={handleSelectResult} 
               isMobile={isMobile} 
               hideExtraFilters={true}
+              selectionMode="none"
               emptyTitle="Nessun utensile trovato"
               emptyDescription={`Nessun risultato corrispondente a "${manualCode.trim()}". Controlla i caratteri inseriti o prova con un altro parametro.`}
             />

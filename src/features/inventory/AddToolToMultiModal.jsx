@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect, memo } from 'react';
 import { Search, X, Layers } from 'lucide-react';
 import { Dialog, DialogContent, ModalHeader, ModalBody } from "@/components/ui/dialog";
+import { StateBlock } from '@/components/common/StateBlock';
 import { buildDesc } from '../../lib/toolUtils';
 import { toolMatchesQuery } from '../../lib/searchUtils';
 import { useInventoryStore } from '../../store/useInventoryStore';
@@ -12,6 +13,7 @@ const AddToolToMultiModal = memo(({ isOpen, onClose, showToastNotification }) =>
   const inputRef = useRef(null);
 
   const tools = useInventoryStore(state => state.tools);
+  const isLoading = useInventoryStore(state => state.isLoading);
   const addItem = useMultiMovementStore(state => state.addItem);
 
   useEffect(() => {
@@ -41,14 +43,14 @@ const AddToolToMultiModal = memo(({ isOpen, onClose, showToastNotification }) =>
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent size="xl" showCloseButton={false}>
         <ModalHeader
-          icon={<Layers />}
+          icon={<Layers size={24} />}
           overline="Catalogo Magazzino"
           title="Seleziona Utensile per la Distinta"
         />
         <ModalBody className="flex-1 overflow-hidden flex flex-col p-0 sm:p-0">
-<div className="py-2.5 shrink-0">
-          <div className="relative flex items-center w-full">
-            <Search className="absolute left-3.5 text-slate-400 pointer-events-none" size={20} />
+          <div className="py-2.5 shrink-0 @container">
+            <div className="relative flex items-center w-full">
+              <Search className="absolute left-3.5 text-slate-400 pointer-events-none" size={16} />
             <input
               ref={inputRef}
               type="text"
@@ -79,14 +81,18 @@ const AddToolToMultiModal = memo(({ isOpen, onClose, showToastNotification }) =>
 
         {/* Tabella Utensili Ufficiale TanStack Virtualized */}
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
-          <ToolsGrid
-            tools={filteredTools}
-            onSelectTool={handleSelectTool}
-            hideExtraFilters={true}
-            selectionMode="pick"
-            emptyTitle="Nessun utensile trovato"
-            emptyDescription={query ? `Nessun risultato corrispondente a "${query}". Prova a modificare i termini di ricerca.` : "Nessun articolo a catalogo."}
-          />
+          {isLoading && tools.length === 0 ? (
+            <StateBlock state="loading" title="Caricamento catalogo in corso..." skeletonShape="row" loadingMode="skeleton" />
+          ) : (
+            <ToolsGrid
+              tools={filteredTools}
+              onSelectTool={handleSelectTool}
+              hideExtraFilters={true}
+              selectionMode="pick"
+              emptyTitle="Nessun utensile trovato"
+              emptyDescription={query ? `Nessun risultato corrispondente a "${query}". Prova a modificare i termini di ricerca.` : "Nessun articolo a catalogo."}
+            />
+          )}
         </div>
         </ModalBody>
       </DialogContent>

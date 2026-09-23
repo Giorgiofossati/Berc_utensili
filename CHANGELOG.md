@@ -20,6 +20,188 @@ Questo file tiene traccia in ordine cronologico inverso di tutte le implementazi
 
 ---
 
+## [2026-09-24] - Correzione Menu 3 Puntini, Scarico Utensile su Commessa e Reingegnerizzazione Creazione Utensile
+- **Tag**: `[FIX]` / `[UX/UI]`
+- **Descrizione**:
+  - **Menu 3 Puntini (`IconMenu`)**: risolto il mancato funzionamento delle azioni nei menu a tendina in `src/components/ui/icon-button.jsx` sostituendo `onSelect` con `onClick` ed `e.stopPropagation()` sul componente `Menu.Item` di `@base-ui/react`. Ripristinate le azioni `Modifica`, `Elimina` e `Reimposta Tutorial` in `OperatorsView`, nonché `Elimina` e `Cambia Stato` in `CommesseView`.
+  - **Scarico Utensile Imputato a Commessa**: risolto l'errore di scrittura durante lo scarico su commessa in `useMovementStore` e `useMultiMovementStore` tramite fallback client-side resiliente che aggiorna la giacenza centrale in `Utensili_B1` e inserisce il log con `commessa_id` in `movements_history`, e predisposta la relativa migration SQL.
+  - **Creazione Utensile Rapida con Attributi Indispensabili (`DESIGN_SYSTEM.md`)**: reingegnerizzati `AddToolModal.jsx` e `useAddToolForm.js`. Resi obbligatori entrambi i codici identificativi (`Codice Aziendale *` e `Codice Produttore *`), il `Fornitore *`, `Diametro *`, `Ubicazione *`, `Quantità *` e i parametri geometrici reattivi (`Forma`/`Raggio` per frese, `Passo` per maschi, `Angolo` per svasatori, `Tolleranza` per alesatori) visibili subito nel blocco principale; mantenuti nell'accordion compatto i soli dettagli opzionali (`Materiale`, `Rivestimento`, `Lavorazione`, `Lunghezza`, `Stato`); eliminati contenitori grigi intermedi ("box-in-a-box") conformemente a `DESIGN_SYSTEM.md`.
+- **File Coinvolti**:
+  - `src/components/ui/icon-button.jsx`
+  - `src/features/inventory/AddToolModal.jsx`
+  - `src/hooks/useAddToolForm.js`
+  - `src/store/useMovementStore.js`
+  - `src/store/useMultiMovementStore.js`
+  - `src/features/admin/OperatorsView.jsx`
+  - `supabase/migrations/20260924_fix_commesse_movement_logic.sql`
+  - `CHANGELOG.md`
+
+## [2026-09-23] - Fase 4.4 & 4.7: Struttura Modali, Container Queries Form e Audit Distinta (§1.11, §1.14, §6.1-§6.3, §7, §8.2)
+- **Tag**: `[UX/UI]` / `[REFACTOR]`
+- **Descrizione**:
+  - **MultiMovementView (Fase 4.4, §1.11, §5.1, §8.2)**: verificata la distinta a griglia immediata (§5.1) con prima riga attiva e segnaposto strutturali senza alcun caricatore a pagina intera; uniformate le icone alla scala a 5 passi §1.11 (`ToolIcon` a 32px, icone micro 14px per pulsanti compatti e badge, default 16px per controlli ed enfasi 20px per conferma batch).
+  - **Anatomia Modali Unificata (Fase 4.7, §6.1-§6.3)**: consolidato l'uso dei componenti semantici `ModalHeader`, `ModalBody` e `ModalFooter` su tutti i modali di inventario (`MovementModal`, `AddToolModal`, `OrderModal`, `AddToolToMultiModal`); standardizzata la gestione della 'X' di chiusura integrata nell'header con `showCloseButton={false}` su `DialogContent`; uniformato lo stato di successo con `ModalBody` in `OrderModal` e ripulite importazioni superflue.
+  - **Container Queries su Form e Griglie Interne (§1.14, §7)**: applicato wrapper `@container` e variante `@md:grid-cols-3` alla griglia dettagli attributi in `MovementModal`; verificata e rafforzata l'adozione di `@container` e `@sm:grid-cols-2` sui form e filtri in `AddToolModal`, `OrderModal` e `AddToolToMultiModal`.
+  - **Audit Dimensionale Icone & Shimmer Skeleton (§1.11, §8.2)**: integrato `StateBlock` con `skeletonShape="row"` e `loadingMode="skeleton"` in `AddToolToMultiModal` per il caricamento iniziale del catalogo in modale; uniformate le icone di `ModalHeader` al passo `box header: 24px` (`Layers`, `ShoppingCart`, `Briefcase`, `ArrowDown`, `ArrowUp`), icone input a `default: 16px` (`Search`), icone di successo a `hero: 32-40px` (`CheckCircle2` a 40px in `AddToolModal` senza sforamenti a 48px, 32px in `OrderModal`) e chevron a 16px.
+- **File Coinvolti**:
+  - `src/features/inventory/MultiMovementView.jsx`
+  - `src/features/inventory/MovementModal.jsx`
+  - `src/features/inventory/AddToolModal.jsx`
+  - `src/features/inventory/OrderModal.jsx`
+  - `src/features/inventory/AddToolToMultiModal.jsx`
+  - `CHANGELOG.md`
+
+## [2026-09-23] - Fase 4.1: Applicazione Design System a HistoryView (StatTile, TableWrapper, showDensityToggle e StateBlock) (§1.11, §1.14, §4.5, §5.2, §8.2)
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **StatTile & Container Queries (§1.14, §4.5)**: introdotta la riga di 4 `StatTile` in cima a `PageContent` racchiusa in un wrapper `@container` reattivo (`grid gap-3 sm:gap-4 grid-cols-1 @sm:grid-cols-2 @xl:grid-cols-4 items-stretch`), riepilogando Totale Movimenti, Carichi (con delta pill "pz"), Scarichi (con delta pill "pz") e Operatori Coinvolti.
+  - **TableWrapper & Toggle Densità (§5.2)**: introdotto `TableWrapper` con `showDensityToggle={true}` e prop `showDensityToggle` esposta, che allinea il subheader della tabella con contatore movimenti e pulsante di commutazione densità Comoda (56px) / Compatta (44px) con icona `AlignJustify` (14px). Rimosso il pulsante ridondante da `PageToolbar`.
+  - **Empty State con StateBlock (§8.2)**: standardizzata la prop `variant={activeFiltersCount > 0 ? "filtered" : "generic"}` per mostrare il copy contestuale corretto e l'azione rapida di reset filtri.
+  - **Audit Dimensioni Icone (§1.11)**: verificate tutte le icone `lucide-react` garantendo l'adesione rigorosa alla scala consentita `{14, 16, 20, 24, 32-40}` e ripuliti gli import non utilizzati.
+- **File Coinvolti**:
+  - `src/features/admin/HistoryView.jsx`
+  - `CHANGELOG.md`
+
+## [2026-09-23] - Fase 4.5 & 4.6: Container Queries e Audit Icone su ScannerView, CategoryGridCard e DiameterList (§1.8, §1.11, §1.14)
+- **Tag**: `[UX/UI]` / `[REFACTOR]`
+- **Descrizione**:
+  - **ScannerView (Fase 4.5)**: verificata la corretta delega di densità e hover/selected a `ToolsGrid` (`selectionMode="none"`) e `VirtualizedTable` senza duplicazioni locali di stili riga; completato audit dimensionale icone (Search 20px/32px, Camera 20px/24px, ArrowDown/Up 14px, X 16px) e rimossa dipendenza inutilizzata `ArrowLeft`; sostituita classe non standard `app-caption` con `app-body` nell'errore fotocamera di `BarcodeScanner`.
+  - **Home / Griglie Tessere Categoria e Diametro (Fase 4.6, §1.8, §1.14)**: applicato wrapper `@container` e varianti container queries (`@sm:`, `@md:`, `@xl:`, `@3xl:`) sul contenitore tessere categoria in `App.jsx` e sulla lista diametri `DiameterList.jsx`; convertita `CategoryGridCard` da `div` generico a `<button type="button">` accessibile con focus-ring e dimensioni scalari basate sul contenitore.
+  - **Audit Dimensionale e StateBlock in DiameterList (§1.11, §8.2)**: uniformate le icone di ricerca e cancellazione a 16px (`default: 16px` per input/icon-button); integrato `StateBlock` standard (`state="empty"`, `variant="search"`, icona 32px) per la ricerca vuota dei diametri con azione diretta di azzeramento; allineata la tinta di hover tessere alla specifica universale `hover:bg-accent-blue/[0.06]`.
+- **File Coinvolti**:
+  - `src/features/scanner/ScannerView.jsx`
+  - `src/features/scanner/BarcodeScanner.jsx`
+  - `src/features/filters/CategoryGridCard.jsx`
+  - `src/features/filters/DiameterList.jsx`
+  - `src/App.jsx`
+
+## [2026-09-23] - Fase 4.2 & 4.3: Allineamento Design System in CommesseView e OperatorsView (§1.11, §1.13, §8.2)
+- **Tag**: `[UX/UI]` / `[REFACTOR]`
+- **Descrizione**:
+  - **StateBlock Contestuale e Scheletro Card (§8.2)**: integrato `StateBlock` con `variant="generic"` vs `variant="search"` (o `variant="filtered"` per filtri di stato in commesse) passando `searchTerm={searchQuery.trim()}` per titoli e descrizioni parametrici con azioni di reset mirate. Configurato `skeletonShape="card"` e `count={6}` per lo stato di caricamento e aggiunto blocco di errore con retry su `fetchUsers`.
+  - **Superfici Interattive e Stato Selezionato (§1.13)**: uniformata la tinta di hover universale `hover:bg-accent-blue/[0.06]` sulle card commesse e operatori; in `CommesseView` aggiunto lo stato di selezione attiva (`bg-accent-blue/10 border-accent-blue/40 shadow-[inset_3px_0_0_var(--color-accent-blue)]`) durante l'editing, con affordance tastiera completa (`role="button"`, `tabIndex={0}`, tasti Enter/Space).
+  - **Audit Dimensionale Icone e Touch Target (§1.11, ISO 9241)**: portate tutte le icone dei menu a tendina da 14px a 16px (`RefreshCw`, `Trash2`, `HelpCircle`, `Edit2`) riservando 14px esclusivamente a badge e didascalie inline; aggiunto comando "Modifica" (`Pencil 16px`) nel menu commesse; garantita area touch minima 44×44px e attributi `aria-label` sul pulsante elimina modale commesse e sul toggle visibilità password admin.
+- **File Coinvolti**:
+  - `src/features/admin/CommesseView.jsx`
+  - `src/features/admin/OperatorsView.jsx`
+
+## [2026-09-23] - Fase 2.4: Formalizzazione selectionMode e Toggle Densità in ToolsGrid (§5, §5.2)
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Prop selectionMode ('none' | 'toggle' | 'pick')**: formalizzata la gestione della modalità di selezione in `ToolsGrid` con default a `'none'` e compatibilità per legacy `'multiple'/'single'`. Isolato completamente lo stato checkbox (`isSelectionActive`) per prevenire leak di selezione tra viste (modali di picking `AddToolToMultiModal` e scansione `ScannerView` mantengono righe cliccabili e checkbox nascoste).
+  - **Propagazione e Affordance Riga**: propagata `selectionMode` a `VirtualizedTable` con attributi semantici `data-selection-mode` e `aria-selected`. In modalità `'pick'`, la riga mostra automaticamente l'icona trailing `Plus` per indicare chiaramente l'azione di inserimento/selezione.
+  - **Toggle Densità Comoda/Compatta**: aggiunto pulsante di cambio densità nella toolbar interna visibile quando `showDensityToggle={true}` (default `false`), regolando l'altezza stimata delle righe virtualizzate (56px Comoda vs 44px Compatta).
+  - **Aggiornamento Consumatori Grid**: impostato `selectionMode="toggle"` nella vista catalogo principale (`App.jsx`), `selectionMode={isSelectionMode ? "toggle" : "none"}` in `DropdownFilterView.jsx` e `selectionMode="none"` in `ScannerView.jsx`.
+- **File Coinvolti**:
+  - `src/features/inventory/ToolsGrid.jsx`
+  - `src/components/common/DataTable/VirtualizedTable.jsx`
+  - `src/App.jsx`
+  - `src/features/filters/DropdownFilterView.jsx`
+  - `src/features/scanner/ScannerView.jsx`
+  - `CHANGELOG.md`
+
+## [2026-09-23] - Fase 2.1: Consolidamento StateBlock e Shimmer Skeleton Animation (§8.2)
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Icon box StateBlock (§8.2)**: ridotto il box icona principale a `56×56` (`w-14 h-14`) con `rounded-[var(--radius-icon-box,18px)]` conforme ai token del Design System e icona neutra a 32px centrata.
+  - **Varianti Empty State**: aggiunta prop `variant` (`'generic' | 'filtered' | 'search'`, default `'generic'`) con icone, titoli, testi operativi e label CTA dedicati per ciascuna tipologia.
+  - **Skeleton Loading & Shimmer Animation**: aggiunta modalità caricamento shimmer con prop `skeletonShape` (`'row' | 'card' | 'grid'`), mantenendo lo spinner `Loader2` come fallback predefinito quando la geometria skeleton non è specificata.
+  - **Animazione Shimmer & Accessibilità**: definita la keyframe animation `@keyframes shimmer` (1.4s ease infinite) e `.animate-shimmer` in `src/index.css`, con fallback ad opacità fissa non distruttiva (`opacity: 0.75 !important`) sotto `prefers-reduced-motion: reduce`.
+  - **Sanitizzazione Errori Tecnici**: blocco preventivo dei messaggi Supabase grezzi / PostgREST / PostgreSQL passati tramite `error.message` o `description`, con logging su `console.error` e sostituzione in interfaccia con messaggio rassicurante in chiaro per l'operatore.
+- **File Coinvolti**:
+  - `src/components/common/StateBlock.jsx`
+  - `src/index.css`
+  - `CHANGELOG.md`
+
+## [2026-09-23] - Fase 3.1: Componente StatTile per metriche e KPI di panoramica (§4.5)
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Componente StatTile (§4.5)**: creato `src/components/ui/stat-tile.jsx` in sola lettura (`select-none`, nessun `cursor-pointer`), riceve `icon`, `label`, `value`, `delta` (`{direction: 'up'|'down'|'flat', text}`) e `accent` (`'blue'|'emerald'|'rose'|'orange'`).
+  - **Icon box dimensionale**: box `36×36 rounded-[11px]` con classi di sfondo, bordo e icona semantiche dipendenti dall'accento (`accent-blue`, `accent-emerald`, `accent-rose`, `accent-orange`).
+  - **Layout & Tipografia**: struttura standard icona -> label `.app-overline text-accent-orange` -> valore `.app-qty-lg` + badge delta pillole contestuale (frecce `▲`/`▼`/`−` e testo unita/variazione).
+  - **Guardrail CI**: aggiornato `scripts/check-tailwind-tokens.mjs` per consentire `rounded-[11px]` come da specifica token box icone del Design System. Verifica sintattica e build di produzione concluse con esito pulito.
+- **File Coinvolti**:
+  - `src/components/ui/stat-tile.jsx`
+  - `scripts/check-tailwind-tokens.mjs`
+  - `CHANGELOG.md`
+
+---
+
+## [2026-09-23] - Fase 2.2 e 2.3: Allineamento NavItem Sidebar, VirtualizedTable ed Ergonomia DataTable (§4.6, §5.2)
+- **Tag**: `[UX/UI]` / `[REFACTOR]`
+- **Descrizione**:
+  - **Sidebar NavItem (§4.6)**: aggiornato hover a `hover:bg-accent-blue/[0.06]`, validata prop `disabled` con `opacity-40 cursor-not-allowed pointer-events-none` e inibizione di `onClick`, e formattazione badge a `"99+"` sia nel componente NavItem che nel counter `multiMovementCount` per conteggi superiori a 99.
+  - **VirtualizedTable (§5.2)**: allineato hover di riga a `hover:bg-accent-blue/[0.06]`, selezione riga con `bg-accent-blue/10 shadow-[inset_3px_0_0_var(--color-accent-blue)]`, prop `density` (`'comfortable'` | `'compact'`, default `'comfortable'`) con `py-3.5` (56px) per comoda e `py-2` (44px) per compatta.
+  - **ToolsGrid**: propagazione prop `density` verso `VirtualizedTable`, calcolo dinamico `estimateRowSize` (44px/56px) e allineamento classe riga selezionata `bg-accent-blue/10 shadow-[inset_3px_0_0_var(--color-accent-blue)]`.
+  - **Verifica out of stock**: confermato che l'accento rosa (`badge-rose` e `text-accent-rose`) resta confinato esclusivamente alle celle Stato e Quantità e non all'intera riga di tabella.
+- **File Coinvolti**:
+  - `src/components/layout/Sidebar.jsx`
+  - `src/components/common/DataTable/VirtualizedTable.jsx`
+  - `src/features/inventory/ToolsGrid.jsx`
+
+---
+
+## [2026-09-23] - Fase 1bis: Normalizzazione Completa Spacing Scale 6-Point (§1.9)
+- **Tag**: `[UX/UI]` / `[REFACTOR]`
+- **Descrizione**:
+  - **Verifica e consolidamento scala a 6 punti**: completata l'analisi e la verifica sistematica dei 17 punti critici con spaziature 20px (`p-5`, `px-5`, `py-5`, `gap-5`, `mt-5`) vietate da `DESIGN_SYSTEM.md` §1.9 in tutti i 12 file target (`App.jsx`, `UserSettingsModal.jsx`, `DiameterList.jsx`, `HistoryView.jsx`, `CommesseView.jsx`, `MovementModal.jsx`, `ScannerView.jsx`, `OrderModal.jsx`, `AddToolModal.jsx`, `ErrorBoundary.jsx`, `Header.jsx`, `AppTutorial.jsx`).
+  - **Conversione al passo più vicino**: convalidati e applicati i passi canonici a 16px (`p-4`, `py-4`) per controlli e padding interni, e 24px (`p-6`, `gap-6`, `mt-6`) per layout, card e modali.
+  - **Preservazione rifiniture fini**: confermati e preservati i 228 mezzi-passi approvati (`gap-1.5`, `py-2.5`, `p-3.5`, `mt-0.5`).
+  - **Azzeramento definitivo residui**: normalizzato anche `.premium-table td` in `src/index.css` da `py-5` a `py-4`, azzerando qualsiasi classe `-5` residua nell'intero repository (0 violazioni residue).
+- **File Coinvolti**:
+  - `src/index.css`
+  - `src/App.jsx`
+  - `src/features/auth/UserSettingsModal.jsx`
+  - `src/features/filters/DiameterList.jsx`
+  - `src/features/admin/HistoryView.jsx`
+  - `src/features/admin/CommesseView.jsx`
+  - `src/features/inventory/MovementModal.jsx`
+  - `src/features/scanner/ScannerView.jsx`
+  - `src/features/inventory/OrderModal.jsx`
+  - `src/features/inventory/AddToolModal.jsx`
+  - `src/components/common/ErrorBoundary.jsx`
+  - `src/components/layout/Header.jsx`
+  - `src/components/common/AppTutorial.jsx`
+
+---
+
+## [2026-09-23] - Fix Phase 0bis: Toolbar wrap flessibile e troncamento codici in CommesseView
+- **Tag**: `[UX/UI]` / `[FIX]`
+- **Descrizione**:
+  - **Wrap flessibile toolbar e larghezza minima ricerca**: aggiunta la classe `flex-wrap` al contenitore flessibile della toolbar e impostato `min-w-[220px]` sul contenitore del campo di ricerca in `CommesseView.jsx` per prevenire il taglio del testo placeholder e consentire al gruppo segmented control di andare a capo quando lo spazio orizzontale è ridotto.
+  - **Catena completa min-w-0 per troncamento codice commessa**: integrato `min-w-0` su tutti i nodi della catena gerarchica flex fino all'elemento con `truncate` (`span.truncate.min-w-0`) e applicato `shrink-0` al badge di stato per evitare che il menu azioni `⋮` fuoriesca dalla card.
+- **File Coinvolti**:
+  - `src/features/admin/CommesseView.jsx`
+
+---
+
+## [2026-09-23] - Fase 1 Design System: Token Ombre/Elevazione, Motion, Stati Interattivi e Accessibilità Motion
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Token elevazione a 5 livelli**: Integrati in `@theme` i token `--shadow-1` (8px/24px), `--shadow-2` (16px/40px), `--shadow-3` (28px/64px), `--shadow-4` (18px/44px) con corrispondenti varianti per il tema scuro in `:root.dark` preservando le ombre semantiche.
+  - **Token transizione temporale**: Aggiunti in `@theme` i token `--motion-fast` (150ms), `--motion-base` (250ms) e `--motion-slow` (400ms) per standardizzare le animazioni di micro-interazione e cambio layout.
+  - **Classi semantiche per stati interattivi**: Configurate in `@layer components` le utility `.state-hover-tint` (tinta ciano al 6%) e `.state-selected` (tinta ciano al 10% con barra inset `accent-blue`).
+  - **Guardrail globale prefers-reduced-motion**: Neutralizzati transform e animazioni su `active:scale-*`, `hover:-translate-*`, `group-hover:translate-*` e frecce pulsanti quando l'utente attiva la riduzione del movimento nel sistema operativo.
+  - **Allineamento z-index drawer mobile**: Convalidato e forzato `z-[var(--z-drawer)]` sull'overlay drawer e pannello laterale in `Sidebar.jsx`.
+- **File Coinvolti**:
+  - `src/index.css`
+  - `src/components/layout/Sidebar.jsx`
+
+---
+
+## [2026-09-23] - Fix Phase 0bis: Toolbar unificata, Reset filtri rosa e filtri a cascata stabili
+- **Tag**: `[UX/UI]` / `[FIX]`
+- **Descrizione**:
+  - **Eliminazione PageToolbar duplicata**: rimosso il wrapper esterno `PageToolbar` da `App.jsx` per la vista `dropdown`/Elenco, mantenendolo solo per la modalità griglia (`viewMode === 'grid'`).
+  - **Unificazione pulsante Reset filtri**: fuso il doppio pulsante in un unico comando rosa `Reset filtri` (`text-accent-rose`) che azzera contemporaneamente i filtri interni di `DropdownFilterView`, la `searchQuery` e il `filterStack` globale via `resetFilters`.
+  - **Stabilizzazione filtri a cascata**: i filtri a tendina non vengono più smontati dal DOM (`if (!isVisible) return null` rimosso), evitando salti di layout e violazioni della legge di Fitts. Quando non hanno opzioni valide, ricevono lo stato `disabled` con opacità 40% e `pointer-events-none`.
+  - **Pulizia layout animations**: rimosso `layout`/`popLayout` dai filtri e dal selettore modalità, preservando l'animazione di layout unicamente sul chip di ricerca attivo e sul pulsante di reset.
+- **File Coinvolti**:
+  - `src/App.jsx`
+  - `src/features/filters/DropdownFilterView.jsx`
+
+---
+
 ## [2026-09-23] - Ottimizzazione Architettura Catalogo, Cache IndexedDB, Ricerca a 0ms e Microeventi Realtime
 - **Tag**: `[PERF]` / `[FEAT]` / `[FIX]`
 - **Descrizione**:

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, memo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { 
   useReactTable, 
   getCoreRowModel, 
@@ -6,7 +6,7 @@ import {
   createColumnHelper
 } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
-import { X, List, AlertTriangle, ChevronRight, AlignJustify } from 'lucide-react';
+import { X, List, AlertTriangle, ChevronRight, AlignJustify, Plus } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,19 +22,42 @@ const ToolsGrid = memo(({
   hideExtraFilters = false,
   emptyTitle = "Nessun utensile trovato",
   emptyDescription = null,
-  selectionMode = 'toggle',
-  showDensityToggle = false
+  selectionMode = 'none',
+  showDensityToggle = false,
+  density: propDensity = 'comfortable',
+  renderRowTrailing
 }) => {
   const selectedIds = useFilterStore(state => state.selectedToolsIds);
   const onToggleSelect = useFilterStore(state => state.toggleToolSelection);
   const isStoreSelectionMode = useFilterStore(state => state.isSelectionMode);
   const setIsSelectionMode = useFilterStore(state => state.handleSetIsSelectionMode);
   
-  const isSelectionMode = selectionMode === 'pick' ? true : (selectionMode === 'toggle' ? isStoreSelectionMode : false);
+  // Normalizzazione selectionMode: 'none' | 'toggle' | 'pick' (con fallback retrocompatibile per legacy 'multiple' / 'single')
+  const normalizedSelectionMode = useMemo(() => {
+    if (selectionMode === 'multiple') return 'toggle';
+    if (selectionMode === 'single') return 'none';
+    if (selectionMode === 'pick' || selectionMode === 'toggle' || selectionMode === 'none') {
+      return selectionMode;
+    }
+    return 'none';
+  }, [selectionMode]);
+
+  // La modalità selezione a checkbox è attiva SOLO quando selectionMode è 'toggle' (o 'multiple') E isStoreSelectionMode è true.
+  // In modalità 'pick' o 'none', le checkbox sono sempre disabilitate/nascoste.
+  const isSelectionActive = useMemo(() => {
+    if (normalizedSelectionMode === 'toggle') {
+      return isStoreSelectionMode;
+    }
+    return false;
+  }, [normalizedSelectionMode, isStoreSelectionMode]);
   
   const [extraFilters, setExtraFilters] = useState({});
   const [sorting, setSorting] = useState([]);
-  const [density, setDensity] = useState('comfortable');
+  const [density, setDensity] = useState(propDensity);
+
+  useEffect(() => {
+    setDensity(propDensity);
+  }, [propDensity]);
 
   const availableFilters = useMemo(() => {
     return EXTRA_FILTER_KEYS.filter(({ key }) =>
@@ -72,7 +95,7 @@ const ToolsGrid = memo(({
         id: 'Descrizione',
         header: () => (
           <div className="flex items-center gap-2 sm:gap-3 h-full pl-3 sm:pl-4 md:pl-6 min-w-0 overflow-hidden">
-            {isSelectionMode && <div className="w-5 sm:w-6 flex-shrink-0" />}
+            {isSelectionActive && <div className="w-5 sm:w-6 flex-shrink-0" />}
             <div className="w-8 sm:w-9 md:w-10 flex-shrink-0" />
             <span className="ml-1 truncate">Descrizione</span>
           </div>
@@ -90,7 +113,7 @@ const ToolsGrid = memo(({
           const tool = info.row.original;
           return (
             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 h-full pl-3 sm:pl-4 md:pl-6 overflow-hidden">
-              {isSelectionMode && (
+              {isSelectionActive && (
                 <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center flex-shrink-0 w-5 sm:w-6">
                   <Checkbox
                     checked={selectedIds.includes(tool.id)}
@@ -235,7 +258,7 @@ const ToolsGrid = memo(({
         )
       })
     ];
-  }, [isSelectionMode, selectedIds, onToggleSelect]);
+  }, [isSelectionActive, selectedIds, onToggleSelect]);
 
   const table = useReactTable({
     data: filtered,
@@ -255,8 +278,8 @@ const ToolsGrid = memo(({
       transition={{ duration: 0.15 }}
       className="w-full max-w-[1600px] flex flex-col flex-1 gap-2 md:gap-4 min-h-0"
     >
-      {((!hideExtraFilters && availableFilters.length > 0) || showDensityToggle || selectionMode === 'toggle') && (
-        <div className="flex flex-wrap gap-1.5 sm:gap-2 px-2">
+      {((!hideExtraFilters && availableFilters.length > 0) || showDensityToggle || (!hideExtraFilters && normalizedSelectionMode === 'toggle')) && (
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 px-2">
           {!hideExtraFilters && availableFilters.length > 0 && (
             <>
               {availableFilters.map(({ key, label }) => (
@@ -279,8 +302,9 @@ const ToolsGrid = memo(({
               ))}
               {Object.values(extraFilters).some(v => v) && (
                 <button
+                  type="button"
                   onClick={() => setExtraFilters({})}
-                  className="glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline text-accent-orange hover:bg-accent-orange/10 transition-all flex items-center gap-1"
+                  className="glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline text-accent-orange hover:bg-accent-orange/10 transition-all flex items-center gap-1 shrink-0"
                 >
                   <X size={14} /> Reset
                 </button>
@@ -289,17 +313,22 @@ const ToolsGrid = memo(({
           )}
           {showDensityToggle && (
             <button
-              onClick={() => setDensity(d => d === 'comfortable' ? 'compact' : 'comfortable')}
-              className={`glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline transition-all flex items-center gap-1.5 ${density === 'compact' ? 'text-accent-blue bg-accent-blue/10 border-accent-blue/30' : 'dark:text-slate-400 text-slate-600 opacity-60 hover:opacity-100'}`}
+              type="button"
+              onClick={() => setDensity(d => (d === 'compact' ? 'comfortable' : 'compact'))}
+              className={`glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline transition-all flex items-center gap-1.5 shrink-0 ${density === 'compact' ? 'text-accent-blue bg-accent-blue/10 border-accent-blue/30' : 'dark:text-slate-400 text-slate-600 opacity-70 hover:opacity-100 hover:bg-accent-blue/[0.06]'}`}
+              title="Alterna visualizzazione densità tabella (Comoda / Compatta)"
+              aria-label={`Densità tabella: ${density === 'compact' ? 'Compatta' : 'Comoda'}`}
             >
-              <AlignJustify size={14} />
-              {density === 'compact' ? 'Compatta' : 'Comoda'}
+              <AlignJustify size={14} className="shrink-0" />
+              <span>{density === 'compact' ? 'Compatta' : 'Comoda'}</span>
             </button>
           )}
-          {selectionMode === 'toggle' && (
+          {!hideExtraFilters && normalizedSelectionMode === 'toggle' && (
             <button
+              type="button"
               onClick={() => setIsSelectionMode(!isStoreSelectionMode)}
-              className={`glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline transition-all flex items-center gap-1.5 ${isStoreSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600 opacity-60 hover:opacity-100'}`}
+              className={`glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline transition-all flex items-center gap-1.5 shrink-0 ${isStoreSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600 opacity-70 hover:opacity-100 hover:bg-accent-blue/[0.06]'}`}
+              title={isStoreSelectionMode ? "Annulla modalità selezione" : "Attiva selezione multipla"}
             >
               {isStoreSelectionMode ? <X size={14} /> : <List size={14} />}
               {isStoreSelectionMode ? 'Cancella' : 'Seleziona'}
@@ -318,20 +347,32 @@ const ToolsGrid = memo(({
         <VirtualizedTable
           table={table}
           density={density}
-          estimateRowSize={56}
+          selectionMode={normalizedSelectionMode}
+          estimateRowSize={density === 'compact' ? 44 : 56}
           onRowClick={(tool) => {
-            if (isSelectionMode) {
+            if (isSelectionActive) {
               onToggleSelect(tool.id);
             } else if (onSelectTool) {
               onSelectTool(tool);
             }
           }}
-          getRowClassName={(tool) => (selectedIds.includes(tool.id) ? 'bg-accent-blue/5' : '')}
-          renderRowTrailing={() => (
-            <ChevronRight
-              size={14}
-              className="text-slate-500 group-hover:text-accent-blue transition-colors"
-            />
+          getRowClassName={(tool) => (
+            isSelectionActive && selectedIds.includes(tool.id) 
+              ? 'bg-accent-blue/10 shadow-[inset_3px_0_0_var(--color-accent-blue)]' 
+              : ''
+          )}
+          renderRowTrailing={renderRowTrailing ? renderRowTrailing : () => (
+            normalizedSelectionMode === 'pick' ? (
+              <Plus
+                size={16}
+                className="text-accent-blue group-hover:scale-110 transition-transform"
+              />
+            ) : (
+              <ChevronRight
+                size={14}
+                className="text-slate-500 group-hover:text-accent-blue transition-colors"
+              />
+            )
           )}
           emptyIcon={AlertTriangle}
           emptyTitle={emptyTitle}

@@ -34,8 +34,11 @@
   --radius-tag: 6px;
   --radius-control: 12px;
   --radius-card: 16px;
+  --radius-icon-box: 18px;
   --radius-panel: 24px;
   --radius-modal: 32px;
+
+  --animate-shimmer: shimmer 1.4s ease infinite;
 }
 
 @layer base {
@@ -217,7 +220,9 @@
   @media (prefers-reduced-motion: reduce) {
     [class*="active:scale"],
     [class*="hover:-translate"],
-    [class*="hover:translate"] {
+    [class*="hover:translate"],
+    [class*="group-hover:-translate"],
+    [class*="group-hover:translate"] {
       transform: none !important;
     }
     
@@ -340,7 +345,7 @@
   }
 
   .premium-table td {
-    @apply py-5 px-6;
+    @apply py-4 px-6;
   }
 
   /* Custom scrollbar for lists */
@@ -548,20 +553,23 @@ div[id^="barcode-reader-"] img[alt="Info icon"] {
 }
 @layer utilities {
   .animate-shimmer {
-    animation: shimmer 1.4s ease-in-out infinite;
+    animation: shimmer 1.4s ease infinite;
   }
   @media (prefers-reduced-motion: reduce) {
     .animate-shimmer {
-      animation: none;
-      opacity: 0.8;
+      animation: none !important;
+      opacity: 0.75 !important;
     }
   }
 }
 
 @keyframes shimmer {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
+  0%, 100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

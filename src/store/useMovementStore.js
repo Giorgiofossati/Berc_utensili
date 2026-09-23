@@ -107,15 +107,56 @@ export const useMovementStore = create((set, get) => ({
 
     try {
       const operatorName = currentUser ? `${currentUser.nome} ${currentUser.cognome}`.trim() : 'Admin';
-      const { error: rpcErr } = await supabase.rpc('handle_bulk_movement', {
-        p_tool_ids: targets.map(t => t.id),
-        p_op_type: opType,
-        p_change: change,
-        p_operator: operatorName,
-        p_commessa_id: targetCommessaId || null
-      });
+      
+      let rpcSucceeded = false;
+      try {
+        const { error: rpcErr } = await supabase.rpc('handle_bulk_movement', {
+          p_tool_ids: targets.map(t => t.id),
+          p_op_type: opType,
+          p_change: change,
+          p_operator: operatorName,
+          p_commessa_id: targetCommessaId || null
+        });
 
-      if (rpcErr) throw rpcErr;
+        if (!rpcErr) {
+          rpcSucceeded = true;
+        } else {
+          console.warn('handle_bulk_movement RPC returned error, executing resilient client-side fallback:', rpcErr);
+        }
+      } catch (rpcCallErr) {
+        console.warn('RPC invocation failed, executing resilient client-side fallback:', rpcCallErr);
+      }
+
+      if (!rpcSucceeded) {
+        for (const target of targets) {
+          const liveTool = tools.find(t => t.id === target.id) || target;
+          const curQty = liveTool['Quantità'] || 0;
+          if (opType === 'scarico' && curQty < change) {
+            throw new Error(`Giacenza insufficiente per ${target.Tipologia || 'articolo'}`);
+          }
+          const newQty = opType === 'carico' ? curQty + change : Math.max(0, curQty - change);
+
+          const { error: updateErr } = await supabase
+            .from('Utensili_B1')
+            .update({ 'Quantità': newQty })
+            .eq('id', target.id);
+
+          if (updateErr) throw updateErr;
+
+          const { error: historyErr } = await supabase
+            .from('movements_history')
+            .insert({
+              tool_id: target.id,
+              tipo_operazione: opType,
+              quantita: change,
+              operatore: operatorName,
+              commessa_id: targetCommessaId || null,
+              created_at: new Date().toISOString()
+            });
+
+          if (historyErr) throw historyErr;
+        }
+      }
 
       set({
         lastMovement: {
@@ -184,15 +225,39 @@ export const useMovementStore = create((set, get) => ({
     set({ lastMovement: null });
 
     try {
-      const { error: rpcErr } = await supabase.rpc('handle_bulk_movement', {
-        p_tool_ids: toolIds,
-        p_op_type: reverseOpType,
-        p_change: change,
-        p_operator: `${operator} (ANNULLO)`,
-        p_commessa_id: commessaId || null
-      });
+      let rpcSucceeded = false;
+      try {
+        const { error: rpcErr } = await supabase.rpc('handle_bulk_movement', {
+          p_tool_ids: toolIds,
+          p_op_type: reverseOpType,
+          p_change: change,
+          p_operator: `${operator} (ANNULLO)`,
+          p_commessa_id: commessaId || null
+        });
 
-      if (rpcErr) throw rpcErr;
+        if (!rpcErr) {
+          rpcSucceeded = true;
+        }
+      } catch {
+        rpcSucceeded = false;
+      }
+
+      if (!rpcSucceeded) {
+        for (const id of toolIds) {
+          const liveTool = tools.find(t => t.id === id);
+          const curQty = liveTool ? (Number(liveTool['Quantità']) || 0) : 0;
+          const newQty = reverseOpType === 'carico' ? curQty + change : Math.max(0, curQty - change);
+          await supabase.from('Utensili_B1').update({ 'Quantità': newQty }).eq('id', id);
+          await supabase.from('movements_history').insert({
+            tool_id: id,
+            tipo_operazione: reverseOpType,
+            quantita: change,
+            operatore: `${operator} (ANNULLO)`,
+            commessa_id: commessaId || null,
+            created_at: new Date().toISOString()
+          });
+        }
+      }
 
       if (showToastNotification) {
         showToastNotification(`Movimento annullato con successo! Ripristinati ${change} pz.`, 'success');

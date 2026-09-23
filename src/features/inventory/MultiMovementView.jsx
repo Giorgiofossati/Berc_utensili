@@ -318,7 +318,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                         {/* Colonna Utensile e Descrizione */}
                         <div className="flex items-center gap-3 min-w-0 flex-1 pr-2">
                           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center shrink-0 overflow-hidden">
-                            <ToolIcon type={item.tool['Tipologia']} size={36} className="opacity-80" />
+                            <ToolIcon type={item.tool['Tipologia']} size={32} className="opacity-80" />
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="app-h3 truncate text-slate-900 dark:text-slate-100">

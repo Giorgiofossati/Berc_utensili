@@ -6,7 +6,9 @@ import SortIcon from './SortIcon';
 
 export const VirtualizedTable = memo(({
   table,
-  estimateRowSize = 56,
+  density = 'comfortable',
+  selectionMode = 'none',
+  estimateRowSize,
   overscan = 6,
   onRowClick,
   getRowClassName,
@@ -16,7 +18,6 @@ export const VirtualizedTable = memo(({
   emptyTitle = "Nessun dato trovato",
   emptyDescription,
   emptyAction,
-  density = 'comfortable',
   className = "",
   bottomSpacerClassName = "h-20 md:h-10",
   parentRef: externalParentRef,
@@ -26,17 +27,20 @@ export const VirtualizedTable = memo(({
   const parentRef = externalParentRef || defaultParentRef;
 
   const { rows } = table.getRowModel();
+  const calculatedRowSize = estimateRowSize || (density === 'compact' ? 44 : 56);
 
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => estimateRowSize,
+    estimateSize: () => calculatedRowSize,
     overscan,
   });
 
   return (
     <div
       ref={parentRef}
+      data-density={density}
+      data-selection-mode={selectionMode}
       className={`overflow-y-auto custom-scrollbar overflow-x-auto flex-1 min-h-0 relative w-full flex flex-col ${className}`}
     >
       {/* Sticky Header */}
@@ -145,6 +149,7 @@ export const VirtualizedTable = memo(({
                 }}
                 role={onRowClick ? "button" : undefined}
                 tabIndex={onRowClick ? 0 : undefined}
+                aria-selected={selectionMode !== 'none' ? Boolean(isSelected) : undefined}
                 className={`flex items-center min-w-full w-fit md:w-full hover:bg-accent-blue/[0.06] active:bg-accent-blue/10 ${
                   onRowClick ? 'cursor-pointer' : ''
                 } transition-colors border-b dark:border-white/[0.03] border-slate-900/5 group select-none ${

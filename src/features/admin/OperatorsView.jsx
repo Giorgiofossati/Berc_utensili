@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  UserPlus, Shield, User, Check, X, RefreshCw, AlertTriangle, Eye, EyeOff,
+  UserPlus, Shield, User, Check, RefreshCw, AlertTriangle, Eye, EyeOff,
   HelpCircle, Search, Edit2, Trash2
 } from 'lucide-react';
 import { Dialog, DialogContent, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/dialog";
@@ -11,6 +11,7 @@ import { StateBlock } from '@/components/common/StateBlock';
 
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useTutorialStore } from '../../store/useTutorialStore';
 
 const generateUUID = () => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -44,6 +45,7 @@ const OperatorsView = memo(({ setView }) => {
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -66,6 +68,7 @@ const OperatorsView = memo(({ setView }) => {
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
+    setFetchError(null);
     try {
       let fetchPromise = supabase
         .from('utenti')
@@ -85,6 +88,7 @@ const OperatorsView = memo(({ setView }) => {
       setUsers(data || []);
     } catch (err) {
       console.error('Errore caricamento utenti:', err);
+      setFetchError(err.message || 'Errore nel caricamento degli operatori');
       showToast('Errore nel caricamento degli operatori', 'error');
     } finally {
       setLoading(false);
@@ -319,7 +323,16 @@ const OperatorsView = memo(({ setView }) => {
       if (error && !error.message?.includes('has_completed_tutorial')) {
         console.warn('Errore reset tutorial:', error);
       }
-      showToast(`Tutorial riattivato per ${user.nome}! Al prossimo login visualizzerà la guida.`);
+
+      if (currentUser && user.id === currentUser.id) {
+        setCurrentUser({ ...currentUser, has_completed_tutorial: false });
+        showToast('Tutorial riattivato! Avvio in corso...');
+        setTimeout(() => {
+          useTutorialStore.getState().startTutorial();
+        }, 400);
+      } else {
+        showToast(`Tutorial riattivato per ${user.nome}! Al prossimo login visualizzerà la guida.`);
+      }
       fetchUsers();
     } catch (err) {
       console.error(err);
@@ -372,18 +385,33 @@ const OperatorsView = memo(({ setView }) => {
 
       <PageContent>
         {loading ? (
-          <StateBlock state="loading" title="Caricamento operatori in corso..." />
+          <StateBlock state="loading" skeletonShape="card" count={6} title="Caricamento operatori in corso..." />
+        ) : fetchError && users.length === 0 ? (
+          <StateBlock 
+            state="error" 
+            title="Errore nel caricamento degli operatori" 
+            description={fetchError} 
+            action={
+              <button 
+                type="button"
+                onClick={fetchUsers} 
+                className="action-btn action-btn-primary px-6 py-2 rounded-xl text-sm font-black"
+              >
+                Riprova
+              </button>
+            }
+          />
         ) : filteredUsers.length === 0 ? (
           <StateBlock 
             state="empty" 
-            emptyVariant={searchQuery ? 'search' : 'generic'}
-            title={searchQuery ? 'Nessun operatore trovato' : 'Nessun operatore registrato'}
-            description={searchQuery
-                ? 'Prova a modificare i termini di ricerca.'
-                : 'Aggiungi un nuovo operatore per iniziare.'}
+            variant={searchQuery.trim() ? 'search' : 'generic'}
+            searchTerm={searchQuery.trim()}
+            title={searchQuery.trim() ? undefined : 'Nessun operatore registrato'}
+            description={searchQuery.trim() ? undefined : 'Aggiungi un nuovo operatore per iniziare ad assegnare attività e tracciare le operazioni.'}
             action={
-              searchQuery ? (
+              searchQuery.trim() ? (
                 <button
+                  type="button"
                   onClick={() => setSearchQuery('')}
                   className="glass-button px-4 py-2 rounded-xl font-bold text-sm text-accent-orange"
                 >
@@ -391,10 +419,12 @@ const OperatorsView = memo(({ setView }) => {
                 </button>
               ) : (
                 <button 
+                  type="button"
                   onClick={handleOpenCreate}
-                  className="action-btn action-btn-primary px-4 py-2 rounded-xl font-black text-xs sm:text-sm tracking-wider flex items-center gap-2"
+                  className="action-btn action-btn-primary px-6 py-2.5 rounded-xl font-black text-sm flex items-center justify-center gap-2"
                 >
-                  <UserPlus size={16} /> Nuovo Operatore
+                  <UserPlus size={16} />
+                  <span>NUOVO OPERATORE</span>
                 </button>
               )
             }
@@ -408,7 +438,7 @@ const OperatorsView = memo(({ setView }) => {
               const menuItems = [
                 {
                   label: 'Reimposta Tutorial',
-                  icon: <HelpCircle size={14} />,
+                  icon: <HelpCircle size={16} />,
                   onClick: () => handleResetTutorial(u)
                 }
               ];
@@ -416,12 +446,12 @@ const OperatorsView = memo(({ setView }) => {
               if (u.ruolo !== 'Admin' || isSelf) {
                 menuItems.push({
                   label: 'Modifica',
-                  icon: <Edit2 size={14} />,
+                  icon: <Edit2 size={16} />,
                   onClick: () => handleEditClick(u)
                 });
                 menuItems.push({
                   label: 'Elimina',
-                  icon: <Trash2 size={14} />,
+                  icon: <Trash2 size={16} />,
                   destructive: true,
                   onClick: () => setDeletingUser(u)
                 });
@@ -432,8 +462,8 @@ const OperatorsView = memo(({ setView }) => {
                   key={u.id}
                   className={`flex items-center justify-between p-4 rounded-3xl border transition-all ${
                     isSelf 
-                      ? 'ring-2 ring-accent-orange/40 bg-accent-orange/[0.03] dark:bg-accent-orange/[0.01] border-accent-orange/30' 
-                      : 'glass-panel hover:border-accent-blue/30'
+                      ? 'ring-2 ring-accent-orange/40 bg-accent-orange/[0.03] dark:bg-accent-orange/[0.01] border-accent-orange/30 hover:bg-accent-blue/[0.06]' 
+                      : 'glass-panel hover:border-accent-blue/30 hover:bg-accent-blue/[0.06]'
                   }`}
                 >
                   <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -565,7 +595,8 @@ const OperatorsView = memo(({ setView }) => {
                       <button 
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-foreground"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-foreground transition-colors"
+                        aria-label={showPassword ? "Nascondi password" : "Mostra password"}
                       >
                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>

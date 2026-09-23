@@ -3,13 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FolderKanban, Plus, Search, RefreshCw, MapPin, 
   Calendar, CheckCircle2, AlertCircle, AlertTriangle, 
-  X, ArrowLeft, Pencil, Trash2, MoreVertical
+  Pencil, Trash2
 } from 'lucide-react';
 import { Dialog, DialogContent, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/dialog";
 import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
 import { StateBlock } from '@/components/common/StateBlock';
 import { IconButton, IconMenu } from '@/components/ui/icon-button';
 import { useCommesseStore } from '../../store/useCommesseStore';
+import { cn } from '@/lib/utils';
 
 export default function CommesseView({ setView, showToastNotification }) {
   const commesse = useCommesseStore(state => state.commesse);
@@ -211,8 +212,8 @@ export default function CommesseView({ setView, showToastNotification }) {
       />
 
       <PageToolbar>
-        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full">
-          <div className="relative flex-1 md:max-w-md">
+        <div className="flex flex-col md:flex-row flex-wrap items-stretch md:items-center gap-3 w-full">
+          <div className="relative flex-1 min-w-[220px] md:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input
               type="text"
@@ -262,7 +263,7 @@ export default function CommesseView({ setView, showToastNotification }) {
 
       <PageContent>
         {isLoading && commesse.length === 0 ? (
-          <StateBlock state="loading" title="Caricamento commesse in corso..." />
+          <StateBlock state="loading" skeletonShape="card" count={6} title="Caricamento commesse in corso..." />
         ) : error ? (
           <StateBlock 
             state="error" 
@@ -270,6 +271,7 @@ export default function CommesseView({ setView, showToastNotification }) {
             description={error}
             action={
               <button 
+                type="button"
                 onClick={() => fetchCommesse()} 
                 className="action-btn action-btn-primary px-6 py-2 rounded-xl text-sm font-black"
               >
@@ -280,23 +282,44 @@ export default function CommesseView({ setView, showToastNotification }) {
         ) : filteredCommesse.length === 0 ? (
           <StateBlock 
             state="empty" 
-            emptyVariant={searchQuery || statusFilter !== 'TUTTE' ? 'search' : 'generic'}
-            title={searchQuery || statusFilter !== 'TUTTE' ? 'Nessuna commessa trovata' : 'Nessuna commessa registrata'}
-            description={searchQuery || statusFilter !== 'TUTTE'
-                ? 'Prova a modificare i termini di ricerca o i filtri di stato.'
-                : 'Inizia creando la prima commessa di produzione per associare prelievi e giacenze.'}
+            variant={searchQuery.trim() ? 'search' : (statusFilter !== 'TUTTE' ? 'filtered' : 'generic')}
+            searchTerm={searchQuery.trim()}
+            title={
+              searchQuery.trim()
+                ? undefined
+                : (statusFilter !== 'TUTTE' 
+                    ? `Nessuna commessa ${statusFilter === 'Attiva' ? 'attiva' : 'chiusa'}`
+                    : 'Nessuna commessa registrata')
+            }
+            description={
+              searchQuery.trim()
+                ? undefined
+                : (statusFilter !== 'TUTTE'
+                    ? 'Non ci sono commesse con questo stato. Prova a selezionare "Tutte" o a reimpostare i filtri.'
+                    : 'Inizia creando la prima commessa di produzione per associare prelievi e giacenze.')
+            }
             action={
-              searchQuery || statusFilter !== 'TUTTE' ? (
+              searchQuery.trim() ? (
                 <button
-                  onClick={() => { setSearchQuery(''); setStatusFilter('TUTTE'); }}
+                  type="button"
+                  onClick={() => setSearchQuery('')}
                   className="glass-button px-4 py-2 rounded-xl font-bold text-sm text-accent-orange"
                 >
-                  Resetta Filtri
+                  Resetta Ricerca
+                </button>
+              ) : statusFilter !== 'TUTTE' ? (
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('TUTTE')}
+                  className="glass-button px-4 py-2 rounded-xl font-bold text-sm text-accent-orange"
+                >
+                  Mostra Tutte
                 </button>
               ) : (
                 <button
+                  type="button"
                   onClick={handleOpenCreate}
-                  className="action-btn action-btn-primary px-6 py-2.5 rounded-xl font-black text-sm flex items-center gap-2"
+                  className="action-btn action-btn-primary px-6 py-2.5 rounded-xl font-black text-sm flex items-center justify-center gap-2"
                 >
                   <Plus size={16} />
                   <span>CREA LA PRIMA COMMESSA</span>
@@ -308,26 +331,35 @@ export default function CommesseView({ setView, showToastNotification }) {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {filteredCommesse.map((item) => {
               const isAttiva = item.stato === 'Attiva';
+              const isSelected = isDialogOpen && editingCommessa?.id === item.id;
               const formattedDate = item.created_at
                 ? new Date(item.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })
                 : null;
 
               const menuItems = [
                 {
-                  label: isAttiva ? 'Imposta Chiusa' : 'Imposta Attiva',
-                  icon: <RefreshCw size={14} />,
+                  label: 'Modifica',
+                  icon: <Pencil size={16} />,
                   onClick: (e) => {
-                      e.stopPropagation();
-                      handleToggleStato(item);
+                    e?.stopPropagation?.();
+                    handleOpenEdit(item);
+                  }
+                },
+                {
+                  label: isAttiva ? 'Imposta Chiusa' : 'Imposta Attiva',
+                  icon: <RefreshCw size={16} />,
+                  onClick: (e) => {
+                    e?.stopPropagation?.();
+                    handleToggleStato(item);
                   }
                 },
                 {
                   label: 'Elimina',
-                  icon: <Trash2 size={14} />,
+                  icon: <Trash2 size={16} />,
                   destructive: true,
                   onClick: (e) => {
-                      e.stopPropagation();
-                      setDeletingCommessa(item);
+                    e?.stopPropagation?.();
+                    setDeletingCommessa(item);
                   }
                 }
               ];
@@ -336,11 +368,25 @@ export default function CommesseView({ setView, showToastNotification }) {
                 <div
                   key={item.id}
                   onClick={() => handleOpenEdit(item)}
-                  className="glass-panel p-4 sm:p-6 rounded-3xl border border-transparent dark:border-white/[0.03] transition-all hover:bg-accent-blue/[0.06] active:bg-accent-blue/10 cursor-pointer flex flex-col justify-between group"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleOpenEdit(item);
+                    }
+                  }}
+                  aria-label={`Dettagli commessa ${item.codice}`}
+                  className={cn(
+                    "glass-panel p-4 sm:p-6 rounded-3xl border transition-all cursor-pointer flex flex-col justify-between group",
+                    isSelected
+                      ? "bg-accent-blue/10 border-accent-blue/40 shadow-[inset_3px_0_0_var(--color-accent-blue)]"
+                      : "border-transparent dark:border-white/[0.03] hover:bg-accent-blue/[0.06] active:bg-accent-blue/[0.14]"
+                  )}
                 >
                   <div>
                     <div className="flex items-start justify-between gap-2 mb-3">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-xl bg-accent-blue/10 flex items-center justify-center shrink-0 border border-accent-blue/20 text-accent-blue">
                           <FolderKanban size={20} />
                         </div>
@@ -348,11 +394,11 @@ export default function CommesseView({ setView, showToastNotification }) {
                           <span className="app-caption text-muted-foreground uppercase tracking-widest leading-none">
                             Codice Commessa
                           </span>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="app-body font-black text-accent-blue truncate" title={item.codice}>
+                          <div className="flex items-center gap-2 mt-0.5 min-w-0">
+                            <span className="app-body font-black text-accent-blue truncate min-w-0" title={item.codice}>
                               {item.codice}
                             </span>
-                            <span className={`badge ${isAttiva ? 'badge-emerald' : 'badge-slate'} inline-flex items-center gap-1.5`}>
+                            <span className={`badge ${isAttiva ? 'badge-emerald' : 'badge-slate'} inline-flex items-center gap-1.5 shrink-0`}>
                               <span className={`w-1.5 h-1.5 rounded-full ${isAttiva ? 'bg-accent-emerald animate-pulse' : 'bg-slate-400'}`} />
                               <span className="app-caption uppercase tracking-wider">{item.stato || 'Attiva'}</span>
                             </span>
@@ -500,10 +546,11 @@ export default function CommesseView({ setView, showToastNotification }) {
                   setDeletingCommessa(editingCommessa);
                 }}
                 disabled={isSubmitting}
-                className="p-2 rounded-lg text-muted-foreground hover:text-accent-rose hover:bg-accent-rose/10 self-start sm:self-auto sm:mr-auto transition-colors"
+                className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-muted-foreground hover:text-accent-rose hover:bg-accent-rose/10 self-start sm:self-auto sm:mr-auto transition-colors"
                 title="Elimina commessa"
+                aria-label="Elimina commessa"
               >
-                <Trash2 size={20} />
+                <Trash2 size={16} />
               </button>
             )}
             <button

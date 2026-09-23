@@ -40,7 +40,7 @@ const NavItem = ({ icon, label, onClick, className = "", isActive = false, badge
     </div>
     {badge !== null && badge !== undefined && (
       <span className="bg-accent-blue text-white text-xs font-black px-2 py-0.5 rounded-full shadow-sm ml-1">
-        {badge}
+        {typeof badge === 'number' && badge > 99 ? '99+' : badge}
       </span>
     )}
   </button>

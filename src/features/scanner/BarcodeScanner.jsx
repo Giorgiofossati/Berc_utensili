@@ -146,7 +146,7 @@ const BarcodeScanner = ({ onScan }) => {
             <AlertCircle size={24} />
           </div>
           <p className="app-h3 text-white mb-1">Accesso Fotocamera Necessario</p>
-          <p className="app-caption text-slate-400 max-w-xs mb-4 leading-relaxed">{error}</p>
+          <p className="app-body text-slate-400 max-w-xs mb-4 leading-relaxed text-center">{error}</p>
           <button
             type="button"
             onClick={() => { setError(null); setRetryCount(c => c + 1); }}

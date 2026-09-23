@@ -102,23 +102,26 @@ const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
     });
 
     return (
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3">
-        {details.map(([key, value]) => (
-          <div key={key} className="dark:bg-white/5 bg-slate-900/5 border border-white/5 p-2.5 md:p-3 rounded-2xl flex flex-col hover:bg-white/[0.08] transition-colors group">
-            <span className="text-xs md:text-xs font-black uppercase tracking-widest text-accent-orange mb-1 opacity-60 group-hover:opacity-100 transition-opacity truncate">
-              {displayLabelMap[key] || key}
-            </span>
-            <span className="text-xs md:text-xs font-bold dark:text-white text-slate-900 leading-tight truncate">{value}</span>
-          </div>
-        ))}
+      <div className="@container">
+        <div className="grid grid-cols-2 @md:grid-cols-3 gap-2 md:gap-3">
+          {details.map(([key, value]) => (
+            <div key={key} className="dark:bg-white/5 bg-slate-900/5 border border-white/5 p-2.5 md:p-3 rounded-2xl flex flex-col hover:bg-white/[0.08] transition-colors group">
+              <span className="text-xs md:text-xs font-black uppercase tracking-widest text-accent-orange mb-1 opacity-60 group-hover:opacity-100 transition-opacity truncate">
+                {displayLabelMap[key] || key}
+              </span>
+              <span className="text-xs md:text-xs font-bold dark:text-white text-slate-900 leading-tight truncate">{value}</span>
+            </div>
+          ))}
+        </div>
       </div>
     );
   };
 
   return (
     <Dialog open={true} onOpenChange={(open) => { if (!open) setShowMoveModal(false); }}>
-      <DialogContent size="lg" className="p-0 gap-0 overflow-hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl">
+      <DialogContent size="lg" showCloseButton={false} className="p-0 gap-0 overflow-hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl">
         <ModalHeader
+          icon={isDetailsStep ? <Briefcase size={24} /> : (opType === 'carico' ? <ArrowDown size={24} className="text-accent-emerald" /> : <ArrowUp size={24} className="text-accent-rose" />)}
           overline={isDetailsStep ? "Dettaglio Utensile" : opType === 'carico' ? "Conferma Deposito" : "Conferma Prelievo"}
           title={typeof selectedTool === 'object' && selectedTool !== null ? buildDesc(selectedTool) : `${selectedTool || 0} Articoli`}
           badge={typeof selectedTool === 'object' && selectedTool !== null && selectedTool?.Codice ? (

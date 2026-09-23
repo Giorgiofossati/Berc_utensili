@@ -18,6 +18,27 @@ Trovati con screenshot di produzione + verifica dal vivo (dev server, misure DOM
 
 3. **Verifica da estendere**: lo stesso pattern (badge/testo inline senza `min-w-0` sull'elemento con `truncate`) va controllato anche in `OperatorsView.jsx` e nelle righe di `VirtualizedTable.jsx` — non aperti in questa sessione, ma è lo stesso errore strutturale e potrebbe ripetersi.
 
+4. **Doppia `PageToolbar` in Inventario/Elenco** (§2, regola 6 nuova) — `App.jsx:320-330` avvolge `DropdownFilterView` (che a `DropdownFilterView.jsx:222` renderizza già la propria `PageToolbar`, con `border-b-0` per evitare un doppio bordo — ma la toolbar esterna resta comunque, con il suo bordo, creando due linee con una fascia vuota in mezzo). **Fix**: eliminare la `PageToolbar` esterna in `App.jsx` per il ramo `dropdown`/Elenco; il bottone "Resetta Tutto" (oggi a `App.jsx:324`) si fonde con il bottone "Reset" già presente in `DropdownFilterView.jsx:287-298` (vedi punto 5) invece di restare un secondo controllo in una toolbar separata. In modalità Griglia (`viewMode === 'grid'`) la `PageToolbar` esterna resta invece necessaria (è l'unica, non c'è un `DropdownFilterView` sotto) — il fix riguarda solo il ramo Elenco.
+
+5. **Due bottoni di reset invertiti rispetto al glossario** (§9) — "Resetta Tutto" arancione (`App.jsx:324`, usa `resetFilters`) e "Reset" rosa (`DropdownFilterView.jsx:287-298`, usa `setFilters({}); clearSearchQuery()`) sono due controlli distinti con colori scambiati: il glossario dice "Reset filtri" (distruttivo) = rosa, "Cancella" (locale) = arancione — nel codice è il contrario, e sono pure duplicati. **Fix**: un solo bottone "Reset filtri" rosa che azzera sia `filterStack`/`resetFilters` sia i filtri interni di `DropdownFilterView` (i due stati vanno unificati o il reset deve chiamare entrambi); eliminare il secondo controllo. Va deciso durante il fix se `resetFilters` e `setFilters({})` sono già sincronizzati (sembra di sì, tramite `onFilterChange`) — se lo sono, probabilmente serve solo **un** bottone che chiama uno dei due.
+
+6. ~~**Filtri a cascata che si spostano**~~ — **Applicato** (verificato nel codice il 2026-09-24: `DropdownFilterView.jsx` non smonta più i filtri, usa `isDisabled` + `disabled` sul `Select`/`SelectTrigger`, `layout`/`popLayout` rimossi dai filtri). Ha però scoperto il bug 7 sotto.
+
+7. **Riga filtri che sfora a destra, irraggiungibile** (§5, regola `min-w-0` generalizzata) — `DropdownFilterView.jsx:250`, `<motion.div className="overflow-hidden shrink-0">` che avvolge l'intera riga filtri: `shrink-0` + nessun `min-w-0` fa sì che questo wrapper pretenda la sua larghezza "a contenuto" (misurato dal vivo: **2167px**) invece di rispettare i **1120px** disponibili nella `PageToolbar` — il `flex md:flex-wrap` dei filtri al suo interno non ha mai la possibilità di andare a capo, perché il suo contenitore diretto non si restringe mai abbastanza da forzarlo. Stessa causa esatta del bug 2 (`CommesseView`), sintomo diverso: lì rompeva `truncate`, qui rompe `flex-wrap`. **Fix**: su quel `motion.div` sostituire `shrink-0` con `min-w-0 w-full` (deve *poter* restringersi e occupare la larghezza reale disponibile, non il contrario).
+
+8. **Filtri "appiccicati" alla barra sopra** (§2, nota spaziatura) — spazio verticale tra la barra di ricerca/vista e la riga filtri misurato dal vivo: **4px**, nessun passo della scala di §1.9 (probabile residuo della rimozione della doppia toolbar del bug 4). **Fix**: portare il gap al passo `compact` (12px) — verificare il margine/padding tra `PageToolbar` (bug 4) e il wrapper di riga 250 una volta corretto il bug 7, potrebbero risolversi insieme.
+
+9. **Densità compatta come default** (§5.2, decisione invertita il 2026-09-24) — `ToolsGrid.jsx:27`, `density: propDensity = 'comfortable'` → `'compact'`. Cambia il default per tutti e 4 gli usi di `ToolsGrid` (`DropdownFilterView.jsx`, `App.jsx:229`, `AddToolToMultiModal.jsx`, `ScannerView.jsx`) — nessuno passa `density` esplicitamente oggi, quindi erediteranno tutti il nuovo default. **Verificare prima di chiudere**: l'altezza *reale* di "Comoda" misurata dal vivo è 69px, non i 56px dichiarati in §5.2 — controllare che "Compatta" (`py-2`, stimata 44px) non abbia lo stesso scarto tra dichiarato e reale prima di promuoverla a default, e che il target touch rimanga ≥44px anche nella resa effettiva (§1.6, "44px senza eccezioni").
+
+10. **Badge di riga non allineati tra loro** (§5.2, nuova nota) — `ToolsGrid.jsx`: Ubicazione (riga 183) e Lavorazione (riga 235) usano già `app-caption`, coerenti tra loro; **Stato** (riga 208) è l'unico fuori standard con `text-xs font-black` — altezza di riga diversa, quindi centrato nella propria cella ma 2-4px sopra o sotto il centro reale rispetto alle altre due colonne (misurato dal vivo). **Fix**: colonna Stato → `app-caption font-black` al posto di `text-xs font-black`, per allinearsi a Ubicazione/Lavorazione.
+
+11. **Filtri con etichetta lunga a rischio taglio** (§4.4, nuova regola) — `DropdownFilterView.jsx:261`, `min-w-[130px] md:min-w-[140px]`. Misurato dal vivo a viewport stretto: "SISTEMA MISURA" sfora di 10px, "RIVESTIMENTO" ha solo 7px di margine (causa: `tracking-[0.25em]` su `app-overline` aggiunge ~2.5px per carattere, non conteggiati da una stima naive della larghezza testo). **Fix**: `md:min-w-[140px]` → `md:min-w-[160px]`.
+
+12. **`.app-h3` non più maiuscolo su dati reali** (§1.3, round 4 approvato) — `src/index.css`: rimuovere `uppercase` dalla definizione di `.app-h3`. Poi rivedere i 18 usi nel codice, con trattamento diverso a seconda del ruolo:
+    - **Dato reale → beneficia della rimozione, nessuna modifica al JSX serve** (il cambio è nel CSS): `ToolsGrid.jsx:129` (descrizione utensile), `OrderModal.jsx:98`, `HistoryView.jsx:280,641` (descrizione movimento), `MultiMovementView.jsx:245,324` (righe Distinta), `CommesseView.jsx:417` (`item.descrizione`, testo libero), `LoginScreen.jsx:290,315,340` (nome operatore).
+    - **Etichetta fissa breve → il cambio va bene anche qui, nessuna azione richiesta**: `AddToolModal.jsx:156,206,361`, `UserSettingsModal.jsx:50`, `BarcodeScanner.jsx:148`, `StateBlock.jsx:231`.
+    - **Eccezione da applicare esplicitamente**: `CategoryGridCard.jsx:28` (tessere "Fresa"/"Alesatore") — aggiungere l'utility `uppercase` di Tailwind accanto a `app-h3` per mantenere l'aspetto attuale, come da eccezione dichiarata in §1.3. `DiameterList.jsx:62` — verificare il contenuto reale (probabile valore diametro, es. "Ø10"): se è un dato o un'etichetta decide se applicare la stessa eccezione.
+
 ---
 
 ## Fase 1 — Token di base (`src/index.css`)
@@ -144,12 +165,14 @@ Ordine consigliato: dalla vista più semplice (per validare i componenti di Fase
 4. **Movimento Multiplo** (`MultiMovementView.jsx`, `useMultiMovementStore.js`)
    - `StateBlock`/riga segnaposto della Distinta: verificare che il loading (se presente al caricamento iniziale) usi lo skeleton di riga (§8.2), non uno spinner a pagina intera — la Distinta è già "griglia immediata" per§5.1, quindi probabilmente non serve un loading state qui, verificare.
 
-5. **Scanner** (`ScannerView.jsx`)
-   - Applicare `density`/hover-selected via `ToolsGrid` (eredita da Fase 2, nessuna modifica specifica attesa oltre a verificare che non ci sia uno stile riga locale duplicato che ignora `VirtualizedTable`).
+5. **Scanner** (`ScannerView.jsx`) ✅
+   - Applicare `density`/hover-selected via `ToolsGrid` (eredita da Fase 2, verificato che non vi siano stili locali duplicati). Audit icone conforme (§1.11, Search 20px/32px, Camera 20px/24px, ArrowDown/Up 14px, X 16px).
+   - In `BarcodeScanner.jsx`, corretta classe operational copy da `.app-caption` a `.app-body`.
 
-6. **Home / Inventario** (`ToolsGrid.jsx` in modalità Elenco, `CategoryGridCard.jsx`, `DiameterList.jsx`)
-   - Griglia tessere categoria/diametro (§1.8): applicare `@container` (§1.14) al contenitore.
-   - Eventuale riga di `stat-tile` in cima solo se non sottrae spazio utile alla tabella above-the-fold su tablet (nota d'uso §4.5) — valutare con schermata reale prima di aggiungerla qui, a differenza di Storico dove è a basso rischio.
+6. **Home / Inventario** (`ToolsGrid.jsx` in modalità Elenco, `CategoryGridCard.jsx`, `DiameterList.jsx`) ✅
+   - Griglia tessere categoria/diametro (§1.8): applicato `@container` (§1.14) al contenitore in `App.jsx`, `CategoryGridCard.jsx` e `DiameterList.jsx`.
+   - `CategoryGridCard.jsx`: convertito root da `div` a `<button type="button">` accessibile con focus-ring e classi `@container`.
+   - `DiameterList.jsx`: audit icone (Search e Clear a 16px), integrato `StateBlock` standard per la ricerca vuota con azzeramento query, hover conforme `hover:bg-accent-blue/[0.06]`.
 
 7. **Modali** (`MovementModal.jsx`, `AddToolModal.jsx`, `OrderModal.jsx`, `AddToolToMultiModal.jsx`)
    - Verificare che tutte usino `ModalHeader/Body/Footer` di `dialog.jsx` (già pronti, Fase 2.6) invece di markup proprio residuo.

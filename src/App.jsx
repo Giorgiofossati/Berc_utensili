@@ -217,7 +217,7 @@ function App() {
 
   const renderGridHome = () => {
     if (currentLevel >= 2 && currentLevel < 3) return (
-      <div className="w-full flex-1 flex flex-col items-center justify-center my-auto px-2 sm:px-4 md:px-6 py-2 overflow-hidden">
+      <div className="@container w-full flex-1 flex flex-col items-center justify-center my-auto px-2 sm:px-4 md:px-6 py-2 overflow-hidden">
         <DiameterList 
           diameters={diameters} 
           tools={filteredByStack} 
@@ -226,13 +226,18 @@ function App() {
       </div>
     );
     if (currentLevel >= 3) return (
-      <ToolsGrid tools={finalTools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} />
+      <ToolsGrid 
+        tools={finalTools} 
+        onSelectTool={handleSelectToolFromGrid} 
+        isMobile={isMobile} 
+        selectionMode="toggle"
+      />
     );
     if (!options || options.length === 0) return null;
 
     return (
       <div data-tour="catalog-categories" className="@container w-full max-w-6xl xl:max-w-7xl px-2 md:px-4 py-1 my-auto mx-auto flex flex-col justify-center items-center">
-        <div className="grid grid-cols-2 @sm:grid-cols-3 @lg:grid-cols-3 @xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 w-fit mx-auto justify-center justify-items-center items-center">
+        <div className="grid grid-cols-2 @sm:grid-cols-3 @md:grid-cols-3 @xl:grid-cols-4 @3xl:grid-cols-5 gap-3 @sm:gap-4 @md:gap-6 w-fit mx-auto justify-center justify-items-center items-center">
           {options.map((opt, idx) => (
             <CategoryGridCard 
               key={`${opt.label}-${idx}`} 
@@ -317,21 +322,26 @@ function App() {
                         </div>
                       }
                     />
-                    <PageToolbar>
-                      <div className="flex w-full items-center justify-between">
-                        <span className="app-overline text-slate-500">
-                          {filterStack.length > 0 && (
-                            <button onClick={resetFilters} className="glass-button px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-xs font-bold uppercase tracking-wider text-accent-orange flex items-center gap-1.5 shadow-sm hover:shadow-accent-orange/20 border border-accent-orange/20">
-                              <X size={14} /> <span className="hidden sm:inline">Resetta Tutto</span>
-                            </button>
-                          )}
-                        </span>
-                      </div>
-                    </PageToolbar>
                     {viewMode === 'grid' ? (
-                      <div className={`w-full flex-1 flex flex-col items-center justify-center min-h-0 ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar py-2 md:py-0' : ''}`}>
-                        {renderGridHome()}
-                      </div>
+                      <>
+                        <PageToolbar>
+                          <div className="flex w-full items-center justify-between">
+                            <span className="app-overline text-slate-500">
+                              {filterStack.length > 0 && (
+                                <button 
+                                  onClick={resetFilters} 
+                                  className="glass-button px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-xs font-bold uppercase tracking-wider text-accent-rose hover:bg-accent-rose/10 flex items-center gap-1.5 shadow-sm hover:shadow-accent-rose/20 border border-accent-rose/20"
+                                >
+                                  <X size={14} /> <span className="hidden sm:inline">Reset filtri</span>
+                                </button>
+                              )}
+                            </span>
+                          </div>
+                        </PageToolbar>
+                        <div className={`w-full flex-1 flex flex-col items-center justify-center min-h-0 @container ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar py-2 md:py-0' : ''}`}>
+                          {renderGridHome()}
+                        </div>
+                      </>
                     ) : (
                       <div className="w-full flex-1 flex flex-col items-center min-h-0">
                         <DropdownFilterView tools={tools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} initialFilters={Object.fromEntries(filterStack.map(f => [f.type, f.value]))}
@@ -339,6 +349,7 @@ function App() {
                             const newStack = Object.entries(newFilters).filter(([, v]) => v).map(([k, v]) => ({ type: k, value: v }));
                             setFilterStack(newStack);
                           }}
+                          resetFilters={resetFilters}
                           viewMode={viewMode}
                           setViewMode={setViewMode}
                         />

@@ -10,8 +10,8 @@ const SRC_DIR = path.resolve(__dirname, '../src');
 // Regex to find arbitrary values in Tailwind classes for z-index, rounded, and text.
 // We want to ban raw values like z-[100], rounded-[12px], rounded-[1.5rem], text-[14px]
 // But ALLOW CSS variables like z-[var(--z-toast)] or rounded-[var(--radius-md)]
-// This regex matches z-[...], rounded-[...], text-[...] where the inside DOES NOT contain 'var('
-const ARBITRARY_CLASS_REGEX = /\b(?:z|rounded|text)-\[(?!.*var\().+?\]/g;
+// Also allow rounded-[11px] (stat-tile and modal icon box spec from DESIGN_SYSTEM.md §4.5 / §6.2)
+const ARBITRARY_CLASS_REGEX = /\b(?:z|rounded|text)-\[(?!.*var\()(?!11px\]).+?\]/g;
 
 let hasErrors = false;
 

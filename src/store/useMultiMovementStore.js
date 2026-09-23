@@ -162,35 +162,34 @@ export const useMultiMovementStore = create((set, get) => ({
       });
 
       if (rpcErr) {
-        // Se la stored procedure non è ancora stata creata in Supabase, esegui fallback client-side sicuro
-        const isRpcMissing = rpcErr.message?.includes('function') || rpcErr.code === 'PGRST202';
-        if (isRpcMissing) {
-          console.warn('handle_multi_movement RPC non presente sul database, esecuzione fallback...');
-          for (const item of items) {
-            const liveTool = tools.find(t => t.id === item.tool.id) || item.tool;
-            const cur = liveTool['Quantità'] || 0;
-            const newQty = batchOpType === 'carico' ? cur + item.quantity : cur - item.quantity;
-
-            const { error: updateErr } = await supabase
-              .from('Utensili_B1')
-              .update({ 'Quantità': newQty })
-              .eq('id', item.tool.id);
-
-            if (updateErr) throw updateErr;
-
-            await supabase
-              .from('movements_history')
-              .insert({
-                tool_id: item.tool.id,
-                tipo_operazione: item.opType || batchOpType,
-                quantita: item.quantity,
-                operatore: operatorName,
-                commessa_id: item.commessa_id || targetCommessaId || null,
-                created_at: new Date().toISOString()
-              });
+        console.warn('handle_multi_movement RPC error, executing resilient client-side fallback:', rpcErr);
+        for (const item of items) {
+          const liveTool = tools.find(t => t.id === item.tool.id) || item.tool;
+          const cur = liveTool['Quantità'] || 0;
+          if (batchOpType === 'scarico' && cur < item.quantity) {
+            throw new Error(`Giacenza insufficiente per ${liveTool.Tipologia || 'articolo'}`);
           }
-        } else {
-          throw rpcErr;
+          const newQty = batchOpType === 'carico' ? cur + item.quantity : Math.max(0, cur - item.quantity);
+
+          const { error: updateErr } = await supabase
+            .from('Utensili_B1')
+            .update({ 'Quantità': newQty })
+            .eq('id', item.tool.id);
+
+          if (updateErr) throw updateErr;
+
+          const { error: insertErr } = await supabase
+            .from('movements_history')
+            .insert({
+              tool_id: item.tool.id,
+              tipo_operazione: item.opType || batchOpType,
+              quantita: item.quantity,
+              operatore: operatorName,
+              commessa_id: item.commessa_id || targetCommessaId || null,
+              created_at: new Date().toISOString()
+            });
+
+          if (insertErr) throw insertErr;
         }
       }
 

@@ -1,12 +1,13 @@
 import React, { memo } from 'react';
-import { motion } from 'framer-motion';
 import { ToolIcon } from '../../lib/toolUtils';
 
 const CategoryGridCard = memo(({ opt, handleSelectOption }) => {
   return (
-    <div
+    <button
+      type="button"
       onClick={() => handleSelectOption(opt)}
-      className="glass-panel group relative w-full max-w-[155px] sm:max-w-[175px] md:max-w-[195px] lg:max-w-[215px] xl:max-w-[235px] aspect-square p-0 rounded-2xl md:rounded-3xl cursor-pointer bg-slate-100/50 dark:bg-slate-900/40 border dark:border-white/10 border-slate-900/10 dark:hover:border-accent-blue/50 hover:border-accent-blue/40 hover:shadow-[0_8px_30px_rgba(14,165,233,0.2)] active:scale-95 transition-all duration-200 overflow-hidden select-none"
+      aria-label={`Categoria ${opt.label || opt.category}`}
+      className="glass-panel group relative w-full max-w-[155px] @sm:max-w-[175px] @md:max-w-[195px] @lg:max-w-[215px] @xl:max-w-[235px] aspect-square p-0 rounded-2xl @md:rounded-3xl cursor-pointer bg-slate-100/50 dark:bg-slate-900/40 border dark:border-white/10 border-slate-900/10 dark:hover:border-accent-blue/50 hover:border-accent-blue/40 hover:shadow-[0_8px_30px_rgba(14,165,233,0.2)] active:scale-95 transition-all duration-200 overflow-hidden select-none text-left focus-visible:ring-2 focus-visible:ring-accent-blue outline-none"
     >
       {/* Full-bleed Image Container */}
       <ToolIcon 
@@ -20,7 +21,7 @@ const CategoryGridCard = memo(({ opt, handleSelectOption }) => {
       <div className="absolute inset-0 bg-black/10 dark:bg-black/25 transition-colors duration-200 pointer-events-none" />
 
       {/* Category Info Overlay - Floating Glassmorphic Panel for Maximum legibility and Premium UX */}
-      <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3 p-1.5 sm:p-2.5 md:p-3 bg-slate-950/80 dark:bg-slate-950/90 backdrop-blur-md border border-white/10 rounded-lg sm:rounded-xl flex flex-col items-center justify-center z-20 shadow-lg pointer-events-none">
+      <div className="absolute bottom-2 left-2 right-2 @sm:bottom-3 @sm:left-3 @sm:right-3 p-1.5 @sm:p-2.5 @md:p-3 bg-slate-950/80 dark:bg-slate-950/90 backdrop-blur-md border border-white/10 rounded-lg @sm:rounded-xl flex flex-col items-center justify-center z-20 shadow-lg pointer-events-none">
         <p className="app-overline text-accent-orange mb-0.5">
           {opt.category}
         </p>
@@ -28,7 +29,7 @@ const CategoryGridCard = memo(({ opt, handleSelectOption }) => {
           {opt.label}
         </h3>
       </div>
-    </div>
+    </button>
   );
 });
 

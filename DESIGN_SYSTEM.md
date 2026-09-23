@@ -70,11 +70,15 @@ Font ufficiale: **Inter** (`--font-inter`, caricato in `index.html`). **Vietate*
 | `.app-overline` | `text-[9px] sm:text-[10px] font-black uppercase tracking-[0.25em]` | Micro-titolo di sezione/pagina — **sempre arancione**, mai altro colore |
 | `.app-h1` | `text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight` | Titolo di `PageHeader`, uno per vista |
 | `.app-h2` | `text-lg sm:text-xl md:text-2xl font-black uppercase tracking-tight` | Titolo modale/card primaria |
-| `.app-h3` | `text-xs sm:text-sm font-bold uppercase tracking-tight` | Titolo riga/card in liste e griglie |
+| `.app-h3` | `text-xs sm:text-sm font-bold tracking-tight` | Titolo riga/card in liste e griglie — **non maiuscolo** (round 4, 2026-09-24, vedi nota sotto) |
 | `.app-body` | `text-xs sm:text-sm font-medium leading-relaxed` | Testo standard, descrizioni, note |
 | `.app-caption` | `text-[10px] sm:text-xs font-semibold font-mono` | Codici, timestamp, ID — **mai** per istruzioni discorsive |
 | `.app-label` | `text-[11px] sm:text-xs font-bold uppercase tracking-wide` | Etichette di campo form (minimo 11px, mai 8-9px) |
 | `.app-qty-sm` / `.app-qty-lg` | `text-xs…base` / `text-2xl…4xl font-black tabular-nums` | Quantità in riga / quantità in evidenza |
+
+> **Maiuscolo: solo per etichette brevi a vocabolario fisso, mai per dati reali** *(prototipo approvato, rifiniture UI round 4, 2026-09-24)*: `.app-overline`, `.badge`, `.action-btn-*` e `.app-label` restano maiuscoli — sono etichette di 2-3 parole scelte da noi, mai testo dell'utente, e il maiuscolo lì aiuta a distinguerle come "etichetta" rispetto al contenuto. `.app-h3` **perde il maiuscolo**: il suo uso documentato in questa tabella è "titolo riga/card in liste e griglie", cioè quasi sempre un dato reale — descrizione utensile, testo libero di una commessa, nome di un operatore. Il maiuscolo su un dato reale toglie le forme delle lettere che l'occhio usa per riconoscere una parola a colpo d'occhio (va contro "Leggibilità istantanea", §0.3) ed è la causa diretta del bug di troncamento già corretto in §4.4 — il maiuscolo occupa più larghezza a parità di contenuto. Resta grassetto + dimensione a fare la gerarchia, come da principio del round 3 ("non ingrandire il testo per farlo risaltare").
+>
+> **Eccezione dichiarata**: le tessere categoria di primo livello (griglia "Fresa"/"Alesatore", §1.8) usano `.app-h3` su vocabolario fisso e breve come un badge, non su un dato utente — possono restare maiuscole aggiungendo l'utility `uppercase` di Tailwind sopra `.app-h3` in quel punto specifico, per coerenza visiva con l'aspetto "tessera". È una scelta estetica di quel componente, non una deroga generale alla regola sopra.
 
 ### 1.4 Scala raggi (unica, token reali — non più `rounded-[Npx]` arbitrari)
 Tailwind v4 raccomanda esplicitamente i valori arbitrari solo come eccezione "una tantum": ogni valore riusato diventa un token in `@theme`. Questa è la scala unica per l'intera app, da dichiarare come token `--radius-*` (sullo schema shadcn: `--radius-sm/md/lg/xl` derivati da un unico `--radius` base):
@@ -241,7 +245,9 @@ Componente da creare: `src/components/layout/PageTemplate.jsx`, esporta `PageHea
 3. **Breadcrumb**: sotto il titolo, cliccabile, presente da subito anche al livello 0 (non solo dal 2° livello in poi).
 4. **Icona**: o nel titolo o nelle card sottostanti, mai entrambe nella stessa vista.
 5. **Larghezza**: eredita da `PageContent`, mai dichiarata di nuovo nella vista figlia (§1.6).
-6. **Wrap della toolbar** *(bug reale osservato, 2026-09-19)*: ricerca e filtri/segmented **non competono mai per lo stesso spazio senza una via d'uscita**. La riga usa `flex-wrap`, la ricerca ha una larghezza minima garantita (`min-w-[220px]` o equivalente) e **non è mai `flex-1` accanto a un gruppo `shrink-0`** che le lascia solo gli avanzi: quando non entrano affiancati, il gruppo filtri/segmented va a capo su una riga sotto, la ricerca resta larga e leggibile. Meglio ancora: contenitore `@container` (§1.14) con `@md:flex-row`/wrap invece di `md:flex-row` fisso sul viewport — la larghezza reale disponibile è quella di `PageContent` (che dipende dalla sidebar), non quella dello schermo, esattamente il caso già descritto in §1.14. Verificato che senza questa regola il placeholder si taglia (es. `CommesseView.jsx`, §2.6 nota d'implementazione).
+6. **Una sola `PageToolbar` per vista** *(bug reale osservato, 2026-09-19)*: mai una `PageToolbar` che ne avvolge un'altra. Se un componente figlio (es. `DropdownFilterView`) renderizza già la propria `PageToolbar` completa, la vista genitore **non ne aggiunge una seconda** attorno per un bottone isolato (es. "Resetta Tutto") — quel bottone entra nella toolbar del figlio, o il figlio riceve il controllo via prop. Sintomo tipico di questo errore: due linee orizzontali sovrapposte con una fascia vuota in mezzo (visto in `App.jsx` + `DropdownFilterView.jsx`, vista Inventario/Elenco).
+   Quando una toolbar impila due righe (es. barra ricerca/vista sopra, riga filtri sotto), lo spazio verticale tra le due segue comunque §1.9: passo `compact` (12px), mai i 3-4px che restano "per caso" quando due contenitori vengono uniti senza margine dichiarato.
+7. **Wrap della toolbar** *(bug reale osservato, 2026-09-19)*: ricerca e filtri/segmented **non competono mai per lo stesso spazio senza una via d'uscita**. La riga usa `flex-wrap`, la ricerca ha una larghezza minima garantita (`min-w-[220px]` o equivalente) e **non è mai `flex-1` accanto a un gruppo `shrink-0`** che le lascia solo gli avanzi: quando non entrano affiancati, il gruppo filtri/segmented va a capo su una riga sotto, la ricerca resta larga e leggibile. Meglio ancora: contenitore `@container` (§1.14) con `@md:flex-row`/wrap invece di `md:flex-row` fisso sul viewport — la larghezza reale disponibile è quella di `PageContent` (che dipende dalla sidebar), non quella dello schermo, esattamente il caso già descritto in §1.14. Verificato che senza questa regola il placeholder si taglia (es. `CommesseView.jsx`, §2.6 nota d'implementazione).
 
 ---
 
@@ -296,6 +302,10 @@ Componente da creare: `src/components/ui/segmented-control.jsx`, su `@base-ui/re
 ### 4.4 FilterChip
 Componente da creare: `src/components/ui/filter-chip.jsx`. Stati: neutro (`bg-black/5`), attivo (`bg-accent-blue/10 text-accent-blue`), sempre con `×` per rimuovere. Ordine in toolbar: ricerca → filtri primari attivi → "+ Altri filtri" (secondari) → segmented. Su mobile: drawer/sheet (`@base-ui/react/drawer`, già installato), mai 7 righe di filtri impilate prima dei dati.
 
+**Filtri a cascata: posizione fissa, mai smontati** *(bug reale osservato, 2026-09-19)*: quando una selezione azzera le opzioni valide di un altro filtro, quel filtro **non sparisce e non si sposta** — resta nello stesso punto, disabilitato (§1.13: stessa posizione, opacità 40%, nessun hover). La cascata resta intelligente (non si può scegliere una combinazione impossibile), ma l'ordine e la posizione dei filtri sul rigo sono uno stato stabile, mai animato da un `layout`/`popLayout` che li fa scivolare — un bersaglio che si sposta mentre l'utente sta per cliccarlo è un problema di ergonomia (Fitts), non un dettaglio estetico. Le uniche cose che possono davvero comparire/sparire sulla riga sono elementi transitori aggiuntivi (chip di ricerca attiva, bottone reset) — mai uno degli **8 filtri stessi**.
+
+**Larghezza minima dei filtri: 140px non basta per le etichette lunghe** *(bug reale osservato, 2026-09-24)*: alla larghezza minima attuale (`min-w-[140px]`), l'etichetta di un filtro con `tracking-[0.25em]` (lo stile `app-overline` usato per tutte le label filtro) può tagliarsi — misurato dal vivo: "SISTEMA MISURA" sfora di 10px, "RIVESTIMENTO" ha solo 7px di margine, entrambi a rischio concreto di troncamento. **Fix**: portare il minimo a `min-w-[160px]`. **Nota di metodo per chi misura queste cose in futuro**: uno spazio tra le lettere così largo (2.5px per ogni carattere a 10px di font) non lo conta un semplice calcolo della larghezza del testo — va sommato esplicitamente (`letter-spacing × (numero caratteri − 1)`), altrimenti la stima dice "ci sta" quando in realtà non ci sta.
+
 ### 4.5 Stat Tile
 
 > **Prototipo approvato**: rifiniture UI round 1, 2026-09-19.
@@ -341,7 +351,7 @@ Componente da creare: `src/components/ui/stat-tile.jsx`. Chiude l'assenza di ove
 - QTY: `size:64-70px`, fissa, centrata.
 - Ubicazione/Fornitore/Stato: `size:100-140px`, fisse.
 - **Azioni**: larghezza fissa, mai spostata da un testo lungo in un'altra colonna — la colonna flessibile (Descrizione) si accorcia, le azioni restano al loro posto. Regola generale, non solo per `ToolsGrid`: vale per card commessa/operatore e righe della Distinta (§5.1). *(round 3, 2026-09-19 — vedi anche §1.13 sulla visibilità delle azioni)*
-- **`truncate` funziona solo con `min-w-0` a ogni livello della catena flex** *(bug reale osservato, 2026-09-19)*: non basta mettere `truncate` sull'elemento — se un genitore intermedio nella catena flex non ha `min-w-0` (o `min-width:0` esplicito), il browser rifiuta di restringerlo sotto la sua larghezza naturale e l'elemento sfonda il contenitore, spingendo badge/icone/azioni fuori dalla card (visto in `CommesseView.jsx`: `min-w-0` c'era due livelli sopra lo `<span>` col `truncate`, ma non sullo span stesso né sul suo genitore diretto — non bastava). Checklist per ogni testo variabile: `min-w-0` sul contenitore diretto **e** su ogni suo antenato flex fino al primo elemento che ha davvero spazio da cedere, non solo su uno a caso della catena.
+- **Ogni restringimento in un flex container richiede `min-w-0` a ogni livello della catena — non solo `truncate`** *(bug reale osservato, 2026-09-19-24)*: un elemento flex di default rifiuta di restringersi sotto la sua larghezza naturale (`min-width:auto` implicito) finché non riceve `min-w-0` esplicito — e questo vale sia che si voglia troncare un testo, sia che si voglia far andare a capo un gruppo di filtri (`flex-wrap`). Due bug reali dalla stessa causa: `CommesseView.jsx` (`truncate` su uno `<span>` senza `min-w-0` sullo span né sul suo genitore diretto → il badge e il menu `⋮` sfondavano la card); `DropdownFilterView.jsx` (il wrapper della riga filtri aveva `shrink-0` e nessun `min-w-0` → pretendeva 2167px in una toolbar da 1120px, il `flex-wrap` interno non aveva mai la possibilità di scattare e i filtri finivano fuori schermo, irraggiungibili). **Checklist per ogni contenitore che deve restringersi o andare a capo**: `min-w-0` sul contenitore diretto **e** su ogni suo antenato flex fino al primo elemento che ha davvero spazio da cedere; mai `shrink-0` su un wrapper che deve poi lasciare ai suoi figli la possibilità di andare a capo — sono comportamenti opposti.
 
 ### Regola mobile (zero scroll orizzontale)
 - Mostrare sempre: icona, descrizione (`.app-h3`), quantità (`.app-qty-sm`).
@@ -363,11 +373,15 @@ Tre stati e due densità, oggi non dichiarati da nessuna parte: ogni tabella del
 
 | Stato/densità | Regola |
 | :--- | :--- |
-| **Comoda** (default) | Riga 56px, `py-3.5` — vista con poche righe o su tablet in officina |
-| **Compatta** (opt-in dal toolbar) | Riga 44px, `py-2` — solo viste dati-intensive (Storico, Elenco con molti risultati), mai default |
+| **Compatta** (default, invertito dal round 1) | Riga 44px, `py-2` — *(decisione 2026-09-24, dopo prova dal vivo: la densità "Comoda" da 56px rendeva le righe visibilmente troppo alte rispetto al contenuto — vedi nota sotto)* |
+| **Comoda** (opt-in dal toolbar) | Riga 56px, `py-3.5` — solo per viste con poche righe dove serve più respiro (es. risultati di una ricerca molto ristretta) |
 | **Hover** | Tinta `accent-blue/6%` uniforme, stesso valore in ogni tabella — caso particolare della scala unica di §1.13 |
 | **Selezionata** | Tinta `accent-blue/10%` + bordo sinistro pieno 3px — mai *solo* il checkbox come unico segnale (si perde scrollando) |
 | **Riga esaurita** | Colore rosa solo sulla cella Qty/Stato (§4.2), mai sulla riga intera — altrimenti confligge con hover/selezione |
+
+> **Nota bug reale (2026-09-24)**: l'altezza *misurata* dal vivo per "Comoda" era **69px**, non i 56px dichiarati qui — `py-3.5` da solo non produce 56px, dipende anche dall'altezza di riga del contenuto. Va verificata/corretta anche la resa reale di "Compatta" prima di considerarla a posto come nuovo default: il numero nella tabella è l'obiettivo, non è detto che il CSS attuale lo produca esattamente (stesso tipo di scarto già visto altrove in questo documento tra regola scritta e resa reale).
+>
+> **Chip/badge non allineati tra loro nella stessa riga** *(bug reale osservato, 2026-09-24)*: `Ubicazione`, `Stato` e `Lavorazione` usano classi tipografiche diverse (`app-caption` per Ubicazione, `text-xs font-black` per Stato, ecc.), ognuna con un'altezza di riga propria — il badge risulta centrato nella propria cella ma di 2-4px sopra o sotto il centro reale a seconda della colonna, in direzioni non coerenti tra loro. Il problema non è l'allineamento flex (quello è corretto, verificato) ma l'inconsistenza tipografica tra badge che dovrebbero essere trattati allo stesso modo. **Fix**: un'unica classe di testo per tutti i badge di cella tabella (stessa dimensione, stesso `line-height`), non una scelta diversa per colonna.
 
 ---
 
@@ -511,3 +525,4 @@ Prima di considerare conclusa qualsiasi modifica:
 21. [ ] Vista provata con il contenuto più lungo plausibile (nome utensile, codice, ubicazione) — nessun testo che sposta un'icona/azione dal suo posto (§5, §1.13).
 22. [ ] Empty state differenziato per causa (vuoto genuino / per filtri / ricerca senza risultati, §8.2), mai lo stesso messaggio generico per tutte e tre.
 23. [ ] Griglie dentro contenitori a larghezza variabile (modali, stat tile, tessere) usano `@container` (§1.14), non solo `md:`/`lg:` legati al viewport.
+24. [ ] `.app-h3` non maiuscolo quando mostra un dato reale (descrizione, nome, testo libero) — maiuscolo ammesso solo su etichette brevi a vocabolario fisso (§1.3) o sull'eccezione dichiarata delle tessere categoria.

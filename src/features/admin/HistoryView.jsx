@@ -1,25 +1,63 @@
-import React, { useState, useMemo, useCallback, memo } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, memo } from 'react';
 
 import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
 import { StateBlock } from '@/components/common/StateBlock';
 import { StatTile } from '@/components/ui/stat-tile';
 import { SegmentedControl } from '@/components/ui/segmented-control';
-import { IconButton } from '@/components/ui/icon-button';
 import { 
   useReactTable, 
   getCoreRowModel, 
   getSortedRowModel, 
   createColumnHelper 
 } from '@tanstack/react-table';
-import { motion } from 'framer-motion';
 import { 
-  ArrowLeft, ArrowDown, ArrowUp, Search, X, 
-  RefreshCw, User, Calendar, FilterX, Info, Copy, Check, Layers 
+  ArrowDown, ArrowUp, Search, X, 
+  RefreshCw, User, Calendar, Info, Copy, Check, Layers, AlignJustify 
 } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { VirtualizedTable } from '../../components/common/DataTable';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, ModalHeader, ModalBody, ModalFooter, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, ModalHeader, ModalBody } from "@/components/ui/dialog";
+import { cn } from '@/lib/utils';
+
+export function TableWrapper({
+  showDensityToggle = true,
+  density = 'comfortable',
+  onToggleDensity,
+  count = 0,
+  showHeader = true,
+  children,
+  className
+}) {
+  return (
+    <div className={cn("glass-panel rounded-3xl md:rounded-3xl shadow-xl overflow-hidden flex flex-col flex-1 min-h-0", className)}>
+      {showHeader && (
+        <div className="px-4 md:px-6 py-2.5 md:py-3 border-b dark:border-white/5 border-slate-900/10 flex items-center justify-between bg-white/[0.02] shrink-0">
+          <p className="app-overline text-accent-orange">
+            {count} moviment{count === 1 ? 'o' : 'i'} trovat{count === 1 ? 'o' : 'i'}
+          </p>
+          {showDensityToggle && (
+            <button
+              type="button"
+              onClick={onToggleDensity}
+              className={`glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline transition-all flex items-center gap-1.5 shrink-0 ${
+                density === 'compact'
+                  ? 'text-accent-blue bg-accent-blue/10 border-accent-blue/30'
+                  : 'dark:text-slate-400 text-slate-600 opacity-70 hover:opacity-100 hover:bg-accent-blue/[0.06]'
+              }`}
+              title="Alterna visualizzazione densità tabella (Comoda / Compatta)"
+              aria-label={`Densità tabella: ${density === 'compact' ? 'Compatta' : 'Comoda'}`}
+            >
+              <AlignJustify size={14} className="shrink-0" />
+              <span>{density === 'compact' ? 'Compatta' : 'Comoda'}</span>
+            </button>
+          )}
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
 
 const formatDateLong = (dateStr) => {
   if (!dateStr) return '—';
@@ -56,7 +94,15 @@ const isSameDay = (d1, d2) =>
 
 const columnHelper = createColumnHelper();
 
-const HistoryView = memo(({ history = [], isLoading, error, setView, fetchHistory }) => {
+const HistoryView = memo(({ 
+  history = [], 
+  isLoading, 
+  error, 
+  setView, 
+  fetchHistory,
+  showDensityToggle = true,
+  density: propDensity = 'comfortable'
+}) => {
   // Sorting State - default: data più recente per prima
   const [sorting, setSorting] = useState([{ id: 'created_at', desc: true }]);
 
@@ -354,8 +400,12 @@ const HistoryView = memo(({ history = [], isLoading, error, setView, fetchHistor
     setTimeout(() => setCopiedId(false), 2000);
   };
 
-  // Stato Densità
-  const [density, setDensity] = useState('compact');
+  // Stato Densità (§5.2)
+  const [density, setDensity] = useState(propDensity);
+
+  useEffect(() => {
+    setDensity(propDensity);
+  }, [propDensity]);
 
   return (
     <PageTemplate className="max-w-[1600px]">
@@ -476,21 +526,14 @@ const HistoryView = memo(({ history = [], isLoading, error, setView, fetchHistor
               <X size={14} /> Reset filtri ({activeFiltersCount})
             </button>
           )}
-
-          {/* Density Toggle */}
-          <button
-            onClick={() => setDensity(d => d === 'compact' ? 'comfortable' : 'compact')}
-            className="glass-button ml-auto rounded-xl md:rounded-xl px-3 py-1.5 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 hover:bg-accent-blue/[0.06] transition-all flex items-center gap-1.5 shrink-0"
-          >
-            Densità: {density === 'compact' ? 'Compatta' : 'Comoda'}
-          </button>
         </div>
       </PageToolbar>
+
       {/* Main Table Container */}
-      <PageContent className="glass-panel rounded-3xl md:rounded-3xl shadow-xl p-0 sm:p-0 md:p-0 lg:p-0 flex flex-col overflow-hidden">
-        {/* KPI & Count Subheader con StatTile e @container */}
-        <div className="@container border-b dark:border-white/5 border-slate-900/10 bg-white/[0.02] shrink-0 p-4 sm:p-6">
-          <div className="grid gap-4 sm:gap-6 grid-cols-1 @sm:grid-cols-2 @xl:grid-cols-4">
+      <PageContent className="flex flex-col gap-4 sm:gap-6 p-2 pb-6 sm:p-4 sm:pb-8 md:p-6 md:pb-10 lg:p-8 lg:pb-12">
+        {/* KPI & Summary StatTiles with @container wrapper (§1.14, §4.5) */}
+        <div className="@container shrink-0">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 @sm:grid-cols-2 @xl:grid-cols-4 items-stretch">
             <StatTile 
               icon={Layers} 
               label="Totale Movimenti" 
@@ -520,46 +563,56 @@ const HistoryView = memo(({ history = [], isLoading, error, setView, fetchHistor
           </div>
         </div>
 
-        {/* TanStack Virtualized Table or StateBlock */}
-        {error ? (
-          <StateBlock
-            state="error"
-            description={error}
-            action={fetchHistory && (
-              <button 
-                onClick={handleRefresh}
-                className="mt-2 px-6 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold hover:opacity-90 transition-opacity"
-              >
-                Riprova
-              </button>
-            )}
-          />
-        ) : isLoading && filteredHistory.length === 0 ? (
-          <StateBlock state="loading" title="Caricamento storico..." skeletonShape="row" loadingMode="skeleton" />
-        ) : filteredHistory.length === 0 ? (
-          <StateBlock 
-            state="empty" 
-            emptyVariant={activeFiltersCount > 0 ? "filtered" : "generic"}
-            action={activeFiltersCount > 0 ? (
-              <button
-                onClick={handleResetFilters}
-                className="glass-button rounded-xl px-4 py-2 app-overline text-accent-orange bg-accent-orange/10 border border-accent-orange/30 hover:bg-accent-orange/20 transition-all flex items-center gap-1.5 mx-auto"
-              >
-                <X size={14} /> Resetta tutti i filtri
-              </button>
-            ) : null}
-          />
-        ) : (
-          <VirtualizedTable
-            table={table}
-            density={density}
-            estimateRowSize={density === 'compact' ? 44 : 56}
-            onRowClick={(item) => setSelectedLog(item)}
-            renderRowTrailing={() => (
-              <Info size={14} className="text-slate-400 group-hover:text-accent-blue transition-colors" />
-            )}
-          />
-        )}
+        {/* Table Wrapper with showDensityToggle={true} (§5.2) */}
+        <TableWrapper
+          showDensityToggle={showDensityToggle}
+          density={density}
+          onToggleDensity={() => setDensity(d => (d === 'compact' ? 'comfortable' : 'compact'))}
+          count={filteredHistory.length}
+          showHeader={!error && !(isLoading && filteredHistory.length === 0)}
+        >
+          {/* TanStack Virtualized Table or StateBlock */}
+          {error ? (
+            <StateBlock
+              state="error"
+              description={error}
+              action={fetchHistory && (
+                <button 
+                  onClick={handleRefresh}
+                  className="action-btn action-btn-primary px-6 py-2 rounded-xl text-sm font-black"
+                >
+                  Riprova
+                </button>
+              )}
+            />
+          ) : isLoading && filteredHistory.length === 0 ? (
+            <StateBlock state="loading" title="Caricamento storico..." skeletonShape="row" loadingMode="skeleton" />
+          ) : filteredHistory.length === 0 ? (
+            <StateBlock 
+              state="empty" 
+              variant={searchQuery.trim() ? "search" : (activeFiltersCount > 0 ? "filtered" : "generic")}
+              searchTerm={searchQuery.trim()}
+              action={activeFiltersCount > 0 || searchQuery.trim() ? (
+                <button
+                  onClick={handleResetFilters}
+                  className="glass-button rounded-xl px-4 py-2 app-overline text-accent-orange bg-accent-orange/10 border border-accent-orange/30 hover:bg-accent-orange/20 transition-all flex items-center gap-1.5 mx-auto"
+                >
+                  <X size={14} /> Resetta {searchQuery.trim() ? 'ricerca e filtri' : 'tutti i filtri'}
+                </button>
+              ) : null}
+            />
+          ) : (
+            <VirtualizedTable
+              table={table}
+              density={density}
+              estimateRowSize={density === 'compact' ? 44 : 56}
+              onRowClick={(item) => setSelectedLog(item)}
+              renderRowTrailing={() => (
+                <Info size={14} className="text-slate-400 group-hover:text-accent-blue transition-colors" />
+              )}
+            />
+          )}
+        </TableWrapper>
       </PageContent>
 
       {/* Log Detail Modal */}

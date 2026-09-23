@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Send, ShoppingCart, CheckCircle2 } from 'lucide-react';
+import { Send, ShoppingCart, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { buildDesc } from '../../lib/toolUtils';
 import { Dialog, DialogContent, DialogTitle, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/dialog";
@@ -66,15 +66,17 @@ const OrderModal = ({ tool, onClose, currentUser, onSuccess }) => {
       <DialogContent showCloseButton={false} size="md" className="p-0 gap-0 overflow-hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border dark:border-white/10 border-slate-900/10 shadow-2xl focus:outline-none">
         <DialogTitle className="sr-only">Crea Ordine</DialogTitle>
         {showSuccess ? (
-          <div className="flex flex-col items-center justify-center p-8 sm:p-12 min-h-[320px] text-center">
-            <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border-2 border-emerald-500/30 flex items-center justify-center mb-4 text-emerald-500 shadow-lg animate-in zoom-in-75 duration-300">
-              <CheckCircle2 size={32} />
+          <ModalBody>
+            <div className="flex flex-col items-center justify-center p-8 sm:p-12 min-h-[320px] text-center">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border-2 border-emerald-500/30 flex items-center justify-center mb-4 text-emerald-500 shadow-lg animate-in zoom-in-75 duration-300">
+                <CheckCircle2 size={32} />
+              </div>
+              <h3 className="app-h2 text-slate-900 dark:text-white mb-1">Ordine Inviato</h3>
+              <p className="app-body text-slate-500 dark:text-slate-400 max-w-xs">
+                La richiesta di riassortimento per <strong className="text-slate-900 dark:text-white">{qty} pezzi</strong> è stata registrata con successo.
+              </p>
             </div>
-            <h3 className="app-h2 text-slate-900 dark:text-white mb-1">Ordine Inviato</h3>
-            <p className="app-body text-slate-500 dark:text-slate-400 max-w-xs">
-              La richiesta di riassortimento per <strong className="text-slate-900 dark:text-white">{qty} pezzi</strong> è stata registrata con successo.
-            </p>
-          </div>
+          </ModalBody>
         ) : (
           <>
             <ModalHeader 
