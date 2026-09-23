@@ -20,6 +20,28 @@ Questo file tiene traccia in ordine cronologico inverso di tutte le implementazi
 
 ---
 
+## [2026-09-23] - Ottimizzazione Architettura Catalogo, Cache IndexedDB, Ricerca a 0ms e Microeventi Realtime
+- **Tag**: `[PERF]` / `[FEAT]` / `[FIX]`
+- **Descrizione**:
+  - **Superamento Limite 1.000 righe PostgREST**: Implementata architettura con funzione SQL `get_tools_catalog()` e fallback resiliente a chunked range batching su `useInventoryStore`. Tutti i 1.340+ utensili nel database vengono ora caricati ed esposti correttamente (i record oltre riga 1.000 erano precedentemente esclusi dal client).
+  - **Cache Offline-First su IndexedDB (`catalogCache.js`)**: Catalogo memorizzato in locale in IndexedDB nativo (zero dipendenze esterne) per avvio istantaneo (< 5ms) e piena operatività PWA in officina anche in caso di instabilità Wi-Fi.
+  - **Microeventi Supabase Realtime a 360°**: Attivata la replica Realtime cross-device su `Utensili_B1` (aggiornamento live giacenze), `movements_history` (notifica istantanea movimenti tra colleghi) e `commesse`.
+  - **Ricerca Ultra-Reattiva a 0ms (`searchUtils.js`)**: Introdotta pre-indicizzazione in memoria `_searchIndex` con tolleranza bidirezionale completa per separatori decimali (`D4,5` ↔ `D4.5`), notazione diametro (`Ø16` ↔ `D16`), frazioni in pollici (`1/4`, `15/32`) e ricerche multi-termine non ordinate.
+  - **Bugfix UI**: Risolto leak della chiave interna `_searchIndex` dalla visualizzazione delle specifiche tecniche nel `MovementModal`.
+- **File Coinvolti**:
+  - `src/lib/catalogCache.js` (NEW)
+  - `src/lib/searchUtils.js` (NEW)
+  - `supabase/migrations/20260923_catalog_rpc_and_realtime.sql` (NEW)
+  - `src/store/useInventoryStore.js`
+  - `src/store/useCommesseStore.js`
+  - `src/App.jsx`
+  - `src/features/filters/DropdownFilterView.jsx`
+  - `src/features/scanner/ScannerView.jsx`
+  - `src/features/inventory/AddToolToMultiModal.jsx`
+  - `src/features/inventory/MovementModal.jsx`
+
+---
+
 ## [2026-09-19] - Fix lag critico su cambi vista e interazioni (Virtualizzazione TanStack)
 - **Tag**: `[PERF]` / `[FIX]`
 - **Descrizione**:

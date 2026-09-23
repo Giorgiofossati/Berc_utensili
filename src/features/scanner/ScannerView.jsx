@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowDown, ArrowUp, Search, X, Camera } from 'lucide-react';
 import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
 import BarcodeScanner from './BarcodeScanner';
-import { buildDesc } from '../../lib/toolUtils';
+import { toolMatchesQuery } from '../../lib/searchUtils';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useInventoryStore } from '../../store/useInventoryStore';
@@ -23,24 +23,7 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
 
   const filteredTools = useMemo(() => {
     if (!manualCode || manualCode.trim().length < 1) return [];
-    const query = manualCode.trim().toLowerCase();
-    const terms = query.split(/\s+/).filter(Boolean);
-
-    return (tools || []).filter(t => {
-      const codice = String(t['Codice'] || '').toLowerCase();
-      const desc = String(t['Descrizione'] || '').toLowerCase();
-      const tipologia = String(t['Tipologia'] || '').toLowerCase();
-      const forma = String(t['Forma'] || '').toLowerCase();
-      const fornitore = String(t['Fornitore'] || '').toLowerCase();
-      const ubicazione = String(t['Ubicazione'] || '').toLowerCase();
-      const serialnumber = String(t['Serial Number'] || t['SerialNumber'] || '').toLowerCase();
-      const diametro = String(t['Diametro'] || '').toLowerCase();
-      const fullDesc = buildDesc(t).toLowerCase();
-
-      const targetText = `${codice} ${desc} ${tipologia} ${forma} ${diametro} ${fornitore} ${ubicazione} ${serialnumber} ${fullDesc}`;
-
-      return terms.every(term => targetText.includes(term));
-    });
+    return (tools || []).filter(t => toolMatchesQuery(t, manualCode));
   }, [manualCode, tools]);
 
   const isSearchMode = manualCode.trim().length > 0;

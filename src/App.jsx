@@ -11,6 +11,7 @@ import { useInventoryStore } from './store/useInventoryStore';
 import { useMovementStore } from './store/useMovementStore';
 import { useMultiMovementStore } from './store/useMultiMovementStore';
 import { useNavigationStore } from './store/useNavigationStore';
+import { useCommesseStore } from './store/useCommesseStore';
 import { useFilters } from './hooks/useFilters';
 
 // Lazy load only secondary admin/separate views
@@ -47,6 +48,10 @@ function App() {
   
   const tools = useInventoryStore(state => state.tools);
   const fetchTools = useInventoryStore(state => state.fetchTools);
+  const initInventoryRealtime = useInventoryStore(state => state.initRealtime);
+  const cleanupInventoryRealtime = useInventoryStore(state => state.cleanupRealtime);
+  const initCommesseRealtime = useCommesseStore(state => state.initRealtime);
+  const cleanupCommesseRealtime = useCommesseStore(state => state.cleanupRealtime);
   
   const {
     filterStack, setFilterStack,
@@ -127,9 +132,46 @@ function App() {
 
   const mainRef = useRef(null);
 
+  const fetchHistory = useCallback(async () => {
+    setIsHistoryLoading(true);
+    setHistoryError(null);
+    try {
+      const { data, error } = await supabase.from('movements_history').select('*, Utensili_B1(*), commesse(codice, ubicazione)').order('created_at', { ascending: false });
+      if (error) {
+        setHistoryError(error.message);
+      } else {
+        setHistory(data || []);
+      }
+    } catch(e) {
+      console.error(e);
+      setHistoryError(e.message);
+    } finally {
+      setIsHistoryLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchTools();
-  }, [fetchTools]);
+    initInventoryRealtime();
+    initCommesseRealtime();
+
+    const historyChannel = supabase
+      .channel('realtime:movements_history')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'movements_history' },
+        () => {
+          fetchHistory();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      cleanupInventoryRealtime();
+      cleanupCommesseRealtime();
+      supabase.removeChannel(historyChannel);
+    };
+  }, [fetchTools, initInventoryRealtime, cleanupInventoryRealtime, initCommesseRealtime, cleanupCommesseRealtime, fetchHistory]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -153,24 +195,6 @@ function App() {
       return () => clearTimeout(timer);
     }
   }, [currentUser, startTutorial]);
-
-  const fetchHistory = async () => {
-    setIsHistoryLoading(true);
-    setHistoryError(null);
-    try {
-      const { data, error } = await supabase.from('movements_history').select('*, Utensili_B1(*), commesse(codice, ubicazione)').order('created_at', { ascending: false });
-      if (error) {
-        setHistoryError(error.message);
-      } else {
-        setHistory(data || []);
-      }
-    } catch(e) {
-      console.error(e);
-      setHistoryError(e.message);
-    } finally {
-      setIsHistoryLoading(false);
-    }
-  };
 
   const addMultiItem = useMultiMovementStore(state => state.addItem);
 

@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 
+let commesseRealtimeChannel = null;
+
 export const useCommesseStore = create((set, get) => ({
   commesse: [],
   isLoading: false,
@@ -60,7 +62,9 @@ export const useCommesseStore = create((set, get) => ({
 
       // Aggiornamento immediato dello store locale
       const currentCommesse = get().commesse;
-      set({ commesse: [data, ...currentCommesse] });
+      if (!currentCommesse.some(c => c.id === data.id)) {
+        set({ commesse: [data, ...currentCommesse] });
+      }
 
       return { success: true, data };
     } catch (err) {
@@ -153,6 +157,43 @@ export const useCommesseStore = create((set, get) => ({
     } catch (err) {
       console.error('Eccezione durante l\'eliminazione della commessa:', err);
       return { success: false, error: err };
+    }
+  },
+
+  initRealtime: () => {
+    if (commesseRealtimeChannel) return;
+
+    commesseRealtimeChannel = supabase
+      .channel('realtime:commesse')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'commesse' },
+        (payload) => {
+          const { eventType, new: newRecord, old: oldRecord } = payload;
+          const current = get().commesse;
+
+          if (eventType === 'INSERT' && newRecord) {
+            if (!current.some(c => c.id === newRecord.id)) {
+              set({ commesse: [newRecord, ...current] });
+            }
+          } else if (eventType === 'UPDATE' && newRecord) {
+            set({
+              commesse: current.map(c => c.id === newRecord.id ? { ...c, ...newRecord } : c)
+            });
+          } else if (eventType === 'DELETE' && oldRecord) {
+            set({
+              commesse: current.filter(c => c.id !== oldRecord.id)
+            });
+          }
+        }
+      )
+      .subscribe();
+  },
+
+  cleanupRealtime: () => {
+    if (commesseRealtimeChannel) {
+      supabase.removeChannel(commesseRealtimeChannel);
+      commesseRealtimeChannel = null;
     }
   }
 }));

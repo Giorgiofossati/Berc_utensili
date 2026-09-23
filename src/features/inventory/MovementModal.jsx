@@ -55,7 +55,7 @@ const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
   const isConfirmDisabled = currentQtyNum <= 0 || isExceedingStock || (opType === 'scarico' && isZeroStock);
 
   // Fields to exclude from the details view
-  const excludedKeys = ['id', 'Check', 'Alias'];
+  const excludedKeys = ['id', 'Check', 'Alias', '_searchIndex'];
 
   // Identify if we are in Step 1 (Details) or Step 2 (Movement Operation)
   const isDetailsStep = !opType;
@@ -94,7 +94,7 @@ const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
     };
 
     const details = Object.entries(selectedTool).filter(([k, v]) => {
-      if (excludedKeys.includes(k)) return false;
+      if (k.startsWith('_') || excludedKeys.includes(k)) return false;
       if (v === null || v === undefined || v === '') return false;
       // Filter out only Quantità which is shown as the big number at the top
       if (k === 'Quantità') return false;

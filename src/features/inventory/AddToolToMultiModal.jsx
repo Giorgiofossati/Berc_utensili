@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect, memo } from 'react';
 import { Search, X, Layers } from 'lucide-react';
 import { Dialog, DialogContent, ModalHeader, ModalBody } from "@/components/ui/dialog";
 import { buildDesc } from '../../lib/toolUtils';
+import { toolMatchesQuery } from '../../lib/searchUtils';
 import { useInventoryStore } from '../../store/useInventoryStore';
 import { useMultiMovementStore } from '../../store/useMultiMovementStore';
 import ToolsGrid from './ToolsGrid';
@@ -24,24 +25,8 @@ const AddToolToMultiModal = memo(({ isOpen, onClose, showToastNotification }) =>
   }, [isOpen]);
 
   const filteredTools = useMemo(() => {
-    const cleanQuery = query.trim().toLowerCase();
-    if (!cleanQuery) return tools;
-
-    const tokens = cleanQuery.split(/\s+/).filter(Boolean);
-
-    return tools.filter(tool => {
-      const desc = buildDesc(tool).toLowerCase();
-      const code = String(tool['Codice'] || '').toLowerCase();
-      const tipologia = String(tool['Tipologia'] || '').toLowerCase();
-      const forma = String(tool['Forma'] || '').toLowerCase();
-      const diametro = String(tool['Diametro'] || '').toLowerCase();
-      const fornitore = String(tool['Fornitore'] || '').toLowerCase();
-      const ubicazione = String(tool['Ubicazione'] || '').toLowerCase();
-      const serial = String(tool['SerialNumber'] || tool['Serial Number'] || '').toLowerCase();
-
-      const fullText = `${desc} ${code} ${tipologia} ${forma} ${diametro} ${fornitore} ${ubicazione} ${serial}`;
-      return tokens.every(token => fullText.includes(token));
-    });
+    if (!query || !query.trim()) return tools;
+    return tools.filter(tool => toolMatchesQuery(tool, query));
   }, [tools, query]);
 
   const handleSelectTool = (tool) => {

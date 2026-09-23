@@ -7,7 +7,7 @@ import ToolsGrid from '../inventory/ToolsGrid';
 import { EXTRA_FILTER_KEYS } from '../inventory/constants';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useFilterStore } from '../../store/useFilterStore';
-import { buildDesc } from '../../lib/toolUtils';
+import { toolMatchesQuery } from '../../lib/searchUtils';
 
 const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, initialFilters = {}, onFilterChange, viewMode, setViewMode }) => {
   const isSelectionMode = useFilterStore(state => state.isSelectionMode);
@@ -88,24 +88,7 @@ const DropdownFilterView = memo(({ tools: allTools, onSelectTool, isMobile, init
     });
 
     if (searchQuery && searchQuery.trim().length > 0) {
-      const query = searchQuery.trim().toLowerCase();
-      const terms = query.split(/\s+/).filter(Boolean);
-
-      result = result.filter(t => {
-        const codice = String(t['Codice'] || '').toLowerCase();
-        const desc = String(t['Descrizione'] || '').toLowerCase();
-        const tipologia = String(t['Tipologia'] || '').toLowerCase();
-        const forma = String(t['Forma'] || '').toLowerCase();
-        const fornitore = String(t['Fornitore'] || '').toLowerCase();
-        const ubicazione = String(t['Ubicazione'] || '').toLowerCase();
-        const serialnumber = String(t['Serial Number'] || t['SerialNumber'] || '').toLowerCase();
-        const diametro = String(t['Diametro'] || '').toLowerCase();
-        const fullDesc = buildDesc(t).toLowerCase();
-
-        const targetText = `${codice} ${desc} ${tipologia} ${forma} ${diametro} ${fornitore} ${ubicazione} ${serialnumber} ${fullDesc}`;
-
-        return terms.every(term => targetText.includes(term));
-      });
+      result = result.filter(t => toolMatchesQuery(t, searchQuery));
     }
 
     return result;
