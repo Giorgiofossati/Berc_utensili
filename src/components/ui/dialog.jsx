@@ -64,7 +64,7 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-[var(--z-dialog)] grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-modal,32px)] bg-background p-0 text-foreground border shadow-2xl duration-200 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 overflow-hidden",
+          "fixed top-1/2 left-1/2 z-[var(--z-dialog)] flex flex-col w-full max-w-[calc(100%-2rem)] max-h-[calc(100dvh-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-modal,32px)] bg-background p-0 text-foreground border shadow-2xl duration-200 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 overflow-hidden",
           dialogSizes[size] || dialogSizes.md,
           className
         )}
@@ -115,7 +115,7 @@ export function ModalHeader({ icon, overline, title, subtitle, badge, className 
 
 export function ModalBody({ children, className }) {
   return (
-    <div className={cn("p-6 sm:p-8 overflow-y-auto custom-scrollbar max-h-[85vh]", className)}>
+    <div className={cn("p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-1 min-h-0", className)}>
       {children}
     </div>
   );
