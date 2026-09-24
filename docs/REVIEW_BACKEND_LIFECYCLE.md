@@ -66,3 +66,33 @@ D'accordo sul rilascio contemporaneo. Lato frontend:
 ## Prompt di correzione per Gemini
 
 > Leggi `docs/REVIEW_BACKEND_LIFECYCLE.md`. Correggi **tutti** i punti A e B e i punti C1-C10, modificando le migration `20260924_lifecycle_*` esistenti (non sono ancora state applicate, quindi puoi riscriverle). Il punto A5 cambia il contratto: l'indice unico su `movements_history` va eliminato. Poi esegui davvero `supabase/tests/lifecycle_fase2.sql`, `lifecycle_fase3.sql` e `lifecycle_fase4.sql` su un database di prova, aggiungendo gli scenari mancanti di §9.1 (7-12 in fase 2, doppio annullo, rientro con mucchietto esistente, prelievo da due mucchietti, dashboard con storico pre-migrazione). Riporta l'output reale scenario per scenario. **Non riscrivere `CHANGELOG.md`: aggiungi una voce in cima.** Sposta `test.sql` in `supabase/tests/`.
+
+---
+
+## F. Seconda verifica (Claude, 2026-09-24, dopo le correzioni di Gemini)
+
+La voce nel CHANGELOG dichiarava corretti tutti i punti A, B e C. La verifica sui file dice altro.
+
+**Corretti** ✅: A1 (niente più Python), A2 (nomi colonne `Utensili_B1`), A4 (DELETE invece di UPDATE a zero), A9 (rientro con upsert), B1 (`COALESCE` sul permesso), B2 (dashboard filtrata per tipo di scarto), B5 (`'Attiva'`), B8 (controllo destinazione cassetto).
+
+**Ancora aperti** ❌ (riga indicativa):
+
+| # | Dove | Stato attuale |
+|---|---|---|
+| A3 | `lifecycle_2` r. ~386, `deposita` | `AND p_quantita >= quantita`: la colonna è `quantita_richiesta`. |
+| **A5** | `lifecycle_1` r. ~127 | L'indice unico `idx_movements_history_id_operazione_parziale` c'è ancora: blocca prelievi da più mucchietti, spedizioni e rientri con due righe dello stesso utensile. |
+| **A6** | `lifecycle_4` r. ~282 e ~357 | `ON CONFLICT (… COALESCE(…))` ancora presente: **il deposito dell'app attuale si rompe**. |
+| A7 | `lifecycle_3` r. ~145, ~172, ~176 | Ancora `RAISE EXCEPTION 'CODICE' USING … MESSAGE = '{…}'` in `spedisci_cestello` (e controllare `aggiorna_ddt`). |
+| A8 | `lifecycle_3` r. ~113 | `ORDER BY sr.data_invio DESC` ancora fuori da `jsonb_agg`. |
+| B3 | `lifecycle_2` r. ~511, `smonta` esito `buono` | Ancora `'scarico'` al posto di `'smontaggio_rientro'`. |
+| B4 | `lifecycle_3` r. ~95 e ~313 | Gli scarti ora si scrivono come `'scarto_fornitore'` (r. 363) ma si **leggono** ancora come `'scarico'`: in `get_riaffilature` e nella risposta idempotente di `rientra_spedizione` gli scartati risultano sempre 0. |
+| B6 | `lifecycle_2`, `smonta` | Nessun controllo: `rotto` senza causale è ancora accettato. |
+| B7 | `lifecycle_2`, `annulla_operazione` | Nessun controllo `gia_annullata`: il doppio annullo duplica ancora i pezzi. |
+| C1 | `lifecycle_2` r. ~51 | `ultimo_uso_operatore` non è ancora filtrato per operatore. |
+| C4 | `lifecycle_2` r. ~383 | `deposita` scrive ancora `luogo_da = 'fornitore'`. |
+
+**Nota di processo**: nella root restano gli script di lavoro `fix_*.py`, `update_*.py`, `rientra.txt` e le cartelle `supabase/migrations_backup/`, `supabase/tests_backup/`, oltre a `test.sql`. Vanno eliminati (o spostati fuori dal progetto) prima del merge.
+
+### Prompt per Gemini (seconda passata)
+
+> Leggi la sezione **F** di `docs/REVIEW_BACKEND_LIFECYCLE.md`: sono i punti rimasti aperti dopo la tua correzione. Correggili tutti nelle migration `20260924_lifecycle_*`. Poi, **senza usare script di sostituzione automatica**, verifica ogni punto aprendo il file e riportami per ciascuno la riga corretta. Esegui i test SQL su un database di prova e riporta l'output reale. Aggiungi in cima a `CHANGELOG.md` (sotto l'intestazione, nel formato `## [YYYY-MM-DD] - Titolo` con Tag/Descrizione/File) una voce che elenca **solo** i punti davvero corretti. Infine elimina dalla root `fix_*.py`, `update_*.py`, `rientra.txt`, `test.sql` e le cartelle `supabase/*_backup/`.
