@@ -183,7 +183,7 @@ const DropdownFilterView = memo(({
         {mobileFiltersAccessory}
       </div>
 
-      <PageToolbar className={`flex-wrap h-auto min-h-[44px] pt-3 pb-1 border-b-0 ${isMobile && !isFiltersExpanded ? "hidden" : ""}`}>
+      <PageToolbar className={`flex-wrap h-auto min-h-[44px] pt-3 pb-1 border-b-0 px-2 md:px-4 lg:px-8 ${isMobile && !isFiltersExpanded ? "hidden" : ""}`}>
       <AnimatePresence>
         {(isFiltersExpanded || !isMobile) && (
           <motion.div 
@@ -192,7 +192,7 @@ const DropdownFilterView = memo(({
             exit={isMobile ? { height: 0, opacity: 0 } : false}
             className="overflow-hidden min-w-0 w-full"
           >
-            <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2 px-2 pb-2">
+            <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2 pb-2">
               {filterKeys.map(key => {
                 const isDisabled = !filters[key] && (!filterOptions[key] || filterOptions[key].length === 0);
                 return (
@@ -211,7 +211,7 @@ const DropdownFilterView = memo(({
                     >
                       <SelectTrigger 
                         disabled={isDisabled}
-                        className={`max-md:h-11 glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all w-full ${filters[key] ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'} ${isDisabled ? 'opacity-40 disabled:opacity-40 pointer-events-none hover:bg-transparent shadow-none' : ''}`}
+                        className={`max-md:h-11! glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all w-full ${filters[key] ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'} ${isDisabled ? 'opacity-40 disabled:opacity-40 pointer-events-none hover:bg-transparent shadow-none' : ''}`}
                       >
                         <span className="truncate"><SelectValue placeholder={LABELS[key] || key} /></span>
                       </SelectTrigger>

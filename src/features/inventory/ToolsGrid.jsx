@@ -299,7 +299,7 @@ const ToolsGrid = memo(({
                     value={extraFilters[key] && extraFilters[key] !== 'all' ? String(extraFilters[key]) : null}
                     onValueChange={(val) => setFilter(key, val === 'all' ? '' : val)}
                   >
-                    <SelectTrigger className={`max-md:h-11 glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all min-w-[95px] md:min-w-[120px] ${extraFilters[key] && extraFilters[key] !== 'all' ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'}`}>
+                    <SelectTrigger className={`max-md:h-11! glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all min-w-[95px] md:min-w-[120px] ${extraFilters[key] && extraFilters[key] !== 'all' ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'}`}>
                       <SelectValue placeholder={label} />
                     </SelectTrigger>
                     <SelectContent className="glass-panel z-50 border-white/10 dark:bg-slate-950/90 bg-white/90 backdrop-blur-xl">
