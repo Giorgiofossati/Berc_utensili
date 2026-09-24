@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowDown, ArrowUp, Search, Info } from 'lucide-react';
+import { ArrowDown, ArrowUp, Search, Info, Camera } from 'lucide-react';
 import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
 import BarcodeScanner from './BarcodeScanner';
 import { SegmentedControl } from '@/components/ui/segmented-control';
@@ -124,6 +124,15 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
                   : "Digita un codice aziendale, una misura (es. D16) o una descrizione per trovare gli utensili a magazzino, oppure premi l'icona fotocamera per scansionare il codice a barre."
                 }
               </p>
+
+              {/* Fotocamera: azione principale della pagina, grande e sempre raggiungibile (anche su mobile) */}
+              <button
+                type="button"
+                onClick={() => setShowCamera(true)}
+                className="action-btn action-btn-primary h-12 px-6 mb-6 max-w-full rounded-xl flex items-center justify-center gap-2 text-sm font-black uppercase tracking-wider whitespace-nowrap"
+              >
+                <Camera size={20} /> Apri fotocamera
+              </button>
 
               {/* Quick suggestion chips */}
               <div className="flex flex-wrap items-center justify-center gap-2 max-w-lg">

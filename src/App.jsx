@@ -36,7 +36,7 @@ import AppTutorial from './components/common/AppTutorial';
 import HelpFloatingButton from './components/common/HelpFloatingButton';
 import { useTutorialStore } from './store/useTutorialStore';
 import { preloadToolImages } from './lib/toolUtils';
-import { PageTemplate, PageHeader } from './components/layout/PageTemplate';
+import { PageTemplate, PageHeader, ResetFiltersButton } from './components/layout/PageTemplate';
 import { IconMenu } from './components/ui/icon-button';
 import { EXTRA_FILTER_KEYS } from './features/inventory/constants';
 
@@ -45,6 +45,36 @@ const FILTER_ORDER = ['Tipologia', 'Forma', 'Diametro', ...EXTRA_FILTER_KEYS.map
 
 // Preload static tool images in memory immediately
 preloadToolImages();
+
+// Toggle elenco/griglia (§2.2). Da md sta nella barra; su mobile sta accanto a "Mostra filtri"
+// (vista elenco e tabella del 3° livello) o nella stessa posizione, da solo, sopra la griglia.
+function ViewModeToggle({ viewMode, setViewMode, className, tour }) {
+  return (
+    <div
+      data-tour={tour ? 'view-mode-toggle' : undefined}
+      role="group"
+      aria-label="Tipo di vista"
+      className={`shrink-0 flex items-center h-11 p-1 rounded-[var(--radius-control,12px)] bg-slate-900/5 dark:bg-white/5 border border-slate-900/5 dark:border-white/5 ${className || ''}`}
+    >
+      {[
+        { mode: 'dropdown', label: 'Vista a elenco', icon: <List size={16} /> },
+        { mode: 'grid', label: 'Vista a griglia', icon: <LayoutGrid size={16} /> },
+      ].map(opt => (
+        <button
+          key={opt.mode}
+          type="button"
+          onClick={() => setViewMode(opt.mode)}
+          aria-label={opt.label}
+          aria-pressed={viewMode === opt.mode}
+          title={opt.label}
+          className={`w-9 h-full rounded-lg flex items-center justify-center transition-colors duration-[var(--motion-fast,150ms)] ${viewMode === opt.mode ? 'bg-white dark:bg-slate-800 text-accent-blue shadow-sm ring-1 ring-accent-blue/30' : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+        >
+          {opt.icon}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 function App() {
   const currentUser = useAuthStore(state => state.currentUser);
@@ -303,9 +333,11 @@ function App() {
     { label: 'Reset filtri', icon: <RotateCcw size={16} />, onClick: handleResetAll, disabled: !hasActiveFilters, destructive: true },
   ];
 
+  const mobileViewToggle = <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} className="md:hidden" tour={isMobile} />;
+
   const renderGridHome = () => {
     if (currentLevel >= 2 && currentLevel < 3) return (
-      <div className="@container w-full flex-1 flex flex-col items-center justify-center my-auto px-2 sm:px-4 md:px-6 py-2 overflow-hidden">
+      <div className="@container w-full flex-1 flex flex-col items-center justify-center-safe my-auto px-2 sm:px-4 md:px-6 py-2 overflow-hidden">
         <DiameterList 
           diameters={diameters} 
           tools={filteredByStack} 
@@ -319,6 +351,7 @@ function App() {
         onSelectTool={handleSelectToolFromGrid} 
         isMobile={isMobile} 
         selectionMode="toggle"
+        mobileFiltersAccessory={mobileViewToggle}
       />
     );
     if (!options || options.length === 0) return null;
@@ -369,6 +402,7 @@ function App() {
                       crumbs={inventoryCrumbs}
                       searchPlaceholder={inventoryCrumbs.length > 1 ? `Cerca in ${inventoryCrumbs[inventoryCrumbs.length - 1].label}…` : 'Cerca codice, misura (es. D16)…'}
                       showBack={filterStack.length > 0}
+                      crumbsTrailing={hasActiveFilters && <ResetFiltersButton placement="trailing" onClick={handleResetAll} />}
                       onBack={() => {
                         setFilterStack(prev => {
                           let nextStack = [...prev];
@@ -381,46 +415,25 @@ function App() {
                       }}
                       action={
                         <>
-                          <div data-tour="view-mode-toggle" role="group" aria-label="Tipo di vista" className="flex items-center h-11 p-1 rounded-[var(--radius-control,12px)] bg-slate-900/5 dark:bg-white/5 border border-slate-900/5 dark:border-white/5">
-                            {[
-                              { mode: 'dropdown', label: 'Vista a elenco', icon: <List size={16} /> },
-                              { mode: 'grid', label: 'Vista a griglia', icon: <LayoutGrid size={16} /> },
-                            ].map(opt => (
-                              <button
-                                key={opt.mode}
-                                type="button"
-                                onClick={() => setViewMode(opt.mode)}
-                                aria-label={opt.label}
-                                aria-pressed={viewMode === opt.mode}
-                                title={opt.label}
-                                className={`w-9 h-full rounded-lg flex items-center justify-center transition-colors duration-[var(--motion-fast,150ms)] ${viewMode === opt.mode ? 'bg-white dark:bg-slate-800 text-accent-blue shadow-sm ring-1 ring-accent-blue/30' : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-                              >
-                                {opt.icon}
-                              </button>
-                            ))}
-                          </div>
-                          {hasActiveFilters && (
-                            <button
-                              type="button"
-                              onClick={handleResetAll}
-                              className="hidden lg:flex h-11 items-center gap-1.5 px-3.5 rounded-[var(--radius-control,12px)] glass-button border border-accent-rose/25 text-accent-rose hover:bg-accent-rose/10 text-xs font-black uppercase tracking-wider whitespace-nowrap transition-colors"
-                            >
-                              <X size={14} /> Reset filtri
-                            </button>
-                          )}
+                          <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} className="max-md:hidden" tour={!isMobile} />
+                          {hasActiveFilters && <ResetFiltersButton onClick={handleResetAll} />}
                           <IconMenu items={inventoryMenuItems} ariaLabel="Altre azioni inventario" className="glass-button border border-slate-900/10 dark:border-white/10" />
                         </>
                       }
                     />
                     {viewMode === 'grid' ? (
                       <>
-                        <div className={`w-full flex-1 flex flex-col items-center justify-center min-h-0 @container ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar py-2 md:py-0' : ''}`}>
+                        {/* Mobile: il toggle vista sta dove starebbe accanto a "Mostra filtri" (dal 3° livello lo porta ToolsGrid) */}
+                        {currentLevel < 3 && (
+                          <div className="md:hidden flex justify-end px-2 pt-2 shrink-0">{mobileViewToggle}</div>
+                        )}
+                        <div className={`w-full flex-1 flex flex-col items-center justify-center-safe min-h-0 @container ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar py-2 md:py-0' : ''}`}>
                           {renderGridHome()}
                         </div>
                       </>
                     ) : (
                       <div className="w-full flex-1 flex flex-col items-center min-h-0">
-                        <DropdownFilterView tools={tools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} initialFilters={Object.fromEntries(filterStack.map(f => [f.type, f.value]))}
+                        <DropdownFilterView tools={tools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} mobileFiltersAccessory={mobileViewToggle} initialFilters={Object.fromEntries(filterStack.map(f => [f.type, f.value]))}
                           onFilterChange={(newFilters) => {
                             const newStack = Object.entries(newFilters)
                               .filter(([, v]) => v)

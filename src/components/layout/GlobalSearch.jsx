@@ -25,10 +25,10 @@ export const SearchField = memo(({
   const inputRef = useRef(null);
   const [isFocused, setIsFocused] = useState(false);
 
-  const isActive = isFocused || value.length > 0;
+  const hasValue = value.length > 0;
   useEffect(() => {
-    onActiveChange?.(isActive);
-  }, [isActive, onActiveChange]);
+    onActiveChange?.({ focused: isFocused, hasValue });
+  }, [isFocused, hasValue, onActiveChange]);
 
   // ⌘K / Ctrl+K porta il focus nella ricerca della vista corrente, Esc la lascia
   useEffect(() => {
@@ -95,7 +95,7 @@ export const SearchField = memo(({
         </button>
       )}
 
-      <kbd className="hidden @min-[260px]:inline-flex h-5 mr-3 select-none items-center gap-0.5 rounded border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 px-1.5 font-mono text-xs font-bold text-slate-400 shrink-0">
+      <kbd className="hidden md:@min-[260px]:inline-flex h-5 mr-3 select-none items-center gap-0.5 rounded border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 px-1.5 font-mono text-xs font-bold text-slate-400 shrink-0">
         <span>⌘</span>K
       </kbd>
     </div>

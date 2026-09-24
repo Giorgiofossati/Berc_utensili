@@ -121,6 +121,8 @@ Scala tessere griglia inventario:
 - **Diametro/sigla (livello 2)**: griglia `auto-fill / minmax(130px, 1fr)`, altezza minima omogenea `min-h-[82px] sm:min-h-[88px]`, stesso `--radius-card`.
 - **Card interne liste** (queue drawer, righe utente): altezza automatica densa (`p-3 sm:p-4`), raggio intermedio `20-24px`.
 
+**Centraggio verticale dentro un contenitore che scorre** *(bug reale osservato, 2026-09-24)*: `justify-center` su un contenitore `overflow-y-auto` fa uscire il contenuto **sopra** il bordo quando è più alto dello spazio — la prima riga di tessere categoria su mobile finiva sotto la barra, irraggiungibile (lo scroll non arriva sopra lo 0). Regola: dentro un contenitore che scorre si usa sempre `justify-center-safe` (Tailwind v4), mai `justify-center`.
+
 ### 1.9 Scala spacing & padding
 
 > **Prototipo approvato**: rifiniture UI round 1, 2026-09-19.
@@ -250,8 +252,8 @@ Due caselle affiancate con la stessa forma (`h-11`, `--radius-control`, bordo, s
    - Ogni segmento non corrente è un `button` che riporta a quel livello; l'ultimo è il livello corrente (`aria-current="page"`, grassetto, non cliccabile).
    - Il primo segmento è la radice della vista con icona (es. 📦 Inventario); sotto `sm` resta solo l'icona.
    - Il separatore `›` tra due segmenti, **quando il livello ha alternative**, è un bottone che apre il menu degli elementi dello stesso livello ("fratelli") con quello corrente evidenziato: da Fresa › Candela si passa a Fresa › Sferica senza tornare indietro. Se non ci sono alternative il `›` è solo grafico.
-   - Viste senza gerarchia (Storico, Commesse, Operatori, Scanner, Movimento Multiplo): percorso = `Sezione › Titolo` (es. Magazzino › Storico movimenti), con la sezione non cliccabile — non esiste una pagina "Magazzino".
-   - Mobile (`< md`): i livelli intermedi collassano in un `…` che apre l'elenco completo; restano radice (icona) + `…` + livello corrente.
+   - Viste senza gerarchia (Storico, Commesse, Operatori, Scanner, Movimento Multiplo): percorso = `Sezione › Titolo` (es. Magazzino › Storico movimenti); la sezione è cliccabile e fa la stessa cosa della freccia indietro (torna all'Inventario) — su mobile, dove la freccia non c'è, è la via di ritorno.
+   - **Mobile (`< md`)** *(round 7, 2026-09-24 — sostituisce sia il collasso in `…` sia la seconda riga dedicata al percorso: l'utente vuole una barra sola)*: **una sola riga** `☰` · percorso · lente · azioni. Il percorso prende tutto lo spazio libero, non tronca: segmenti alti 44px col nome intero, la riga scorre di lato posizionandosi sull'ultimo livello, con una sfumatura a sinistra solo quando l'inizio è fuori vista (dice "scorre", non "tagliato").
 2. **Ricerca (a destra)** — `SearchField` (`src/components/layout/GlobalSearch.jsx`), `flex-1 basis-0`, **larghezza minima 50px**. **Cerca sempre nel contenuto della vista in cui ti trovi**, mai altrove — stessa logica in tutta l'app:
 
    | Vista | Cosa cerca | Note |
@@ -263,7 +265,9 @@ Due caselle affiancate con la stessa forma (`h-11`, `--radius-control`, bordo, s
    | Commesse | Commesse (codice, descrizione, ubicazione) | |
    | Operatori | Operatori (nome, ID) | |
 
-   Nessuna vista ha una seconda casella di ricerca sotto la barra. Il placeholder dice cosa si cerca e dove ("Cerca in Candela…", "Cerca operatore per nome o ID…").
+   Nessuna vista ha una seconda casella di ricerca sotto la barra.
+
+   **Mobile**: la ricerca è **solo la lente** (44×44). Toccandola si apre a tutta barra — percorso, menu e azioni si nascondono — con una `✕` per richiuderla; il testo scritto resta. Con una ricerca attiva e il campo chiuso, la lente ha un pallino blu. Il badge `⌘K` non compare su mobile. Il placeholder dice cosa si cerca e dove ("Cerca in Candela…", "Cerca operatore per nome o ID…").
 
 **Priorità di spazio (vincolante)**: il percorso tiene la sua larghezza naturale; la ricerca prende tutto lo spazio che avanza. Quando lo spazio finisce, la ricerca si restringe fino a **50px — la lente resta sempre visibile** — e solo dopo il percorso inizia a troncare con ellissi, in quest'ordine: livelli intermedi (`shrink-[4]`), radice (`shrink-[2]`, fino alla sola icona), livello corrente per ultimo (min 3.5rem). Implementazione: percorso `shrink min-w-0` con base `auto`, ricerca `flex-1 basis-0 min-w-[50px]` — mai `flex-1` sul percorso, mai una larghezza fissa sulla ricerca.
 
@@ -275,11 +279,13 @@ Dentro la ricerca, gli accessori compaiono solo se c'è spazio (container query 
 
 **Eccezione dichiarata al target 44×44 (§1.6)**: i separatori-menu `›` sono 32×44px. Il bersaglio principale di navigazione è il segmento stesso (≥44px di altezza, largo quanto il testo); il separatore è una scorciatoia secondaria, e portarlo a 44px di larghezza allungherebbe ogni percorso di 12px per livello, togliendo spazio proprio al testo che la regola di priorità protegge.
 
+**Reset filtri su mobile** *(round 6-7)*: sotto `lg` "Reset" sta **in coda al percorso**, dentro la stessa casella (sotto `sm` solo la `✕` rosa, `aria-label="Reset filtri"`) (`crumbsTrailing` + `ResetFiltersButton placement="trailing"`), rosa, alto 44px, visibile appena c'è un filtro o una ricerca attiva — mai solo dentro il menu `⋮` o dentro la fascia filtri richiusa. Da `lg` in su è il bottone "Reset filtri" tra le azioni. Stesso componente in Inventario, Storico e Commesse.
+
 ### 2.2 Azioni nella barra
-A destra della ricerca, in quest'ordine: controlli di vista (toggle elenco/griglia, modalità Scanner — sempre `SegmentedControl` alto 44px; sotto `lg` le opzioni con `compact` restano solo icona) → icona "Aggiorna" (outline, dove la vista carica dati da rete) → **una** azione visibile a testo (es. "Reset filtri", solo quando c'è qualcosa da azzerare, da `lg` in su) → menu `⋮` con tutto il resto (Seleziona più utensili, Nuovo utensile, Reset filtri sempre presente qui, disabilitato quando non serve). Stessa regola di §3: oltre 2 icone → menu `⋮`; "Reset filtri" in rosa e separato da un divisore nel menu.
+A destra della ricerca, in quest'ordine: controlli di vista (toggle elenco/griglia, modalità Scanner — sempre `SegmentedControl` alto 44px; sotto `lg` le opzioni con `compact` restano solo icona; **sotto `md` il toggle elenco/griglia esce dalla barra e sta sempre nello stesso punto, a destra della riga sotto la barra: accanto a "Mostra filtri" in vista elenco e nella tabella del 3° livello, da solo sopra la griglia ai livelli 1-2** — un solo componente `ViewModeToggle`, mai nel menu `⋮`) → icona "Aggiorna" (outline, dove la vista carica dati da rete) → **una** azione visibile a testo (es. "Reset filtri", solo quando c'è qualcosa da azzerare, da `lg` in su) → menu `⋮` con tutto il resto (Seleziona più utensili, Nuovo utensile, Reset filtri sempre presente qui, disabilitato quando non serve). Stessa regola di §3: oltre 2 icone → menu `⋮`; "Reset filtri" in rosa e separato da un divisore nel menu.
 
 ### Regole
-1. **Back**: sempre lo stesso componente icona 44×44 a sinistra della barra, mai testo ("← Home"), mai posizione diversa (niente FAB arancione flottante). Usa `history.back()` quando la navigazione lo permette (chiude la rottura del browser back in Commesse). In Inventario torna al livello precedente del percorso.
+1. **Back**: da `md` in su sempre lo stesso componente icona 44×44 a sinistra della barra; **sotto `md` non c'è** — il percorso su riga propria (§2.1) fa già da navigazione e la freccia sarebbe ridondante (decisione round 6, 2026-09-24). Mai testo ("← Home"), mai posizione diversa (niente FAB arancione flottante). Usa `history.back()` quando la navigazione lo permette (chiude la rottura del browser back in Commesse). In Inventario torna al livello precedente del percorso.
 2. **Titolo**: un solo titolo per vista, fisso — mai 2-3 varianti dello stesso titolo (Scanner aveva "DEPOSITO RAPIDO"/"PRELIEVO RAPIDO"/"OPTICAL SCANNER"; usare sempre "Scanner" + badge di modalità accanto). È l'ultimo segmento del percorso più un `<h1>` `sr-only` per i lettori di schermo.
 3. **Percorso**: presente da subito anche al livello 0, navigabile (§2.1).
 4. **Icona**: o nella radice del percorso o nelle card sottostanti, mai entrambe nella stessa vista.
@@ -361,6 +367,8 @@ Componente da creare: `src/components/ui/segmented-control.jsx`, su `@base-ui/re
 
 ### 4.4 FilterChip
 Componente da creare: `src/components/ui/filter-chip.jsx`. Stati: neutro (`bg-black/5`), attivo (`bg-accent-blue/10 text-accent-blue`), sempre con `×` per rimuovere. Ordine in toolbar: ricerca → filtri primari attivi → "+ Altri filtri" (secondari) → segmented. Su mobile: drawer/sheet (`@base-ui/react/drawer`, già installato), mai 7 righe di filtri impilate prima dei dati.
+
+**Filtri su mobile** *(round 6)*: sotto `md` ogni fascia filtri (Inventario elenco, filtri aggiuntivi della tabella al 3° livello, Storico) sta dietro `MobileFiltersToggle` ("Mostra filtri" + contatore), chiusa di default; tendine alte 44px (`max-md:h-11`). Le stat tile dello Storico restano su 2 colonne anche su telefono (§4.5), così la tabella è visibile senza scorrere.
 
 **Filtri a cascata: posizione fissa, mai smontati** *(bug reale osservato, 2026-09-19)*: quando una selezione azzera le opzioni valide di un altro filtro, quel filtro **non sparisce e non si sposta** — resta nello stesso punto, disabilitato (§1.13: stessa posizione, opacità 40%, nessun hover). La cascata resta intelligente (non si può scegliere una combinazione impossibile), ma l'ordine e la posizione dei filtri sul rigo sono uno stato stabile, mai animato da un `layout`/`popLayout` che li fa scivolare — un bersaglio che si sposta mentre l'utente sta per cliccarlo è un problema di ergonomia (Fitts), non un dettaglio estetico. Le uniche cose che possono davvero comparire/sparire sulla riga sono elementi transitori aggiuntivi (chip di ricerca attiva, bottone reset) — mai uno degli **8 filtri stessi**.
 
@@ -532,7 +540,8 @@ Componente da creare: `src/components/common/StateBlock.jsx`. **Ogni vista che m
 
 | Concetto | Nome unico da usare | Mai |
 | :--- | :--- | :--- |
-| Operazioni di magazzino | **Deposita** / **Preleva** | Carico/Scarico, Prelievo/Deposito |
+| Operazioni di magazzino | **Deposita** / **Preleva** | Carico/Scarico, Prelievo/Deposito come etichette di scelta |
+| Bottone di conferma operazione | **Conferma Prelievo** / **Conferma Deposito** (sostantivo dopo "Conferma") — eccezione approvata 2026-09-24 | "Conferma Preleva" |
 | Registro movimenti | **Storico movimenti** | Storico Log, Tracciamento Log |
 | Overlay di aiuto | **Guida** | 5 nomi diversi per lo stesso overlay |
 | Vista utensile | **Dettaglio utensile** | — |
@@ -592,3 +601,4 @@ Prima di considerare conclusa qualsiasi modifica:
 24. [ ] `.app-h3` non maiuscolo quando mostra un dato reale (descrizione, nome, testo libero) — maiuscolo ammesso solo su etichette brevi a vocabolario fisso (§1.3) o sull'eccezione dichiarata delle tessere categoria.
 25. [ ] Login: pagina che non scorre, griglia unica operatori + admin, lucchetto solo sugli admin (§2.3).
 26. [ ] `Select`: valore vuoto passato come `null` (mai `undefined`), opzione "Tutti" mappata su `null` → torna il placeholder (§4.4).
+27. [ ] Mobile 375px: una sola barra (☰ · percorso · lente · azioni), percorso leggibile che scorre, "Reset" in coda al percorso quando ci sono filtri, filtri dietro "Mostra filtri", nessun contenuto centrato che sborda sopra un contenitore che scorre (`justify-center-safe`).

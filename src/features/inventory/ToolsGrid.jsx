@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useFilterStore } from '../../store/useFilterStore';
 import { VirtualizedTable } from '../../components/common/DataTable';
 import { EXTRA_FILTER_KEYS } from './constants';
+import { MobileFiltersToggle } from '../../components/layout/PageTemplate';
 
 const columnHelper = createColumnHelper();
 
@@ -25,7 +26,8 @@ const ToolsGrid = memo(({
   selectionMode = 'none',
   showDensityToggle = false,
   density: propDensity = 'compact',
-  renderRowTrailing
+  renderRowTrailing,
+  mobileFiltersAccessory
 }) => {
   const selectedIds = useFilterStore(state => state.selectedToolsIds);
   const onToggleSelect = useFilterStore(state => state.toggleToolSelection);
@@ -51,6 +53,9 @@ const ToolsGrid = memo(({
   }, [normalizedSelectionMode, isStoreSelectionMode]);
   
   const [extraFilters, setExtraFilters] = useState({});
+  // Mobile (§4.4): i filtri non si impilano mai prima dei dati, stanno dietro "Mostra filtri"
+  const [showFiltersMobile, setShowFiltersMobile] = useState(false);
+  const activeExtraCount = Object.values(extraFilters).filter(v => v && v !== 'all').length;
   const [sorting, setSorting] = useState([]);
   const [density, setDensity] = useState(propDensity);
 
@@ -281,14 +286,20 @@ const ToolsGrid = memo(({
       {((!hideExtraFilters && availableFilters.length > 0) || showDensityToggle || (!hideExtraFilters && normalizedSelectionMode === 'toggle')) && (
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 px-2">
           {!hideExtraFilters && availableFilters.length > 0 && (
+            <div className="md:hidden basis-full flex items-center gap-2">
+              <MobileFiltersToggle open={showFiltersMobile} onToggle={() => setShowFiltersMobile(v => !v)} count={activeExtraCount} className="flex-1 w-auto min-w-0" />
+              {mobileFiltersAccessory}
+            </div>
+          )}
+          {!hideExtraFilters && availableFilters.length > 0 && (
             <>
               {availableFilters.map(({ key, label }) => (
-                <div key={key} className="relative">
+                <div key={key} className={`relative ${showFiltersMobile ? '' : 'max-md:hidden'}`}>
                   <Select
                     value={extraFilters[key] && extraFilters[key] !== 'all' ? String(extraFilters[key]) : null}
                     onValueChange={(val) => setFilter(key, val === 'all' ? '' : val)}
                   >
-                    <SelectTrigger className={`glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all min-w-[95px] md:min-w-[120px] ${extraFilters[key] && extraFilters[key] !== 'all' ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'}`}>
+                    <SelectTrigger className={`max-md:h-11 glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all min-w-[95px] md:min-w-[120px] ${extraFilters[key] && extraFilters[key] !== 'all' ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'}`}>
                       <SelectValue placeholder={label} />
                     </SelectTrigger>
                     <SelectContent className="glass-panel z-50 border-white/10 dark:bg-slate-950/90 bg-white/90 backdrop-blur-xl">
@@ -304,7 +315,7 @@ const ToolsGrid = memo(({
                 <button
                   type="button"
                   onClick={() => setExtraFilters({})}
-                  className="glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline text-accent-orange hover:bg-accent-orange/10 transition-all flex items-center gap-1 shrink-0"
+                  className="max-md:h-11 glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline text-accent-orange hover:bg-accent-orange/10 transition-all flex items-center gap-1 shrink-0"
                 >
                   <X size={14} /> Reset
                 </button>

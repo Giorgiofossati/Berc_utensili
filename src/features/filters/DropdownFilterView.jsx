@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, memo, useRef } from 'react';
-import { PageToolbar } from '@/components/layout/PageTemplate';
+import { PageToolbar, MobileFiltersToggle } from '@/components/layout/PageTemplate';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Filter } from 'lucide-react';
 import ToolsGrid from '../inventory/ToolsGrid';
 import { EXTRA_FILTER_KEYS } from '../inventory/constants';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,7 +13,8 @@ const DropdownFilterView = memo(({
   onSelectTool, 
   isMobile, 
   initialFilters = {}, 
-  onFilterChange
+  onFilterChange,
+  mobileFiltersAccessory
 }) => {
   const isSelectionMode = useFilterStore(state => state.isSelectionMode);
   const searchQuery = useFilterStore(state => state.searchQuery);
@@ -178,19 +178,12 @@ const DropdownFilterView = memo(({
       className="w-full max-w-7xl flex flex-col gap-3 md:gap-4 flex-1 min-h-0"
     >
       {/* Mobile: i filtri stanno in una fascia richiudibile; ricerca, vista, reset e selezione sono nell'AppBar */}
-      <div className="flex items-center px-2 md:hidden">
-        <button 
-          onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
-          aria-expanded={isFiltersExpanded}
-          className="flex-1 h-11 flex items-center justify-center gap-1.5 glass-button px-3 rounded-xl app-overline text-accent-blue"
-        >
-          <Filter size={14} className="shrink-0" />
-          <span className="truncate">{isFiltersExpanded ? 'Nascondi filtri' : 'Mostra filtri'}</span>
-          {activeFiltersCount > 0 && <span className="bg-accent-blue text-slate-950 w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 font-black tracking-normal">{activeFiltersCount}</span>}
-        </button>
+      <div className="flex items-center gap-2 px-2 md:hidden">
+        <MobileFiltersToggle open={isFiltersExpanded} onToggle={() => setIsFiltersExpanded(!isFiltersExpanded)} count={activeFiltersCount} className="flex-1 w-auto min-w-0" />
+        {mobileFiltersAccessory}
       </div>
 
-      <PageToolbar className="flex-wrap h-auto min-h-[44px] pt-3 pb-1 border-b-0">
+      <PageToolbar className={`flex-wrap h-auto min-h-[44px] pt-3 pb-1 border-b-0 ${isMobile && !isFiltersExpanded ? "hidden" : ""}`}>
       <AnimatePresence>
         {(isFiltersExpanded || !isMobile) && (
           <motion.div 
@@ -218,7 +211,7 @@ const DropdownFilterView = memo(({
                     >
                       <SelectTrigger 
                         disabled={isDisabled}
-                        className={`glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all w-full ${filters[key] ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'} ${isDisabled ? 'opacity-40 disabled:opacity-40 pointer-events-none hover:bg-transparent shadow-none' : ''}`}
+                        className={`max-md:h-11 glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all w-full ${filters[key] ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'} ${isDisabled ? 'opacity-40 disabled:opacity-40 pointer-events-none hover:bg-transparent shadow-none' : ''}`}
                       >
                         <span className="truncate"><SelectValue placeholder={LABELS[key] || key} /></span>
                       </SelectTrigger>
@@ -240,7 +233,7 @@ const DropdownFilterView = memo(({
       </AnimatePresence>
       </PageToolbar>
 
-      <div className="flex-1 min-h-0 flex flex-col w-full pb-24 p-0 sm:p-0 md:p-0 lg:p-0">
+      <div className="flex-1 min-h-0 flex flex-col w-full pb-2 md:pb-4">
       {/* Deleghiamo il rendering della griglia a ToolsGrid con TanStack Table */}
       <ToolsGrid 
         tools={filtered} 

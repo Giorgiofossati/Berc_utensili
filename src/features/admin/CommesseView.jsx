@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FolderKanban, Plus, RefreshCw, MapPin, Calendar, CheckCircle2, AlertCircle, AlertTriangle, Pencil, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/dialog";
-import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
+import { PageTemplate, PageHeader, PageToolbar, PageContent, ResetFiltersButton } from '@/components/layout/PageTemplate';
 import { StateBlock } from '@/components/common/StateBlock';
 import { IconButton, IconMenu } from '@/components/ui/icon-button';
 import { useCommesseStore } from '../../store/useCommesseStore';
@@ -176,6 +176,9 @@ export default function CommesseView({ setView, showToastNotification }) {
     return { total, attive, chiuse };
   }, [commesse]);
 
+  const hasActiveFilters = statusFilter !== 'TUTTE' || searchQuery.trim().length > 0;
+  const handleResetFilters = () => { setStatusFilter('TUTTE'); setSearchQuery(''); };
+
   return (
     <PageTemplate>
       <PageHeader
@@ -192,8 +195,10 @@ export default function CommesseView({ setView, showToastNotification }) {
           placeholder: 'Cerca codice, descrizione, ubicazione…',
           label: 'Cerca nelle commesse',
         }}
+        crumbsTrailing={hasActiveFilters && <ResetFiltersButton placement="trailing" onClick={handleResetFilters} />}
         action={
           <div className="flex gap-2">
+            {hasActiveFilters && <ResetFiltersButton onClick={handleResetFilters} />}
             <IconButton 
               icon={<RefreshCw size={16} className={isLoading ? "animate-spin text-accent-blue" : ""} />}
               onClick={() => fetchCommesse()}

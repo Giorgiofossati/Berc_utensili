@@ -105,7 +105,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-3 py-3 border-b border-slate-200/60 dark:border-white/10 shrink-0">
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           {/* Assegna Commessa Globale */}
-          <div className="relative min-w-[200px] sm:min-w-[240px]">
+          <div className="relative min-w-[200px] sm:min-w-[240px] max-sm:basis-full">
             <div className="relative flex items-center">
               <div className="absolute left-3 pointer-events-none text-accent-blue">
                 <Briefcase size={16} />
@@ -159,26 +159,26 @@ const MultiMovementView = memo(({ showToastNotification }) => {
             <button
               type="button"
               onClick={() => setBatchOpType('scarico')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
                 batchOpType === 'scarico'
                   ? 'bg-rose-500 text-white shadow-md'
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
               }`}
             >
               <ArrowUp size={14} />
-              <span>Prelievo</span>
+              <span>Preleva</span>
             </button>
             <button
               type="button"
               onClick={() => setBatchOpType('carico')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
                 batchOpType === 'carico'
                   ? 'bg-emerald-500 text-white shadow-md'
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
               }`}
             >
               <ArrowDown size={14} />
-              <span>Deposito</span>
+              <span>Deposita</span>
             </button>
           </div>
 
@@ -189,7 +189,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
             className="action-btn-primary px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-sm hover:scale-[1.02] active:scale-95 transition-transform"
           >
             <Plus size={16} />
-            <span>Aggiungi Utensile</span>
+            <span>Aggiungi<span className="max-sm:hidden"> Utensile</span></span>
           </button>
         </div>
       </div>
@@ -261,13 +261,13 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                   <div className="w-28 text-center hidden md:block shrink-0">
                     <span className="text-slate-400 opacity-40 font-mono text-xs">------</span>
                   </div>
-                  <div className="w-20 text-center shrink-0">
+                  <div className="w-20 text-center shrink-0 hidden md:block">
                     <span className="text-slate-400 opacity-40 font-mono text-xs">--</span>
                   </div>
-                  <div className="w-32 sm:w-36 text-center shrink-0">
+                  <div className="w-32 sm:w-36 text-center shrink-0 hidden md:block">
                     <span className="badge app-caption text-xs text-slate-400 opacity-60">Riga 1</span>
                   </div>
-                  <div className="w-10 text-center shrink-0" />
+                  <div className="w-10 text-center shrink-0 hidden md:block" />
                 </div>
 
                 {/* Righe Faint Segnaposto per dare l'effetto di foglio tabellare pronto da compilare */}
@@ -285,9 +285,9 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                     </div>
                     <div className="w-28 text-center hidden sm:block shrink-0 text-slate-400 font-mono text-xs">---</div>
                     <div className="w-28 text-center hidden md:block shrink-0 text-slate-400 font-mono text-xs">---</div>
-                    <div className="w-20 text-center shrink-0 text-slate-400 font-mono text-xs">---</div>
-                    <div className="w-32 sm:w-36 text-center shrink-0 text-slate-400 font-mono text-xs">---</div>
-                    <div className="w-10 text-center shrink-0" />
+                    <div className="w-20 text-center shrink-0 hidden md:block text-slate-400 font-mono text-xs">---</div>
+                    <div className="w-32 sm:w-36 text-center shrink-0 hidden md:block text-slate-400 font-mono text-xs">---</div>
+                    <div className="w-10 text-center shrink-0 hidden md:block" />
                   </div>
                 ))}
               </div>
@@ -381,7 +381,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                         </div>
 
                         {/* Colonna Giacenza */}
-                        <div className="w-20 text-center shrink-0">
+                        <div className="w-20 text-center shrink-0 hidden sm:block">
                           <span className={`app-qty-sm ${liveStock > 0 ? 'text-accent-emerald' : 'text-accent-rose'}`}>
                             {liveStock} pz
                           </span>

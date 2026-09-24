@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect, memo } from 'react';
 
-import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
+import { PageTemplate, PageHeader, PageToolbar, PageContent, ResetFiltersButton, MobileFiltersToggle } from '@/components/layout/PageTemplate';
 import { IconButton } from '@/components/ui/icon-button';
 import { StateBlock } from '@/components/common/StateBlock';
 import { StatTile } from '@/components/ui/stat-tile';
@@ -106,6 +106,7 @@ const HistoryView = memo(({
 
   // Filters State
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFiltersMobile, setShowFiltersMobile] = useState(false);
   const [selectedOperator, setSelectedOperator] = useState('all');
   const [opTypeFilter, setOpTypeFilter] = useState('all'); // 'all' | 'carico' | 'scarico'
   const [timeframeFilter, setTimeframeFilter] = useState('30d'); // 'all' | 'today' | '7d' | '30d' | 'this_month' | 'custom'
@@ -418,8 +419,11 @@ const HistoryView = memo(({
           placeholder: 'Cerca utensile, codice o operatore…',
           label: 'Cerca nei movimenti',
         }}
+        crumbsTrailing={activeFiltersCount > 0 && <ResetFiltersButton placement="trailing" onClick={handleResetFilters} />}
         action={
-          fetchHistory && (
+          <>
+          {activeFiltersCount > 0 && <ResetFiltersButton onClick={handleResetFilters} count={activeFiltersCount} />}
+          {fetchHistory && (
             <IconButton
               icon={<RefreshCw size={16} className={isRefreshing ? "animate-spin text-accent-blue" : ""} />}
               onClick={handleRefresh}
@@ -429,12 +433,14 @@ const HistoryView = memo(({
               variant="outline"
               className="glass-button border-slate-900/10 dark:border-white/10"
             />
-          )
+          )}
+          </>
         }
       />
       {/* Filter Toolbar */}
-      <PageToolbar>
-        <div className="flex flex-wrap items-center gap-2">
+      <PageToolbar className="flex-col items-stretch gap-2 md:flex-row md:items-center">
+        <MobileFiltersToggle open={showFiltersMobile} onToggle={() => setShowFiltersMobile(v => !v)} count={activeFiltersCount - (searchQuery.trim() ? 1 : 0)} />
+        <div className={`flex flex-wrap items-center gap-2 ${showFiltersMobile ? '' : 'max-md:hidden'}`}>
           {/* Operatore Select */}
           <div className="relative min-w-[130px] sm:min-w-[160px]">
             <Select 
@@ -502,15 +508,6 @@ const HistoryView = memo(({
             </div>
           )}
 
-          {/* Reset Filters Button */}
-          {activeFiltersCount > 0 && (
-            <button
-              onClick={handleResetFilters}
-              className="glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:py-2 app-overline text-accent-orange bg-accent-orange/10 border border-accent-orange/30 hover:bg-accent-orange/20 transition-all flex items-center gap-1.5 shrink-0"
-            >
-              <X size={14} /> Reset filtri ({activeFiltersCount})
-            </button>
-          )}
         </div>
       </PageToolbar>
 
@@ -518,7 +515,7 @@ const HistoryView = memo(({
       <PageContent className="flex flex-col gap-4 sm:gap-6 p-2 pb-6 sm:p-4 sm:pb-8 md:p-6 md:pb-10 lg:p-8 lg:pb-12">
         {/* KPI & Summary StatTiles with @container wrapper (§1.14, §4.5) */}
         <div className="@container shrink-0">
-          <div className="grid gap-3 sm:gap-4 grid-cols-1 @sm:grid-cols-2 @xl:grid-cols-4 items-stretch">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 @xl:grid-cols-4 items-stretch">
             <StatTile 
               icon={Layers} 
               label="Totale Movimenti" 
