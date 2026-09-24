@@ -25,7 +25,7 @@ const CategoryGridCard = memo(({ opt, handleSelectOption }) => {
         <p className="app-overline text-accent-orange mb-0.5">
           {opt.category}
         </p>
-        <h3 className="app-h3 text-center leading-tight text-white group-hover:text-accent-blue transition-colors duration-200 truncate max-w-full">
+        <h3 className="app-h3 uppercase text-center leading-tight text-white group-hover:text-accent-blue transition-colors duration-200 truncate max-w-full">
           {opt.label}
         </h3>
       </div>

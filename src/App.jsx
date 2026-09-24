@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback, Suspense, lazy, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy, useRef } from 'react';
 import {
-  ArrowLeft, ArrowUp, ArrowDown, X,
-  List, LayoutGrid, CheckCircle2, AlertCircle, AlertTriangle, ClipboardList
+  X, List, LayoutGrid, CheckCircle2, AlertCircle, AlertTriangle, ClipboardList, Package, ListChecks, RotateCcw, Plus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
@@ -24,7 +23,6 @@ const CommesseView = lazy(() => import('./features/admin/CommesseView'));
 import Sidebar from './components/layout/Sidebar';
 import LoginScreen from './features/auth/LoginScreen';
 import MultiMovementView from './features/inventory/MultiMovementView';
-import Header from './components/layout/Header';
 import CategoryGridCard from './features/filters/CategoryGridCard';
 import MovementModal from './features/inventory/MovementModal';
 import DiameterList from './features/filters/DiameterList';
@@ -38,7 +36,12 @@ import AppTutorial from './components/common/AppTutorial';
 import HelpFloatingButton from './components/common/HelpFloatingButton';
 import { useTutorialStore } from './store/useTutorialStore';
 import { preloadToolImages } from './lib/toolUtils';
-import { PageTemplate, PageHeader, PageToolbar, PageContent, PageFooter } from './components/layout/PageTemplate';
+import { PageTemplate, PageHeader } from './components/layout/PageTemplate';
+import { IconMenu } from './components/ui/icon-button';
+import { EXTRA_FILTER_KEYS } from './features/inventory/constants';
+
+// Ordine canonico dei livelli del percorso: la cascata Tipologia → Forma → Diametro, poi gli attributi
+const FILTER_ORDER = ['Tipologia', 'Forma', 'Diametro', ...EXTRA_FILTER_KEYS.map(e => e.key)];
 
 // Preload static tool images in memory immediately
 preloadToolImages();
@@ -58,7 +61,8 @@ function App() {
     viewMode, setViewMode,
     selectedToolsIds, setSelectedToolsIds,
     filteredByStack, options, diameters, finalTools, currentLevel,
-    handleSelectOption, handleSelectDiameter, resetFilters, breadcrumbText
+    handleSelectOption, handleSelectDiameter, resetFilters,
+    isSelectionMode, handleSetIsSelectionMode, searchQuery, clearSearchQuery
   } = useFilters();
 
   const [toast, setToast] = useState(null);
@@ -123,12 +127,13 @@ function App() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [showSidebarMobile, setShowSidebarMobile] = useState(false);
+  const showSidebarMobile = useNavigationStore(state => state.isMobileSidebarOpen);
+  const setShowSidebarMobile = useNavigationStore(state => state.setMobileSidebarOpen);
   const [isMobile, setIsMobile] = useState(false);
 
   const handleRequireSidebar = useCallback((needed) => {
-    setShowSidebarMobile(prev => (prev === needed ? prev : needed));
-  }, []);
+    setShowSidebarMobile(needed);
+  }, [setShowSidebarMobile]);
 
   const mainRef = useRef(null);
 
@@ -215,6 +220,89 @@ function App() {
     setShowMoveModal(true);
   }, [setSelectedTool, setOpType, setModalQty, setIsBulkMode, setShowMoveModal]);
 
+  // ── Percorso stile Esplora risorse (§2): ogni livello è cliccabile, ogni `›` apre gli altri elementi dello stesso livello
+  const inventoryCrumbs = useMemo(() => {
+    const filterTools = (stack) => stack.reduce(
+      (res, f) => (f.skipped ? res : res.filter(t => String(t[f.type]) === String(f.value))),
+      tools
+    );
+    const distinct = (list, key) => [...new Set(list.map(t => t[key]).filter(v => v !== null && v !== undefined && v !== ''))]
+      .sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true }));
+
+    // Figli del livello rappresentato da `prefix` (solo lungo la cascata Tipologia → Forma → Diametro)
+    const childrenOf = (prefix) => {
+      const lastType = prefix.length ? prefix[prefix.length - 1].type : null;
+      const nextType = lastType === null ? 'Tipologia' : lastType === 'Tipologia' ? 'Forma' : lastType === 'Forma' ? 'Diametro' : null;
+      if (!nextType) return null;
+      const values = distinct(filterTools(prefix), nextType);
+      return values.length ? { type: nextType, values } : null;
+    };
+
+    const goToSibling = (prefix, type, value) => {
+      clearSearchQuery();
+      setFilterStack(prefix);
+      if (type === 'Diametro') handleSelectDiameter(value);
+      else handleSelectOption({ type, label: value });
+    };
+
+    // prefisso = stack fino all'indice incluso, più eventuali livelli "saltati" subito dopo
+    const prefixThrough = (idx) => {
+      let end = idx + 1;
+      while (end < filterStack.length && filterStack[end].skipped) end++;
+      return filterStack.slice(0, end);
+    };
+
+    const siblingsFor = (prefix, current) => {
+      const kids = childrenOf(prefix);
+      if (!kids) return undefined;
+      return {
+        items: kids.values.map(v => ({
+          label: String(v),
+          value: v,
+          active: current !== undefined && String(v) === String(current)
+        })),
+        onSelect: (v) => goToSibling(prefix, kids.type, v)
+      };
+    };
+
+    const root = {
+      label: 'Inventario',
+      icon: <Package size={16} />,
+      onClick: () => { clearSearchQuery(); resetFilters(); },
+    };
+    const crumbs = [root];
+    filterStack.forEach((f, idx) => {
+      if (f.skipped) return;
+      // il genitore comprende anche gli eventuali livelli "saltati" che lo precedono (es. Forma N/A)
+      const parentPrefix = filterStack.slice(0, idx);
+      const siblings = siblingsFor(parentPrefix, f.value);
+      crumbs.push({
+        label: String(f.value),
+        onClick: () => setFilterStack(prefixThrough(idx)),
+        // solo se il livello del genitore è davvero questo tipo (in vista elenco l'ordine dei filtri è libero)
+        siblings: siblings && childrenOf(parentPrefix)?.type === f.type ? siblings : undefined,
+      });
+    });
+    return crumbs;
+  }, [tools, filterStack, setFilterStack, resetFilters, clearSearchQuery, handleSelectOption, handleSelectDiameter]);
+
+  const hasActiveFilters = filterStack.length > 0 || Boolean(searchQuery);
+  const handleResetAll = useCallback(() => {
+    clearSearchQuery();
+    resetFilters();
+  }, [clearSearchQuery, resetFilters]);
+
+  const inventoryMenuItems = [
+    ...(viewMode === 'dropdown' || currentLevel >= 3 ? [{
+      label: isSelectionMode ? 'Annulla selezione' : 'Seleziona più utensili',
+      icon: <ListChecks size={16} />,
+      onClick: () => handleSetIsSelectionMode(!isSelectionMode),
+    }] : []),
+    ...(currentUser?.ruolo === 'Admin' ? [{ label: 'Nuovo utensile', icon: <Plus size={16} />, onClick: () => setShowAddModal(true) }] : []),
+    { type: 'separator' },
+    { label: 'Reset filtri', icon: <RotateCcw size={16} />, onClick: handleResetAll, disabled: !hasActiveFilters, destructive: true },
+  ];
+
   const renderGridHome = () => {
     if (currentLevel >= 2 && currentLevel < 3) return (
       <div className="@container w-full flex-1 flex flex-col items-center justify-center my-auto px-2 sm:px-4 md:px-6 py-2 overflow-hidden">
@@ -270,18 +358,16 @@ function App() {
       />
 
       <div className="flex-1 flex flex-col gap-3 md:gap-4 relative overflow-hidden app-container custom-scrollbar min-w-0">
-        <Header onOpenSidebar={() => setShowSidebarMobile(true)} />
-
-        
 
         <main className="flex-1 w-full flex flex-col items-center justify-start relative min-h-0 overflow-hidden">
             <AnimatePresence mode="wait">
               {view === 'home' && (
                 <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="w-full h-full flex flex-col items-center relative">
                   <PageTemplate>
-                    <PageHeader 
-                      title="Inventario" 
-                      breadcrumb={filterStack.length > 0 ? breadcrumbText : 'Catalogo'}
+                    <PageHeader
+                      title="Inventario"
+                      crumbs={inventoryCrumbs}
+                      searchPlaceholder={inventoryCrumbs.length > 1 ? `Cerca in ${inventoryCrumbs[inventoryCrumbs.length - 1].label}…` : 'Cerca codice, misura (es. D16)…'}
                       showBack={filterStack.length > 0}
                       onBack={() => {
                         setFilterStack(prev => {
@@ -294,50 +380,40 @@ function App() {
                         });
                       }}
                       action={
-                        <div data-tour="view-mode-toggle" className={`shrink-0 items-center bg-slate-900/5 dark:bg-white/5 p-1.5 rounded-2xl relative shadow-inner border border-slate-900/5 dark:border-white/5 ${viewMode === 'dropdown' ? 'hidden md:flex' : 'flex'}`}>
-                          <motion.div 
-                            className="absolute top-1.5 bottom-1.5 w-[36px] bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-accent-blue/30 dark:border-accent-blue/30 overflow-hidden"
-                            initial={false}
-                            animate={{ x: viewMode === 'grid' ? 36 : 0 }}
-                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                          >
-                            <div className="absolute inset-0 bg-accent-blue/10 animate-pulse" />
-                          </motion.div>
-                          <button 
-                            type="button" 
-                            onClick={() => setViewMode('dropdown')} 
-                            title="Vista ad Elenco"
-                            className={`relative z-10 w-9 h-8 flex items-center justify-center transition-colors ${viewMode === 'dropdown' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
-                          >
-                            <List size={16} />
-                          </button>
-                          <button 
-                            type="button" 
-                            onClick={() => setViewMode('grid')} 
-                            title="Vista a Griglia"
-                            className={`relative z-10 w-9 h-8 flex items-center justify-center transition-colors ${viewMode === 'grid' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
-                          >
-                            <LayoutGrid size={16} />
-                          </button>
-                        </div>
+                        <>
+                          <div data-tour="view-mode-toggle" role="group" aria-label="Tipo di vista" className="flex items-center h-11 p-1 rounded-[var(--radius-control,12px)] bg-slate-900/5 dark:bg-white/5 border border-slate-900/5 dark:border-white/5">
+                            {[
+                              { mode: 'dropdown', label: 'Vista a elenco', icon: <List size={16} /> },
+                              { mode: 'grid', label: 'Vista a griglia', icon: <LayoutGrid size={16} /> },
+                            ].map(opt => (
+                              <button
+                                key={opt.mode}
+                                type="button"
+                                onClick={() => setViewMode(opt.mode)}
+                                aria-label={opt.label}
+                                aria-pressed={viewMode === opt.mode}
+                                title={opt.label}
+                                className={`w-9 h-full rounded-lg flex items-center justify-center transition-colors duration-[var(--motion-fast,150ms)] ${viewMode === opt.mode ? 'bg-white dark:bg-slate-800 text-accent-blue shadow-sm ring-1 ring-accent-blue/30' : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                              >
+                                {opt.icon}
+                              </button>
+                            ))}
+                          </div>
+                          {hasActiveFilters && (
+                            <button
+                              type="button"
+                              onClick={handleResetAll}
+                              className="hidden lg:flex h-11 items-center gap-1.5 px-3.5 rounded-[var(--radius-control,12px)] glass-button border border-accent-rose/25 text-accent-rose hover:bg-accent-rose/10 text-xs font-black uppercase tracking-wider whitespace-nowrap transition-colors"
+                            >
+                              <X size={14} /> Reset filtri
+                            </button>
+                          )}
+                          <IconMenu items={inventoryMenuItems} ariaLabel="Altre azioni inventario" className="glass-button border border-slate-900/10 dark:border-white/10" />
+                        </>
                       }
                     />
                     {viewMode === 'grid' ? (
                       <>
-                        <PageToolbar>
-                          <div className="flex w-full items-center justify-between">
-                            <span className="app-overline text-slate-500">
-                              {filterStack.length > 0 && (
-                                <button 
-                                  onClick={resetFilters} 
-                                  className="glass-button px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-xs font-bold uppercase tracking-wider text-accent-rose hover:bg-accent-rose/10 flex items-center gap-1.5 shadow-sm hover:shadow-accent-rose/20 border border-accent-rose/20"
-                                >
-                                  <X size={14} /> <span className="hidden sm:inline">Reset filtri</span>
-                                </button>
-                              )}
-                            </span>
-                          </div>
-                        </PageToolbar>
                         <div className={`w-full flex-1 flex flex-col items-center justify-center min-h-0 @container ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar py-2 md:py-0' : ''}`}>
                           {renderGridHome()}
                         </div>
@@ -346,12 +422,12 @@ function App() {
                       <div className="w-full flex-1 flex flex-col items-center min-h-0">
                         <DropdownFilterView tools={tools} onSelectTool={handleSelectToolFromGrid} isMobile={isMobile} initialFilters={Object.fromEntries(filterStack.map(f => [f.type, f.value]))}
                           onFilterChange={(newFilters) => {
-                            const newStack = Object.entries(newFilters).filter(([, v]) => v).map(([k, v]) => ({ type: k, value: v }));
-                            setFilterStack(newStack);
+                            const newStack = Object.entries(newFilters)
+                              .filter(([, v]) => v)
+                              .sort(([a], [b]) => FILTER_ORDER.indexOf(a) - FILTER_ORDER.indexOf(b))
+                              .map(([k, v]) => ({ type: k, value: v }));
+                            setFilterStack(prev => (JSON.stringify(prev.filter(f => !f.skipped)) === JSON.stringify(newStack) ? prev : newStack));
                           }}
-                          resetFilters={resetFilters}
-                          viewMode={viewMode}
-                          setViewMode={setViewMode}
                         />
                       </div>
                     )}

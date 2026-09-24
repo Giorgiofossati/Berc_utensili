@@ -183,7 +183,7 @@
 }
 
 @utility app-h3 {
-  @apply text-xs sm:text-sm font-bold uppercase tracking-tight leading-snug dark:text-white text-slate-900;
+  @apply text-xs sm:text-sm font-bold tracking-tight leading-snug dark:text-white text-slate-900;
 }
 
 @utility app-body {

@@ -1,11 +1,10 @@
-import React, { useState, useMemo, useCallback, useRef, memo } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowDown, ArrowUp, Search, X, Camera } from 'lucide-react';
+import { ArrowDown, ArrowUp, Search, Info } from 'lucide-react';
 import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
 import BarcodeScanner from './BarcodeScanner';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { toolMatchesQuery } from '../../lib/searchUtils';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useInventoryStore } from '../../store/useInventoryStore';
 import { useMovementStore } from '../../store/useMovementStore';
 import ToolsGrid from '../inventory/ToolsGrid';
@@ -19,7 +18,6 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
   const setIsBulkMode = useMovementStore(state => state.setIsBulkMode);
   const [manualCode, setManualCode] = useState('');
   const [showCamera, setShowCamera] = useState(false);
-  const inputRef = useRef(null);
 
   const filteredTools = useMemo(() => {
     if (!manualCode || manualCode.trim().length < 1) return [];
@@ -52,88 +50,39 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
       {/* Top Header Bar */}
       <PageHeader 
         title="Scanner"
+        breadcrumb="Magazzino"
         showBack={true}
         onBack={() => setView('home')}
+        search={{
+          value: manualCode,
+          onChange: setManualCode,
+          autoFocus: !isMobile, // su mobile il focus aprirebbe la tastiera e nasconderebbe il selettore modalità
+          label: 'Cerca o scansiona utensile',
+          placeholder: opType === 'carico'
+            ? 'Scansiona o cerca utensile da depositare…'
+            : opType === 'scarico'
+            ? 'Scansiona o cerca utensile da prelevare…'
+            : 'Digita codice, descrizione o misura…',
+          onCamera: () => setShowCamera(prev => !prev),
+          cameraActive: showCamera,
+        }}
         action={
-          <div className="flex items-center p-1 rounded-2xl glass-panel border-white/5 shrink-0 gap-1">
-            <button
-              type="button"
-              onClick={() => setOpType(null)}
-              className={`px-3 py-1 rounded-xl text-xs sm:text-xs font-bold uppercase transition-all ${
-                !opType 
-                  ? 'bg-accent-blue/20 text-accent-blue border border-accent-blue/30 shadow-xs' 
-                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-              }`}
-            >
-              Dettaglio
-            </button>
-            <button
-              type="button"
-              onClick={() => setOpType('carico')}
-              className={`px-3 py-1 rounded-xl text-xs sm:text-xs font-bold uppercase transition-all flex items-center gap-1 ${
-                opType === 'carico' 
-                  ? 'bg-emerald-500/20 text-accent-emerald border border-emerald-500/30 shadow-xs' 
-                  : 'text-slate-500 hover:text-accent-emerald'
-              }`}
-            >
-              <ArrowDown size={14} />
-              Deposita
-            </button>
-            <button
-              type="button"
-              onClick={() => setOpType('scarico')}
-              className={`px-3 py-1 rounded-xl text-xs sm:text-xs font-bold uppercase transition-all flex items-center gap-1 ${
-                opType === 'scarico' 
-                  ? 'bg-rose-500/20 text-accent-rose border border-rose-500/30 shadow-xs' 
-                  : 'text-slate-500 hover:text-accent-rose'
-              }`}
-            >
-              <ArrowUp size={14} />
-              Preleva
-            </button>
-          </div>
+          <SegmentedControl
+            value={opType ?? 'dettaglio'}
+            onValueChange={(val) => setOpType(val === 'dettaglio' ? null : val)}
+            options={[
+              { value: 'dettaglio', label: 'Dettaglio', icon: <Info size={14} />, compact: true },
+              { value: 'carico', label: 'Deposita', icon: <ArrowDown size={14} />, compact: true, className: 'data-[pressed]:text-accent-emerald data-[pressed]:ring-accent-emerald/30' },
+              { value: 'scarico', label: 'Preleva', icon: <ArrowUp size={14} />, compact: true, className: 'data-[pressed]:text-accent-rose data-[pressed]:ring-accent-rose/30' }
+            ]}
+            ariaLabel="Modalità scanner"
+            className="h-11"
+          />
         }
       />
       <div className="flex-1 min-h-0 flex flex-col w-full pb-24 p-2 sm:p-4 gap-4 items-center">
-      {/* Search Input and Camera Bar */}
+      {/* Fotocamera: si apre dal pulsante nella casella di ricerca della barra */}
       <div className="w-full max-w-4xl relative shrink-0">
-        <div className="relative flex items-center gap-2 sm:gap-4">
-          <div className="relative flex-1 flex items-center">
-            <Search size={20} className="absolute left-4 sm:left-6 dark:text-slate-300 text-slate-700 pointer-events-none z-10" />
-            <Input
-              ref={inputRef}
-              autoFocus
-              value={manualCode}
-              onChange={(e) => setManualCode(e.target.value)}
-              placeholder={
-                opType === 'carico'
-                  ? "Scansiona o cerca utensile da depositare..."
-                  : opType === 'scarico'
-                  ? "Scansiona o cerca utensile da prelevare..."
-                  : "Digita codice, descrizione o misura..."
-              }
-              className="w-full h-auto glass-panel py-3.5 sm:py-4 pl-11 sm:pl-14 pr-10 sm:pr-14 rounded-3xl sm:rounded-3xl font-bold text-sm sm:text-lg outline-none border-accent-blue/20 focus:border-accent-blue/60 transition-all placeholder:text-slate-500 tracking-wide"
-            />
-            {manualCode && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setManualCode('')} 
-                className="absolute right-2 sm:right-3 dark:text-slate-300 text-slate-700 hover:text-white transition-colors"
-              >
-                <X size={16} />
-              </Button>
-            )}
-          </div>
-          <Button 
-            variant="glass"
-            onClick={() => setShowCamera(prev => !prev)}
-            className={`w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl flex-shrink-0 ${showCamera ? 'text-accent-orange border-accent-orange/40' : 'text-accent-blue border-accent-blue/20'}`}
-          >
-            <Camera size={20} className="sm:w-6 sm:h-6" />
-          </Button>
-        </div>
-        
         {showCamera && (
           <motion.div 
             initial={{ opacity: 0, height: 0 }}

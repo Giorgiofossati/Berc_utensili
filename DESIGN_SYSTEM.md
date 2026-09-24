@@ -114,7 +114,7 @@ Dichiarata come variabili CSS in `:root` di `src/index.css`, mai un numero arbit
 - Contenitori con scroll verticale: padding `p-2 pb-8` (`pb-24` se ci sono bottoni fissi in basso) per non tagliare focus ring/ombre/badge sul bordo.
 
 ### 1.8 Card affiancate e tessere di griglia
-> **Divieto di asimmetria nelle card affiancate:** quando due o più card stanno una accanto all'altra su desktop (es. presentazione tutorial + box login), il contenitore genitore usa sempre `items-stretch` e le card interne `h-full flex flex-col justify-between`. Altezza, raggio (`--radius-modal`) e padding (`p-6 sm:p-8`) identici al pixel; header allineati in alto, footer di stato (`border-t`) sulla stessa linea di base. Mai `items-center` con altezze libere.
+> **Divieto di asimmetria nelle card affiancate:** quando due o più card stanno una accanto all'altra su desktop, il contenitore genitore usa sempre `items-stretch` e le card interne `h-full flex flex-col justify-between`. Altezza, raggio (`--radius-modal`) e padding (`p-6 sm:p-8`) identici al pixel; header allineati in alto, footer di stato (`border-t`) sulla stessa linea di base. Mai `items-center` con altezze libere.
 
 Scala tessere griglia inventario:
 - **Categoria (livello 1)**: `aspect-square`, `max-w-[155px]` → `max-w-[235px]` responsive, `--radius-card` (16px, `md:18-20px`).
@@ -229,25 +229,77 @@ Una griglia con `md:grid-cols-4` decide quante colonne mostrare guardando la lar
 
 **Obbligatorio per ogni vista di primo livello** (Home, Scanner, Movimento Multiplo, Commesse, Storico, Operatori). Chiude R1/R2 del report: 7 header diversi, 5 stili di "indietro", Home senza titolo, 6 larghezze di contenitore.
 
-Componente da creare: `src/components/layout/PageTemplate.jsx`, esporta `PageHeader`, `PageToolbar`, `PageContent`, `PageFooter`.
+Componente: `src/components/layout/PageTemplate.jsx`, esporta `PageHeader` (la barra unica), `PageToolbar`, `PageContent`, `PageFooter`; la ricerca è in `src/components/layout/GlobalSearch.jsx`.
 
 ### Anatomia (dall'alto in basso, sempre in questo ordine)
+
+> **Barra unica** *(prototipo approvato, variante A "Esplora risorse", round 5, 2026-09-24 — sostituisce la variante B "percorso dentro la ricerca" provata nello stesso round)*: prima c'erano tre fasce impilate — ricerca globale (`Header.jsx`), titolo + breadcrumb + toggle (`PageHeader`), toolbar con Reset/Seleziona — prima ancora dei filtri, e in Storico/Commesse/Operatori/Scanner una **seconda** casella di ricerca sotto la barra. Ora esiste **una sola barra** (`PageHeader` in `src/components/layout/PageTemplate.jsx`) con **una sola ricerca**, identica in ogni vista; `Header.jsx` è stato eliminato.
+
 | Blocco | Altezza | Obbligatorio | Contenuto |
 | :--- | :--- | :--- | :--- |
-| **PageHeader** | 64px fisso | Sempre | Sinistra: back 44×44 (icona, sempre presente tranne in Home) + overline arancione + `.app-h1` + breadcrumb sotto il titolo. Destra: **una sola** azione primaria (le altre → Livello 2/3/icona, §3). |
-| **PageToolbar** | 44px | Solo se la vista ha ricerca/filtri/segmented | Ordine fisso: ricerca → filtri primari (cascata, in evidenza) → filtri secondari (dietro "Altri filtri") → segmented control → azione di selezione/batch |
+| **PageHeader (AppBar)** | 64px | Sempre | Da sinistra: menu 44×44 (solo mobile, apre la sidebar) → indietro 44×44 (se c'è un livello a cui tornare) → **casella percorso** → **casella ricerca** → azioni della vista. Titolo: `<h1 class="sr-only">`, visivamente è l'ultimo segmento del percorso. |
+| **PageToolbar** | 44px | Solo se la vista ha **filtri** o controlli propri della vista | Solo filtri (e controlli di dominio come commessa/operazione in Movimento Multiplo) — mai ricerca globale, reset, cambio vista o selezione: quelli stanno nella barra. |
 | **PageContent** | resto, `flex-1 min-h-0 overflow-y-auto` | Sempre | **Unico** contenitore con scroll della vista. Contiene i 4 stati obbligatori se mostra dati da rete (§6.J). |
 | **PageFooter** | 72px sticky | Solo se ci sono azioni bloccanti (wizard, form a step) | Layout: [secondaria outline] + [primaria], sempre a destra |
 
+### 2.1 Percorso e ricerca
+
+Due caselle affiancate con la stessa forma (`h-11`, `--radius-control`, bordo, sfondo `white/80`), come barra indirizzi + casella di ricerca di Esplora risorse:
+
+1. **Percorso (a sinistra)**:
+   - Ogni segmento non corrente è un `button` che riporta a quel livello; l'ultimo è il livello corrente (`aria-current="page"`, grassetto, non cliccabile).
+   - Il primo segmento è la radice della vista con icona (es. 📦 Inventario); sotto `sm` resta solo l'icona.
+   - Il separatore `›` tra due segmenti, **quando il livello ha alternative**, è un bottone che apre il menu degli elementi dello stesso livello ("fratelli") con quello corrente evidenziato: da Fresa › Candela si passa a Fresa › Sferica senza tornare indietro. Se non ci sono alternative il `›` è solo grafico.
+   - Viste senza gerarchia (Storico, Commesse, Operatori, Scanner, Movimento Multiplo): percorso = `Sezione › Titolo` (es. Magazzino › Storico movimenti), con la sezione non cliccabile — non esiste una pagina "Magazzino".
+   - Mobile (`< md`): i livelli intermedi collassano in un `…` che apre l'elenco completo; restano radice (icona) + `…` + livello corrente.
+2. **Ricerca (a destra)** — `SearchField` (`src/components/layout/GlobalSearch.jsx`), `flex-1 basis-0`, **larghezza minima 50px**. **Cerca sempre nel contenuto della vista in cui ti trovi**, mai altrove — stessa logica in tutta l'app:
+
+   | Vista | Cosa cerca | Note |
+   | :--- | :--- | :--- |
+   | Inventario | Utensili dentro il percorso corrente | Prima lettera in griglia → vista elenco. Fotocamera barcode. |
+   | Scanner | Utensile da depositare/prelevare | Autofocus su desktop, fotocamera apre il mirino nella pagina. |
+   | Movimento Multiplo | Utensile da aggiungere alla distinta | La prima lettera apre il catalogo (picker `xl`) già filtrato. |
+   | Storico movimenti | Movimenti (utensile, codice, operatore) | |
+   | Commesse | Commesse (codice, descrizione, ubicazione) | |
+   | Operatori | Operatori (nome, ID) | |
+
+   Nessuna vista ha una seconda casella di ricerca sotto la barra. Il placeholder dice cosa si cerca e dove ("Cerca in Candela…", "Cerca operatore per nome o ID…").
+
+**Priorità di spazio (vincolante)**: il percorso tiene la sua larghezza naturale; la ricerca prende tutto lo spazio che avanza. Quando lo spazio finisce, la ricerca si restringe fino a **50px — la lente resta sempre visibile** — e solo dopo il percorso inizia a troncare con ellissi, in quest'ordine: livelli intermedi (`shrink-[4]`), radice (`shrink-[2]`, fino alla sola icona), livello corrente per ultimo (min 3.5rem). Implementazione: percorso `shrink min-w-0` con base `auto`, ricerca `flex-1 basis-0 min-w-[50px]` — mai `flex-1` sul percorso, mai una larghezza fissa sulla ricerca.
+
+Dentro la ricerca, gli accessori compaiono solo se c'è spazio (container query sul campo, §1.14): `×` cancella da 120px, fotocamera barcode da 180px, badge `⌘K` da 260px. Su mobile, quando la ricerca è attiva (focus o testo), percorso, indietro e azioni si nascondono e il campo prende tutta la riga.
+
+**Comportamento**: in Inventario la ricerca si combina con il percorso/filtri attivi. `⌘K`/`Ctrl+K` porta il focus nella ricerca della vista corrente, `Esc` lo toglie.
+
+**Percorso = stato dei filtri**: cliccare un livello del percorso azzera tutto ciò che viene dopo, anche in vista elenco (i filtri a tendina seguono il percorso). L'ordine dei livelli è sempre la cascata Tipologia → Forma → Diametro → attributi, qualunque sia l'ordine in cui l'utente ha scelto i filtri.
+
+**Eccezione dichiarata al target 44×44 (§1.6)**: i separatori-menu `›` sono 32×44px. Il bersaglio principale di navigazione è il segmento stesso (≥44px di altezza, largo quanto il testo); il separatore è una scorciatoia secondaria, e portarlo a 44px di larghezza allungherebbe ogni percorso di 12px per livello, togliendo spazio proprio al testo che la regola di priorità protegge.
+
+### 2.2 Azioni nella barra
+A destra della ricerca, in quest'ordine: controlli di vista (toggle elenco/griglia, modalità Scanner — sempre `SegmentedControl` alto 44px; sotto `lg` le opzioni con `compact` restano solo icona) → icona "Aggiorna" (outline, dove la vista carica dati da rete) → **una** azione visibile a testo (es. "Reset filtri", solo quando c'è qualcosa da azzerare, da `lg` in su) → menu `⋮` con tutto il resto (Seleziona più utensili, Nuovo utensile, Reset filtri sempre presente qui, disabilitato quando non serve). Stessa regola di §3: oltre 2 icone → menu `⋮`; "Reset filtri" in rosa e separato da un divisore nel menu.
+
 ### Regole
-1. **Back**: sempre lo stesso componente icona 44×44 a sinistra dell'header, mai testo ("← Home"), mai posizione diversa (niente FAB arancione flottante). Usa `history.back()` quando la navigazione lo permette (chiude la rottura del browser back in Commesse).
-2. **Titolo**: un solo `.app-h1` per vista, fisso — mai 2-3 varianti dello stesso titolo (Scanner aveva "DEPOSITO RAPIDO"/"PRELIEVO RAPIDO"/"OPTICAL SCANNER"; usare sempre "Scanner" + badge di modalità accanto).
-3. **Breadcrumb**: sotto il titolo, cliccabile, presente da subito anche al livello 0 (non solo dal 2° livello in poi).
-4. **Icona**: o nel titolo o nelle card sottostanti, mai entrambe nella stessa vista.
+1. **Back**: sempre lo stesso componente icona 44×44 a sinistra della barra, mai testo ("← Home"), mai posizione diversa (niente FAB arancione flottante). Usa `history.back()` quando la navigazione lo permette (chiude la rottura del browser back in Commesse). In Inventario torna al livello precedente del percorso.
+2. **Titolo**: un solo titolo per vista, fisso — mai 2-3 varianti dello stesso titolo (Scanner aveva "DEPOSITO RAPIDO"/"PRELIEVO RAPIDO"/"OPTICAL SCANNER"; usare sempre "Scanner" + badge di modalità accanto). È l'ultimo segmento del percorso più un `<h1>` `sr-only` per i lettori di schermo.
+3. **Percorso**: presente da subito anche al livello 0, navigabile (§2.1).
+4. **Icona**: o nella radice del percorso o nelle card sottostanti, mai entrambe nella stessa vista.
 5. **Larghezza**: eredita da `PageContent`, mai dichiarata di nuovo nella vista figlia (§1.6).
-6. **Una sola `PageToolbar` per vista** *(bug reale osservato, 2026-09-19)*: mai una `PageToolbar` che ne avvolge un'altra. Se un componente figlio (es. `DropdownFilterView`) renderizza già la propria `PageToolbar` completa, la vista genitore **non ne aggiunge una seconda** attorno per un bottone isolato (es. "Resetta Tutto") — quel bottone entra nella toolbar del figlio, o il figlio riceve il controllo via prop. Sintomo tipico di questo errore: due linee orizzontali sovrapposte con una fascia vuota in mezzo (visto in `App.jsx` + `DropdownFilterView.jsx`, vista Inventario/Elenco).
-   Quando una toolbar impila due righe (es. barra ricerca/vista sopra, riga filtri sotto), lo spazio verticale tra le due segue comunque §1.9: passo `compact` (12px), mai i 3-4px che restano "per caso" quando due contenitori vengono uniti senza margine dichiarato.
+6. **Una sola barra e al massimo una `PageToolbar` per vista** *(bug reale osservato, 2026-09-19)*: mai una `PageToolbar` che ne avvolge un'altra, mai una seconda barra con ricerca, reset o selezione dentro un componente figlio (`DropdownFilterView` e `ToolsGrid` non hanno più né "Reset filtri" né "Seleziona": stanno nella barra). Sintomo tipico di questo errore: due linee orizzontali sovrapposte con una fascia vuota in mezzo.
+   Quando una toolbar impila due righe (es. filtri che vanno a capo), lo spazio verticale tra le due segue comunque §1.9: passo `compact` (12px), mai i 3-4px che restano "per caso" quando due contenitori vengono uniti senza margine dichiarato.
 7. **Wrap della toolbar** *(bug reale osservato, 2026-09-19)*: ricerca e filtri/segmented **non competono mai per lo stesso spazio senza una via d'uscita**. La riga usa `flex-wrap`, la ricerca ha una larghezza minima garantita (`min-w-[220px]` o equivalente) e **non è mai `flex-1` accanto a un gruppo `shrink-0`** che le lascia solo gli avanzi: quando non entrano affiancati, il gruppo filtri/segmented va a capo su una riga sotto, la ricerca resta larga e leggibile. Meglio ancora: contenitore `@container` (§1.14) con `@md:flex-row`/wrap invece di `md:flex-row` fisso sul viewport — la larghezza reale disponibile è quella di `PageContent` (che dipende dalla sidebar), non quella dello schermo, esattamente il caso già descritto in §1.14. Verificato che senza questa regola il placeholder si taglia (es. `CommesseView.jsx`, §2.6 nota d'implementazione).
+
+### 2.3 Schermata di login
+
+> **Prototipo approvato**: variante A "griglia, schermo bloccato", round 5, 2026-09-24. Sostituisce le due card affiancate (presentazione + lista verticale di operatori) che facevano scorrere l'intera pagina e nascondevano alcuni operatori sotto il bordo.
+
+- **Schermo bloccato**: root `fixed inset-0 h-[100dvh] overflow-hidden`. La pagina non scorre mai; se gli operatori non ci stanno, scorre **solo la griglia** dentro la card — intestazione, ricerca e piè di pagina restano fermi.
+- **Intestazione**: una riga con marchio (overline "Bercella S.r.l." + nome app) e icon-button `ⓘ` che apre la descrizione del sistema. Il vecchio pannello di presentazione affiancato non c'è più.
+- **Card**: alta quanto il contenuto, centrata in verticale, `max-h-full`, `--radius-modal`. Titolo "Chi sei?" + ricerca per nome/ID.
+- **Griglia unica**: operatori e amministratori **insieme**, nell'ordine alfabetico del database, senza gruppi separati. 2 colonne su mobile, 3 da `sm`, 4 da `lg`.
+- **Tessera persona** (`button` reale, ≥68px di altezza): iniziali 40×40 `accent-blue/10` → nome in `.app-h3` (non maiuscolo, fino a 2 righe, poi ellissi) → ID in `.app-caption`. Stati da §1.13.
+- **Amministratori**: stessa tessera, con **solo** un lucchetto 14px a destra (`aria-label` "…, amministratore, richiede password"). Il tocco apre, dentro la stessa card, il passo password: riepilogo persona + campo password + [Indietro outline] [ACCEDI primaria]. Errori inline sotto il campo (§7). Un operatore entra al primo tocco, senza passo intermedio.
+- **Piè di pagina**: legenda del lucchetto ("🔒 = richiede password"), così il simbolo non ha bisogno di una sezione dedicata.
+- Stati §8.2: skeleton a tessere durante il caricamento, errore con "Riprova", nessun risultato che cita il termine cercato.
 
 ---
 
@@ -294,6 +346,14 @@ Componenti da creare: `src/components/ui/icon-button.jsx` (44px, `aria-label` ob
 | `.badge-blue` | Codice aziendale, fornitore, info neutra | Stato di giacenza |
 | `.badge-orange` | **Solo** alert scorte / "Da ordinare" | Ubicazione, ruolo utente, ricerca risultati (mai "1000 UTENSILI TROVATI" in arancione — è un falso alert) |
 
+> **Bug reale corretto (2026-09-24)**: `ToolsGrid.jsx`, colonna Ubicazione, usava `badge-orange` — esattamente il caso che questa tabella vieta da prima ancora dell'inizio di questo lavoro di rifiniture. Corretto in `badge-blue` ("info neutra", il caso giusto secondo la riga sopra). La regola era già scritta correttamente: il codice non la seguiva.
+
+**Peso visivo relativo tra badge nella stessa riga** *(bug reale osservato, 2026-09-24)*: quando più badge convivono nella stessa riga/card (es. Ubicazione, Stato, Lavorazione in `ToolsGrid`), il colore da solo non basta a stabilire quale conta di più — un badge neutro `bg-slate-100` su sfondo quasi bianco ha meno contrasto della sua stessa tinta di sfondo e "sparisce" come pillola, lasciando il testo scuro in grassetto a risaltare **più** dei badge colorati accanto (misurato: succedeva con Lavorazione, che doveva essere la colonna meno importante). Regola: la colonna meno rilevante non è un badge affievolito, è **testo semplice** (`app-caption text-muted-foreground`, nessun sfondo/bordo) — una pillola "silenziosa" è un ossimoro visivo, non esiste una via di mezzo stabile. Ordine di enfasi in `ToolsGrid`: Stato (badge colorato, informazione operativa diretta) → Ubicazione (`badge-blue`, riferimento) → Lavorazione (testo semplice, metadato).
+
+**Ubicazione: leggero rilievo in più, senza competere con Stato** *(decisione 2026-09-24)*: resta `badge-blue` (informazione di riferimento, non un alert), ma con un'icona `MapPin` (12px) dentro il badge — l'icona velocizza la lettura a colpo d'occhio più di qualsiasi variazione di colore o peso, senza alzarne la "voce" al livello di Stato. La stessa `badge-blue` usata per Codice Aziendale resta senza icona: l'icona è il segnale che distingue "dove si trova" da "un altro codice di riferimento", non un'enfasi generica su tutto il blu.
+
+**Centraggio verticale robusto per badge di cella** *(bug reale osservato, 2026-09-24)*: `text-align:center` su un contenitore blocco + `inline-block` sul badge sembra centrare, ma resta soggetto a differenze di 2-4px tra colonne con configurazioni flex diverse (`isFlex` vs larghezza fissa) — la stessa classe di bug del `min-w-0` mancante, qui sul versante verticale. Fix strutturale: il contenitore diretto del badge è `flex items-center justify-center` (non `text-center`), e il badge stesso è `inline-flex items-center` (non `inline-block`) — il centraggio passa sempre dal motore flex, mai dal text-align, così l'altezza di riga non dipende più dal calcolo del line-box ereditato.
+
 Icone tipologia utensile: monocrome (`accent-blue` o `slate`) o palette ridotta — **mai viola/indigo** (rimuovere da `toolUtils.jsx`).
 
 ### 4.3 SegmentedControl
@@ -305,6 +365,10 @@ Componente da creare: `src/components/ui/filter-chip.jsx`. Stati: neutro (`bg-bl
 **Filtri a cascata: posizione fissa, mai smontati** *(bug reale osservato, 2026-09-19)*: quando una selezione azzera le opzioni valide di un altro filtro, quel filtro **non sparisce e non si sposta** — resta nello stesso punto, disabilitato (§1.13: stessa posizione, opacità 40%, nessun hover). La cascata resta intelligente (non si può scegliere una combinazione impossibile), ma l'ordine e la posizione dei filtri sul rigo sono uno stato stabile, mai animato da un `layout`/`popLayout` che li fa scivolare — un bersaglio che si sposta mentre l'utente sta per cliccarlo è un problema di ergonomia (Fitts), non un dettaglio estetico. Le uniche cose che possono davvero comparire/sparire sulla riga sono elementi transitori aggiuntivi (chip di ricerca attiva, bottone reset) — mai uno degli **8 filtri stessi**.
 
 **Larghezza minima dei filtri: 140px non basta per le etichette lunghe** *(bug reale osservato, 2026-09-24)*: alla larghezza minima attuale (`min-w-[140px]`), l'etichetta di un filtro con `tracking-[0.25em]` (lo stile `app-overline` usato per tutte le label filtro) può tagliarsi — misurato dal vivo: "SISTEMA MISURA" sfora di 10px, "RIVESTIMENTO" ha solo 7px di margine, entrambi a rischio concreto di troncamento. **Fix**: portare il minimo a `min-w-[160px]`. **Nota di metodo per chi misura queste cose in futuro**: uno spazio tra le lettere così largo (2.5px per ogni carattere a 10px di font) non lo conta un semplice calcolo della larghezza del testo — va sommato esplicitamente (`letter-spacing × (numero caratteri − 1)`), altrimenti la stima dice "ci sta" quando in realtà non ci sta.
+
+**Select vuoto = `null`, mai `undefined`** *(bug reale osservato, 2026-09-24)*: il `Select` di `@base-ui` con `value={undefined}` smette di essere controllato e continua a mostrare l'ultima scelta. Effetti visti: "Reset filtri" e i clic sul percorso azzeravano i dati ma le tendine mostravano ancora il vecchio valore, e scegliendo "(Tutti)" compariva la stringa grezza `all`. Regola: il valore vuoto si passa come `null` e, se esiste un'opzione "Tutti", il suo valore sentinella (`'all'`) si mappa su `null` — così compare il placeholder con il nome del filtro. Vale per `DropdownFilterView`, `ToolsGrid` e Storico.
+
+**`SegmentedControl` — stato selezionato**: `@base-ui` marca l'opzione attiva con `data-pressed`, non `data-state="on"`. Lo stile selezionato usa `data-[pressed]:` (sfondo, testo `accent-blue`, anello `accent-blue/30`); un'opzione semantica può sovrascrivere il colore (es. Deposita smeraldo, Preleva rosa).
 
 ### 4.5 Stat Tile
 
@@ -351,7 +415,7 @@ Componente da creare: `src/components/ui/stat-tile.jsx`. Chiude l'assenza di ove
 - QTY: `size:64-70px`, fissa, centrata.
 - Ubicazione/Fornitore/Stato: `size:100-140px`, fisse.
 - **Azioni**: larghezza fissa, mai spostata da un testo lungo in un'altra colonna — la colonna flessibile (Descrizione) si accorcia, le azioni restano al loro posto. Regola generale, non solo per `ToolsGrid`: vale per card commessa/operatore e righe della Distinta (§5.1). *(round 3, 2026-09-19 — vedi anche §1.13 sulla visibilità delle azioni)*
-- **Ogni restringimento in un flex container richiede `min-w-0` a ogni livello della catena — non solo `truncate`** *(bug reale osservato, 2026-09-19-24)*: un elemento flex di default rifiuta di restringersi sotto la sua larghezza naturale (`min-width:auto` implicito) finché non riceve `min-w-0` esplicito — e questo vale sia che si voglia troncare un testo, sia che si voglia far andare a capo un gruppo di filtri (`flex-wrap`). Due bug reali dalla stessa causa: `CommesseView.jsx` (`truncate` su uno `<span>` senza `min-w-0` sullo span né sul suo genitore diretto → il badge e il menu `⋮` sfondavano la card); `DropdownFilterView.jsx` (il wrapper della riga filtri aveva `shrink-0` e nessun `min-w-0` → pretendeva 2167px in una toolbar da 1120px, il `flex-wrap` interno non aveva mai la possibilità di scattare e i filtri finivano fuori schermo, irraggiungibili). **Checklist per ogni contenitore che deve restringersi o andare a capo**: `min-w-0` sul contenitore diretto **e** su ogni suo antenato flex fino al primo elemento che ha davvero spazio da cedere; mai `shrink-0` su un wrapper che deve poi lasciare ai suoi figli la possibilità di andare a capo — sono comportamenti opposti.
+- **Ogni restringimento in un flex container richiede `min-w-0` a ogni livello della catena — non solo `truncate`** *(bug reale osservato, 2026-09-19-24)*: un elemento flex di default rifiuta di restringersi sotto la sua larghezza naturale (`min-width:auto` implicito) finché non riceve `min-w-0` esplicito — e questo vale sia che si voglia troncare un testo, sia che si voglia far andare a capo un gruppo di filtri (`flex-wrap`). Tre bug reali dalla stessa causa: `CommesseView.jsx` (`truncate` su uno `<span>` senza `min-w-0` sullo span né sul suo genitore diretto → il badge e il menu `⋮` sfondavano la card); `DropdownFilterView.jsx` (il wrapper della riga filtri aveva `shrink-0` e nessun `min-w-0` → pretendeva 2167px in una toolbar da 1120px, il `flex-wrap` interno non aveva mai la possibilità di scattare e i filtri finivano fuori schermo, irraggiungibili); `OperatorsView.jsx` (nome operatore con `truncate` senza `min-w-0` sul proprio genitore diretto → con un nome lungo il badge "Tu" avrebbe rischiato di uscire dalla card, stesso schema esatto di `CommesseView`, trovato controllando deliberatamente se il pattern si ripeteva altrove). **Checklist per ogni contenitore che deve restringersi o andare a capo**: `min-w-0` sul contenitore diretto **e** su ogni suo antenato flex fino al primo elemento che ha davvero spazio da cedere; mai `shrink-0` su un wrapper che deve poi lasciare ai suoi figli la possibilità di andare a capo — sono comportamenti opposti.
 
 ### Regola mobile (zero scroll orizzontale)
 - Mostrare sempre: icona, descrizione (`.app-h3`), quantità (`.app-qty-sm`).
@@ -506,7 +570,7 @@ Prima di considerare conclusa qualsiasi modifica:
 2. [ ] Zero scroll orizzontale su mobile (375-428px); tabelle → card sotto `md`.
 3. [ ] Nessuna classe di testo arbitraria: solo `.app-*` (§1.3).
 4. [ ] Nessun valore arbitrario riusato (radius, larghezza pagina, z-index): usa i token di §1.4-§1.6.
-5. [ ] Vista di primo livello conforme a `PageTemplate`/`PageHeader` (§2): back 44px, un solo `.app-h1`, breadcrumb, 1 azione primaria.
+5. [ ] Vista di primo livello conforme a `PageTemplate`/`PageHeader` (§2): una sola barra con casella percorso + casella ricerca (min 50px, il percorso tronca solo dopo), la ricerca cerca nel contenuto della vista, back 44px, azioni a destra, nessuna seconda casella di ricerca/reset/selezione fuori dalla barra.
 6. [ ] Oltre 2 icon-button sulla stessa riga/card → raggruppate nel menu `⋮` (§3).
 7. [ ] Badge/colore conformi alla mappa stato→colore unica (§4.2) — nessun uso "creativo" dell'arancione.
 8. [ ] Modale: `size` tra `sm/md/lg/xl` (§6.1), header con `showCloseButton={false}` + `X` nella riga flex, nessun "box in a box".
@@ -526,3 +590,5 @@ Prima di considerare conclusa qualsiasi modifica:
 22. [ ] Empty state differenziato per causa (vuoto genuino / per filtri / ricerca senza risultati, §8.2), mai lo stesso messaggio generico per tutte e tre.
 23. [ ] Griglie dentro contenitori a larghezza variabile (modali, stat tile, tessere) usano `@container` (§1.14), non solo `md:`/`lg:` legati al viewport.
 24. [ ] `.app-h3` non maiuscolo quando mostra un dato reale (descrizione, nome, testo libero) — maiuscolo ammesso solo su etichette brevi a vocabolario fisso (§1.3) o sull'eccezione dichiarata delle tessere categoria.
+25. [ ] Login: pagina che non scorre, griglia unica operatori + admin, lucchetto solo sugli admin (§2.3).
+26. [ ] `Select`: valore vuoto passato come `null` (mai `undefined`), opzione "Tutti" mappata su `null` → torna il placeholder (§4.4).

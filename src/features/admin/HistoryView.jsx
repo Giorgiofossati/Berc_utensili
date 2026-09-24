@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect, memo } from 'react';
 
 import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
+import { IconButton } from '@/components/ui/icon-button';
 import { StateBlock } from '@/components/common/StateBlock';
 import { StatTile } from '@/components/ui/stat-tile';
 import { SegmentedControl } from '@/components/ui/segmented-control';
@@ -10,10 +11,7 @@ import {
   getSortedRowModel, 
   createColumnHelper 
 } from '@tanstack/react-table';
-import { 
-  ArrowDown, ArrowUp, Search, X, 
-  RefreshCw, User, Calendar, Info, Copy, Check, Layers, AlignJustify 
-} from 'lucide-react';
+import { ArrowDown, ArrowUp, X, RefreshCw, User, Calendar, Info, Copy, Check, Layers, AlignJustify } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { VirtualizedTable } from '../../components/common/DataTable';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -414,48 +412,34 @@ const HistoryView = memo(({
         breadcrumb="Magazzino"
         showBack={true}
         onBack={() => setView('home')}
+        search={{
+          value: searchQuery,
+          onChange: setSearchQuery,
+          placeholder: 'Cerca utensile, codice o operatore…',
+          label: 'Cerca nei movimenti',
+        }}
         action={
           fetchHistory && (
-            <button 
-              onClick={handleRefresh} 
+            <IconButton
+              icon={<RefreshCw size={16} className={isRefreshing ? "animate-spin text-accent-blue" : ""} />}
+              onClick={handleRefresh}
               disabled={isRefreshing}
-              title="Ricarica storico movimenti"
-              className="glass-button p-2 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl font-bold text-xs text-slate-700 dark:text-slate-300 flex items-center gap-1.5 hover:scale-105 active:scale-95 transition-all"
-            >
-              <RefreshCw size={14} className={isRefreshing ? "animate-spin text-accent-blue" : ""} />
-              <span className="hidden sm:inline">Aggiorna</span>
-            </button>
+              aria-label="Aggiorna storico movimenti"
+              title="Aggiorna"
+              variant="outline"
+              className="glass-button border-slate-900/10 dark:border-white/10"
+            />
           )
         }
       />
       {/* Filter Toolbar */}
       <PageToolbar>
         <div className="flex flex-wrap items-center gap-2">
-          {/* Omni Search Bar */}
-          <div className="relative flex-1 min-w-[200px] sm:min-w-[280px]">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cerca utensile, codice o operatore..."
-              className="w-full pl-8 pr-8 py-2 rounded-xl md:rounded-xl glass-panel bg-transparent text-xs sm:text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 dark:text-slate-200 text-slate-800 border dark:border-white/10 border-slate-900/10 focus:outline-none focus:ring-2 focus:ring-accent-blue/40 transition-all"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors p-0.5"
-              >
-                <X size={14} />
-              </button>
-            )}
-          </div>
-
           {/* Operatore Select */}
           <div className="relative min-w-[130px] sm:min-w-[160px]">
             <Select 
-              value={selectedOperator} 
-              onValueChange={setSelectedOperator}
+              value={selectedOperator === 'all' ? null : selectedOperator}
+              onValueChange={(val) => setSelectedOperator(val ?? 'all')}
             >
               <SelectTrigger className="glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all w-full text-xs">
                 <SelectValue placeholder="Operatore" />
@@ -484,8 +468,9 @@ const HistoryView = memo(({
           {/* Periodo / Giorni Presets */}
           <div className="relative min-w-[130px] sm:min-w-[150px]">
             <Select 
-              value={timeframeFilter} 
+              value={timeframeFilter === 'all' ? null : timeframeFilter}
               onValueChange={(val) => {
+                val = val ?? 'all';
                 setTimeframeFilter(val);
                 if (val !== 'custom') setCustomDate('');
               }}

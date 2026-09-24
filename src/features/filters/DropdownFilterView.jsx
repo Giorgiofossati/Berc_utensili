@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback, memo, useRef } from 'react';
-import { PageToolbar, PageContent } from '@/components/layout/PageTemplate';
+import { PageToolbar } from '@/components/layout/PageTemplate';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle2, List, LayoutGrid, Filter, Search } from 'lucide-react';
+import { Filter } from 'lucide-react';
 import ToolsGrid from '../inventory/ToolsGrid';
 import { EXTRA_FILTER_KEYS } from '../inventory/constants';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,29 +14,12 @@ const DropdownFilterView = memo(({
   onSelectTool, 
   isMobile, 
   initialFilters = {}, 
-  onFilterChange, 
-  resetFilters: resetFiltersProp,
-  viewMode, 
-  setViewMode 
+  onFilterChange
 }) => {
   const isSelectionMode = useFilterStore(state => state.isSelectionMode);
-  const setIsSelectionMode = useFilterStore(state => state.handleSetIsSelectionMode);
   const searchQuery = useFilterStore(state => state.searchQuery);
-  const clearSearchQuery = useFilterStore(state => state.clearSearchQuery);
-  const filterStack = useFilterStore(state => state.filterStack);
-  const resetFiltersStore = useFilterStore(state => state.resetFilters);
   const [filters, setFilters] = useState(initialFilters);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(!isMobile);
-
-  const handleResetAll = useCallback(() => {
-    setFilters({});
-    clearSearchQuery();
-    if (resetFiltersProp) {
-      resetFiltersProp();
-    } else {
-      resetFiltersStore();
-    }
-  }, [clearSearchQuery, resetFiltersProp, resetFiltersStore]);
 
   // Synchronize internal filters state with changes to the parent's initialFilters prop
   const serializedInitialFilters = JSON.stringify(initialFilters);
@@ -194,49 +177,16 @@ const DropdownFilterView = memo(({
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-7xl flex flex-col gap-3 md:gap-4 flex-1 min-h-0"
     >
-      <div className="flex items-center justify-between gap-2 px-2 md:hidden">
+      {/* Mobile: i filtri stanno in una fascia richiudibile; ricerca, vista, reset e selezione sono nell'AppBar */}
+      <div className="flex items-center px-2 md:hidden">
         <button 
           onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
-          className="flex-1 flex items-center justify-center gap-1.5 glass-button px-2 py-1.5 rounded-xl app-overline text-accent-blue"
+          aria-expanded={isFiltersExpanded}
+          className="flex-1 h-11 flex items-center justify-center gap-1.5 glass-button px-3 rounded-xl app-overline text-accent-blue"
         >
           <Filter size={14} className="shrink-0" />
-          <span className="truncate">{isFiltersExpanded ? 'Nascondi' : 'Mostra'}</span>
-          {activeFiltersCount > 0 && <span className="bg-accent-blue text-slate-950 w-4 h-4 rounded-full flex items-center justify-center text-xs shrink-0 font-black">{activeFiltersCount}</span>}
-        </button>
-        
-        {setViewMode && (
-          <div className="shrink-0 flex items-center bg-slate-900/5 dark:bg-white/5 p-1 rounded-2xl relative shadow-inner border border-slate-900/5 dark:border-white/5">
-            <motion.div 
-              className="absolute top-1 bottom-1 w-[32px] bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-accent-blue/30 dark:border-accent-blue/30 overflow-hidden"
-              initial={false}
-              animate={{ x: viewMode === 'grid' ? 32 : 0 }}
-              transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            >
-              <div className="absolute inset-0 bg-accent-blue/10 animate-pulse" />
-            </motion.div>
-            <button 
-              type="button" 
-              onClick={() => setViewMode('dropdown')} 
-              className={`relative z-10 w-8 h-7 flex items-center justify-center transition-colors ${viewMode === 'dropdown' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
-            >
-              <List size={16} />
-            </button>
-            <button 
-              type="button" 
-              onClick={() => setViewMode('grid')} 
-              className={`relative z-10 w-8 h-7 flex items-center justify-center transition-colors ${viewMode === 'grid' ? 'text-accent-blue drop-shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
-            >
-              <LayoutGrid size={16} />
-            </button>
-          </div>
-        )}
-
-        <button
-          onClick={() => setIsSelectionMode(!isSelectionMode)}
-          className={`flex-1 glass-button rounded-xl px-2 py-1.5 app-overline transition-all flex items-center justify-center gap-1.5 ${isSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600'}`}
-        >
-          {isSelectionMode ? <X size={14} className="shrink-0" /> : <CheckCircle2 size={14} className="shrink-0" />}
-          <span className="truncate">{isSelectionMode ? 'Cancella' : 'Seleziona'}</span>
+          <span className="truncate">{isFiltersExpanded ? 'Nascondi filtri' : 'Mostra filtri'}</span>
+          {activeFiltersCount > 0 && <span className="bg-accent-blue text-slate-950 w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 font-black tracking-normal">{activeFiltersCount}</span>}
         </button>
       </div>
 
@@ -258,10 +208,11 @@ const DropdownFilterView = memo(({
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.2 }}
-                    className="relative flex-1 min-w-[130px] md:min-w-[140px] md:max-w-[200px]"
+                    className="relative flex-1 min-w-[130px] md:min-w-[160px] md:max-w-[200px]"
                   >
                     <Select
-                      value={filters[key] ? String(filters[key]) : undefined}
+                      // null (non undefined): il Select resta controllato e torna al placeholder col nome del filtro
+                      value={filters[key] ? String(filters[key]) : null}
                       onValueChange={(val) => setFilter(key, val === 'all' ? '' : val)}
                       disabled={isDisabled}
                     >
@@ -283,52 +234,6 @@ const DropdownFilterView = memo(({
                   </motion.div>
                 );
               })}
-              <AnimatePresence>
-                {searchQuery && (
-                  <motion.div
-                    layout
-                    key="active-search-chip"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl md:rounded-xl bg-accent-blue/15 border border-accent-blue/40 text-accent-blue app-overline"
-                  >
-                    <Search size={14} className="shrink-0" />
-                    <span className="truncate max-w-[120px] font-bold">"{searchQuery}"</span>
-                    <button
-                      type="button"
-                      onClick={clearSearchQuery}
-                      className="ml-1 hover:text-white p-0.5 rounded transition-colors"
-                      title="Cancella ricerca"
-                    >
-                      <X size={14} />
-                    </button>
-                  </motion.div>
-                )}
-                {(Object.values(filters).some(v => v) || searchQuery || (filterStack && filterStack.length > 0)) && (
-                  <motion.button
-                    layout
-                    key="reset"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.2 }}
-                    onClick={handleResetAll}
-                    className="col-span-full md:col-auto w-full md:w-auto glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline text-accent-rose hover:bg-accent-rose/10 transition-all flex items-center justify-center gap-1"
-                  >
-                    <X size={14} /> Reset filtri
-                  </motion.button>
-                )}
-                <div key="selection-mode" className="hidden md:block">
-                  <button
-                    onClick={() => setIsSelectionMode(!isSelectionMode)}
-                    className={`glass-button rounded-xl px-4 py-2 app-overline transition-all flex items-center gap-2 ${isSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600 opacity-60 hover:opacity-100'}`}
-                  >
-                    {isSelectionMode ? <X size={14} /> : <List size={14} />}
-                    {isSelectionMode ? 'Cancella' : 'Seleziona'}
-                  </button>
-                </div>
-              </AnimatePresence>
             </div>
           </motion.div>
         )}

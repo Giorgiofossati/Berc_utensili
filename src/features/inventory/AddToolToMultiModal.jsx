@@ -8,7 +8,7 @@ import { useInventoryStore } from '../../store/useInventoryStore';
 import { useMultiMovementStore } from '../../store/useMultiMovementStore';
 import ToolsGrid from './ToolsGrid';
 
-const AddToolToMultiModal = memo(({ isOpen, onClose, showToastNotification }) => {
+const AddToolToMultiModal = memo(({ isOpen, onClose, showToastNotification, initialQuery = '' }) => {
   const [query, setQuery] = useState('');
   const inputRef = useRef(null);
 
@@ -19,12 +19,12 @@ const AddToolToMultiModal = memo(({ isOpen, onClose, showToastNotification }) =>
   useEffect(() => {
     if (isOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setQuery('');
+      setQuery(initialQuery);
       setTimeout(() => {
         if (inputRef.current) inputRef.current.focus();
       }, 80);
     }
-  }, [isOpen]);
+  }, [isOpen, initialQuery]);
 
   const filteredTools = useMemo(() => {
     if (!query || !query.trim()) return tools;

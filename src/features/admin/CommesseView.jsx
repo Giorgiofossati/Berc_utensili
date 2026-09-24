@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FolderKanban, Plus, Search, RefreshCw, MapPin, 
-  Calendar, CheckCircle2, AlertCircle, AlertTriangle, 
-  Pencil, Trash2
-} from 'lucide-react';
+import { FolderKanban, Plus, RefreshCw, MapPin, Calendar, CheckCircle2, AlertCircle, AlertTriangle, Pencil, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/dialog";
 import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
 import { StateBlock } from '@/components/common/StateBlock';
@@ -184,20 +180,28 @@ export default function CommesseView({ setView, showToastNotification }) {
     <PageTemplate>
       <PageHeader
         title="Commesse"
-        breadcrumb="Gestione Centri di Costo"
+        breadcrumb="Magazzino"
         showBack={true}
         onBack={() => {
             if (setView) setView('home');
             else window.history.back();
         }}
+        search={{
+          value: searchQuery,
+          onChange: setSearchQuery,
+          placeholder: 'Cerca codice, descrizione, ubicazione…',
+          label: 'Cerca nelle commesse',
+        }}
         action={
           <div className="flex gap-2">
             <IconButton 
-              icon={<RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />}
+              icon={<RefreshCw size={16} className={isLoading ? "animate-spin text-accent-blue" : ""} />}
               onClick={() => fetchCommesse()}
               disabled={isLoading}
-              aria-label="Ricarica"
+              aria-label="Aggiorna commesse"
+              title="Aggiorna"
               variant="outline"
+              className="glass-button border-slate-900/10 dark:border-white/10"
             />
             <button
               type="button"
@@ -213,17 +217,6 @@ export default function CommesseView({ setView, showToastNotification }) {
 
       <PageToolbar>
         <div className="flex flex-col md:flex-row flex-wrap items-stretch md:items-center gap-3 w-full">
-          <div className="relative flex-1 min-w-[220px] md:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            <input
-              type="text"
-              placeholder="Cerca per codice, descrizione, ubicazione..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full glass-input border dark:border-white/10 border-slate-900/10 rounded-xl py-2 pl-9 pr-3 text-sm outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all"
-            />
-          </div>
-
           <div className="flex items-center gap-1.5 p-1 rounded-xl glass-panel dark:border-white/10 border-slate-900/10 shrink-0">
             <button
               onClick={() => setStatusFilter('TUTTE')}

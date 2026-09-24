@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  UserPlus, Shield, User, Check, RefreshCw, AlertTriangle, Eye, EyeOff,
-  HelpCircle, Search, Edit2, Trash2
-} from 'lucide-react';
+import { UserPlus, Shield, User, Check, RefreshCw, AlertTriangle, Eye, EyeOff, HelpCircle, Edit2, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/dialog";
-import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
+import { PageTemplate, PageHeader, PageContent } from '@/components/layout/PageTemplate';
 import { IconButton, IconMenu } from '@/components/ui/icon-button';
 import { StateBlock } from '@/components/common/StateBlock';
 
@@ -351,37 +348,33 @@ const OperatorsView = memo(({ setView }) => {
         breadcrumb="Amministrazione"
         showBack={true}
         onBack={() => setView('home')}
+        search={{
+          value: searchQuery,
+          onChange: setSearchQuery,
+          placeholder: 'Cerca operatore per nome o ID…',
+          label: 'Cerca negli operatori',
+        }}
         action={
-          <button 
-            onClick={handleOpenCreate}
-            className="action-btn action-btn-primary px-4 py-2 rounded-xl font-black text-xs sm:text-sm tracking-wider flex items-center gap-2"
-          >
-            <UserPlus size={16} /> <span className="hidden sm:inline">Nuovo Operatore</span>
-          </button>
+          <div className="flex gap-2">
+            <IconButton
+              icon={<RefreshCw size={16} className={loading ? "animate-spin text-accent-blue" : ""} />}
+              onClick={fetchUsers}
+              disabled={loading}
+              aria-label="Aggiorna operatori"
+              title="Aggiorna"
+              variant="outline"
+              className="glass-button border-slate-900/10 dark:border-white/10"
+            />
+            <button 
+              onClick={handleOpenCreate}
+              className="action-btn action-btn-primary px-4 py-2 rounded-xl font-black text-xs sm:text-sm tracking-wider flex items-center gap-2"
+            >
+              <UserPlus size={16} /> <span className="hidden sm:inline">Nuovo Operatore</span>
+            </button>
+          </div>
         }
       />
 
-      <PageToolbar>
-        <div className="flex gap-3 items-center w-full max-w-md">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            <input 
-              type="text" 
-              placeholder="Cerca operatore per nome o ID..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full glass-input border dark:border-white/10 border-slate-900/10 rounded-xl py-2 pl-9 pr-3 text-sm outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all"
-            />
-          </div>
-          <IconButton 
-            icon={<RefreshCw size={16} className={loading ? "animate-spin" : ""} />} 
-            onClick={fetchUsers}
-            disabled={loading}
-            aria-label="Ricarica lista"
-            variant="outline"
-          />
-        </div>
-      </PageToolbar>
 
       <PageContent>
         {loading ? (
@@ -476,12 +469,12 @@ const OperatorsView = memo(({ setView }) => {
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-bold dark:text-white text-slate-900 uppercase tracking-tight text-sm truncate">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <h4 className="font-bold dark:text-white text-slate-900 uppercase tracking-tight text-sm truncate min-w-0">
                           {u.nome} {u.cognome}
                         </h4>
                         {isSelf && (
-                          <span className="text-xs font-black uppercase tracking-wider bg-accent-orange/10 text-accent-orange px-2 py-0.5 rounded border border-accent-orange/20">
+                          <span className="text-xs font-black uppercase tracking-wider bg-accent-orange/10 text-accent-orange px-2 py-0.5 rounded border border-accent-orange/20 shrink-0">
                             Tu
                           </span>
                         )}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, memo } from 'react';
-import { PageContent, PageFooter } from '@/components/layout/PageTemplate';
+import { PageHeader, PageContent, PageFooter } from '@/components/layout/PageTemplate';
+import { useNavigationStore } from '../../store/useNavigationStore';
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -14,6 +15,8 @@ import AddToolToMultiModal from './AddToolToMultiModal';
 
 const MultiMovementView = memo(({ showToastNotification }) => {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [pickerQuery, setPickerQuery] = useState('');
+  const setView = useNavigationStore(state => state.setCurrentView);
 
   const items = useMultiMovementStore(state => state.items);
   const batchOpType = useMultiMovementStore(state => state.batchOpType);
@@ -83,20 +86,23 @@ const MultiMovementView = memo(({ showToastNotification }) => {
 
   return (
     <div className="w-full h-full flex flex-col min-h-0 relative max-w-7xl mx-auto px-2 sm:px-4 md:px-6">
-      {/* 1. Header Superiore */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 pt-1 border-b border-slate-200/60 dark:border-white/10 shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-accent-blue/15 border border-accent-blue/30 flex items-center justify-center text-accent-blue shadow-inner shrink-0">
-            <ClipboardList size={24} />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="app-overline text-accent-blue leading-none">Distinta Operativa</span>
-            <h1 className="app-h1 text-lg sm:text-xl md:text-2xl text-slate-900 dark:text-slate-100 leading-tight mt-0.5">
-              Movimento Multiplo
-            </h1>
-          </div>
-        </div>
+      <PageHeader
+        title="Movimento Multiplo"
+        breadcrumb="Magazzino"
+        showBack={true}
+        onBack={() => setView('home')}
+        className="px-0 sm:px-0 lg:px-0"
+        search={{
+          // Qui si cerca l'utensile da aggiungere: la prima lettera apre il catalogo già filtrato
+          value: '',
+          onChange: (val) => { setPickerQuery(val); setShowAddModal(true); },
+          placeholder: 'Cerca utensile da aggiungere…',
+          label: 'Cerca utensile da aggiungere alla distinta',
+        }}
+      />
 
+      {/* 1. Impostazioni della distinta */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-3 py-3 border-b border-slate-200/60 dark:border-white/10 shrink-0">
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           {/* Assegna Commessa Globale */}
           <div className="relative min-w-[200px] sm:min-w-[240px]">
@@ -519,8 +525,9 @@ const MultiMovementView = memo(({ showToastNotification }) => {
       {/* Modale Ricerca Rapida Utensili (con TanStack Table completa) */}
       <AddToolToMultiModal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => { setShowAddModal(false); setPickerQuery(''); }}
         showToastNotification={showToastNotification}
+        initialQuery={pickerQuery}
       />
     </div>
   );

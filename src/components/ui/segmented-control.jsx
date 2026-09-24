@@ -9,6 +9,7 @@ export function SegmentedControl({
   ariaLabel = "Seleziona opzione",
   className
 }) {
+  // opt.compact: sotto `lg` resta solo l'icona (etichetta sr-only) — per i controlli dentro l'AppBar (§2.2)
   return (
     <ToggleGroup
       value={[value]}
@@ -25,12 +26,12 @@ export function SegmentedControl({
           className={cn(
             "inline-flex items-center justify-center min-h-[36px] min-w-[44px] px-4 rounded-md text-sm font-bold uppercase tracking-wide transition-all select-none outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50",
             "text-muted-foreground hover:text-foreground",
-            "data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm",
+            "data-[pressed]:bg-background data-[pressed]:text-accent-blue data-[pressed]:shadow-sm data-[pressed]:ring-1 data-[pressed]:ring-accent-blue/30",
             opt.className
           )}
         >
-          {opt.icon && <span className="mr-2">{opt.icon}</span>}
-          {opt.label}
+          {opt.icon && <span className={opt.compact ? "lg:mr-2" : "mr-2"}>{opt.icon}</span>}
+          {opt.compact ? <span className="max-lg:sr-only">{opt.label}</span> : opt.label}
         </Toggle>
       ))}
     </ToggleGroup>

@@ -6,7 +6,7 @@ import {
   createColumnHelper
 } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
-import { X, List, AlertTriangle, ChevronRight, AlignJustify, Plus } from 'lucide-react';
+import { X, AlertTriangle, ChevronRight, AlignJustify, Plus, MapPin } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -24,13 +24,12 @@ const ToolsGrid = memo(({
   emptyDescription = null,
   selectionMode = 'none',
   showDensityToggle = false,
-  density: propDensity = 'comfortable',
+  density: propDensity = 'compact',
   renderRowTrailing
 }) => {
   const selectedIds = useFilterStore(state => state.selectedToolsIds);
   const onToggleSelect = useFilterStore(state => state.toggleToolSelection);
   const isStoreSelectionMode = useFilterStore(state => state.isSelectionMode);
-  const setIsSelectionMode = useFilterStore(state => state.handleSetIsSelectionMode);
   
   // Normalizzazione selectionMode: 'none' | 'toggle' | 'pick' (con fallback retrocompatibile per legacy 'multiple' / 'single')
   const normalizedSelectionMode = useMemo(() => {
@@ -177,10 +176,11 @@ const ToolsGrid = memo(({
         },
         cell: info => {
           const val = info.getValue();
-          if (!val) return <div className="w-full truncate text-center"><span className="text-slate-700 opacity-20">—</span></div>;
+          if (!val) return <div className="w-full flex items-center justify-center"><span className="text-slate-700 opacity-20">—</span></div>;
           return (
-            <div className="w-full truncate text-center px-1">
-              <span className="badge badge-orange app-caption font-bold px-2.5 py-0.5 truncate inline-block max-w-full">
+            <div className="w-full flex items-center justify-center px-1">
+              <span className="badge badge-blue app-caption font-bold px-2.5 py-0.5 truncate inline-flex items-center gap-1 max-w-full">
+                <MapPin size={12} className="shrink-0" />
                 {val}
               </span>
             </div>
@@ -201,11 +201,11 @@ const ToolsGrid = memo(({
         },
         cell: info => {
           const val = info.getValue();
-          if (!val) return <div className="w-full truncate text-center"><span className="text-slate-700 opacity-20">—</span></div>;
+          if (!val) return <div className="w-full flex items-center justify-center"><span className="text-slate-700 opacity-20">—</span></div>;
           const isOk = val === 'Disponibile' || val === 'NUOVO';
           return (
-            <div className="w-full truncate text-center px-1">
-              <span className={`badge text-xs font-black px-2.5 py-0.5 ${isOk ? 'badge-emerald' : 'badge-rose'}`}>
+            <div className="w-full flex items-center justify-center px-1">
+              <span className={`badge app-caption font-black px-2.5 py-0.5 inline-flex items-center ${isOk ? 'badge-emerald' : 'badge-rose'}`}>
                 {val}
               </span>
             </div>
@@ -230,10 +230,10 @@ const ToolsGrid = memo(({
         },
         cell: info => {
           const val = info.getValue();
-          if (!val) return <div className="w-full truncate text-center"><span className="text-slate-700 opacity-20">—</span></div>;
+          if (!val) return <div className="w-full flex items-center justify-center"><span className="text-slate-700 opacity-20">—</span></div>;
           return (
-            <div className="w-full truncate text-center px-1">
-              <span className="badge dark:bg-slate-800 dark:text-slate-300 bg-slate-100 text-slate-700 border dark:border-white/10 border-slate-200 app-caption font-bold px-2.5 py-0.5 truncate inline-block max-w-full">
+            <div className="w-full flex items-center justify-center px-1">
+              <span className="app-caption font-semibold text-muted-foreground truncate max-w-full">
                 {val}
               </span>
             </div>
@@ -285,7 +285,7 @@ const ToolsGrid = memo(({
               {availableFilters.map(({ key, label }) => (
                 <div key={key} className="relative">
                   <Select
-                    value={extraFilters[key] ? String(extraFilters[key]) : undefined}
+                    value={extraFilters[key] && extraFilters[key] !== 'all' ? String(extraFilters[key]) : null}
                     onValueChange={(val) => setFilter(key, val === 'all' ? '' : val)}
                   >
                     <SelectTrigger className={`glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline bg-transparent dark:border-white/10 border-slate-900/10 focus:ring-accent-blue/40 outline-none transition-all min-w-[95px] md:min-w-[120px] ${extraFilters[key] && extraFilters[key] !== 'all' ? 'text-accent-blue border-accent-blue/30' : 'dark:text-slate-300 text-slate-700'}`}>
@@ -321,17 +321,6 @@ const ToolsGrid = memo(({
             >
               <AlignJustify size={14} className="shrink-0" />
               <span>{density === 'compact' ? 'Compatta' : 'Comoda'}</span>
-            </button>
-          )}
-          {!hideExtraFilters && normalizedSelectionMode === 'toggle' && (
-            <button
-              type="button"
-              onClick={() => setIsSelectionMode(!isStoreSelectionMode)}
-              className={`glass-button rounded-xl md:rounded-xl px-3 py-1.5 md:px-4 md:py-2 app-overline transition-all flex items-center gap-1.5 shrink-0 ${isStoreSelectionMode ? 'text-accent-orange bg-accent-orange/10 border-accent-orange/30' : 'dark:text-slate-400 text-slate-600 opacity-70 hover:opacity-100 hover:bg-accent-blue/[0.06]'}`}
-              title={isStoreSelectionMode ? "Annulla modalità selezione" : "Attiva selezione multipla"}
-            >
-              {isStoreSelectionMode ? <X size={14} /> : <List size={14} />}
-              {isStoreSelectionMode ? 'Cancella' : 'Seleziona'}
             </button>
           )}
         </div>
