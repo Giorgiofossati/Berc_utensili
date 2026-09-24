@@ -408,6 +408,35 @@ Componente da creare: `src/components/ui/stat-tile.jsx`. Chiude l'assenza di ove
 
 **Badge contatore**: stile unico già corretto (`bg-accent-blue text-white rounded-full`) — oltre 99 mostra "99+", mai un numero a 3+ cifre che allarga il badge. **Un solo componente** `NavItem` per ogni lista di navigazione dell'app. **Nota di allineamento (da applicare in fase di codice, non ora)**: l'overlay del drawer mobile della sidebar usa oggi `z-50` hardcoded mentre §1.5 dichiara `--z-drawer: 40` — da riallineare quando si passa all'implementazione.
 
+### 4.7 ChoiceChip — scelta rapida a un tocco
+
+> **Prototipo approvato**: canvas "Ciclo di vita utensili", 2026-09-24. Componente: `src/components/ui/choice-chip.jsx`.
+
+Risposta a una domanda guidata quando le opzioni sono poche e note (macchine recenti, commesse recenti, "Generico macchina"). **Non è un FilterChip** (§4.4): il FilterChip restringe una lista e ha la `×`; il ChoiceChip *è* la risposta e si comporta come un radio (`ChoiceChipGroup` = `role="radiogroup"`, chip = `role="radio"` + `aria-checked`).
+
+| Stato | Trattamento |
+| :--- | :--- |
+| Default | `border-border`, superficie `black/3%` · `white/4%` |
+| Selected | Bordo **intero** `1.5px accent-blue` + tinta `accent-blue/10` (§1.13: mai solo il colore del testo) |
+| Azione (`variant="action"`) | Bordo tratteggiato, testo muted: "Altra…", "Cerca…" — apre altre opzioni, non è una risposta |
+
+Altezza minima 44px (`min-h-11`). Massimo **3-5 chip in evidenza** + un chip azione per il resto (legge di Hick): mai 15 macchine tutte visibili.
+
+### 4.8 Flussi guidati (domande numerate)
+
+> **Prototipo approvato**: canvas "Ciclo di vita utensili", 2026-09-24 (nota di Giorgio: "domande che guidano l'operatore"). Componenti: `src/components/ui/guided-step.jsx`, `src/components/ui/quantity-stepper.jsx`, `src/features/produzione/{DirectionStrip,GuidedFooter}.jsx`.
+
+Per un'operazione che richiede 2-4 scelte (Prelievo, Deposito) si usa una sequenza di **domande in linguaggio naturale** invece di un form con etichette ("Su quale macchina va?", non "Macchina"):
+
+1. **`GuidedStep`**: numero in cerchio blu → diventa spunta verde quando la domanda ha risposta. Le domande che dipendono da una precedente restano visibili ma al 50% e non cliccabili finché la precedente non ha risposta.
+2. **Preselezione onesta**: si preseleziona solo ciò che è molto probabile (ultima macchina dell'operatore, commessa usata sulla macchina entro 72h). Se il dato è vecchio **non** si preseleziona e si spiega perché (testo arancione) — una preselezione sbagliata confermata di corsa è peggio di un tocco in più.
+3. **`DirectionStrip`** "Prendi da → Porta a" sempre in cima quando c'è uno spostamento: si aggiorna a ogni scelta, bordo tratteggiato arancione finché la destinazione non è completa. Sempre affiancato, anche su smartphone.
+4. **`GuidedFooter`**: riepilogo in una riga + [Indietro] + conferma (`action-btn-carica`/`-scarica`) con suggerimento tasto `Invio` su desktop. Su smartphone "Indietro" diventa icona 48px per lasciare spazio alla conferma. Errori sopra i bottoni, in rosa, con testo umano (mai il codice).
+5. **Niente conferma extra**: dopo la conferma il modale si chiude e compare il Toast con **Annulla** (§8.1). Il flusso resta nella **stessa modale e stessa `size`** del passo precedente (§6.1), non ne apre un'altra.
+6. **`QuantityStepper`**: −/+ da 44px, campo digitabile, limite massimo = disponibili; su smartphone occupa la riga intera (`max-sm:justify-between`).
+7. **Schede esito "Com'è l'utensile?"** (`SmontaDialog`): 4 schede grandi (min 96px) con icona, titolo e **conseguenza scritta** sotto ("Cestello rosso · sarà la 3ª riaffilatura"). Colore = conseguenza: blu riaffilatura, rosa scarto, verde rientro, neutro sposta. Quando la conseguenza cambia (es. limite riaffilature raggiunto) il testo diventa arancione *prima* del tocco. Gli esiti senza domande successive si registrano al primo tocco.
+8. **Contesto di apertura**: se un flusso parte da un punto che ha già deciso una risposta (es. PRELEVA sulla riga del cassetto di una commessa), quella risposta è preselezionata e non va richiesta di nuovo.
+
 ---
 
 ## 5. DataTable & Toolbar

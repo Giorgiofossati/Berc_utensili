@@ -20,6 +20,79 @@ Questo file tiene traccia in ordine cronologico inverso di tutte le implementazi
 
 ---
 
+## [2026-09-24] - Correzioni backend Ciclo di Vita dopo la revisione (Gemini)
+- **Tag**: `[FIX]`
+- **Descrizione**:
+  - Vincoli e aggiornamenti su `posizioni_utensile` (A4, A9); rimosso l'indice unico su `movements_history.id_operazione` (A5, contratto v1.2).
+  - Nomi colonne, controlli permessi, filtri dashboard e scostamenti dal contratto come da `docs/REVIEW_BACKEND_LIFECYCLE.md` (A1-A3, B1-B8, C1-C10).
+- **File Coinvolti**:
+  - `supabase/migrations/20260924_lifecycle_{1,2,3,4}_*.sql`, `supabase/tests/lifecycle_fase{2,3,4}.sql`
+
+## [2026-09-24] - Vista "In produzione" con Smonta guidato e revisione del backend
+- **Tag**: `[FEAT]` / `[UX/UI]` / `[DOCS]`
+- **Descrizione**:
+  - **In produzione** (voce di menu, visibile solo con i flussi nuovi attivi): cosa è montato su ogni macchina e cosa aspetta nei cassetti commessa, con "Raggruppa per Macchina / Commessa", ricerca e contatore riaffilature ("2ª riaff. · ultima" in arancione).
+  - **Smonta**: "Com'è l'utensile?" → Consumato (cestello, o scarto automatico se al limite, annunciato prima), Rotto (motivo in un tocco, nota per "Altro"), Ancora buono (torna nel cassetto della commessa come usato), Sposta (macchina + commessa, preselezionata quella attuale). Toast con Annulla.
+  - **PRELEVA dal cassetto** apre il prelievo guidato già sulla commessa e sul cassetto giusti (contesto di apertura).
+  - Verificato a 1280×800 e 375×650; su smartphone "Raggruppa per" passa nel contenuto a tutta larghezza.
+  - **Revisione del backend di Gemini** (`docs/REVIEW_BACKEND_LIFECYCLE.md`): 9 errori bloccanti, 8 gravi, 10 scostamenti; contratto v1.2 (tolto l'indice unico su `movements_history`); risposta a D2. `CHANGELOG.md` ripristinato dopo la sovrascrittura.
+- **File Coinvolti**:
+  - `src/features/produzione/{InProduzioneView,SmontaDialog}.jsx`, `src/features/produzione/PrelievoGuidato.jsx`
+  - `src/store/useProduzioneStore.js`, `src/components/layout/Sidebar.jsx`, `src/App.jsx`, `src/features/inventory/MovementModal.jsx`
+  - `docs/REVIEW_BACKEND_LIFECYCLE.md`, `docs/CONTRACT_LIFECYCLE.md`, `DESIGN_SYSTEM.md`, `CHANGELOG.md`
+
+## [2026-09-24] - Backend Ciclo di Vita, fasi 1-4 (Gemini) — ⚠️ in revisione, non applicare
+- **Tag**: `[FEAT]`
+- **Descrizione**:
+  - Migration `20260924_lifecycle_1..4`: schema `posizioni_utensile`, macchine, spedizioni, colonne prezzi/permessi, migrazione da `giacenze_commesse`, trigger su `"Quantità"`, RPC di lettura/scrittura, riaffilature, dashboard, realtime e riscrittura delle RPC legacy.
+  - Test SQL in `supabase/tests/lifecycle_fase{2,3,4}.sql`; domanda D2 nel contratto (trigger vs scritture client).
+  - **Revisione di Claude (2026-09-24)**: trovati errori bloccanti prima dell'applicazione — vedi `docs/REVIEW_BACKEND_LIFECYCLE.md`.
+- **File Coinvolti**:
+  - `supabase/migrations/20260924_lifecycle_{1_schema_e_migrazione,2_rpc_base,3_riaffilature,4_dashboard_realtime_legacy}.sql`
+  - `supabase/tests/lifecycle_fase{2,3,4}.sql`, `SUPABASE_SCHEMA.md`, `docs/CONTRACT_LIFECYCLE.md`
+
+## [2026-09-24] - Prelievo e Deposito guidati (Ciclo di Vita, fase 2 frontend)
+- **Tag**: `[FEAT]` / `[UX/UI]`
+- **Descrizione**:
+  - **Prelievo guidato**: nel modale utensile, PRELEVA porta a tre domande (macchina → commessa → pezzo) con riquadro "Prendi da → Porta a". Preseleziona l'ultima macchina dell'operatore e la commessa solo se usata entro 72h; parte dal cassetto della commessa se ha pezzi, consiglia Usato → Riaffilato → Nuovo; suggerisce i pezzi fermi da giorni su altre macchine.
+  - **Deposito guidato**: DEPOSITA chiede se i pezzi sono per una commessa (proposta dall'ordine aperto) e mostra subito il cassetto o lo scaffale di destinazione.
+  - Nessuna conferma extra: Toast con **Annulla**; errori in linguaggio umano; riprova sicura con lo stesso id operazione. Stessa modale e stessa dimensione del passo Dettaglio (§6.1).
+  - Nuovi componenti del design system (§4.7-4.8): `ChoiceChip`, `GuidedStep`, `QuantityStepper`, `DirectionStrip`, `GuidedFooter`. Verificati a 1280×800 chiaro/scuro e 375×650.
+  - Attivi solo con la simulazione (sviluppo) o con `VITE_LIFECYCLE_UI=true`: in produzione resta il flusso attuale finché il backend non è pronto. Movimento multiplo e bulk invariati.
+- **File Coinvolti**:
+  - `src/features/produzione/{PrelievoGuidato,DepositoGuidato,CommessaPicker,DirectionStrip,StatoPicker,GuidedFooter}.jsx`
+  - `src/components/ui/{choice-chip,guided-step,quantity-stepper}.jsx`
+  - `src/features/inventory/MovementModal.jsx`, `src/App.jsx`
+  - `src/lib/lifecycleApi.js`, `src/mocks/lifecycle/mockDb.js`
+  - `DESIGN_SYSTEM.md`, `CHANGELOG.md`
+
+## [2026-09-24] - Fase 1 frontend Ciclo di Vita: simulazione RPC, store produzione e storico con nuovi movimenti
+- **Tag**: `[FEAT]`
+- **Descrizione**:
+  - Simulazione in memoria di tutte le RPC del contratto (`docs/CONTRACT_LIFECYCLE.md` v1.1): idempotenza, codici di errore, limite riaffilature, annullo; 17 scenari verificati. In sviluppo è la sorgente predefinita, in produzione Supabase (`VITE_LIFECYCLE_SOURCE` per forzare).
+  - Client unico `lifecycleApi` (errori tradotti per l'operatore, `id_operazione` per i tentativi ripetuti) e `useProduzioneStore` con letture, scritture, annullo e realtime.
+  - Funzioni pure di presentazione (stato consigliato, sorgente cassetto/magazzino, raggruppamento per macchina/commessa, anteprime "Consumato"/"Ancora buono").
+  - Storico movimenti (D1): nuovi tipi di movimento con etichetta, colore e segno corretti; filtro Deposita/Preleva per direzione.
+- **File Coinvolti**:
+  - `src/mocks/lifecycle/mockDb.js`
+  - `src/lib/lifecycleApi.js`, `src/lib/movementTypes.js`
+  - `src/store/useProduzioneStore.js`
+  - `src/features/produzione/lifecycleSelectors.js`
+  - `src/features/admin/HistoryView.jsx`
+  - `docs/CONTRACT_LIFECYCLE.md`, `CHANGELOG.md`
+
+## [2026-09-24] - Contratto dati Ciclo di Vita Utensili e divisione lavoro frontend/backend
+- **Tag**: `[DOCS]`
+- **Descrizione**:
+  - Nuovo contratto vincolante tra backend (Gemini) e frontend (Claude): modello unico `posizioni_utensile` (magazzino, cassetto commessa, macchina, cestello, fornitore × nuovo/usato/riaffilato), contatore riaffilature, spedizioni con DDT, RPC idempotenti con codici di errore, compatibilità con `"Quantità"` e le RPC esistenti.
+  - Prompt operativo per Gemini, una fase per sessione, con perimetro file e scenari di test obbligatori.
+  - `HANDOFF_LIFECYCLE.md` marcato come superato per schema e RPC.
+- **File Coinvolti**:
+  - `docs/CONTRACT_LIFECYCLE.md`
+  - `docs/PROMPT_GEMINI_LIFECYCLE.md`
+  - `HANDOFF_LIFECYCLE.md`
+  - `CHANGELOG.md`
+
 ## [2026-09-24] - Correzione Menu 3 Puntini, Scarico Utensile su Commessa e Reingegnerizzazione Creazione Utensile
 - **Tag**: `[FIX]` / `[UX/UI]`
 - **Descrizione**:

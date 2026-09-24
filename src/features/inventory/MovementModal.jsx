@@ -9,8 +9,12 @@ import { useMovementStore } from '../../store/useMovementStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useInventoryStore } from '../../store/useInventoryStore';
 import { useFilterStore } from '../../store/useFilterStore';
+import { lifecycleUiEnabled } from '../../lib/lifecycleApi';
+import { useProduzioneStore } from '../../store/useProduzioneStore';
+import { PrelievoGuidato } from '../produzione/PrelievoGuidato';
+import { DepositoGuidato } from '../produzione/DepositoGuidato';
 
-const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
+const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm, notify, onLifecycleDone }) => {
   const opType = useMovementStore(state => state.opType);
   const setOpType = useMovementStore(state => state.setOpType);
   const selectedTool = useMovementStore(state => state.selectedTool);
@@ -59,6 +63,8 @@ const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
 
   // Identify if we are in Step 1 (Details) or Step 2 (Movement Operation)
   const isDetailsStep = !opType;
+  // Ciclo di vita: su un singolo utensile il secondo passo è il flusso guidato (prelievo/deposito)
+  const isGuidedStep = !isDetailsStep && lifecycleUiEnabled && !isBulkMode && selectedTool && typeof selectedTool === 'object';
 
   // Formatting tool details for Step 1
   const renderDetails = () => {
@@ -118,7 +124,13 @@ const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
   };
 
   return (
-    <Dialog open={true} onOpenChange={(open) => { if (!open) setShowMoveModal(false); }}>
+    <Dialog open={true} onOpenChange={(open) => {
+      if (!open) {
+        // il contesto "preleva dal cassetto" vale solo per questa apertura del modale
+        useProduzioneStore.getState().setContestoPrelievo(null);
+        setShowMoveModal(false);
+      }
+    }}>
       <DialogContent size="lg" showCloseButton={false} className="p-0 gap-0 overflow-hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl">
         <ModalHeader
           icon={isDetailsStep ? <Briefcase size={24} /> : (opType === 'carico' ? <ArrowDown size={24} className="text-accent-emerald" /> : <ArrowUp size={24} className="text-accent-rose" />)}
@@ -189,6 +201,20 @@ const MovementModal = memo(({ setShowMoveModal, onOpenOrder, onConfirm }) => {
                   );
                 })()}
               </ModalFooter>
+            </motion.div>
+          ) : isGuidedStep ? (
+            <motion.div key={`guided-${opType}`} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex flex-col flex-1 min-h-0">
+              {opType === 'scarico' ? (
+                <PrelievoGuidato
+                  tool={selectedTool}
+                  onBack={() => setOpType(null)}
+                  onDone={onLifecycleDone}
+                  onOpenOrder={onOpenOrder ? () => { setShowMoveModal(false); onOpenOrder(); } : undefined}
+                  notify={notify}
+                />
+              ) : (
+                <DepositoGuidato tool={selectedTool} onBack={() => setOpType(null)} onDone={onLifecycleDone} notify={notify} />
+              )}
             </motion.div>
           ) : (
             <motion.div key="operation" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex flex-col flex-1 min-h-0">

@@ -17,6 +17,7 @@ import { VirtualizedTable } from '../../components/common/DataTable';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, ModalHeader, ModalBody } from "@/components/ui/dialog";
 import { cn } from '@/lib/utils';
+import { getMovementMeta, formatMovementQty } from '../../lib/movementTypes';
 
 export function TableWrapper({
   showDensityToggle = true,
@@ -108,7 +109,7 @@ const HistoryView = memo(({
   const [searchQuery, setSearchQuery] = useState('');
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
   const [selectedOperator, setSelectedOperator] = useState('all');
-  const [opTypeFilter, setOpTypeFilter] = useState('all'); // 'all' | 'carico' | 'scarico'
+  const [opTypeFilter, setOpTypeFilter] = useState('all'); // 'all' | 'in' | 'out' (direzione, vedi movementTypes)
   const [timeframeFilter, setTimeframeFilter] = useState('30d'); // 'all' | 'today' | '7d' | '30d' | 'this_month' | 'custom'
   const [customDate, setCustomDate] = useState('');
 
@@ -162,7 +163,7 @@ const HistoryView = memo(({
 
     return history.filter(item => {
       // 1. Filtro Tipo Operazione (Flusso)
-      if (opTypeFilter !== 'all' && item.tipo_operazione !== opTypeFilter) {
+      if (opTypeFilter !== 'all' && getMovementMeta(item.tipo_operazione).direzione !== opTypeFilter) {
         return false;
       }
 
@@ -220,8 +221,9 @@ const HistoryView = memo(({
     let scarichi = 0;
     filteredHistory.forEach(item => {
       const q = Number(item.quantita) || 0;
-      if (item.tipo_operazione === 'carico') carichi += q;
-      else if (item.tipo_operazione === 'scarico') scarichi += q;
+      const { direzione } = getMovementMeta(item.tipo_operazione);
+      if (direzione === 'in') carichi += q;
+      else if (direzione === 'out') scarichi += q;
     });
     return { totalCarichiQty: carichi, totalScarichiQty: scarichi };
   }, [filteredHistory]);
@@ -325,11 +327,11 @@ const HistoryView = memo(({
         );
       },
       cell: info => {
-        const isCarico = info.getValue() === 'carico';
+        const meta = getMovementMeta(info.getValue());
         return (
           <div className="w-full truncate text-center">
-            <span className={`badge text-xs font-black uppercase px-2.5 py-0.5 ${isCarico ? 'badge-emerald' : 'badge-rose'}`}>
-              {isCarico ? 'Carico' : 'Scarico'}
+            <span className={`badge text-xs font-black uppercase px-2.5 py-0.5 ${meta.badge}`}>
+              {meta.label}
             </span>
           </div>
         );
@@ -346,12 +348,11 @@ const HistoryView = memo(({
         return a - b;
       },
       cell: info => {
-        const isCarico = info.row.original.tipo_operazione === 'carico';
-        const qty = info.getValue() || 0;
+        const tipo = info.row.original.tipo_operazione;
         return (
           <div className="w-full truncate text-center">
-            <span className={`app-qty-sm ${isCarico ? 'text-accent-emerald' : 'text-accent-rose'}`}>
-              {isCarico ? `+${qty}` : `-${qty}`}
+            <span className={`app-qty-sm ${getMovementMeta(tipo).text}`}>
+              {formatMovementQty(tipo, info.getValue())}
             </span>
           </div>
         );
@@ -466,8 +467,8 @@ const HistoryView = memo(({
               onValueChange={setOpTypeFilter}
               options={[
                 { value: 'all', label: 'Tutti' },
-                { value: 'carico', label: 'Deposita', icon: <ArrowDown size={14} /> },
-                { value: 'scarico', label: 'Preleva', icon: <ArrowUp size={14} /> }
+                { value: 'in', label: 'Deposita', icon: <ArrowDown size={14} /> },
+                { value: 'out', label: 'Preleva', icon: <ArrowUp size={14} /> }
               ]}
             />
           </div>
@@ -604,8 +605,8 @@ const HistoryView = memo(({
             title="Dettaglio Movimento"
             subtitle="Riepilogo completo della transazione registrata nello storico movimenti."
             badge={
-              <span className={`badge text-xs font-black uppercase px-2.5 py-0.5 ${selectedLog?.tipo_operazione === 'carico' ? 'badge-emerald' : 'badge-rose'}`}>
-                {selectedLog?.tipo_operazione === 'carico' ? 'Movimento di Carico' : 'Movimento di Scarico'}
+              <span className={`badge text-xs font-black uppercase px-2.5 py-0.5 ${getMovementMeta(selectedLog?.tipo_operazione).badge}`}>
+                {getMovementMeta(selectedLog?.tipo_operazione).dettaglio}
               </span>
             }
             overline={selectedLog && formatDateLong(selectedLog.created_at)}
@@ -633,8 +634,8 @@ const HistoryView = memo(({
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="p-3 rounded-xl glass-panel dark:border-white/5 border-slate-900/10 flex flex-col">
                   <span className="app-overline text-slate-400 mb-1">Quantità</span>
-                  <span className={`app-qty-lg ${selectedLog.tipo_operazione === 'carico' ? 'text-accent-emerald' : 'text-accent-rose'}`}>
-                    {selectedLog.tipo_operazione === 'carico' ? `+${selectedLog.quantita}` : `-${selectedLog.quantita}`}
+                  <span className={`app-qty-lg ${getMovementMeta(selectedLog.tipo_operazione).text}`}>
+                    {formatMovementQty(selectedLog.tipo_operazione, selectedLog.quantita)}
                   </span>
                 </div>
 

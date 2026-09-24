@@ -25,6 +25,7 @@ import LoginScreen from './features/auth/LoginScreen';
 import MultiMovementView from './features/inventory/MultiMovementView';
 import CategoryGridCard from './features/filters/CategoryGridCard';
 import MovementModal from './features/inventory/MovementModal';
+import InProduzioneView from './features/produzione/InProduzioneView';
 import DiameterList from './features/filters/DiameterList';
 import ToolsGrid from './features/inventory/ToolsGrid';
 import DropdownFilterView from './features/filters/DropdownFilterView';
@@ -475,6 +476,11 @@ function App() {
                   </Suspense>
                 </ErrorBoundary>
               )}
+              {view === 'produzione' && (
+                <ErrorBoundary>
+                  <InProduzioneView key="produzione" setView={setView} showToastNotification={showToastNotification} />
+                </ErrorBoundary>
+              )}
               {view === 'multimovement' && (
                 <ErrorBoundary>
                   <MultiMovementView showToastNotification={showToastNotification} />
@@ -516,7 +522,11 @@ function App() {
                 setSelectedToolsIds([]);
                 setIsBulkMode(false);
               }, commessaId);
-            }} onOpenOrder={() => setShowOrderModal(true)} />}
+            }} onOpenOrder={() => setShowOrderModal(true)} notify={showToastNotification} onLifecycleDone={() => {
+              setShowMoveModal(false);
+              setSelectedToolsIds([]);
+              setIsBulkMode(false);
+            }} />}
             {showAddModal && <AddToolModal key="add-modal" tools={tools} onClose={() => setShowAddModal(false)} onToolAdded={fetchTools} currentUser={currentUser} />}
             {showOrderModal && (
               <OrderModal 

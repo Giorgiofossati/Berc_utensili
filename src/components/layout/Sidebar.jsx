@@ -4,13 +4,14 @@ import {
   Database, History, Users, 
   LogOut, ArrowDown, ArrowUp,
   Sun, Moon, X, HelpCircle, ClipboardList, Settings,
-  FolderKanban
+  FolderKanban, Factory
 } from 'lucide-react';
 import { useTheme } from '../../lib/ThemeContext';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useMovementStore } from '../../store/useMovementStore';
 import { useMultiMovementStore } from '../../store/useMultiMovementStore';
 import { useTutorialStore } from '../../store/useTutorialStore';
+import { lifecycleUiEnabled } from '../../lib/lifecycleApi';
 
 const NavItem = ({ icon, label, onClick, className = "", isActive = false, badge = null, disabled = false }) => (
   <button 
@@ -135,6 +136,15 @@ const SidebarContent = ({
             onClick={() => { setView('home'); if(onClose) onClose(); }} 
             isActive={view === 'home'}
           />
+
+          {lifecycleUiEnabled && (
+            <NavItem 
+              icon={<Factory size={16} />} 
+              label="In produzione" 
+              onClick={() => { setView('produzione'); if(onClose) onClose(); }} 
+              isActive={view === 'produzione'}
+            />
+          )}
 
           <NavItem 
             icon={<ClipboardList size={16} />} 
