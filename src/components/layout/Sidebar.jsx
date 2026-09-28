@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState, useRef, useCallback } from 'react';
+import React, { useMemo, useEffect, useLayoutEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Database, History, Users, 
@@ -57,7 +57,7 @@ const NavItem = ({
       <span className={`text-xs font-semibold tracking-wide truncate transition-all duration-[350ms] ease-out text-left whitespace-nowrap ${
         isCollapsed 
           ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none' 
-          : 'opacity-100 max-w-[170px] translate-x-0'
+          : 'opacity-100 max-w-[240px] translate-x-0'
       }`}>
         {label}
       </span>
@@ -121,7 +121,7 @@ const SidebarContent = ({
             <img src="/favicon.svg" alt="Bercella" className="w-full h-full object-contain" />
           </div>
           <div className={`flex flex-col min-w-0 transition-all duration-[350ms] ease-out whitespace-nowrap ${
-            isCollapsed ? 'opacity-0 max-w-0 pointer-events-none -translate-x-2' : 'opacity-100 max-w-[140px] translate-x-0'
+            isCollapsed ? 'opacity-0 max-w-0 pointer-events-none -translate-x-2' : 'opacity-100 max-w-[160px] translate-x-0'
           }`}>
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 leading-none">
               Magazzino
@@ -188,7 +188,7 @@ const SidebarContent = ({
             >
               <ArrowDown size={18} className="shrink-0 group-hover:translate-y-0.5 transition-transform" />
               <span className={`tracking-widest font-extrabold text-xs transition-all duration-[350ms] ease-out whitespace-nowrap ${
-                isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[160px]'
+                isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[240px]'
               }`}>
                 Deposita
               </span>
@@ -205,7 +205,7 @@ const SidebarContent = ({
             >
               <ArrowUp size={18} className="shrink-0 group-hover:-translate-y-0.5 transition-transform" />
               <span className={`tracking-widest font-extrabold text-xs transition-all duration-[350ms] ease-out whitespace-nowrap ${
-                isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[160px]'
+                isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[240px]'
               }`}>
                 Preleva
               </span>
@@ -222,7 +222,7 @@ const SidebarContent = ({
             >
               <Plus size={18} className="shrink-0" />
               <span className={`tracking-wider font-bold text-xs transition-all duration-[350ms] ease-out whitespace-nowrap ${
-                isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[160px]'
+                isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[240px]'
               }`}>
                 Nuovo Utensile
               </span>
@@ -244,7 +244,7 @@ const SidebarContent = ({
             >
               <Send size={16} className="shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               <span className={`tracking-wider font-extrabold text-xs transition-all duration-[350ms] ease-out whitespace-nowrap ${
-                isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[160px]'
+                isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[240px]'
               }`}>
                 Richiedi Utensile
               </span>
@@ -261,7 +261,7 @@ const SidebarContent = ({
             >
               <ClipboardList size={16} className="shrink-0" />
               <span className={`font-semibold text-xs transition-all duration-[350ms] ease-out whitespace-nowrap ${
-                isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[160px]'
+                isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[240px]'
               }`}>
                 Distinta Multipla
               </span>
@@ -283,7 +283,7 @@ const SidebarContent = ({
             >
               <LayoutDashboard size={16} className="shrink-0" />
               <span className={`tracking-wider font-extrabold text-xs transition-all duration-[350ms] ease-out whitespace-nowrap ${
-                isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[160px]'
+                isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[240px]'
               }`}>
                 Panoramica KPI
               </span>
@@ -581,7 +581,7 @@ const SidebarContent = ({
               <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 border border-white dark:border-slate-900" />
             </div>
             
-            <div className={`flex flex-col min-w-0 transition-all duration-[350ms] ease-out whitespace-nowrap ${
+            <div data-fit-ignore className={`flex flex-col min-w-0 transition-all duration-[350ms] ease-out whitespace-nowrap ${
               isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[95px]'
             }`}>
               <span className="text-[10px] font-bold text-slate-400 leading-none">
@@ -695,6 +695,42 @@ export default function Sidebar(props) {
     };
   }, []);
 
+  // Larghezza da espanso = la minima che contiene le etichette senza troncarle.
+  // Misurata su un clone fuori schermo a max-content (il nome utente nel footer
+  // è escluso: è un dato variabile e può troncarsi).
+  const asideRef = useRef(null);
+  const [expandedWidth, setExpandedWidth] = useState(null);
+  const isExpanded = isSidebarPinned || isHovered || isTourFocusingSidebar;
+
+  useLayoutEffect(() => {
+    const aside = asideRef.current;
+    if (!aside || !isExpanded) return;
+
+    const measure = () => {
+      const clone = aside.cloneNode(true);
+      clone.removeAttribute('id');
+      clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+      clone.querySelectorAll('[data-tour]').forEach(el => el.removeAttribute('data-tour'));
+      clone.querySelectorAll('[data-fit-ignore]').forEach(el => { el.style.maxWidth = '0px'; });
+      clone.setAttribute('aria-hidden', 'true');
+      Object.assign(clone.style, {
+        width: 'max-content', visibility: 'hidden', pointerEvents: 'none',
+        position: 'fixed', left: '-9999px', top: '0', transition: 'none',
+      });
+      document.body.appendChild(clone);
+      const width = Math.ceil(clone.getBoundingClientRect().width);
+      clone.remove();
+      setExpandedWidth(prev => (prev === width ? prev : width));
+    };
+
+    measure();
+    // Ricalcola quando cambiano le voci (ruolo, badge) o dopo il caricamento dei font
+    const observer = new MutationObserver(measure);
+    observer.observe(aside, { childList: true, subtree: true, characterData: true });
+    document.fonts?.ready.then(measure);
+    return () => observer.disconnect();
+  }, [isExpanded]);
+
   if (isMobile) {
     return (
       <AnimatePresence>
@@ -722,7 +758,7 @@ export default function Sidebar(props) {
     );
   }
 
-  const isExpanded = isSidebarPinned || isHovered || isTourFocusingSidebar;
+  const widthStyle = expandedWidth ? { width: expandedWidth } : undefined;
 
   return (
     <div 
@@ -731,16 +767,12 @@ export default function Sidebar(props) {
       onFocusCapture={handleFocusCapture}
       onBlurCapture={handleBlurCapture}
       className={`hidden md:block shrink-0 relative h-full select-none transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] z-40 ${
-        isSidebarPinned ? 'w-64 lg:w-72' : 'w-[68px]'
+        isSidebarPinned ? 'w-56' : 'w-[68px]'
       }`}
+      style={isSidebarPinned ? widthStyle : undefined}
     >
-      {/* Cuscinetto di approccio (quando collassato) e buffer soglia di chiusura (quando espanso) */}
-      {!isExpanded ? (
-        <div 
-          aria-hidden="true"
-          className="absolute top-0 bottom-0 -right-4 w-4 pointer-events-auto z-40" 
-        />
-      ) : (
+      {/* Buffer di tolleranza perimetrale solo quando espanso, per evitare chiusure accidentali */}
+      {isExpanded && (
         <div 
           aria-hidden="true"
           className="absolute top-0 bottom-0 -right-6 w-6 pointer-events-auto z-40" 
@@ -749,9 +781,11 @@ export default function Sidebar(props) {
 
       <aside 
         id="sidebar"
+        ref={asideRef}
+        style={isExpanded ? widthStyle : undefined}
         className={`absolute top-0 left-0 bottom-0 flex flex-col h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${
           isExpanded 
-            ? 'w-64 lg:w-72 shadow-2xl shadow-slate-900/15 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/5' 
+            ? 'w-56 shadow-2xl shadow-slate-900/15 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/5' 
             : 'w-[68px] shadow-none'
         }`}
       >

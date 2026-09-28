@@ -437,7 +437,7 @@ function App() {
         view={view}
       />
 
-      <div className="flex-1 flex flex-col relative overflow-hidden custom-scrollbar min-w-0 h-full">
+      <div className="flex-1 flex flex-col relative overflow-hidden custom-scrollbar min-w-0 h-full isolate">
 
         <main className="flex-1 w-full flex flex-col items-center justify-start relative min-h-0 overflow-hidden">
             <AnimatePresence mode="wait">

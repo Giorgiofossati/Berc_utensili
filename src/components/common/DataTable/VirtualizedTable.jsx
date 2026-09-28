@@ -143,7 +143,17 @@ export const VirtualizedTable = memo(({
               >
                 <div
                   onClick={() => onRowClick && onRowClick(row.original, row)}
+                  // Riga aperta col mouse: il focus che le resta (o che il drawer le
+                  // restituisce) alla chiusura con Esc non deve mostrare l'anello.
+                  onPointerDown={(e) => { e.currentTarget.dataset.pointerFocus = 'true'; }}
+                  onBlur={(e) => {
+                    if (e.relatedTarget && !e.relatedTarget.closest('[role="dialog"]')) {
+                      delete e.currentTarget.dataset.pointerFocus;
+                    }
+                  }}
                   onKeyDown={(e) => {
+                    // Esc chiude il drawer rimasto aperto su questa riga: non è navigazione
+                    if (e.key !== 'Escape') delete e.currentTarget.dataset.pointerFocus;
                     if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
                       e.preventDefault();
                       onRowClick(row.original, row);
@@ -154,7 +164,7 @@ export const VirtualizedTable = memo(({
                   aria-selected={selectionMode !== 'none' ? Boolean(isSelected) : undefined}
                   className={`flex items-center w-full border-b border-slate-100 dark:border-slate-800/60 group select-none text-xs text-slate-700 dark:text-slate-300 ${
                     onRowClick ? 'cursor-pointer' : ''
-                  } transform-gpu transition-all duration-150 ease-out origin-center hover:scale-[1.008] md:hover:scale-[1.01] hover:bg-sky-50/80 dark:hover:bg-sky-900/35 hover:border-transparent ${
+                  } data-[pointer-focus=true]:outline-none transform-gpu transition-all duration-150 ease-out origin-center hover:scale-[1.008] md:hover:scale-[1.01] hover:bg-sky-50/80 dark:hover:bg-sky-900/35 hover:border-transparent ${
                     isSelected ? 'bg-sky-50 dark:bg-sky-950/40 shadow-[inset_3px_0_0_#0284c7]' : ''
                   } ${customClassName}`}
                 >

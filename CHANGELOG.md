@@ -17,6 +17,47 @@ Questo file tiene traccia in ordine cronologico inverso di tutte le implementazi
    - `[PERF]`: Ottimizzazioni di prestazioni (bundle, caricamento, query).
    - `[DOCS]`: Aggiornamenti alla documentazione o regole di sistema.
 4. **Brevità**: Utilizzare elenchi puntati concisi (2-4 punti chiave) indicando i file principali modificati e l'impatto.
+### [2026-09-29] - Fix Anello di Focus sulla Riga dopo Chiusura Drawer con Esc
+- **Tag**: `[FIX]`
+- **Descrizione**:
+  - Aprendo una riga col mouse e chiudendo il drawer con Esc, il focus resta sulla riga e l'input da tastiera attivava `:focus-visible`, mostrando il bordo di focus.
+  - Ora la riga attivata col puntatore viene marcata (`data-pointer-focus`) e l'anello è nascosto; il marcatore si toglie con qualsiasi tasto diverso da Esc o quando il focus va altrove, quindi la navigazione da tastiera mostra ancora l'anello.
+- **File coinvolti**:
+  - [`src/components/common/DataTable/VirtualizedTable.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/DataTable/VirtualizedTable.jsx)
+
+---
+
+### [2026-09-29] - Sidebar Compatta: Larghezza Minima che Contiene le Scritte
+- **Tag**: `[UX/UI]`
+- **Descrizione**:
+  - La larghezza della sidebar espansa (hover e bloccata) non è più fissa: viene misurata su un clone fuori schermo a `max-content`, quindi è esattamente la minima che contiene l'etichetta più lunga del ruolo corrente senza troncarla (es. Operatore ~251px per "Richiesta Deposito/Prelievo").
+  - Ricalcolata al cambio delle voci (ruolo, badge) e al caricamento dei font; il nome utente nel footer è escluso dalla misura (`data-fit-ignore`) e può troncarsi.
+  - Alzati i `max-width` dei testi (etichette, bottoni rapidi, brand) per non limitare la misura.
+- **File coinvolti**:
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
+
+---
+
+### [2026-09-29] - Fix Soglia Apertura Sidebar: Apertura Solo su Contatto Diretto
+- **Tag**: `[FIX]` / `[UX/UI]`
+- **Descrizione**:
+  - Rimosso il cuscinetto invisibile di approccio (`-right-4 w-4`) che sporgeva oltre il bordo destro della sidebar collassata, causando aperture indesiderate quando l'utente scorreva la lista vicino al bordo sinistro.
+  - Ora la sidebar si apre **solo** quando il puntatore entra fisicamente nell'area dei 68px della barra ad icone. Il buffer di tolleranza perimetrale (24px) resta attivo solo **dopo** l'espansione, per evitare chiusure accidentali.
+- **File coinvolti**:
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
+
+---
+
+### [2026-09-29] - Fix Sidebar che Finiva Sotto l'Header Sticky della Tabella TanStack
+- **Tag**: `[FIX]`
+- **Descrizione**:
+  - La sidebar auto-collassabile, quando espansa su hover, finiva sotto la barra intestazione sticky della tabella TanStack (`z-50`) poiché il suo z-index era inferiore (`z-40`).
+  - Risolto aggiungendo `isolate` (CSS `isolation: isolate`) al contenitore principale dell'app in `App.jsx`. Questo crea un nuovo stacking context che confina il `z-50` dell'header tabella all'interno della colonna contenuto, impedendogli di competere con il livello z della sidebar.
+- **File coinvolti**:
+  - [`src/App.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/App.jsx)
+
+---
+
 ### [2026-09-28] - Sidebar Desktop Auto-Collassabile con Animazione Rallentata & Soglia Chiusura Ampliata
 - **Tag**: `[UX/UI]` / `[REFACTOR]`
 - **Descrizione**:
