@@ -45,11 +45,11 @@ export const VirtualizedTable = memo(({
     >
       {/* Sticky Header */}
       {rows.length > 0 && (
-        <div className="sticky top-0 z-50 border-b dark:border-white/10 border-slate-900/10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur flex min-w-full w-fit md:w-full shrink-0 shadow-sm">
+        <div className="sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800 bg-slate-100/95 dark:bg-slate-800/95 backdrop-blur-xs flex min-w-full w-fit md:w-full shrink-0 shadow-xs">
           {table.getHeaderGroups().map((headerGroup) => (
             <div
               key={headerGroup.id}
-              className="flex flex-1 min-w-full app-overline dark:text-slate-400 text-slate-600 select-none"
+              className="flex flex-1 min-w-full app-label text-slate-500 dark:text-slate-400 select-none"
             >
               {headerGroup.headers.map((header) => {
                 const meta = header.column.columnDef.meta;
@@ -71,8 +71,8 @@ export const VirtualizedTable = memo(({
                 return (
                   <div
                     key={header.id}
-                    className={`flex items-center gap-2 ${density === 'compact' ? 'py-2' : 'py-3.5'} transition-colors group relative overflow-hidden ${
-                      canSort ? 'cursor-pointer hover:text-slate-900 dark:hover:text-slate-200' : ''
+                    className={`flex items-center gap-1.5 ${density === 'compact' ? 'py-2.5 px-3' : 'py-3.5 px-4'} transition-colors group relative overflow-hidden ${
+                      canSort ? 'cursor-pointer hover:text-slate-900 dark:hover:text-slate-100' : ''
                     } ${meta?.className || ''} ${
                       isFlex ? 'min-w-0' : 'flex-shrink-0 justify-center'
                     }`}
@@ -150,10 +150,10 @@ export const VirtualizedTable = memo(({
                 role={onRowClick ? "button" : undefined}
                 tabIndex={onRowClick ? 0 : undefined}
                 aria-selected={selectionMode !== 'none' ? Boolean(isSelected) : undefined}
-                className={`flex items-center min-w-full w-fit md:w-full hover:bg-accent-blue/[0.06] active:bg-accent-blue/10 ${
+                className={`flex items-center min-w-full w-fit md:w-full hover:bg-sky-50/50 dark:hover:bg-sky-950/30 ${
                   onRowClick ? 'cursor-pointer' : ''
-                } transition-colors border-b dark:border-white/[0.03] border-slate-900/5 group select-none ${
-                  isSelected ? 'bg-accent-blue/10 shadow-[inset_3px_0_0_var(--color-accent-blue)]' : ''
+                } transition-colors border-b border-slate-100 dark:border-slate-800/60 group select-none text-xs text-slate-700 dark:text-slate-300 ${
+                  isSelected ? 'bg-sky-50 dark:bg-sky-950/40 shadow-[inset_3px_0_0_#0284c7]' : ''
                 } ${customClassName}`}
               >
                 {row.getVisibleCells().map((cell) => {

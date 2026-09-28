@@ -20,6 +20,165 @@ Questo file tiene traccia in ordine cronologico inverso di tutte le implementazi
 
 ---
 
+## [2026-09-28] - Ottimizzazione Filtri Inventario: Barra Intelligente con Filtri Primari e Menu "+ Altri Filtri"
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Risoluzione Sbordamento Orizzontale**: implementata l'architettura a filtri primari (`Tipologia`, `Forma`, `Diametro`, `Stato`) sempre visibili sulla barra a 1 riga, eliminando l'overflow forzato di 14 tendine contemporanee.
+  - **Menu Intelligente "+ Altri Filtri"**: raggruppati tutti i filtri tecnici secondari (*Materiale, Tolleranza, Passo, Fornitore, Ubicazione, ecc.*) all'interno di un menu accessibile (`Menu` Base UI); quando un filtro secondario viene aggiunto o valorizzato, appare dinamicamente sulla barra con chip attiva e tasto di rimozione rapida `[x]`.
+  - **Layout Mobile Ergonomico**: su dispositivi mobili (< md), i filtri si aprono in un pannello a griglia 2 colonne con touch target ergonomici `>= 44px` (WCAG 2.1 AA) e pulsante di reset rapido, evitando qualsiasi scroll orizzontale.
+  - **Viewport Collision Guard**: introdotto `collisionPadding={8}` in `SelectContent` (`select.jsx`) per garantire che i popover delle tendine non varchino mai i bordi visibili dello schermo.
+- **File coinvolti**:
+  - [`src/features/filters/DropdownFilterView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/filters/DropdownFilterView.jsx)
+  - [`src/components/ui/select.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/ui/select.jsx)
+
+---
+
+## [2026-09-28] - Audit Tipografico Globale, Allineamento Token e Pulizia Codice Obsoleto
+- **Tag**: `[UX/UI]` / `[REFACTOR]`
+- **Descrizione**:
+  - **Allineamento Token Font e Pulizia Geist**: rimossa la dipendenza e le variabili CSS obsolete di Geist sans in `index.html` e `src/index.css`, garantendo Inter (`--font-inter`, `--font-sans`) con spettro completo pesi (400-900) e Geist Mono (`--font-mono`) per i codici tabulari.
+  - **Rafforzamento Utility Semantiche**: sincronizzate le classi `.app-overline` (fissato colore arancione industriale `#f97316`), `.app-qty-sm` e `.app-qty-lg` (vincolati rigidamente a `font-mono tabular-nums`) e allineato il componente base `ui/label.jsx` alla scala semantica `.app-label`.
+  - **Sostituzione Font Arbitrari e Correzione Form Labels**: convertite tutte le label di form che usavano impropriamente `.app-overline` (9px) in `.app-label` (11-12px) in `CommesseView`, `OperatorsView`, `OrderModal` e `VirtualizedTable`.
+  - **Rimozione Sovrascritture Obsolete e Fix Contrasti**: eliminato l'uso di `app-caption font-sans` e dimensioni inline ridondanti su `.app-qty-sm` in `InProduzioneView`, `RiaffilatureView` e `ToolsGrid`; corretto il contrasto testo su Blu Tecnico in `App.jsx` (`text-slate-950`); rimosso `uppercase` improprio sui dati dinamici in `CategoryGridCard.jsx`; conformato il target touch a 44px in `HelpFloatingButton.jsx`.
+- **File coinvolti**:
+  - [`index.html`](file:///Users/gio/Documents/CODING/Berc_utensili/index.html)
+  - [`src/index.css`](file:///Users/gio/Documents/CODING/Berc_utensili/src/index.css)
+  - [`src/components/ui/label.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/ui/label.jsx)
+  - [`src/components/common/DataTable/VirtualizedTable.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/DataTable/VirtualizedTable.jsx)
+  - [`src/components/common/ErrorBoundary.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/ErrorBoundary.jsx)
+  - [`src/components/common/AppTutorial.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/AppTutorial.jsx)
+  - [`src/components/common/HelpFloatingButton.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/HelpFloatingButton.jsx)
+  - [`src/components/layout/PageTemplate.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/PageTemplate.jsx)
+  - [`src/features/inventory/ToolsGrid.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolsGrid.jsx)
+  - [`src/features/inventory/ToolDetailDrawer.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolDetailDrawer.jsx)
+  - [`src/features/inventory/OrderModal.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/OrderModal.jsx)
+  - [`src/features/inventory/MultiMovementView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/MultiMovementView.jsx)
+  - [`src/features/scanner/ScannerView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/scanner/ScannerView.jsx)
+  - [`src/features/admin/CommesseView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/CommesseView.jsx)
+  - [`src/features/admin/OperatorsView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/OperatorsView.jsx)
+  - [`src/features/admin/HistoryView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/HistoryView.jsx)
+  - [`src/features/produzione/InProduzioneView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/produzione/InProduzioneView.jsx)
+  - [`src/features/produzione/RiaffilatureView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/produzione/RiaffilatureView.jsx)
+  - [`src/features/filters/CategoryGridCard.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/filters/CategoryGridCard.jsx)
+  - [`src/App.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/App.jsx)
+
+## [2026-09-28] - Sostituzione Modale Dettagli con Drawer Laterale Stitch (ToolDetailDrawer)
+- **Tag**: `[UX/UI]` / `[FEAT]` / `[REFACTOR]`
+- **Descrizione**:
+  - **Sostituzione Modale con Drawer Laterale**: scaricato e implementato il prototipo Stitch *"Inventario — Dettaglio Utensile (Drawer Laterale)"*. Il vecchio dialog centrale che copriva l'intero schermo è stato sostituito da un pannello a scorrimento laterale destro (`ToolDetailDrawer`), con backdrop traslucido che mantiene la tabella sottostante completamente visibile senza ridimensionarla o comprimerne le colonne.
+  - **Evidenziazione e Selezione Riga Persistente**: all'apertura del drawer, la riga dell'utensile selezionato nella tabella inventario sottostante rimane evidenziata in modo nitido (`bg-sky-50`, bordo sinistro `border-l-sky-500`, icona e testo ad alto contrasto, e badge `1 riga selezionata` nel footer) per tutta la durata dell'apertura del drawer, deselezionandosi automaticamente solo alla chiusura dello stesso.
+  - **Fedeltà al Design System Industriale**: integrate schede strutturate conformi al prototipo: *"Specifiche Tecniche"* (diametro nominale `Ø`, tolleranza foro `ISO H7`, materiale costruttivo, attacco/codolo), *"Ubicazione & Giacenza"* (badge stock, pin ubicazione fisica, giacenza disponibile ad alto contrasto `Geist Mono` e stato tagliente), e azioni rapide dedicate (*Preleva*, *Deposita*, *Stampa Etichetta Barcode / QR*).
+  - **Integrazione Flussi Operativi e Resilienza**: il drawer gestisce sia la visualizzazione dettagliata sia la transizione fluida verso i flussi guidati di prelievo/deposito (`PrelievoGuidato`/`DepositoGuidato`) con pulsante indietro dedicato, mantenendo la compatibilità a ritroso (`MovementModal` re-export).
+- **File coinvolti**:
+  - [`src/features/inventory/ToolDetailDrawer.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolDetailDrawer.jsx)
+  - [`src/features/inventory/MovementModal.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/MovementModal.jsx)
+  - [`src/App.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/App.jsx)
+  - [`.stitch/metadata.json`](file:///Users/gio/Documents/CODING/Berc_utensili/.stitch/metadata.json)
+
+## [2026-09-28] - Semplificazione Causali Scarto Operatore a Usura e Collisione & Audit Colonne DB
+- **Tag**: `[UX/UI]` / `[REFACTOR]` / `[SQL]`
+- **Descrizione**:
+  - **Semplificazione Causali Operatore**: ristretto il motivo di rottura nello smontaggio a sole due scelte immediate per l'operatore d'officina: `usura` (fisiologica / fine vita naturale) e `collisione` (evitabile / urto in macchina). Rimosse opzioni dispersive, textarea e campi note secondari, consentendo la registrazione dello scarto con un solo tap (Legge di Hick e Fitts).
+  - **Allineamento Regole Backend**: aggiornato il vincolo di validazione della RPC `smonta` in PostgreSQL e il mock DB per consentire solo `usura` e `collisione` da parte dell'operatore, mantenendo al contempo le causali automatiche di sistema (`usura_limite_riaffilature` e `scarto_fornitore`).
+  - **Verifica Live Colonne Supabase**: interrogato `information_schema.columns` sul database live tramite Supabase MCP, confermando la corrispondenza esatta delle colonne per tutte le tabelle (`Utensili_B1`, `ordini`, `commesse`, `movements_history`, `utenti`, `giacenze_commesse`).
+- **File coinvolti**:
+  - [`src/features/produzione/lifecycleSelectors.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/produzione/lifecycleSelectors.js)
+  - [`src/features/produzione/SmontaDialog.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/produzione/SmontaDialog.jsx)
+  - [`src/mocks/lifecycle/mockDb.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/mocks/lifecycle/mockDb.js)
+  - [`supabase/migrations/20260924_lifecycle_2_rpc_base.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/migrations/20260924_lifecycle_2_rpc_base.sql)
+  - [`supabase/tests/lifecycle_fase2.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/tests/lifecycle_fase2.sql)
+
+## [2026-09-28] - Miglioramento Leggibilità Descrizione & Unificazione Token Pillole
+- **Tag**: `[UX/UI]` / `[REFACTOR]`
+- **Descrizione**:
+  - **Aumento Leggibilità Descrizione**: aumentata la dimensione del font della descrizione dell'utensile da `text-xs` a `text-sm sm:text-base font-bold` per garantire massima visibilità a colpo d'occhio e da distanza su terminali d'officina.
+  - **Rimozione Sottotitolo Ridondante Descrizione**: eliminata la seconda riga sotto il nome dell'utensile contenente il fallback hardcoded `"Standard DIN"` / materiale, centrandone verticalmente il titolo con l'icona ed eliminando testo fittizio.
+  - **Unificazione Globale Token Pillole**: standardizzati altezza (`26px`), padding (`px-2.5 py-1`), raggio di curvatura (`rounded-md`, 8px), font-size (`text-xs`), font-weight (`font-semibold`) e bordatura su tutte le colonne con pillole (*Codice Aziendale*, *Codice Fornitore*, *Ubicazione*, *Stato*), mantenendo inalterata la semantica dei colori (slate per codici, sky/amber per ubicazione, emerald/rose per stato).
+- **File coinvolti**:
+  - [`src/features/inventory/ToolsGrid.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolsGrid.jsx)
+
+## [2026-09-28] - Chiusura Definitiva Backend Ciclo di Vita (Migration 1-4 & Test SQL)
+- **Tag**: `[FIX]` / `[REFACTOR]` / `[DOCS]`
+- **Descrizione**:
+  - **Risoluzione di tutti i punti aperti della revisione backend** ([`docs/REVIEW_BACKEND_LIFECYCLE.md`](file:///Users/gio/Documents/CODING/Berc_utensili/docs/REVIEW_BACKEND_LIFECYCLE.md)): corretti i nomi colonna (`quantita_richiesta` su ordini), impostati i vincoli CHECK bidirezionali su `posizioni_utensile` (`id_macchina` e `id_spedizione`) e rimosso l'indice unico parziale su `movements_history` (sostituito con indice non-unico su `id_operazione` per consentire prelievi e spedizioni multi-riga dello stesso utensile, contratto v1.2).
+  - **Risolto `ON CONFLICT` in `handle_multi_movement`**: rimossi i `COALESCE` nelle clausole `ON CONFLICT` di carico e spostamento, allineandoli all'indice unico di `posizioni_utensile` per preservare il corretto funzionamento delle movimentazioni di magazzino dell'app esistente.
+  - **Normalizzazione RPC Riaffilature**: standardizzata la sintassi `RAISE EXCEPTION USING ERRCODE = 'P0001', MESSAGE = '...', DETAIL = '...'` in tutte le funzioni, allineata la lettura e scrittura degli scarti del fornitore a `'scarto_fornitore'`, spostato `ORDER BY` all'interno di `jsonb_agg` in `get_riaffilature` e aggiunto il campo `id_operazione_rientro` per consentire correzione e annullo delle spedizioni rientrate (proposta D3).
+  - **Integrità Dati & Sicurezza Transazionale**: implementato blocco preventivo del doppio annullo in `annulla_operazione` (`gia_annullata`) per evitare duplicazione stock, filtro per operatore in `ultimo_uso_operatore`, causale obbligatoria su smontaggio `'rotto'`, `luogo_da = NULL` su `deposita`, e aggiornati gli script di test SQL (`lifecycle_fase2.sql`, `lifecycle_fase3.sql`, `verifica_migrazione.sql`).
+- **File coinvolti**:
+  - [`supabase/migrations/20260924_lifecycle_1_schema_e_migrazione.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/migrations/20260924_lifecycle_1_schema_e_migrazione.sql)
+  - [`supabase/migrations/20260924_lifecycle_2_rpc_base.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/migrations/20260924_lifecycle_2_rpc_base.sql)
+  - [`supabase/migrations/20260924_lifecycle_3_riaffilature.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/migrations/20260924_lifecycle_3_riaffilature.sql)
+  - [`supabase/migrations/20260924_lifecycle_4_dashboard_realtime_legacy.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/migrations/20260924_lifecycle_4_dashboard_realtime_legacy.sql)
+  - [`supabase/tests/lifecycle_fase2.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/tests/lifecycle_fase2.sql), [`supabase/tests/lifecycle_fase3.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/tests/lifecycle_fase3.sql), [`supabase/tests/verifica_migrazione.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/tests/verifica_migrazione.sql)
+  - [`docs/REVIEW_BACKEND_LIFECYCLE.md`](file:///Users/gio/Documents/CODING/Berc_utensili/docs/REVIEW_BACKEND_LIFECYCLE.md), [`SUPABASE_SCHEMA.md`](file:///Users/gio/Documents/CODING/Berc_utensili/SUPABASE_SCHEMA.md)
+
+## [2026-09-28] - Implementazione Design System "Utensili V2" (Stitch) & Pulizia Architetturale
+- **Tag**: `[UX/UI]` / `[FEAT]` / `[PERF]` / `[REFACTOR]`
+- **Descrizione**:
+  - **Sidebar Collassabile Ad Icone**: Transizione fluida desktop (`w-64 lg:w-72` espansa ↔ `w-[68px]` compatta) con toggle a doppie frecce (`ChevronsLeft`/`ChevronsRight`), persistenza locale (`sidebar_collapsed`), pulsanti di azione rapida semantici (Deposita `emerald-600`, Preleva `rose-600`, Nuovo Utensile `sky`), avatar utente e tooltip di navigazione. Risolto bug di render sul pulsante di collasso desktop.
+  - **Lista TanStack a Tutto Schermo & Piena Integrazione**: Rimossi i vincoli artificiali `max-w-7xl` e `max-w-[1600px]`, eliminato il container a card flottante con bordi arrotondati (`rounded-2xl border shadow-sm`) e rimosso il padding perimetrale (`p-2 sm:p-3 md:p-4`). La tabella TanStack ora è integrata al 100% con la testata filtri e il footer, a filo con i bordi della finestra, eliminando lo schema "box-in-a-box" e massimizzando l'altezza visibile (16 righe simultanee in viewport). Eliminata la colonna ridondante `Lavorazione` e azzerato il bottom spacer.
+  - **Barra Filtri Parametrici Single-Row**: Toolbar filtri orizzontale compatta ad altezza fissa `h-11` con scorrimento fluido, chip parametrici con label e valore evidenziato, e pulsante rapido di reset (*Azzera filtri*).
+  - **Estensione Design ad Altre Viste**: Applicato il layout a tutta larghezza e il design system con precision card e header a filo anche a *Movimento Multiplo* ([`MultiMovementView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/MultiMovementView.jsx)), *In produzione* ([`InProduzioneView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/produzione/InProduzioneView.jsx)), *Riaffilature* ([`RiaffilatureView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/produzione/RiaffilatureView.jsx)), *Commesse* ([`CommesseView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/CommesseView.jsx)), *Storico movimenti* ([`HistoryView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/HistoryView.jsx)) e *Gestione Operatori* ([`OperatorsView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/OperatorsView.jsx)).
+  - **Audit Visivo Headless & Pulizia Codice**: Eseguito audit visivo tramite `chrome-devtools` headless MCP confrontando screenshot live e mockup Stitch, rimossi script temporanei e pulito l'ambiente (0 errori linter e token guardrail, build Vite verificata).
+- **File coinvolti**:
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
+  - [`src/features/inventory/ToolsGrid.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolsGrid.jsx)
+  - [`src/features/filters/DropdownFilterView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/filters/DropdownFilterView.jsx)
+  - [`src/features/inventory/MultiMovementView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/MultiMovementView.jsx)
+  - [`src/components/common/DataTable/VirtualizedTable.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/DataTable/VirtualizedTable.jsx)
+  - [`src/components/layout/PageTemplate.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/PageTemplate.jsx)
+  - [`src/components/layout/GlobalSearch.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/GlobalSearch.jsx)
+  - [`src/App.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/App.jsx)
+  - [`eslint.config.js`](file:///Users/gio/Documents/CODING/Berc_utensili/eslint.config.js)
+  - [`CHANGELOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/CHANGELOG.md)
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - Implementata la nuova Sidebar collassabile con switch bidirezionale (`w-64 lg:w-72` espansa ↔ `w-[68px]` compatta ad sole icone) e persistenza in `useNavigationStore` (`sidebar_collapsed`), pulsanti rapidi con colori semantici industriali (Deposita `emerald-600`, Preleva `rose-600`, Nuovo Utensile `sky`), badge profilo operatore e indicatori di navigazione attivi.
+  - Ridisegnata la testata `PageHeader` e l'Omnibox di ricerca globale (`GlobalSearch`): chip breadcrumb con icona Database, barra di ricerca stile terminale CNC con chip rapidi (`D6`, `Alesatori`), scorciatoia `⌘K` e pulsante dedicato per scanner barcode rapido.
+  - Aggiornata la barra filtri parametrici (`DropdownFilterView`) con pulsanti compatti `h-7`, badge con label/valore evidenziato e pulsante di reset rapido.
+  - Trasformata la tabella TanStack (`ToolsGrid` & `VirtualizedTable`) con design precision: icon-box differenziate per stato utensile, badge codice mono, badge ubicazione/macchina con icona factory, pill disponibilità NUOVO/USATO, conteggio giacenza ad alto contrasto e footer con stato catalogo.
+- **File coinvolti**:
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
+  - [`src/components/layout/GlobalSearch.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/GlobalSearch.jsx)
+  - [`src/components/layout/PageTemplate.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/PageTemplate.jsx)
+  - [`src/features/filters/DropdownFilterView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/filters/DropdownFilterView.jsx)
+  - [`src/features/inventory/ToolsGrid.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolsGrid.jsx)
+  - [`src/components/common/DataTable/VirtualizedTable.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/DataTable/VirtualizedTable.jsx)
+  - [`src/store/useNavigationStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useNavigationStore.js)
+  - [`src/App.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/App.jsx), [`src/index.css`](file:///Users/gio/Documents/CODING/Berc_utensili/src/index.css), [`index.html`](file:///Users/gio/Documents/CODING/Berc_utensili/index.html)
+
+## [2026-09-27] - Ottimizzazione Design System (DESIGN_SYSTEM.md) per LLM
+- **Tag**: `[UX/UI]` / `[PERF]` / `[DOCS]`
+- **Descrizione**:
+  - Ottimizzato e riscritto direttamente [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md) ispirandosi alla struttura compatta e priva di sprechi di token del Design V2 di Stitch (`Tool Crib Precision`).
+  - Ridotto il peso del file da 75,3 KB (~20.000 token) a 21,9 KB (~5.500 token) con un risparmio del 71% di contesto, eliminando memorie storiche, dissertazioni discorsive e verbali di audit.
+  - Mantenuto al 100% l'intero patrimonio normativo: regole Fitts 44px, scale semantiche `.app-*`, z-index, palette contrasti WCAG, 4 tier di modali, TanStack virtualizzato, layout app-like 100dvh e checklist pre-commit.
+  - Lasciati invariati i file Stitch (`.stitch/DESIGN.md`, `.stitch/metadata.json`, asset cloud) e rimosso qualsiasi file addizionale.
+- **File coinvolti**:
+  - [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md) (ottimizzato e compattato)
+  - [`gemini.md`](./gemini.md), [`CHANGELOG.md`](./CHANGELOG.md)
+
+## [2026-09-27] - Creazione Investor & Commercial Pitch Deck (HTML + PDF)
+- **Tag**: `[FEAT]` / `[DOCS]`
+- **Descrizione**:
+  - Creato Investor & Commercial Pitch Deck professionale in formato widescreen 16:9 / A4 landscape per la presentazione dell'app a clienti industriali e investitori.
+  - Inclusi grafici vettoriali (ROI cumulativo su 12 mesi, matrice posizionamento competitivo 2x2, breakdown costi fermo macchina) e screenshot reali dell'applicazione (catalogo, modale dettaglio, distinta movimento multiplo, storico audit).
+  - Generata la versione PDF multipagina ad alta risoluzione (`presentation/investor_deck.pdf`) con impaginazione tipografica perfetta (8 slide, 1 slide per pagina).
+- **File Coinvolti**:
+  - [`presentation/deck.html`](file:///Users/gio/Documents/CODING/Berc_utensili/presentation/deck.html)
+  - [`presentation/investor_deck.pdf`](file:///Users/gio/Documents/CODING/Berc_utensili/presentation/investor_deck.pdf)
+  - `presentation/assets/*`
+
+## [2026-09-24] - Installazione Stitch Skills e configurazione Stitch MCP Server
+- **Tag**: `[FEAT]` / `[DOCS]`
+- **Descrizione**:
+  - Clonata e integrata la libreria di skill `google-labs-code/stitch-skills` per Google Stitch (16 skill divise in 3 plugin: `stitch-build`, `stitch-design`, `stitch-utilities`).
+  - Rese disponibili le skill a livello globale e locale sia per Gemini/Antigravity (`~/.gemini/config/plugins/`, `.agents/plugins/`) che per Claude Code / Claude Desktop (`~/.claude/skills/`, `.claude/skills/`).
+  - Configurato il server MCP Stitch nativo di Google (`https://stitch.googleapis.com/mcp` con header `X-Goog-Api-Key`) in `~/.gemini/config/mcp_config.json`, `claude_desktop_config.json`, `~/.claude/mcp.json` e `.claude/mcp.json`.
+  - Rimossi i file temporanei e i bundle proxy di terze parti non necessari (`~/.stitch-mcp`).
+- **File Coinvolti**:
+  - `~/.gemini/config/plugins/stitch-*`, `~/.claude/skills/*`, `.agents/plugins/*`, `.claude/skills/*`, `~/.gemini/config/mcp_config.json`, `claude_desktop_config.json`, `~/.claude/mcp.json`, `.claude/mcp.json`
+
 ## [2026-09-24] - Correzioni backend Ciclo di Vita dopo la revisione (Gemini)
 - **Tag**: `[FIX]`
 - **Descrizione**:

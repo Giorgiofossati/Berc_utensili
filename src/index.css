@@ -15,6 +15,8 @@
   --color-accent-orange: #f97316;
 
   --font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   --shadow-premium: 0 20px 50px -12px rgba(0, 0, 0, 0.5);
   --shadow-carica: 0 0 30px rgba(16, 185, 129, 0.15);
@@ -171,7 +173,7 @@
    ========================================================================== */
 
 @utility app-overline {
-  @apply text-[9px] sm:text-[10px] font-black uppercase tracking-[0.25em];
+  @apply text-[9px] sm:text-[10px] font-black uppercase tracking-[0.25em] text-accent-orange;
 }
 
 @utility app-h1 {
@@ -199,11 +201,11 @@
 }
 
 @utility app-qty-sm {
-  @apply text-xs sm:text-sm md:text-base font-black tabular-nums;
+  @apply text-xs sm:text-sm md:text-base font-black tabular-nums font-mono;
 }
 
 @utility app-qty-lg {
-  @apply text-2xl sm:text-3xl md:text-4xl font-black tabular-nums leading-none;
+  @apply text-2xl sm:text-3xl md:text-4xl font-black tabular-nums font-mono leading-none;
 }
 
 @layer components {

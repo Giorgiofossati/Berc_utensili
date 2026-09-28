@@ -110,7 +110,7 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-accent-blue/10 border border-accent-blue/30 flex items-center justify-center text-accent-blue mb-4 shadow-inner">
                 <Search size={32} className={`sm:w-9 sm:h-9 ${opType === 'carico' ? 'text-accent-emerald' : opType === 'scarico' ? 'text-accent-rose' : 'text-accent-cyan'}`} />
               </div>
-              <p className={`app-overline mb-1 ${opType === 'carico' ? 'text-accent-emerald' : opType === 'scarico' ? 'text-accent-rose' : 'text-accent-cyan'}`}>
+              <p className="app-overline mb-1">
                 {opType === 'carico' ? 'Modalità Deposito' : opType === 'scarico' ? 'Modalità Prelievo' : 'Pronto alla ricerca'}
               </p>
               <h3 className="app-h2 mb-2">
@@ -136,13 +136,13 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
 
               {/* Quick suggestion chips */}
               <div className="flex flex-wrap items-center justify-center gap-2 max-w-lg">
-                <span className="app-overline dark:text-slate-500 text-slate-400 mr-1">Ricerche rapide:</span>
+                <span className="app-label text-muted-foreground mr-1">Ricerche rapide:</span>
                 {['FRESA', 'PUNTA', 'MASCHIO', 'ALESATORE', 'D16', 'BURZONI'].map((chip) => (
                   <button
                     key={chip}
                     type="button"
                     onClick={() => setManualCode(chip)}
-                    className="glass-button px-3 py-1.5 rounded-xl app-caption font-bold dark:text-slate-300 text-slate-700 hover:text-accent-blue hover:border-accent-blue/40 transition-all text-xs"
+                    className="glass-button px-3 py-1.5 rounded-xl font-mono text-xs font-bold dark:text-slate-300 text-slate-700 hover:text-accent-blue hover:border-accent-blue/40 transition-all"
                   >
                     {chip}
                   </button>

@@ -34,8 +34,6 @@ export function SmontaDialog({ riga, onClose, notify }) {
 
   const [passo, setPasso] = useState('esito');
   const [quantita, setQuantita] = useState(1);
-  const [notaAltro, setNotaAltro] = useState('');
-  const [altroAperto, setAltroAperto] = useState(false);
   const [destMacchina, setDestMacchina] = useState();
   const [destCommessa, setDestCommessa] = useState();
   const [errore, setErrore] = useState(null);
@@ -100,9 +98,9 @@ export function SmontaDialog({ riga, onClose, notify }) {
   const commessaDest = destCommessa !== undefined ? destCommessa : (destMacchina ? (riga.id_commessa || GENERICO) : undefined);
   const puoSpostare = !!destMacchina && commessaDest !== undefined && !isSubmitting;
 
-  const confermaPasso = passo === 'sposta'
-    ? (puoSpostare ? () => invia('sposta', { destMacchina, destCommessa: commessaDest === GENERICO ? null : commessaDest }) : null)
-    : (passo === 'rotto' && altroAperto && !isSubmitting ? () => invia('rotto', { causale: 'altro', nota: notaAltro.trim() || null }) : null);
+  const confermaPasso = passo === 'sposta' && puoSpostare
+    ? () => invia('sposta', { destMacchina, destCommessa: commessaDest === GENERICO ? null : commessaDest })
+    : null;
 
   // Invio conferma il passo aperto quando il fuoco non è su un campo o un bottone (desktop).
   useEffect(() => {
@@ -178,37 +176,24 @@ export function SmontaDialog({ riga, onClose, notify }) {
           <>
             <ModalBody className="flex flex-col gap-4">
               <GuidedStep number="!" title="Perché si è rotto?" hint="un tocco e hai finito">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {CAUSALI_OPERATORE.map(c => (
                     <button
                       key={c.id}
                       type="button"
                       disabled={isSubmitting}
-                      onClick={() => (c.id === 'altro' ? setAltroAperto(true) : invia('rotto', { causale: c.id }))}
+                      onClick={() => invia('rotto', { causale: c.id })}
                       className={cn(
-                        'min-h-15 px-4 py-2.5 rounded-[var(--radius-card,16px)] border text-left flex flex-col justify-center gap-0.5 transition-colors cursor-pointer outline-none',
+                        'min-h-16 px-4 py-3 rounded-[var(--radius-card,16px)] border text-left flex flex-col justify-center gap-1 transition-colors cursor-pointer outline-none',
                         'focus-visible:ring-2 focus-visible:ring-accent-blue/50 disabled:opacity-40',
-                        c.id === 'altro' && altroAperto ? 'border-[1.5px] border-accent-blue bg-accent-blue/10' : 'border-border hover:bg-accent-blue/[0.06]'
+                        'border-border hover:bg-accent-blue/[0.06] hover:border-accent-blue/40'
                       )}
                     >
-                      <span className="text-sm font-bold text-foreground">{c.label}</span>
+                      <span className="text-base font-bold text-foreground">{c.label}</span>
                       <span className="text-xs font-medium text-muted-foreground">{c.hint}</span>
                     </button>
                   ))}
                 </div>
-                {altroAperto && (
-                  <div className="mt-3 flex flex-col gap-2">
-                    <label htmlFor="nota-scarto" className="app-label text-muted-foreground">Nota (facoltativa)</label>
-                    <textarea
-                      id="nota-scarto"
-                      rows={2}
-                      value={notaAltro}
-                      onChange={(e) => setNotaAltro(e.target.value)}
-                      placeholder="es. tagliente scheggiato al primo pezzo"
-                      className="w-full rounded-[var(--radius-control,12px)] border border-border bg-transparent px-3 py-2.5 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
-                    />
-                  </div>
-                )}
               </GuidedStep>
               {errore && (
                 <p role="alert" className="app-body text-accent-rose flex items-start gap-2">
@@ -217,10 +202,7 @@ export function SmontaDialog({ riga, onClose, notify }) {
               )}
             </ModalBody>
             <GuidedFooter
-              onBack={() => { setPasso('esito'); setAltroAperto(false); setErrore(null); }}
-              onConfirm={altroAperto ? confermaPasso : null}
-              confirmLabel="Conferma scarto"
-              tone="scarica"
+              onBack={() => { setPasso('esito'); setErrore(null); }}
               disabled={isSubmitting}
               isSubmitting={isSubmitting}
             />

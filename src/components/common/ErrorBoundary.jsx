@@ -71,13 +71,13 @@ class ErrorBoundary extends Component {
               <AlertTriangle size={32} />
             </div>
             
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-accent-orange mb-1">
+            <p className="app-overline mb-1">
               Sistema di Ripristino
             </p>
-            <h2 className="text-xl sm:text-2xl font-black uppercase italic tracking-tight mb-2">
+            <h2 className="app-h2 italic mb-2">
               Si è verificato un errore
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-6">
+            <p className="app-body mb-6">
               L'applicazione ha riscontrato un'anomalia. Puoi ricaricare la pagina o ripristinare la sessione di accesso.
             </p>
 

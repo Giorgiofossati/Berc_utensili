@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Berc Utensili — Investor & Commercial Pitch Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070a12;
+      --bg-surface: #0e1424;
+      --bg-card: #141c32;
+      --bg-card-subtle: #19243f;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(6, 182, 212, 0.3);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --cyan: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.15);
+      --blue: #0ea5e9;
+      --orange: #f97316;
+      --orange-glow: rgba(249, 115, 22, 0.15);
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.15);
+      --red: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #03060c;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+    }
+
+    /* Print & A4 Landscape rules */
+    @page {
+      size: 297mm 210mm;
+      margin: 0;
+    }
+
+    @media print {
+      body {
+        padding: 0;
+        background: none;
+      }
+      .slide-controls {
+        display: none !important;
+      }
+      .slide {
+        margin: 0 !important;
+        box-shadow: none !important;
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+    }
+
+    /* Presentation Slide Container (297mm x 210mm) */
+    .slide {
+      width: 297mm;
+      height: 210mm;
+      min-width: 297mm;
+      min-height: 210mm;
+      max-width: 297mm;
+      max-height: 210mm;
+      margin-bottom: 24px;
+      position: relative;
+      background: radial-gradient(circle at 85% 15%, #152238 0%, #070a12 60%, #04060a 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      padding: 16mm 20mm;
+      overflow: hidden;
+    }
+
+    /* Decorative Grid Pattern Overlay */
+    .slide::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 15mm 15mm;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .slide > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Slide Header */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8mm;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 4mm;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-badge {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--cyan) 0%, #0284c7 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+    }
+
+    .logo-badge svg {
+      width: 18px;
+      height: 18px;
+      color: #070a12;
+      stroke-width: 2.5;
+    }
+
+    .brand-title {
+      font-size: 14pt;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 8pt;
+      color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .slide-category {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5pt;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* Slide Footer */
+    .slide-footer {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 4mm;
+      font-size: 7.5pt;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .slide-page-num {
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    /* Typography */
+    h1.hero-title {
+      font-size: 28pt;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 4mm;
+    }
+
+    h2.slide-title {
+      font-size: 20pt;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 2mm;
+    }
+
+    p.slide-lead {
+      font-size: 10.5pt;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 90%;
+      margin-bottom: 6mm;
+    }
+
+    .accent-cyan { color: var(--cyan); }
+    .accent-orange { color: var(--orange); }
+    .accent-green { color: var(--green); }
+
+    /* Badge Pills */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 8pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .badge-cyan {
+      background: var(--cyan-glow);
+      color: var(--cyan);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+
+    .badge-orange {
+      background: var(--orange-glow);
+      color: var(--orange);
+      border: 1px solid rgba(249, 115, 22, 0.3);
+    }
+
+    .badge-green {
+      background: var(--green-glow);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Cards & Containers */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 5mm;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-highlight {
+      border-color: rgba(6, 182, 212, 0.35);
+      background: linear-gradient(135deg, rgba(14, 20, 36, 0.9) 0%, rgba(20, 28, 50, 0.9) 100%);
+    }
+
+    /* Layout Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6mm;
+      flex: 1;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 5mm;
+      flex: 1;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4mm;
+    }
+
+    /* Stat Callout */
+    .stat-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 4.5mm 5mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-box::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--cyan);
+    }
+
+    .stat-box.orange::after { background: var(--orange); }
+    .stat-box.green::after { background: var(--green); }
+
+    .stat-val {
+      font-size: 22pt;
+      font-weight: 900;
+      font-family: 'JetBrains Mono', monospace;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 1.5mm;
+    }
+
+    .stat-label {
+      font-size: 8pt;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+    }
+
+    .stat-desc {
+      font-size: 8pt;
+      color: var(--text-muted);
+      margin-top: 1mm;
+      line-height: 1.3;
+    }
+
+    /* Device Mockup Wrapper */
+    .mockup-frame {
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .mockup-header {
+      height: 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding-left: 6px;
+      margin-bottom: 6px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #475569;
+    }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #eab308; }
+    .dot-green { background: #22c55e; }
+
+    .mockup-img {
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      display: block;
+      object-fit: cover;
+    }
+
+    /* Comparison Table / Quadrant */
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+    }
+
+    .comparison-table th {
+      text-align: left;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .comparison-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+    }
+
+    .comparison-table tr.highlight {
+      background: rgba(6, 182, 212, 0.06);
+    }
+
+    .comparison-table tr.highlight td {
+      color: #ffffff;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(6, 182, 212, 0.3);
+    }
+
+    /* SVG Charts styling */
+    .chart-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Top presentation control bar for interactive use in browser */
+    .slide-controls {
+      margin-bottom: 16px;
+      background: #111827;
+      border: 1px solid #374151;
+      padding: 8px 16px;
+      border-radius: 30px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      font-size: 9pt;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .btn-print {
+      background: linear-gradient(135deg, var(--cyan) 0%, #0284c7 100%);
+      color: #070a12;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 8.5pt;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.2s;
+    }
+    .btn-print:hover { opacity: 0.9; }
+
+  </style>
+</head>
+<body>
+
+  <!-- Web View Controls (Hidden in Print / PDF) -->
+  <div class="slide-controls">
+    <span style="color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">Berc Utensili — Pitch Deck v2.4</span>
+    <button class="btn-print" onclick="window.print()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+      Stampa / Salva in PDF
+    </button>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- SLIDE 1: COVER & EXECUTIVE VISION          -->
+  <!-- ========================================== -->
+  <section class="slide" id="slide-1">
+    <header class="slide-header">
+      <div class="brand-logo">
+        <div class="logo-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <div>
+          <div class="brand-title">BERC UTENSILI</div>
+          <div class="brand-subtitle">Smart CNC Tooling Cloud</div>
+        </div>
+      </div>
+      <div class="slide-category">INVESTOR & COMMERCIAL DECK</div>
+    </header>
+
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: 95%;">
+      <div style="margin-bottom: 4mm;">
+        <span class="badge badge-cyan">GESTIONALE UTENSILI 4.0</span>
+        <span class="badge badge-green" style="margin-left: 6px;">ZERO CAPEX</span>
+        <span class="badge badge-orange" style="margin-left: 6px;">SETUP IN 48 ORE</span>
+      </div>
+
+      <h1 class="hero-title">
+        Eliminiamo i fermi macchina<br>
+        e il capitale bloccato in officina.<br>
+        <span style="background: linear-gradient(90deg, var(--cyan) 0%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          Con la semplicità di un'app.
+        </span>
+      </h1>
+
+      <p class="slide-lead" style="font-size: 11.5pt; max-width: 82%;">
+        La piattaforma cloud-native e mobile-first progettata per l'operatore CNC: tracciamento in tempo reale, prelievo in 3 secondi con scansione live e zero dispersioni inventariali nelle lavorazioni meccaniche di precisione.
+      </p>
+
+      <!-- Key Value Pillars -->
+      <div class="grid-4" style="margin-top: 4mm;">
+        <div class="stat-box">
+          <div class="stat-val accent-cyan">3 sec</div>
+          <div class="stat-label">Tempo di Prelievo</div>
+          <div class="stat-desc">Scansione barcode e carico/scarico istantaneo con un tocco.</div>
+        </div>
+        <div class="stat-box green">
+          <div class="stat-val accent-green">€24.750</div>
+          <div class="stat-label">Risparmio Annuo / 5 CNC</div>
+          <div class="stat-desc">Eliminazione dei tempi morti per ricerca utensili introvabili.</div>
+        </div>
+        <div class="stat-box orange">
+          <div class="stat-val accent-orange">-20%</div>
+          <div class="stat-label">Capitale Bloccato</div>
+          <div class="stat-desc">Stop a ordini doppi di emergenza e scorte ridondanti nei cassetti.</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" style="color: #cbd5e1;">&lt; 60 gg</div>
+          <div class="stat-label">Payback Period</div>
+          <div class="stat-desc">Ritorno sull'investimento immediato con zero spese hardware.</div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="slide-footer">
+      <div>BERCELLA UTENSILI • PIANO INDUSTRIALE & COMMERCIALE</div>
+      <div>CONFIDENZIALE • 2026</div>
+      <div class="slide-page-num">01 / 08</div>
+    </footer>
+  </section>
+
+
+  <!-- ========================================== -->
+  <!-- SLIDE 2: THE REAL PROBLEM                  -->
+  <!-- ========================================== -->
+  <section class="slide" id="slide-2">
+    <header class="slide-header">
+      <div class="brand-logo">
+        <div class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div><div class="brand-title">BERC UTENSILI</div></div>
+      </div>
+      <div class="slide-category">IL PROBLEMA INDUSTRIALE</div>
+    </header>
+
+    <h2 class="slide-title">Dove l'officina meccanica perde margine ogni giorno</h2>
+    <p class="slide-lead">Gli utensili CNC pesano per migliaia di euro a commessa. Ma il vero costo nascosto è il caos operativo tra banco e macchina.</p>
+
+    <div class="grid-3" style="margin-bottom: 5mm;">
+      <!-- Pain 1 -->
+      <div class="card" style="border-left: 3px solid var(--red);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3mm;">
+          <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: var(--red);">FERMO MACCHINA</span>
+          <span style="font-family: 'JetBrains Mono'; font-size: 8pt; color: var(--text-dim);">80€ - 140€ / ORA</span>
+        </div>
+        <h3 style="font-size: 11pt; color: #fff; margin-bottom: 2mm;">La Caccia al Tesoro</h3>
+        <p style="font-size: 8.5pt; color: var(--text-muted); line-height: 1.45;">
+          L'operatore avvia il setup, scopre che la fresa da 12 non è nel cassetto. Passa 20-30 minuti a cercarla tra i banchi colleghi o a chiedere in giro. Un centro da 100€/ora fermo per una fresa da 40€.
+        </p>
+      </div>
+
+      <!-- Pain 2 -->
+      <div class="card" style="border-left: 3px solid var(--orange);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3mm;">
+          <span class="badge badge-orange">CAPITALE IMMOBILIZZATO</span>
+          <span style="font-family: 'JetBrains Mono'; font-size: 8pt; color: var(--text-dim);">FINO AL 25% EXTRA</span>
+        </div>
+        <h3 style="font-size: 11pt; color: #fff; margin-bottom: 2mm;">Ordini Doppi e "Scorte Morte"</h3>
+        <p style="font-size: 8.5pt; color: var(--text-muted); line-height: 1.45;">
+          Nel dubbio se l'utensile sia disponibile, l'ufficio acquisti ordina "per sicurezza" un altro lotto con spedizioni express costose. Cassetti pieni di utensili dimenticati, mentre manca l'inserto urgente.
+        </p>
+      </div>
+
+      <!-- Pain 3 -->
+      <div class="card" style="border-left: 3px solid var(--cyan);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3mm;">
+          <span class="badge badge-cyan">RIFIUTO SOFTWARE</span>
+          <span style="font-family: 'JetBrains Mono'; font-size: 8pt; color: var(--text-dim);">&gt; 70% ABBANDONO</span>
+        </div>
+        <h3 style="font-size: 11pt; color: #fff; margin-bottom: 2mm;">"I ragazzi non lo usano"</h3>
+        <p style="font-size: 8.5pt; color: var(--text-muted); line-height: 1.45;">
+          I gestionali aziendali tradizionali (ERP) o i CAD 3D richiedono 50 click e mouse da usare con mani unte. L'operatore li rifiuta e non registra i prelievi: il database mente dopo due settimane.
+        </p>
+      </div>
+    </div>
+
+    <!-- Impact Bar Chart SVG -->
+    <div class="card" style="flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 4mm 6mm;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 2mm; font-size: 8pt; font-family: 'JetBrains Mono';">
+        <span style="color: var(--text-muted);">PERDITA ECONOMICA ANNUA STIMATA PER OFFICINA DI 5 CENTRI CNC</span>
+        <span style="color: var(--red); font-weight: 700;">TOTALE ANNUO: €34.750</span>
+      </div>
+      
+      <!-- Visual SVG Chart -->
+      <svg width="100%" height="45" viewBox="0 0 800 45" style="overflow: visible;">
+        <!-- Bar 1: Fermi Macchina -->
+        <rect x="0" y="8" width="550" height="24" rx="4" fill="rgba(239, 68, 68, 0.85)"/>
+        <text x="12" y="24" fill="#ffffff" font-family="JetBrains Mono" font-size="10" font-weight="700">€24.750 — Ore Macchina Bruciate (15 min/giorno x 5 CNC)</text>
+        
+        <!-- Bar 2: Ordini Doppi & Spedizioni Express -->
+        <rect x="556" y="8" width="244" height="24" rx="4" fill="rgba(249, 115, 22, 0.85)"/>
+        <text x="566" y="24" fill="#ffffff" font-family="JetBrains Mono" font-size="10" font-weight="700">€10.000 — Scorte Morte</text>
+      </svg>
+      <div style="display: flex; justify-content: space-between; font-size: 7.5pt; color: var(--text-dim); margin-top: 1mm;">
+        <span>Stima calcolata su 220 giorni lavorativi a tariffa media di 90€/ora per isola di lavoro.</span>
+        <span>Fonte: Audit operativi e benchmark di settore Tool Management</span>
+      </div>
+    </div>
+
+    <footer class="slide-footer">
+      <div>BERCELLA UTENSILI • PIANO INDUSTRIALE & COMMERCIALE</div>
+      <div>CONFIDENZIALE • 2026</div>
+      <div class="slide-page-num">02 / 08</div>
+    </footer>
+  </section>
+
+
+  <!-- ========================================== -->
+  <!-- SLIDE 3: THE SOLUTION                      -->
+  <!-- ========================================== -->
+  <section class="slide" id="slide-3">
+    <header class="slide-header">
+      <div class="brand-logo">
+        <div class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div><div class="brand-title">BERC UTENSILI</div></div>
+      </div>
+      <div class="slide-category">LA NOSTRA SOLUZIONE</div>
+    </header>
+
+    <div class="grid-2">
+      <!-- Left Column: Value Prop & Features -->
+      <div style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <span class="badge badge-cyan" style="margin-bottom: 2mm;">L'APP OPERATIVA DA OFFICINA</span>
+          <h2 class="slide-title" style="font-size: 19pt;">Veloce come WhatsApp,<br>precisa come un CNC</h2>
+          <p class="slide-lead" style="font-size: 9.5pt; margin-bottom: 4mm;">
+            Abbiamo ribaltato il paradigma: invece di progettare per gli impiegati d'ufficio, abbiamo creato uno strumento touch-first per l'operatore in tuta da lavoro.
+          </p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 3mm;">
+          <div class="card" style="padding: 3mm 4mm; display: flex; align-items: flex-start; gap: 10px;">
+            <div style="background: var(--cyan-glow); color: var(--cyan); padding: 6px; border-radius: 6px; font-weight: 800; font-size: 10pt;">01</div>
+            <div>
+              <div style="font-weight: 700; font-size: 9.5pt; color: #fff;">Scansione Live & Prelievo in 3 Secondi</div>
+              <div style="font-size: 8pt; color: var(--text-muted);">Inquadri il barcode con il tablet o cerchi per diametro/tipo. Un tocco su "PRELEVA" e il magazzino è sincronizzato.</div>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 3mm 4mm; display: flex; align-items: flex-start; gap: 10px;">
+            <div style="background: var(--orange-glow); color: var(--orange); padding: 6px; border-radius: 6px; font-weight: 800; font-size: 10pt;">02</div>
+            <div>
+              <div style="font-weight: 700; font-size: 9.5pt; color: #fff;">Mappatura Visiva Esatta dell'Ubicazione</div>
+              <div style="font-size: 8pt; color: var(--text-muted);">Indica all'istante cassetto, armadio e scomparto (es. "Armadio A, Cassetto 3"). Zero tempo sprecato a chiedere.</div>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 3mm 4mm; display: flex; align-items: flex-start; gap: 10px;">
+            <div style="background: var(--green-glow); color: var(--green); padding: 6px; border-radius: 6px; font-weight: 800; font-size: 10pt;">03</div>
+            <div>
+              <div style="font-weight: 700; font-size: 9.5pt; color: #fff;">Allarmi Live di Sotto-Scorta</div>
+              <div style="font-size: 8pt; color: var(--text-muted);">Notifica visiva immediata prima che l'utensile si esaurisca. L'ufficio acquisti ordina prima del fermo macchina.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 3mm; display: flex; gap: 8px;">
+          <span class="badge" style="background: rgba(255,255,255,0.05); color: #cbd5e1;">Funziona su Qualsiasi Tablet</span>
+          <span class="badge" style="background: rgba(255,255,255,0.05); color: #cbd5e1;">PWA Offline Ready</span>
+          <span class="badge" style="background: rgba(255,255,255,0.05); color: #cbd5e1;">Zero Installazione Server</span>
+        </div>
+      </div>
+
+      <!-- Right Column: Live App Screenshot -->
+      <div style="display: flex; flex-direction: column; justify-content: center;">
+        <div class="mockup-frame">
+          <div class="mockup-header">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+            <span style="font-size: 6.5pt; color: #94a3b8; font-family: 'JetBrains Mono'; margin-left: 6px;">Berc Utensili — Catalogo & Ricerca Live Barcode</span>
+          </div>
+          <img src="./assets/screen_inventario.png" alt="Schermata Inventario Berc Utensili" class="mockup-img" style="max-height: 125mm; object-position: top left;">
+        </div>
+      </div>
+    </div>
+
+    <footer class="slide-footer">
+      <div>BERCELLA UTENSILI • PIANO INDUSTRIALE & COMMERCIALE</div>
+      <div>CONFIDENZIALE • 2026</div>
+      <div class="slide-page-num">03 / 08</div>
+    </footer>
+  </section>
+
+
+  <!-- ========================================== -->
+  <!-- SLIDE 4: USER EXPERIENCE & SETUP RAPIDO     -->
+  <!-- ========================================== -->
+  <section class="slide" id="slide-4">
+    <header class="slide-header">
+      <div class="brand-logo">
+        <div class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div><div class="brand-title">BERC UTENSILI</div></div>
+      </div>
+      <div class="slide-category">ESPERIENZA OPERATIVA</div>
+    </header>
+
+    <h2 class="slide-title">Progettato per chi lavora in officina, non per gli uffici</h2>
+    <p class="slide-lead">Ogni schermata applica i principi scientifici di ergonomia cognitiva (Fitts e Hick): pulsanti macro 48px, zero tabelle caotiche, informazioni a colpo d'occhio.</p>
+
+    <div class="grid-2" style="flex: 1; align-items: stretch;">
+      <!-- Feature 1: Dettaglio Utensile & Macro Action -->
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2mm;">
+            <span class="badge badge-cyan">DETTAGLIO A 1 TOCCO</span>
+            <span style="font-family: 'JetBrains Mono'; font-size: 7.5pt; color: var(--text-dim);">SCHEDA GEOMETRICA & STATO</span>
+          </div>
+          <h3 style="font-size: 11pt; color: #fff; margin-bottom: 1.5mm;">Giacenza, Posizione e Azioni Immediate</h3>
+          <p style="font-size: 8pt; color: var(--text-muted); line-height: 1.35; margin-bottom: 3mm;">
+            Dettagli tecnici essenziali (diametro, tolleranza, fornitore, codice aziendale) con comandi chiari: <strong>DEPOSITA</strong> (verde), <strong>PRELEVA</strong> (rosso) e <strong>ORDINA</strong> (arancione).
+          </p>
+        </div>
+        <div class="mockup-frame" style="padding: 4px;">
+          <img src="./assets/screen_modal.png" alt="Dettaglio Utensile Modal" class="mockup-img" style="max-height: 82mm; object-fit: contain; background: #070a12;">
+        </div>
+      </div>
+
+      <!-- Feature 2: Multi-Movimento Distinta Commessa -->
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2mm;">
+            <span class="badge badge-orange">DISTINTA COMMESSA</span>
+            <span style="font-family: 'JetBrains Mono'; font-size: 7.5pt; color: var(--text-dim);">SETUP COMPLETO IN UN VIAGGIO</span>
+          </div>
+          <h3 style="font-size: 11pt; color: #fff; margin-bottom: 1.5mm;">Movimento Multiplo: Stop ai Continui Viaggi</h3>
+          <p style="font-size: 8pt; color: var(--text-muted); line-height: 1.35; margin-bottom: 3mm;">
+            L'operatore compone la distinta degli utensili per il setup macchina e scarica l'intero lotto con una transazione atomica. Nessun disallineamento inventariale.
+          </p>
+        </div>
+        <div class="mockup-frame" style="padding: 4px;">
+          <img src="./assets/screen_multimovement.png" alt="Movimento Multiplo Commessa" class="mockup-img" style="max-height: 82mm; object-fit: contain; background: #070a12;">
+        </div>
+      </div>
+    </div>
+
+    <footer class="slide-footer">
+      <div>BERCELLA UTENSILI • PIANO INDUSTRIALE & COMMERCIALE</div>
+      <div>CONFIDENZIALE • 2026</div>
+      <div class="slide-page-num">04 / 08</div>
+    </footer>
+  </section>
+
+
+  <!-- ========================================== -->
+  <!-- SLIDE 5: ROI & BUSINESS CASE               -->
+  <!-- ========================================== -->
+  <section class="slide" id="slide-5">
+    <header class="slide-header">
+      <div class="brand-logo">
+        <div class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div><div class="brand-title">BERC UTENSILI</div></div>
+      </div>
+      <div class="slide-category">BUSINESS CASE & RITORNO D'INVESTIMENTO</div>
+    </header>
+
+    <h2 class="slide-title">La matematica del risparmio: ROI superiore al 500%</h2>
+    <p class="slide-lead">L'investimento nel software viene recuperato nei primi 30-45 giorni grazie all'eliminazione diretta delle ore di fermo macchina.</p>
+
+    <div class="grid-2" style="margin-bottom: 4mm;">
+      <!-- ROI Table -->
+      <div class="card" style="padding: 4mm 5mm;">
+        <div style="font-size: 8.5pt; font-family: 'JetBrains Mono'; color: var(--cyan); font-weight: 700; margin-bottom: 3mm;">
+          SIMULAZIONE RISPARMIO ANNUO PER DIMENSIONE OFFICINA
+        </div>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Dimensione Officina</th>
+              <th>Tempo Perso/Gg</th>
+              <th>Costo Annuo Fermo</th>
+              <th>Risparmio Scorte</th>
+              <th>Beneficio Totale</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color: #fff; font-weight: 600;">3 Centri CNC</td>
+              <td>45 min tot</td>
+              <td>€14.850</td>
+              <td>€4.500</td>
+              <td style="color: var(--green); font-weight: 700;">€19.350 / anno</td>
+            </tr>
+            <tr class="highlight">
+              <td>5 Centri CNC (Target)</td>
+              <td>75 min tot</td>
+              <td>€24.750</td>
+              <td>€8.000</td>
+              <td style="color: var(--green); font-weight: 800; font-size: 9.5pt;">€32.750 / anno</td>
+            </tr>
+            <tr>
+              <td style="color: #fff; font-weight: 600;">10 Centri CNC</td>
+              <td>150 min tot</td>
+              <td>€49.500</td>
+              <td>€16.000</td>
+              <td style="color: var(--green); font-weight: 700;">€65.500 / anno</td>
+            </tr>
+            <tr>
+              <td style="color: #fff; font-weight: 600;">20 Centri CNC</td>
+              <td>300 min tot</td>
+              <td>€99.000</td>
+              <td>€30.000</td>
+              <td style="color: var(--green); font-weight: 700;">€129.000 / anno</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-size: 7pt; color: var(--text-dim); margin-top: 2.5mm; font-family: 'JetBrains Mono';">
+          * Parametri: 90€/ora costo orario centro di lavoro; 15 min medi persi/macchina/giorno; 220 giorni lavorativi/anno.
+        </div>
+      </div>
+
+      <!-- ROI Cumulative Chart -->
+      <div class="card card-highlight" style="display: flex; flex-direction: column; justify-content: space-between; padding: 4mm 5mm;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 8.5pt; font-family: 'JetBrains Mono'; color: var(--green); font-weight: 700;">ANDAMENTO CUMULATIVO DEL RISPARMIO NETTO (12 MESI)</span>
+          <span class="badge badge-green">PAYBACK IN 35 GIORNI</span>
+        </div>
+
+        <!-- SVG Line Curve -->
+        <div style="height: 100px; width: 100%; margin: 2mm 0;">
+          <svg width="100%" height="100" viewBox="0 0 400 100" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="roiGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="rgba(16, 185, 129, 0.4)"/>
+                <stop offset="100%" stop-color="rgba(16, 185, 129, 0.0)"/>
+              </linearGradient>
+            </defs>
+            <!-- Grid Lines -->
+            <line x1="0" y1="25" x2="400" y2="25" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3,3"/>
+            <line x1="0" y1="50" x2="400" y2="50" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3,3"/>
+            <line x1="0" y1="75" x2="400" y2="75" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3,3"/>
+            
+            <!-- Breakeven horizontal line -->
+            <line x1="0" y1="85" x2="400" y2="85" stroke="rgba(239, 68, 68, 0.4)" stroke-width="1.5"/>
+            <text x="5" y="81" fill="#ef4444" font-size="7" font-family="JetBrains Mono">Costo Canone Software</text>
+
+            <!-- ROI Curve Area -->
+            <path d="M 0,85 C 60,82 120,65 180,45 C 260,25 340,10 400,5 L 400,95 L 0,95 Z" fill="url(#roiGrad)"/>
+            <!-- Curve Stroke -->
+            <path d="M 0,85 C 60,82 120,65 180,45 C 260,25 340,10 400,5" fill="none" stroke="#10b981" stroke-width="3"/>
+            
+            <!-- Breakeven point marker -->
+            <circle cx="70" cy="80" r="4" fill="#06b6d4" stroke="#ffffff" stroke-width="1.5"/>
+            <text x="75" y="75" fill="#06b6d4" font-size="7.5" font-family="JetBrains Mono" font-weight="700">Breakeven (~35 gg)</text>
+
+            <text x="320" y="20" fill="#10b981" font-size="9" font-family="JetBrains Mono" font-weight="800">+€32.750/anno</text>
+          </svg>
+        </div>
+
+        <div style="font-size: 8pt; color: var(--text-muted); line-height: 1.35;">
+          A fronte di un modesto canone SaaS, l'officina genera liquidità libera fin dal primo mese, migliorando la marginalità su ogni commessa prodotta.
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="stat-box">
+        <div class="stat-val accent-cyan">100%</div>
+        <div class="stat-label">Trasparenza Giacenze</div>
+        <div class="stat-desc">Allineamento tra software e contenuto fisico dei cassetti.</div>
+      </div>
+      <div class="stat-box green">
+        <div class="stat-val accent-green">0 Ore</div>
+        <div class="stat-label">Corsi di Formazione</div>
+        <div class="stat-desc">Interfaccia autoesplicativa: l'operatore impara in 5 minuti.</div>
+      </div>
+      <div class="stat-box orange">
+        <div class="stat-val accent-orange">-85%</div>
+        <div class="stat-label">Spedizioni Express</div>
+        <div class="stat-desc">Stop a riordini d'emergenza con corrieri dedicati costosi.</div>
+      </div>
+    </div>
+
+    <footer class="slide-footer">
+      <div>BERCELLA UTENSILI • PIANO INDUSTRIALE & COMMERCIALE</div>
+      <div>CONFIDENZIALE • 2026</div>
+      <div class="slide-page-num">05 / 08</div>
+    </footer>
+  </section>
+
+
+  <!-- ========================================== -->
+  <!-- SLIDE 6: COMPETITIVE LANDSCAPE & BLUE OCEAN -->
+  <!-- ========================================== -->
+  <section class="slide" id="slide-6">
+    <header class="slide-header">
+      <div class="brand-logo">
+        <div class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div><div class="brand-title">BERC UTENSILI</div></div>
+      </div>
+      <div class="slide-category">ANALISI COMPETITIVA</div>
+    </header>
+
+    <h2 class="slide-title">Il nostro "Oceano Blu": Velocità e Zero CapEx</h2>
+    <p class="slide-lead">I competitor vendono hardware ingombrante o software da ufficio obsoleti. Noi offriamo l'agilità che le officine moderne chiedono.</p>
+
+    <div class="grid-2" style="flex: 1; gap: 6mm;">
+      <!-- Competitive Quadrant Matrix (SVG) -->
+      <div class="card" style="display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;">
+        <div style="font-size: 8pt; font-family: 'JetBrains Mono'; color: var(--text-dim); margin-bottom: 2mm; width: 100%; text-align: left;">
+          MATRICE DI POSIZIONAMENTO DI MERCATO
+        </div>
+
+        <svg width="100%" height="220" viewBox="0 0 360 220" style="overflow: visible;">
+          <!-- Quadrant Axes -->
+          <line x1="40" y1="110" x2="330" y2="110" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+          <line x1="180" y1="20" x2="180" y2="200" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+          
+          <!-- Axis Labels -->
+          <text x="335" y="114" fill="#94a3b8" font-size="7.5" font-family="JetBrains Mono">Velocità & Facilità Uso →</text>
+          <text x="40" y="105" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">← Complesso</text>
+          <text x="185" y="28" fill="#94a3b8" font-size="7.5" font-family="JetBrains Mono">Zero CapEx (Cloud) ↑</text>
+          <text x="185" y="196" fill="#64748b" font-size="7.5" font-family="JetBrains Mono">CapEx Alto (Hardware) ↓</text>
+
+          <!-- Competitor Group 1: Dinosauri 3D -->
+          <circle cx="95" cy="65" r="26" fill="rgba(255, 255, 255, 0.04)" stroke="rgba(255, 255, 255, 0.2)"/>
+          <text x="95" y="60" text-anchor="middle" fill="#cbd5e1" font-size="7.5" font-weight="700">Dinosauri 3D</text>
+          <text x="95" y="72" text-anchor="middle" fill="#64748b" font-size="6">TDM, WinTool, Zoller</text>
+
+          <!-- Competitor Group 2: Vending Machines -->
+          <circle cx="110" cy="155" r="28" fill="rgba(239, 68, 68, 0.06)" stroke="rgba(239, 68, 68, 0.3)"/>
+          <text x="110" y="150" text-anchor="middle" fill="#fca5a5" font-size="7.5" font-weight="700">Armadi Rotanti</text>
+          <text x="110" y="162" text-anchor="middle" fill="#991b1b" font-size="6">AutoCrib, CribMaster</text>
+
+          <!-- Competitor Group 3: Moduli ERP Generici -->
+          <circle cx="85" cy="105" r="20" fill="rgba(255, 255, 255, 0.03)" stroke="rgba(255, 255, 255, 0.15)"/>
+          <text x="85" y="107" text-anchor="middle" fill="#94a3b8" font-size="7">Moduli ERP</text>
+
+          <!-- BERC UTENSILI (BLUE OCEAN) -->
+          <circle cx="280" cy="55" r="32" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" stroke-width="2"/>
+          <text x="280" y="50" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="800">BERC UTENSILI</text>
+          <text x="280" y="62" text-anchor="middle" fill="#38bdf8" font-size="6.5" font-weight="600">Leader Oceano Blu</text>
+          <circle cx="280" cy="55" r="38" fill="none" stroke="rgba(6, 182, 212, 0.3)" stroke-dasharray="2,2"/>
+        </svg>
+      </div>
+
+      <!-- Comparison Breakdown -->
+      <div style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="card" style="padding: 3.5mm 4mm; border-left: 3px solid #64748b;">
+          <div style="font-weight: 700; font-size: 9pt; color: #cbd5e1; margin-bottom: 1mm;">I Limiti dei Grandi Player (TDM, Zoller, WinTool)</div>
+          <div style="font-size: 7.8pt; color: var(--text-muted); line-height: 1.35;">
+            Sbilanciati sulla simulazione 3D e uffici tecnici. Costano decine di migliaia di euro, richiedono mesi di implementazione e a bordo macchina sono lenti e inusabili.
+          </div>
+        </div>
+
+        <div class="card" style="padding: 3.5mm 4mm; border-left: 3px solid var(--red);">
+          <div style="font-weight: 700; font-size: 9pt; color: #fca5a5; margin-bottom: 1mm;">I Limiti dei Distributori Automatici (AutoCrib, CribMaster)</div>
+          <div style="font-size: 7.8pt; color: var(--text-muted); line-height: 1.35;">
+            CapEx proibitivo (15.000€ - 40.000€ per armadio), manutenzione meccanica, colli di bottiglia fisici al cambio turno e lock-in forzato sui marchi d'utensili.
+          </div>
+        </div>
+
+        <div class="card card-highlight" style="padding: 3.5mm 4mm; border-left: 3px solid var(--cyan);">
+          <div style="font-weight: 800; font-size: 9.5pt; color: #ffffff; margin-bottom: 1mm;">Il Vantaggio Competitivo di Berc Utensili</div>
+          <div style="font-size: 8pt; color: #e2e8f0; line-height: 1.35;">
+            <strong>Zero CapEx</strong>: usa le cassettiere esistenti. <strong>Neutrale al 100%</strong>: nessun lock-in coi costruttori. <strong>Onboarding in 48 ore</strong>: importazione anagrafiche rapida da Excel.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="slide-footer">
+      <div>BERCELLA UTENSILI • PIANO INDUSTRIALE & COMMERCIALE</div>
+      <div>CONFIDENZIALE • 2026</div>
+      <div class="slide-page-num">06 / 08</div>
+    </footer>
+  </section>
+
+
+  <!-- ========================================== -->
+  <!-- SLIDE 7: BUSINESS MODEL & GO-TO-MARKET     -->
+  <!-- ========================================== -->
+  <section class="slide" id="slide-7">
+    <header class="slide-header">
+      <div class="brand-logo">
+        <div class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div><div class="brand-title">BERC UTENSILI</div></div>
+      </div>
+      <div class="slide-category">MODELLO DI BUSINESS & COMMERCIALIZZAZIONE</div>
+    </header>
+
+    <h2 class="slide-title">Modello SaaS Scalabile & Formula "Zero Rischi"</h2>
+    <p class="slide-lead">Entrata rapida con canone trasparente e onboarding garantito: superiamo qualsiasi diffidenza iniziale del cliente.</p>
+
+    <!-- Pricing Tiers Grid -->
+    <div class="grid-3" style="margin-bottom: 4mm;">
+      <!-- Tier 1 -->
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="font-family: 'JetBrains Mono'; font-size: 8pt; color: var(--text-dim); text-transform: uppercase;">OFFICINA ESSENTIAL</div>
+          <div style="font-size: 18pt; font-weight: 900; color: #fff; margin: 1mm 0;">€149 <span style="font-size: 9pt; color: var(--text-dim); font-weight: 400;">/ mese</span></div>
+          <div style="font-size: 8pt; color: var(--cyan); margin-bottom: 3mm; font-family: 'JetBrains Mono';">Fino a 5 Centri di Lavoro</div>
+          
+          <ul style="list-style: none; font-size: 7.8pt; color: var(--text-muted); display: flex; flex-direction: column; gap: 2mm;">
+            <li>✓ Inventario illimitato & QR Code</li>
+            <li>✓ Prelievo/Carico rapido 3 sec</li>
+            <li>✓ Gestione scorta minima & alert</li>
+            <li>✓ Fino a 10 operatori inclusi</li>
+          </ul>
+        </div>
+        <div style="margin-top: 3mm; padding-top: 2mm; border-top: 1px solid var(--border-subtle); font-size: 7pt; color: var(--text-dim);">Ideale per piccole tornerie e fresature conto terzi.</div>
+      </div>
+
+      <!-- Tier 2 (Highlighted) -->
+      <div class="card card-highlight" style="display: flex; flex-direction: column; justify-content: space-between; position: relative;">
+        <div style="position: absolute; top: -8px; right: 12px;">
+          <span class="badge badge-cyan" style="font-size: 6.5pt; padding: 2px 8px;">PIÙ RICHIESTO</span>
+        </div>
+        <div>
+          <div style="font-family: 'JetBrains Mono'; font-size: 8pt; color: var(--cyan); text-transform: uppercase; font-weight: 700;">PRO REPARTO</div>
+          <div style="font-size: 18pt; font-weight: 900; color: #fff; margin: 1mm 0;">€299 <span style="font-size: 9pt; color: var(--text-dim); font-weight: 400;">/ mese</span></div>
+          <div style="font-size: 8pt; color: var(--green); margin-bottom: 3mm; font-family: 'JetBrains Mono';">Fino a 15 Centri di Lavoro</div>
+          
+          <ul style="list-style: none; font-size: 7.8pt; color: #e2e8f0; display: flex; flex-direction: column; gap: 2mm;">
+            <li>✓ Tutto del piano Essential</li>
+            <li>✓ <strong>Modulo Distinta Commessa</strong> (Multi-Prelievo)</li>
+            <li>✓ Tracciamento storico per lotto/operatore</li>
+            <li>✓ Operatori illimitati & ruoli Admin/User</li>
+          </ul>
+        </div>
+        <div style="margin-top: 3mm; padding-top: 2mm; border-top: 1px solid var(--border-subtle); font-size: 7pt; color: var(--cyan);">Perfetto per officine strutturate a più turni.</div>
+      </div>
+
+      <!-- Tier 3 -->
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="font-family: 'JetBrains Mono'; font-size: 8pt; color: var(--text-dim); text-transform: uppercase;">ENTERPRISE MULTI-PLANT</div>
+          <div style="font-size: 18pt; font-weight: 900; color: #fff; margin: 1mm 0;">Custom <span style="font-size: 9pt; color: var(--text-dim); font-weight: 400;">annuale</span></div>
+          <div style="font-size: 8pt; color: var(--orange); margin-bottom: 3mm; font-family: 'JetBrains Mono';">Oltre 15 Centri o Multi-Sede</div>
+          
+          <ul style="list-style: none; font-size: 7.8pt; color: var(--text-muted); display: flex; flex-direction: column; gap: 2mm;">
+            <li>✓ Connettore API ERP/MES aziendale</li>
+            <li>✓ Multi-magazzino e sedi distaccate</li>
+            <li>✓ SLA dedicato e supporto h24</li>
+            <li>✓ Personalizzazione flussi di riordino</li>
+          </ul>
+        </div>
+        <div style="margin-top: 3mm; padding-top: 2mm; border-top: 1px solid var(--border-subtle); font-size: 7pt; color: var(--text-dim);">Per grandi stabilimenti industriali e gruppi manifatturieri.</div>
+      </div>
+    </div>
+
+    <!-- Onboarding & Risk-Free Offer -->
+    <div class="grid-2">
+      <div class="card" style="padding: 3.5mm 4mm; display: flex; align-items: center; gap: 12px;">
+        <div style="background: var(--green-glow); color: var(--green); padding: 8px; border-radius: 8px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div>
+          <div style="font-weight: 700; font-size: 9pt; color: #fff;">La Formula: "Pilota 30 Giorni Senza Rischi"</div>
+          <div style="font-size: 7.8pt; color: var(--text-muted); line-height: 1.35;">
+            Avviamo l'app su un'isola di lavoro pilota (2 macchine). Se a fine mese l'officina non riscontra risparmi concreti e piena adozione degli operatori, nessun vincolo contrattuale.
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 3.5mm 4mm; display: flex; align-items: center; gap: 12px;">
+        <div style="background: var(--cyan-glow); color: var(--cyan); padding: 8px; border-radius: 8px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <div>
+          <div style="font-weight: 700; font-size: 9pt; color: #fff;">Pacchetto "Chiavi in Mano" (Setup 48 Ore)</div>
+          <div style="font-size: 7.8pt; color: var(--text-muted); line-height: 1.35;">
+            Importazione del foglio Excel o anagrafica attuale, configurazione delle ubicazioni fisiche dell'officina e generazione del set completo di etichette barcode per cassettiere.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="slide-footer">
+      <div>BERCELLA UTENSILI • PIANO INDUSTRIALE & COMMERCIALE</div>
+      <div>CONFIDENZIALE • 2026</div>
+      <div class="slide-page-num">07 / 08</div>
+    </footer>
+  </section>
+
+
+  <!-- ========================================== -->
+  <!-- SLIDE 8: SUMMARY & CALL TO ACTION          -->
+  <!-- ========================================== -->
+  <section class="slide" id="slide-8">
+    <header class="slide-header">
+      <div class="brand-logo">
+        <div class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div><div class="brand-title">BERC UTENSILI</div></div>
+      </div>
+      <div class="slide-category">VISION & PROSSIMI PASSI</div>
+    </header>
+
+    <div class="grid-2" style="flex: 1; align-items: center;">
+      <!-- Left Column: Summary & Call to Action -->
+      <div style="display: flex; flex-direction: column; justify-content: center;">
+        <span class="badge badge-green" style="margin-bottom: 2mm;">INIZIAMO IN 48 ORE</span>
+        <h2 class="slide-title" style="font-size: 22pt; line-height: 1.2;">
+          Pronti a fermare<br>gli sprechi in officina?
+        </h2>
+        <p class="slide-lead" style="font-size: 10pt; margin-bottom: 4mm;">
+          Mentre i concorrenti impiegano 6 mesi a installare server e armadi rotanti, la tua officina può iniziare a tracciare e risparmiare già da dopodomani.
+        </p>
+
+        <!-- Summary Bullets -->
+        <div style="display: flex; flex-direction: column; gap: 2.5mm; margin-bottom: 4mm;">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 8.5pt; color: #fff;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Nessun fermo macchina causato da utensili introvabili</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 8.5pt; color: #fff;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Giacenze e costi commessa trasparenti in tempo reale</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 8.5pt; color: #fff;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Totale autonomia: zero vincoli con fornitori o marchi</span>
+          </div>
+        </div>
+
+        <!-- Contact Box -->
+        <div class="card card-highlight" style="padding: 4mm 5mm; border-color: rgba(6, 182, 212, 0.4);">
+          <div style="font-size: 7.5pt; color: var(--cyan); font-family: 'JetBrains Mono'; font-weight: 700; text-transform: uppercase;">
+            CONTATTO DIRETTO & DEMO LIVE
+          </div>
+          <div style="font-size: 11pt; font-weight: 800; color: #fff; margin-top: 1mm;">
+            Prenota un test pilota di 30 giorni in officina
+          </div>
+          <div style="font-size: 8pt; color: var(--text-muted); margin-top: 1.5mm; font-family: 'JetBrains Mono';">
+            Email: commerciale@bercutensili.it • Web: app.bercutensili.it
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Audit History Screenshot -->
+      <div style="display: flex; flex-direction: column; justify-content: center;">
+        <div class="mockup-frame">
+          <div class="mockup-header">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+            <span style="font-size: 6.5pt; color: #94a3b8; font-family: 'JetBrains Mono'; margin-left: 6px;">Berc Utensili — Storico Movimenti & Tracciamento Operatori</span>
+          </div>
+          <img src="./assets/screen_storico.png" alt="Storico Movimenti Berc Utensili" class="mockup-img" style="max-height: 125mm; object-position: top left;">
+        </div>
+      </div>
+    </div>
+
+    <footer class="slide-footer">
+      <div>BERCELLA UTENSILI • PIANO INDUSTRIALE & COMMERCIALE</div>
+      <div>CONFIDENZIALE • 2026</div>
+      <div class="slide-page-num">08 / 08</div>
+    </footer>
+  </section>
+
+</body>
+</html>

@@ -62,6 +62,7 @@ function SelectContent({
   align = "center",
   alignOffset = 0,
   alignItemWithTrigger = true,
+  collisionPadding = 8,
   ...props
 }) {
   return (
@@ -72,6 +73,7 @@ function SelectContent({
         align={align}
         alignOffset={alignOffset}
         alignItemWithTrigger={alignItemWithTrigger}
+        collisionPadding={collisionPadding}
         className="isolate z-50">
         <SelectPrimitive.Popup
           data-slot="select-content"

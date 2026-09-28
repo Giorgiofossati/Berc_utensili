@@ -46,58 +46,78 @@ export const SearchField = memo(({
   }, []);
 
   return (
-    <div
-      data-tour="search-tools"
-      className={cn(
-        "@container flex-1 basis-0 min-w-[50px] h-11 flex items-center rounded-[var(--radius-control,12px)] border border-slate-900/10 dark:border-white/10 bg-white/80 dark:bg-slate-900/70 shadow-sm focus-within:border-accent-blue/60 focus-within:ring-2 focus-within:ring-accent-blue/20 transition-[border-color,box-shadow] duration-[var(--motion-fast,150ms)]",
-        className
-      )}
-    >
-      <label className="flex items-center flex-1 h-full min-w-0 cursor-text">
-        <Search size={16} className="shrink-0 mx-[16px] text-slate-400 dark:text-slate-500 pointer-events-none" />
-        <span className="sr-only">{label}</span>
-        <input
-          ref={inputRef}
-          type="text"
-          value={value}
-          autoFocus={autoFocus}
-          onChange={(e) => onChange(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          placeholder={placeholder}
-          className="flex-1 w-0 min-w-0 h-full bg-transparent border-0 outline-none text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 placeholder:font-medium"
-        />
-      </label>
+    <div className="flex items-center gap-2 flex-1 max-w-3xl min-w-0">
+      <div
+        data-tour="search-tools"
+        className={cn(
+          "flex-1 flex items-center h-10 bg-slate-50 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 focus-within:border-sky-500 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-2 focus-within:ring-sky-100 dark:focus-within:ring-sky-900/30 rounded-xl px-3 transition-all duration-150 shadow-sm min-w-0",
+          className
+        )}
+      >
+        <label className="flex items-center flex-1 h-full min-w-0 cursor-text">
+          <Search size={18} className="shrink-0 mr-2 text-slate-400 dark:text-slate-500 pointer-events-none" />
+          <span className="sr-only">{label}</span>
+          <input
+            ref={inputRef}
+            type="text"
+            value={value}
+            autoFocus={autoFocus}
+            onChange={(e) => onChange(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            placeholder={placeholder}
+            className="flex-1 w-0 min-w-0 h-full bg-transparent border-0 outline-none text-xs md:text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 p-0 focus:ring-0"
+          />
+        </label>
 
-      {value && (
-        <button
-          type="button"
-          onClick={() => { (onClear ?? (() => onChange('')))(); inputRef.current?.focus(); }}
-          className="hidden @min-[150px]:flex w-11 h-11 rounded-xl items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-accent-blue/[0.06] transition-colors shrink-0"
-          aria-label="Cancella ricerca"
-        >
-          <X size={16} />
-        </button>
-      )}
+        {/* Quick chip hints when input is empty */}
+        {!value && (
+          <div className="hidden xl:flex items-center gap-1.5 mr-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => { onChange('D6'); inputRef.current?.focus(); }}
+              className="px-2 py-0.5 rounded text-xs font-semibold bg-slate-200/70 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-colors"
+            >
+              D6
+            </button>
+            <button
+              type="button"
+              onClick={() => { onChange('Alesatore'); inputRef.current?.focus(); }}
+              className="px-2 py-0.5 rounded text-xs font-semibold bg-slate-200/70 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-colors"
+            >
+              Alesatori
+            </button>
+          </div>
+        )}
+
+        {value && (
+          <button
+            type="button"
+            onClick={() => { (onClear ?? (() => onChange('')))(); inputRef.current?.focus(); }}
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shrink-0 mr-1.5 cursor-pointer"
+            aria-label="Cancella ricerca"
+          >
+            <X size={15} />
+          </button>
+        )}
+
+        <kbd className="hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-xs font-bold font-mono text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded shadow-2xs shrink-0 select-none">
+          <span>⌘</span>K
+        </kbd>
+      </div>
 
       {onCamera && (
         <button
           type="button"
           onClick={onCamera}
           aria-pressed={cameraActive}
-          className={cn(
-            "hidden @min-[100px]:flex w-11 h-11 rounded-xl items-center justify-center transition-colors shrink-0 hover:bg-accent-blue/[0.06]",
-            cameraActive ? "text-accent-orange" : "text-accent-blue hover:text-accent-cyan"
-          )}
-          aria-label="Scansiona barcode con la fotocamera"
+          className="h-10 px-3.5 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 hover:bg-cyan-100 dark:hover:bg-cyan-900/60 text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-800 flex items-center gap-2 shrink-0 transition-all shadow-sm active:scale-95 group cursor-pointer"
+          title="Inquadra Barcode con Fotocamera"
+          aria-label="Inquadra Barcode con Fotocamera"
         >
-          <Camera size={16} />
+          <ScanLine size={18} className="text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform" />
         </button>
       )}
-
-      <kbd className="hidden md:@min-[260px]:inline-flex h-5 mr-3 select-none items-center gap-0.5 rounded border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 px-1.5 font-mono text-xs font-bold text-slate-400 shrink-0">
-        <span>⌘</span>K
-      </kbd>
     </div>
   );
 });

@@ -19,7 +19,7 @@ export const useMovementStore = create((set, get) => ({
   setSelectedCommessaId: (id) => set({ selectedCommessaId: id }),
   setShowMoveModal: (show) => set({
     showMoveModal: show,
-    ...(!show ? { isBulkMode: false, selectedCommessaId: null } : {})
+    ...(!show ? { isBulkMode: false, selectedCommessaId: null, selectedTool: null } : {})
   }),
   openToolDetail: (tool) => set({
     selectedTool: tool,

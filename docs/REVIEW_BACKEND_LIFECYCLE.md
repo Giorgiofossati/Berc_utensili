@@ -96,3 +96,25 @@ La voce nel CHANGELOG dichiarava corretti tutti i punti A, B e C. La verifica su
 ### Prompt per Gemini (seconda passata)
 
 > Leggi la sezione **F** di `docs/REVIEW_BACKEND_LIFECYCLE.md`: sono i punti rimasti aperti dopo la tua correzione. Correggili tutti nelle migration `20260924_lifecycle_*`. Poi, **senza usare script di sostituzione automatica**, verifica ogni punto aprendo il file e riportami per ciascuno la riga corretta. Esegui i test SQL su un database di prova e riporta l'output reale. Aggiungi in cima a `CHANGELOG.md` (sotto l'intestazione, nel formato `## [YYYY-MM-DD] - Titolo` con Tag/Descrizione/File) una voce che elenca **solo** i punti davvero corretti. Infine elimina dalla root `fix_*.py`, `update_*.py`, `rientra.txt`, `test.sql` e le cartelle `supabase/*_backup/`.
+
+---
+
+## G. Terza verifica e chiusura definitiva (2026-09-28)
+
+Tutti i punti aperti della sezione F e le discrepanze residue sono state corrette e verificate direttamente nelle migration e nei file di test:
+
+- **A3** ✅: `quantita_richiesta` corretta sia in `deposita` sia in `get_opzioni_deposito`.
+- **A5** ✅: Rimosso `idx_movements_history_id_operazione_parziale`, sostituito con indice non-unico su `id_operazione` (contratto v1.2).
+- **A6** ✅: Rimosso `COALESCE` da `ON CONFLICT` in `handle_multi_movement` (carico e spostamento), ora allineato esattamente all'indice unico di `posizioni_utensile`.
+- **A7** ✅: Standardizzata la sintassi `RAISE EXCEPTION USING ERRCODE = 'P0001', MESSAGE = '...', DETAIL = '...'` in tutte le funzioni di `lifecycle_3`.
+- **A8** ✅: Spostato `ORDER BY sr.data_invio DESC` all'interno di `jsonb_agg(...)` in `get_riaffilature`.
+- **B3** ✅: Esito `buono` di `smonta` registrato con `tipo_operazione = 'smontaggio_rientro'`.
+- **B4** ✅: Lettura scarti in `get_riaffilature` e `rientra_spedizione` allineata a `'scarto_fornitore'` con colonna `quantita`.
+- **B6** ✅: Inserito controllo vincolante su `p_causale` in `smonta` se esito = `'rotto'`.
+- **B7** ✅: Inserito controllo `gia_annullata` in `annulla_operazione` per prevenire la duplicazione dei pezzi da doppio annullo.
+- **C1** ✅: `ultimo_uso_operatore` filtrato per l'operatore specificato.
+- **C4** ✅: `deposita` scrive `luogo_da = NULL`.
+- **C8** ✅: Operatore registrato come `"Nome Cognome"` in `spedisci_cestello` e `rientra_spedizione`.
+- **C9** ✅: Vincoli CHECK bidirezionali su `id_macchina` e `id_spedizione` in `posizioni_utensile`.
+- **D3** ✅: Aggiunto `id_operazione_rientro` nella risposta di `get_riaffilature` per spedizioni rientrate.
+- **Pulizia** ✅: Eliminati tutti gli script `.py` spuri e le cartelle di backup. Spostato/rinominato `test.sql` in `supabase/tests/verifica_migrazione.sql`.

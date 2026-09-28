@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef, Fragment } from 'react';
-import { ArrowLeft, ChevronRight, Menu as MenuIcon, X, Filter, Search } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Menu as MenuIcon, X, Filter, Search, Database } from 'lucide-react';
 import { Menu } from '@base-ui/react';
 import { cn } from '@/lib/utils';
 import { IconButton } from '@/components/ui/icon-button';
@@ -8,7 +8,7 @@ import { useNavigationStore } from '../../store/useNavigationStore';
 
 export function PageTemplate({ children, className }) {
   return (
-    <div className={cn("flex flex-col h-full w-full max-w-[1280px] mx-auto", className)}>
+    <div className={cn("flex flex-col h-full w-full min-w-0 overflow-hidden", className)}>
       {children}
     </div>
   );
@@ -187,14 +187,14 @@ export function PageHeader({
   const hideOnMobileSearch = mobileSearchOpen && "max-md:hidden";
 
   return (
-    <header className={cn("min-h-[64px] py-2.5 shrink-0 flex items-center gap-2 px-2 sm:px-4 lg:px-8 border-b border-border/50", className)}>
+    <header className={cn("h-16 px-3 sm:px-4 md:px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3 shrink-0 z-20", className)}>
       <h1 className="sr-only">{title}</h1>
       <IconButton
         icon={<MenuIcon size={20} />}
         onClick={() => setMobileSidebarOpen(true)}
         aria-label="Apri menu"
         variant="ghost"
-        className={cn("md:hidden text-accent-blue", hideOnMobileSearch)}
+        className={cn("md:hidden text-sky-600 dark:text-sky-400", hideOnMobileSearch)}
       />
       {showBack && (
         <IconButton
@@ -202,31 +202,45 @@ export function PageHeader({
           onClick={handleBack}
           aria-label="Indietro"
           variant="outline"
-          // Sotto `md` il percorso fa già da navigazione: la freccia sarebbe ridondante
-          className="max-md:hidden glass-button border-slate-900/10 dark:border-white/10"
+          className="max-md:hidden rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
         />
       )}
 
-      {/* Percorso: da md tiene la larghezza naturale; su mobile prende lo spazio libero e scorre di lato */}
-      <div className={cn("flex items-center min-w-0 max-md:flex-1 md:shrink h-11 pr-1 gap-1 rounded-[var(--radius-control,12px)] border border-slate-900/10 dark:border-white/10 bg-white/80 dark:bg-slate-900/70 shadow-sm", hideOnMobileSearch)}>
-        <Breadcrumbs crumbs={crumbs} />
+      {/* Breadcrumb / Badge Schermata Desktop */}
+      <div className={cn("hidden sm:flex items-center gap-2 shrink-0 pr-2 border-r border-slate-200 dark:border-slate-800", hideOnMobileSearch)}>
+        <span className="w-7 h-7 rounded-lg bg-sky-100 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 flex items-center justify-center font-bold text-xs shrink-0">
+          <Database size={16} />
+        </span>
+        {crumbs && crumbs.length > 1 ? (
+          <Breadcrumbs crumbs={crumbs} />
+        ) : (
+          <span className="text-xs font-extrabold uppercase tracking-wide text-slate-800 dark:text-slate-100 truncate">
+            {title}
+          </span>
+        )}
         {crumbsTrailing && <div className="lg:hidden shrink-0 flex items-center">{crumbsTrailing}</div>}
       </div>
 
-      {/* Mobile, ricerca chiusa: solo la lente (con pallino se c'è una ricerca attiva) */}
+      {/* Percorso Mobile */}
+      <div className={cn("sm:hidden flex items-center min-w-0 max-md:flex-1 h-10 pr-1 gap-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs", hideOnMobileSearch)}>
+        <Breadcrumbs crumbs={crumbs} />
+        {crumbsTrailing && <div className="shrink-0 flex items-center">{crumbsTrailing}</div>}
+      </div>
+
+      {/* Mobile, ricerca chiusa: solo la lente */}
       {!mobileSearchOpen && (
         <button
           type="button"
           onClick={openMobileSearch}
           aria-label={searchHasValue ? 'Modifica la ricerca attiva' : 'Cerca'}
-          className="md:hidden relative shrink-0 w-11 h-11 flex items-center justify-center rounded-[var(--radius-control,12px)] border border-slate-900/10 dark:border-white/10 bg-white/80 dark:bg-slate-900/70 shadow-sm text-slate-500 dark:text-slate-400 active:bg-accent-blue/[0.14]"
+          className="md:hidden relative shrink-0 w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs text-slate-500 dark:text-slate-400 active:bg-sky-50"
         >
           <Search size={18} />
-          {searchHasValue && <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-accent-blue" aria-hidden="true" />}
+          {searchHasValue && <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-sky-500" aria-hidden="true" />}
         </button>
       )}
 
-      {/* Ricerca: da md sempre visibile (min 50px, il percorso cede spazio dopo); su mobile solo se aperta */}
+      {/* Ricerca: da md sempre visibile; su mobile solo se aperta */}
       <div ref={searchWrapRef} className={cn("contents", !mobileSearchOpen && "max-md:hidden")}>
         {search
           ? <SearchField {...search} autoFocus={search.autoFocus} onActiveChange={handleSearchState} />
@@ -243,9 +257,12 @@ export function PageHeader({
       )}
 
       {action && (
-        <div className={cn("flex items-center gap-2 shrink-0", hideOnMobileSearch)}>
-          {action}
-        </div>
+        <>
+          <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block shrink-0" />
+          <div className={cn("flex items-center gap-1.5 shrink-0 ml-auto", hideOnMobileSearch)}>
+            {action}
+          </div>
+        </>
       )}
     </header>
   );
@@ -292,7 +309,7 @@ export function MobileFiltersToggle({ open, onToggle, count = 0, className }) {
       type="button"
       onClick={onToggle}
       aria-expanded={open}
-      className={cn("md:hidden w-full h-11 flex items-center justify-center gap-1.5 glass-button px-3 rounded-xl app-overline text-accent-blue", className)}
+      className={cn("md:hidden w-full h-11 flex items-center justify-center gap-1.5 glass-button px-3 rounded-xl text-xs font-black uppercase tracking-wider text-accent-blue", className)}
     >
       <Filter size={14} className="shrink-0" />
       <span className="truncate">{open ? 'Nascondi filtri' : 'Mostra filtri'}</span>

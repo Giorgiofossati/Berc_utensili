@@ -7,15 +7,12 @@ export const ORDINE_STATI = ['usato', 'riaffilato', 'nuovo'];
 export const ETICHETTE_STATO = { nuovo: 'Nuovo', usato: 'Usato', riaffilato: 'Riaffilato' };
 
 export const CAUSALI_OPERATORE = [
-  { id: 'usura', label: 'Usura normale', hint: 'Ha finito la sua vita' },
-  { id: 'collisione', label: 'Collisione', hint: 'Urto in macchina' },
-  { id: 'rottura_lavorazione', label: 'Rottura in lavorazione', hint: 'Si è spezzato lavorando' },
-  { id: 'parametri_programma', label: 'Parametri / programma', hint: 'Errore di impostazione' },
-  { id: 'altro', label: 'Altro', hint: 'Scrivi una nota (facoltativa)' }
+  { id: 'usura', label: 'Usura', hint: 'Fine vita naturale' },
+  { id: 'collisione', label: 'Collisione', hint: 'Urto in macchina' }
 ];
 
 export const ETICHETTE_CAUSALE = {
-  usura: 'Usura normale',
+  usura: 'Usura',
   collisione: 'Collisione',
   rottura_lavorazione: 'Rottura in lavorazione',
   parametri_programma: 'Parametri / programma',
@@ -185,4 +182,17 @@ export function etaBreve(iso, adesso = Date.now()) {
   if (g === 1) return 'ieri';
   if (g < 14) return `${g} gg fa`;
   return `${Math.floor(g / 7)} sett fa`;
+}
+
+// Permessi lato interfaccia (contratto §5): il flag se c'è, altrimenti il ruolo.
+// Serve solo a non mostrare azioni inutili: il controllo vero è nelle RPC.
+export function puo(utente, flag) {
+  if (!utente) return false;
+  if (typeof utente[flag] === 'boolean') return utente[flag];
+  return flag === 'can_pick_tools' ? true : utente.ruolo === 'Admin';
+}
+
+export function formatDataBreve(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
 }

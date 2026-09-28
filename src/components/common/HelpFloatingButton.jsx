@@ -39,7 +39,7 @@ export default function HelpFloatingButton() {
         onClick={startTutorial}
         aria-label="Guida"
         title="Guida"
-        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full glass-panel bg-white/70 dark:bg-slate-900/80 border border-slate-300/60 dark:border-accent-blue/30 text-accent-blue hover:text-white hover:bg-accent-blue shadow-md hover:shadow-accent-blue/20 flex items-center justify-center transition-all duration-200"
+        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full glass-panel bg-white/70 dark:bg-slate-900/80 border border-slate-300/60 dark:border-accent-blue/30 text-accent-blue hover:text-white hover:bg-accent-blue shadow-md hover:shadow-accent-blue/20 flex items-center justify-center transition-all duration-200 cursor-pointer"
       >
         <HelpCircle size={20} className="drop-shadow-sm" />
       </motion.button>

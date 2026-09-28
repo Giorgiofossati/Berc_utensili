@@ -24,8 +24,9 @@ import Sidebar from './components/layout/Sidebar';
 import LoginScreen from './features/auth/LoginScreen';
 import MultiMovementView from './features/inventory/MultiMovementView';
 import CategoryGridCard from './features/filters/CategoryGridCard';
-import MovementModal from './features/inventory/MovementModal';
+import ToolDetailDrawer from './features/inventory/ToolDetailDrawer';
 import InProduzioneView from './features/produzione/InProduzioneView';
+import RiaffilatureView from './features/produzione/RiaffilatureView';
 import DiameterList from './features/filters/DiameterList';
 import ToolsGrid from './features/inventory/ToolsGrid';
 import DropdownFilterView from './features/filters/DropdownFilterView';
@@ -55,11 +56,11 @@ function ViewModeToggle({ viewMode, setViewMode, className, tour }) {
       data-tour={tour ? 'view-mode-toggle' : undefined}
       role="group"
       aria-label="Tipo di vista"
-      className={`shrink-0 flex items-center h-11 p-1 rounded-[var(--radius-control,12px)] bg-slate-900/5 dark:bg-white/5 border border-slate-900/5 dark:border-white/5 ${className || ''}`}
+      className={`shrink-0 flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700 ${className || ''}`}
     >
       {[
-        { mode: 'dropdown', label: 'Vista a elenco', icon: <List size={16} /> },
-        { mode: 'grid', label: 'Vista a griglia', icon: <LayoutGrid size={16} /> },
+        { mode: 'dropdown', label: 'Vista Tabella Dati', icon: <List size={17} /> },
+        { mode: 'grid', label: 'Vista Griglia Schede', icon: <LayoutGrid size={17} /> },
       ].map(opt => (
         <button
           key={opt.mode}
@@ -68,7 +69,11 @@ function ViewModeToggle({ viewMode, setViewMode, className, tour }) {
           aria-label={opt.label}
           aria-pressed={viewMode === opt.mode}
           title={opt.label}
-          className={`w-9 h-full rounded-lg flex items-center justify-center transition-colors duration-[var(--motion-fast,150ms)] ${viewMode === opt.mode ? 'bg-white dark:bg-slate-800 text-accent-blue shadow-sm ring-1 ring-accent-blue/30' : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+          className={`w-8 h-8 rounded-md flex items-center justify-center font-bold transition-all cursor-pointer ${
+            viewMode === opt.mode 
+              ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-xs' 
+              : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+          }`}
         >
           {opt.icon}
         </button>
@@ -391,7 +396,7 @@ function App() {
         view={view}
       />
 
-      <div className="flex-1 flex flex-col gap-3 md:gap-4 relative overflow-hidden app-container custom-scrollbar min-w-0">
+      <div className="flex-1 flex flex-col relative overflow-hidden custom-scrollbar min-w-0 h-full">
 
         <main className="flex-1 w-full flex flex-col items-center justify-start relative min-h-0 overflow-hidden">
             <AnimatePresence mode="wait">
@@ -481,6 +486,11 @@ function App() {
                   <InProduzioneView key="produzione" setView={setView} showToastNotification={showToastNotification} />
                 </ErrorBoundary>
               )}
+              {view === 'riaffilature' && (
+                <ErrorBoundary>
+                  <RiaffilatureView key="riaffilature" setView={setView} showToastNotification={showToastNotification} />
+                </ErrorBoundary>
+              )}
               {view === 'multimovement' && (
                 <ErrorBoundary>
                   <MultiMovementView showToastNotification={showToastNotification} />
@@ -496,8 +506,8 @@ function App() {
               <div className="w-full max-w-xl flex flex-col shrink-0 pointer-events-auto">
                 <div className="pointer-events-auto flex items-center justify-between w-full bg-white/90 dark:bg-slate-900/90 rounded-3xl md:rounded-3xl p-2 md:p-3 md:px-4 border border-accent-blue/30 dark:border-accent-blue/30 gap-3 shadow-2xl backdrop-blur-3xl">
                   <div className="flex items-center gap-2">
-                    <div className="bg-accent-blue text-white font-black text-xs md:text-sm w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center shadow-inner">{selectedToolsIds.length}</div>
-                    <span className="hidden sm:inline text-xs md:text-xs font-black uppercase tracking-[0.1em] dark:text-white text-slate-900">Selezionati</span>
+                    <div className="bg-accent-blue text-slate-950 font-black text-xs md:text-sm w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center shadow-inner font-mono">{selectedToolsIds.length}</div>
+                    <span className="hidden sm:inline app-label dark:text-white text-slate-900">Selezionati</span>
                   </div>
                   <button 
                     onClick={handleTransferToMultiMovement} 
@@ -516,7 +526,7 @@ function App() {
         </AnimatePresence>
         
         <AnimatePresence>
-            {showMoveModal && <MovementModal key="move-modal" setShowMoveModal={(val) => { setShowMoveModal(val); if (!val) setIsBulkMode(false); }} onConfirm={(commessaId) => {
+            {showMoveModal && <ToolDetailDrawer key="tool-detail-drawer" setShowMoveModal={(val) => { setShowMoveModal(val); if (!val) setIsBulkMode(false); }} onConfirm={(commessaId) => {
               handleMovement(showToastNotification, () => {
                 setShowMoveModal(false);
                 setSelectedToolsIds([]);
@@ -581,7 +591,7 @@ function App() {
                   }`}>
                     {toast.type === 'error' ? 'Errore Operativo' : toast.type === 'warning' ? 'Avviso' : 'Notifica Sistema'}
                   </p>
-                  <p className="font-bold text-xs sm:text-sm tracking-wide dark:text-white text-slate-900 break-words leading-snug">
+                  <p className="app-h3 break-words">
                     {toast.message || toast}
                   </p>
                 </div>

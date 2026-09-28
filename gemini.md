@@ -13,7 +13,7 @@ Offre tracciamento in tempo reale, prelievo guidato, carico/scarico rapido e pre
 
 ### Documenti di Riferimento Ufficiali
 - [`SYSTEM_AUDIT_RULES.md`](./SYSTEM_AUDIT_RULES.md): **Protocollo Scientifico e Matrice di Self-Audit UX/UI** (HCI, Fitts, Hick, Miller, Gestalt, ISO 9241, WCAG 2.1 AA).
-- [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md): Token cromatici, classi semantiche `.app-*`, raggi di curvatura e layout.
+- [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md): **Design System Ufficiale** (ottimizzato per LLM e sviluppatori, token-efficient, 100% regole e token senza spreco di contesto).
 - [`CHANGELOG.md`](./CHANGELOG.md): **Registro Modifiche Software (Log Obbligatorio)**: Tracciamento sintetico di ogni implementazione, bugfix o refactor.
 
 ---

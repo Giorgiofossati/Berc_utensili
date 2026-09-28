@@ -633,14 +633,14 @@ const HistoryView = memo(({
               {/* Transaction Metrics Grid */}
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="p-3 rounded-xl glass-panel dark:border-white/5 border-slate-900/10 flex flex-col">
-                  <span className="app-overline text-slate-400 mb-1">Quantità</span>
+                  <span className="app-label text-muted-foreground mb-1">Quantità</span>
                   <span className={`app-qty-lg ${getMovementMeta(selectedLog.tipo_operazione).text}`}>
                     {formatMovementQty(selectedLog.tipo_operazione, selectedLog.quantita)}
                   </span>
                 </div>
 
                 <div className="p-3 rounded-xl glass-panel dark:border-white/5 border-slate-900/10 flex flex-col">
-                  <span className="app-overline text-slate-400 mb-1">Operatore</span>
+                  <span className="app-label text-muted-foreground mb-1">Operatore</span>
                   <span className="app-body font-bold text-slate-800 dark:text-slate-200 truncate mt-1">
                     {selectedLog.operatore || 'Admin'}
                   </span>
@@ -648,8 +648,8 @@ const HistoryView = memo(({
 
                 {selectedLog.Utensili_B1?.Ubicazione && (
                   <div className="p-3 rounded-xl glass-panel dark:border-white/5 border-slate-900/10 flex flex-col">
-                    <span className="app-overline text-slate-400 mb-1">Ubicazione</span>
-                    <span className="app-body font-bold text-accent-orange truncate mt-1">
+                    <span className="app-label text-muted-foreground mb-1">Ubicazione</span>
+                    <span className="app-body font-bold text-accent-blue truncate mt-1">
                       {selectedLog.Utensili_B1.Ubicazione}
                     </span>
                   </div>
@@ -657,7 +657,7 @@ const HistoryView = memo(({
 
                 {selectedLog.commesse && (
                   <div className="p-3 rounded-xl glass-panel dark:border-white/5 border-slate-900/10 flex flex-col col-span-2 sm:col-span-1">
-                    <span className="app-overline text-slate-400 mb-1">Commessa</span>
+                    <span className="app-label text-muted-foreground mb-1">Commessa</span>
                     <span className="app-body font-bold text-accent-blue truncate mt-1">
                       {selectedLog.commesse.codice}
                     </span>
@@ -666,7 +666,7 @@ const HistoryView = memo(({
 
                 {selectedLog.Utensili_B1?.Fornitore && (
                   <div className="p-3 rounded-xl glass-panel dark:border-white/5 border-slate-900/10 flex flex-col">
-                    <span className="app-overline text-slate-400 mb-1">Fornitore</span>
+                    <span className="app-label text-muted-foreground mb-1">Fornitore</span>
                     <span className="app-body font-bold truncate mt-1 text-slate-700 dark:text-slate-300">
                       {selectedLog.Utensili_B1.Fornitore}
                     </span>
@@ -677,8 +677,8 @@ const HistoryView = memo(({
               {/* ID Transazione & Audit */}
               <div className="p-2.5 rounded-xl glass-panel dark:border-white/5 border-slate-900/10 flex items-center justify-between gap-2">
                 <div className="flex flex-col min-w-0">
-                  <span className="app-overline text-slate-500">ID Transazione</span>
-                  <span className="app-caption font-mono text-xs text-slate-400 truncate">
+                  <span className="app-label text-muted-foreground">ID Transazione</span>
+                  <span className="app-caption text-slate-400 truncate">
                     {selectedLog.id}
                   </span>
                 </div>

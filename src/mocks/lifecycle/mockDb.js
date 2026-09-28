@@ -15,9 +15,9 @@ const DEFAULT_MAX_RIAFFILATURE = 3;
 export const LUOGHI = ['magazzino', 'cassetto', 'macchina', 'cestello', 'fornitore'];
 export const STATI = ['nuovo', 'usato', 'riaffilato'];
 export const ESITI = ['consumato', 'rotto', 'buono', 'sposta'];
-export const CAUSALI = ['usura', 'collisione', 'rottura_lavorazione', 'parametri_programma', 'altro', 'usura_limite_riaffilature', 'scarto_fornitore'];
-export const CAUSALI_EVITABILI = ['collisione', 'parametri_programma'];
-const CAUSALI_OPERATORE = ['usura', 'collisione', 'rottura_lavorazione', 'parametri_programma', 'altro'];
+export const CAUSALI = ['usura', 'collisione', 'usura_limite_riaffilature', 'scarto_fornitore'];
+export const CAUSALI_EVITABILI = ['collisione'];
+const CAUSALI_OPERATORE = ['usura', 'collisione'];
 
 // ---------------------------------------------------------------------------
 // Configurazione (lo store collega catalogo e operatore reali)
@@ -126,7 +126,7 @@ function seedHistory(state, now) {
   const rnd = () => ((r = (r * 48271) % 2147483647) / 2147483647);
   const pick = (arr) => arr[Math.floor(rnd() * arr.length)];
   const toolIds = Object.keys(MOCK_TOOLS);
-  const causaliPesi = ['usura', 'usura', 'usura', 'collisione', 'collisione', 'rottura_lavorazione', 'rottura_lavorazione', 'parametri_programma', 'altro'];
+  const causaliPesi = ['usura', 'usura', 'usura', 'collisione'];
   for (let i = 0; i < 160; i++) {
     const tool = pick(toolIds);
     const t = MOCK_TOOLS[tool];
@@ -433,9 +433,15 @@ function get_riaffilature({ p_giorni_storico = 30 } = {}) {
           });
         righe = Object.values(grouped);
       }
+      // D3 (proposta): id dell'operazione di rientro, per "Correggi/Annulla il rientro"
+      const rientro = s.stato === 'rientrata'
+        ? db.movimenti.find(m => m.id_spedizione === s.id && m.id_operazione && !db.annullate[m.id_operazione] &&
+            (m.tipo_operazione === 'rientro_riaffilatura' || m.tipo_operazione === 'scarto_fornitore'))
+        : null;
       return {
         id: s.id, ddt: s.ddt, fornitore: s.fornitore, stato: s.stato, data_invio: s.data_invio, data_rientro: s.data_rientro,
-        pezzi: righe.reduce((a, r) => a + r.quantita + r.scartati, 0), righe
+        pezzi: righe.reduce((a, r) => a + r.quantita + r.scartati, 0), righe,
+        id_operazione_rientro: rientro ? rientro.id_operazione : null
       };
     })
     .sort((a, b) => a.data_invio.localeCompare(b.data_invio));

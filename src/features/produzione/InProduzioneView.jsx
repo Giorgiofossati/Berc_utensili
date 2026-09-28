@@ -122,9 +122,9 @@ export default function InProduzioneView({ setView, showToastNotification }) {
                     >
                       <span className="flex flex-col gap-0.5 min-w-0">
                         <span className="app-h3 truncate">{g.titolo}</span>
-                        <span className="app-caption text-muted-foreground truncate font-sans">{g.sottotitolo}</span>
+                        <span className="app-body text-muted-foreground truncate">{g.sottotitolo}</span>
                       </span>
-                      <span className="app-qty-sm text-lg font-black tabular-nums">{g.totale}</span>
+                      <span className="app-qty-sm text-foreground">{g.totale}</span>
                     </button>
                   );
                 })}
@@ -150,7 +150,7 @@ export default function InProduzioneView({ setView, showToastNotification }) {
               {gruppo && (
                 <section className="glass-panel rounded-[var(--radius-panel,24px)] overflow-hidden" aria-label={gruppo.titolo}>
                   <header className="px-4 sm:px-6 py-4 border-b border-border flex flex-col gap-0.5">
-                    <h2 className="app-h3 text-base sm:text-lg">{gruppo.titolo}</h2>
+                    <h2 className="app-h2">{gruppo.titolo}</h2>
                     <p className="app-body text-muted-foreground">
                       {gruppo.totale} pezz{gruppo.totale === 1 ? 'o' : 'i'} · raggruppati per {modo === 'macchina' ? 'commessa' : 'macchina'}
                     </p>
@@ -182,7 +182,7 @@ export default function InProduzioneView({ setView, showToastNotification }) {
                                 {ciclo && <span className={cn('text-xs font-bold', ciclo.ultima ? 'text-accent-orange' : 'text-muted-foreground')}>{ciclo.testo}</span>}
                                 <span className={cn('badge', BADGE_STATO[r.stato])}>{ETICHETTE_STATO[r.stato]}</span>
                               </span>
-                              <span className="w-8 text-right app-qty-sm text-base font-black tabular-nums shrink-0">{r.quantita}</span>
+                              <span className="w-8 text-right app-qty-sm shrink-0">{r.quantita}</span>
                               <button
                                 type="button"
                                 onClick={() => (inCassetto ? prelevaDalCassetto(r) : setDaSmontare(r))}

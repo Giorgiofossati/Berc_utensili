@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, memo } from 'react';
-import { PageHeader, PageContent, PageFooter } from '@/components/layout/PageTemplate';
+import { PageTemplate, PageHeader, PageContent, PageFooter } from '@/components/layout/PageTemplate';
 import { useNavigationStore } from '../../store/useNavigationStore';
 
 import { motion, AnimatePresence } from 'framer-motion';
@@ -85,13 +85,12 @@ const MultiMovementView = memo(({ showToastNotification }) => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col min-h-0 relative max-w-7xl mx-auto px-2 sm:px-4 md:px-6">
+    <PageTemplate className="w-full h-full flex flex-col min-h-0 relative">
       <PageHeader
         title="Movimento Multiplo"
         breadcrumb="Magazzino"
         showBack={true}
         onBack={() => setView('home')}
-        className="px-0 sm:px-0 lg:px-0"
         search={{
           // Qui si cerca l'utensile da aggiungere: la prima lettera apre il catalogo già filtrato
           value: '',
@@ -102,7 +101,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
       />
 
       {/* 1. Impostazioni della distinta */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-3 py-3 border-b border-slate-200/60 dark:border-white/10 shrink-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-3 sm:px-4 md:px-6 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xs shrink-0">
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           {/* Assegna Commessa Globale */}
           <div className="relative min-w-[200px] sm:min-w-[240px] max-sm:basis-full">
@@ -195,8 +194,8 @@ const MultiMovementView = memo(({ showToastNotification }) => {
       </div>
 
       {/* 2. Griglia Tabellare della Distinta (Sempre Visibile fin dall'apertura) */}
-      <PageContent className="flex flex-col">
-        <div className="glass-panel rounded-3xl md:rounded-3xl overflow-hidden flex flex-col flex-1 min-h-0 border dark:border-white/10 border-slate-900/10 shadow-xl">
+      <PageContent className="flex-1 min-h-0 flex flex-col p-2 sm:p-3 md:p-4">
+        <div className="w-full h-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
           
           {/* Barra Info & Azioni Tabella */}
           <div className="px-4 md:px-6 py-2.5 md:py-3 border-b dark:border-white/5 border-slate-900/10 flex items-center justify-between bg-white/[0.02] shrink-0">
@@ -332,17 +331,17 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                             </p>
                             <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
                               {item.tool['Codice'] && (
-                                <span className="sm:hidden badge badge-blue app-caption text-xs px-1.5 py-0.2">
+                                <span className="sm:hidden badge badge-blue font-mono">
                                   {item.tool['Codice']}
                                 </span>
                               )}
                               {item.tool['Ubicazione'] && (
-                                <span className="md:hidden badge badge-orange app-caption text-xs px-1.5 py-0.2">
+                                <span className="md:hidden badge badge-blue font-mono">
                                   {item.tool['Ubicazione']}
                                 </span>
                               )}
                               {item.tool['Fornitore'] && (
-                                <span className="app-caption text-xs text-slate-400 hidden xl:inline">
+                                <span className="app-caption text-slate-400 hidden xl:inline">
                                   {item.tool['Fornitore']}
                                 </span>
                               )}
@@ -361,7 +360,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                         {/* Colonna Codice Aziendale */}
                         <div className="w-28 text-center hidden sm:block shrink-0">
                           {item.tool['Codice'] ? (
-                            <span className="badge badge-blue app-caption text-xs font-bold px-2 py-0.5">
+                            <span className="badge badge-blue font-mono">
                               {item.tool['Codice']}
                             </span>
                           ) : (
@@ -372,7 +371,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                         {/* Colonna Ubicazione */}
                         <div className="w-28 text-center hidden md:block shrink-0">
                           {item.tool['Ubicazione'] ? (
-                            <span className="badge badge-orange app-caption text-xs font-bold px-2 py-0.5">
+                            <span className="badge badge-blue font-mono">
                               {item.tool['Ubicazione']}
                             </span>
                           ) : (
@@ -459,7 +458,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
       <PageFooter className="justify-between">
         <div className="flex items-center w-full justify-between gap-3">
         <div className="flex flex-col min-w-0">
-          <span className="app-overline text-accent-blue leading-none">Riepilogo Distinta</span>
+          <span className="app-overline leading-none">Riepilogo Distinta</span>
           <div className="flex items-center gap-2 mt-1 flex-wrap">
             <span className="app-h2 text-sm sm:text-base dark:text-white text-slate-900">
               {items.length} {items.length === 1 ? 'articolo' : 'articoli'}
@@ -529,7 +528,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
         showToastNotification={showToastNotification}
         initialQuery={pickerQuery}
       />
-    </div>
+    </PageTemplate>
   );
 });
 

@@ -94,7 +94,7 @@ const OrderModal = ({ tool, onClose, currentUser, onSuccess }) => {
               )}
 
               <div className="bg-black/5 dark:bg-white/5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col gap-0.5 border border-slate-900/5 dark:border-white/5">
-                <p className="app-overline text-slate-500">Utensile Selezionato</p>
+                <p className="app-overline">Utensile Selezionato</p>
                 <p className="app-h3 truncate">
                   {buildDesc(tool)} {tool.Codice ? ` - ${tool.Codice}` : ''}
                 </p>
@@ -102,7 +102,7 @@ const OrderModal = ({ tool, onClose, currentUser, onSuccess }) => {
 
               <form id="order-form" onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-6 @container">
                 <div className="flex flex-col gap-1.5">
-                  <label className="app-overline opacity-70 text-slate-700 dark:text-slate-300 px-1">Quantità da ordinare *</label>
+                  <label className="app-label text-foreground px-1">Quantità da ordinare *</label>
                   <Input 
                     type="number" 
                     inputMode="numeric"
@@ -110,12 +110,12 @@ const OrderModal = ({ tool, onClose, currentUser, onSuccess }) => {
                     required
                     value={qty} 
                     onChange={(e) => setQty(Number(e.target.value))} 
-                    className="glass-input w-full h-auto p-3 sm:p-4 rounded-xl sm:rounded-2xl font-black text-xl sm:text-2xl text-center focus:border-accent-orange focus:ring-1 focus:ring-accent-orange transition-all" 
+                    className="glass-input w-full h-auto p-3 sm:p-4 rounded-xl sm:rounded-2xl font-black text-xl sm:text-2xl text-center focus:border-accent-orange focus:ring-1 focus:ring-accent-orange transition-all font-mono" 
                   />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="app-overline opacity-70 text-slate-700 dark:text-slate-300 px-1">Note Aggiuntive (Opzionale)</label>
+                  <label className="app-label text-foreground px-1">Note Aggiuntive (Opzionale)</label>
                   <textarea 
                     rows="3"
                     value={note}

@@ -6,11 +6,12 @@ import {
   createColumnHelper
 } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
-import { X, AlertTriangle, ChevronRight, AlignJustify, Plus, MapPin } from 'lucide-react';
+import { X, AlertTriangle, ChevronRight, AlignJustify, Plus, MapPin, Factory } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useFilterStore } from '../../store/useFilterStore';
+import { useMovementStore } from '../../store/useMovementStore';
 import { VirtualizedTable } from '../../components/common/DataTable';
 import { EXTRA_FILTER_KEYS } from './constants';
 import { MobileFiltersToggle } from '../../components/layout/PageTemplate';
@@ -32,6 +33,9 @@ const ToolsGrid = memo(({
   const selectedIds = useFilterStore(state => state.selectedToolsIds);
   const onToggleSelect = useFilterStore(state => state.toggleToolSelection);
   const isStoreSelectionMode = useFilterStore(state => state.isSelectionMode);
+  
+  const activeDrawerTool = useMovementStore(state => state.selectedTool);
+  const isDrawerOpen = useMovementStore(state => state.showMoveModal);
   
   // Normalizzazione selectionMode: 'none' | 'toggle' | 'pick' (con fallback retrocompatibile per legacy 'multiple' / 'single')
   const normalizedSelectionMode = useMemo(() => {
@@ -94,6 +98,27 @@ const ToolsGrid = memo(({
   }, []);
 
   const columns = useMemo(() => {
+    const renderCodeBadge = (val, tooltip) => {
+      const clean = (val && val !== '-') ? String(val).trim() : '';
+      if (!clean) {
+        return (
+          <div className="w-full truncate text-center">
+            <span className="text-slate-400 dark:text-slate-600 font-mono text-xs">—</span>
+          </div>
+        );
+      }
+      return (
+        <div className="w-full truncate text-center px-1">
+          <span 
+            className="font-mono text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 tracking-tight whitespace-nowrap inline-block"
+            title={tooltip || clean}
+          >
+            {clean}
+          </span>
+        </div>
+      );
+    };
+
     return [
       columnHelper.accessor(row => buildDesc(row), {
         id: 'Descrizione',
@@ -115,22 +140,40 @@ const ToolsGrid = memo(({
         },
         cell: info => {
           const tool = info.row.original;
+          const isRowSelectedInDrawer = isDrawerOpen && activeDrawerTool && activeDrawerTool.id === tool.id;
+          const isMachine = tool['Ubicazione'] && (
+            tool['Ubicazione'].toLowerCase().includes('belotti') || 
+            tool['Ubicazione'].toLowerCase().includes('extrema') || 
+            tool['Ubicazione'].toLowerCase().includes('cnc')
+          );
           return (
-            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 h-full pl-3 sm:pl-4 md:pl-6 overflow-hidden">
+            <div className="flex items-center gap-3 flex-1 min-w-0 h-full pl-3 sm:pl-4 md:pl-6 overflow-hidden">
               {isSelectionActive && (
-                <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center flex-shrink-0 w-5 sm:w-6">
+                <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center shrink-0 w-5">
                   <Checkbox
                     checked={selectedIds.includes(tool.id)}
                     onCheckedChange={() => onToggleSelect(tool.id)}
-                    className={`w-5 h-5 rounded-md transition-all ${selectedIds.includes(tool.id) ? 'data-[state=checked]:bg-accent-blue data-[state=checked]:text-slate-950 border-accent-blue' : 'dark:border-white/30 border-slate-400'}`}
+                    className={`w-4 h-4 rounded-md transition-all ${selectedIds.includes(tool.id) ? 'data-[state=checked]:bg-sky-600 data-[state=checked]:text-white border-sky-600' : 'dark:border-white/30 border-slate-400'}`}
                   />
                 </div>
               )}
-              <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg sm:rounded-xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-blue/20 transition-colors overflow-hidden">
-                <ToolIcon type={tool['Tipologia']} size={36} className="opacity-80 group-hover:opacity-100 transition-opacity" />
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors overflow-hidden ${
+                isRowSelectedInDrawer
+                  ? 'bg-sky-600 text-white border-sky-600 dark:bg-sky-500 dark:border-sky-400 shadow-xs'
+                  : isMachine 
+                  ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800/60 text-amber-600 dark:text-amber-400' 
+                  : 'bg-sky-50 dark:bg-sky-950/40 border-sky-200/60 dark:border-sky-800/60 text-sky-600 dark:text-sky-400'
+              }`}>
+                <ToolIcon type={tool['Tipologia']} size={22} className={`opacity-90 group-hover:scale-105 transition-transform ${isRowSelectedInDrawer ? 'text-white' : ''}`} />
               </div>
-              <div className="min-w-0 flex-1 ml-1 truncate">
-                <p className="app-h3 truncate">{info.getValue()}</p>
+              <div className="min-w-0 flex-1 ml-1 flex items-center">
+                <span className={`app-h3 transition-colors truncate ${
+                  isRowSelectedInDrawer
+                    ? 'text-sky-950 dark:text-sky-100 font-black'
+                    : 'text-slate-900 dark:text-slate-100 group-hover:text-sky-600 dark:group-hover:text-sky-400'
+                }`}>
+                  {info.getValue()}
+                </span>
               </div>
             </div>
           );
@@ -148,19 +191,35 @@ const ToolsGrid = memo(({
         meta: { 
           className: 'hidden xl:flex justify-center', 
           isFlex: true, 
-          flex: '1.2 1 0%', 
-          minWidth: 195 
+          flex: '1 1 0%', 
+          minWidth: 140 
+        },
+        cell: info => renderCodeBadge(info.getValue())
+      }),
+      columnHelper.accessor(row => {
+        const raw = row['Serial Number'] || row['Codice Fornitore'] || row['SerialNumber'] || '';
+        return (raw && raw !== '-') ? String(raw).trim() : '';
+      }, {
+        id: 'Codice Fornitore',
+        header: 'Codice Fornitore',
+        sortingFn: (rowA, rowB, columnId) => {
+          return String(rowA.getValue(columnId) || '').localeCompare(
+            String(rowB.getValue(columnId) || ''),
+            undefined,
+            { numeric: true }
+          );
+        },
+        meta: { 
+          className: 'hidden xl:flex justify-center', 
+          isFlex: true, 
+          flex: '1 1 0%', 
+          minWidth: 140 
         },
         cell: info => {
           const val = info.getValue();
-          if (!val) return <div className="w-full truncate text-center"><span className="text-slate-700 opacity-20">—</span></div>;
-          return (
-            <div className="w-full truncate text-center px-1">
-              <span className="badge badge-blue font-mono text-xs font-bold px-2.5 py-0.5 whitespace-nowrap tracking-tight">
-                {val}
-              </span>
-            </div>
-          );
+          const tool = info.row.original;
+          const supplier = tool['Fornitore'] && tool['Fornitore'] !== '-' ? String(tool['Fornitore']).trim() : '';
+          return renderCodeBadge(val, supplier ? `${val} (${supplier})` : undefined);
         }
       }),
       columnHelper.accessor('Ubicazione', {
@@ -181,12 +240,19 @@ const ToolsGrid = memo(({
         },
         cell: info => {
           const val = info.getValue();
-          if (!val) return <div className="w-full flex items-center justify-center"><span className="text-slate-700 opacity-20">—</span></div>;
+          if (!val) return <div className="w-full flex items-center justify-center"><span className="text-slate-400 dark:text-slate-600 font-mono text-xs">—</span></div>;
+          const isMachine = val.toLowerCase().includes('belotti') || 
+            val.toLowerCase().includes('extrema') || 
+            val.toLowerCase().includes('cnc');
           return (
             <div className="w-full flex items-center justify-center px-1">
-              <span className="badge badge-blue app-caption font-bold px-2.5 py-0.5 truncate inline-flex items-center gap-1 max-w-full">
-                <MapPin size={12} className="shrink-0" />
-                {val}
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border max-w-full tracking-tight whitespace-nowrap ${
+                isMachine
+                  ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800'
+                  : 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800'
+              }`}>
+                {isMachine ? <Factory size={12} className="shrink-0" /> : <MapPin size={12} className="shrink-0" />}
+                <span className="truncate">{val}</span>
               </span>
             </div>
           );
@@ -206,39 +272,15 @@ const ToolsGrid = memo(({
         },
         cell: info => {
           const val = info.getValue();
-          if (!val) return <div className="w-full flex items-center justify-center"><span className="text-slate-700 opacity-20">—</span></div>;
+          if (!val) return <div className="w-full flex items-center justify-center"><span className="text-slate-400 dark:text-slate-600 font-mono text-xs">—</span></div>;
           const isOk = val === 'Disponibile' || val === 'NUOVO';
           return (
             <div className="w-full flex items-center justify-center px-1">
-              <span className={`badge app-caption font-black px-2.5 py-0.5 inline-flex items-center ${isOk ? 'badge-emerald' : 'badge-rose'}`}>
-                {val}
-              </span>
-            </div>
-          );
-        }
-      }),
-      columnHelper.accessor('Lavorazione', {
-        header: 'Lavorazione',
-        sortingFn: (rowA, rowB, columnId) => {
-          return String(rowA.getValue(columnId) || '').localeCompare(
-            String(rowB.getValue(columnId) || ''),
-            undefined,
-            { numeric: true }
-          );
-        },
-        meta: { 
-          className: 'hidden 2xl:flex justify-center', 
-          isFlex: true, 
-          flex: '1 1 0%', 
-          minWidth: 115, 
-          maxWidth: 155 
-        },
-        cell: info => {
-          const val = info.getValue();
-          if (!val) return <div className="w-full flex items-center justify-center"><span className="text-slate-700 opacity-20">—</span></div>;
-          return (
-            <div className="w-full flex items-center justify-center px-1">
-              <span className="app-caption font-semibold text-muted-foreground truncate max-w-full">
+              <span className={`inline-flex items-center justify-center px-2.5 py-1 rounded-md text-xs font-semibold uppercase border tracking-tight whitespace-nowrap ${
+                isOk 
+                  ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' 
+                  : 'bg-rose-100 dark:bg-rose-950/50 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-800'
+              }`}>
                 {val}
               </span>
             </div>
@@ -246,24 +288,29 @@ const ToolsGrid = memo(({
         }
       }),
       columnHelper.accessor('Quantità', {
-        header: 'QTY',
-        size: 72,
+        header: 'Giacenza',
+        size: 76,
         sortingFn: (rowA, rowB, columnId) => {
           const a = Number(rowA.getValue(columnId)) || 0;
           const b = Number(rowB.getValue(columnId)) || 0;
           return a - b;
         },
         meta: { className: 'shrink-0 justify-center', minWidth: 64 },
-        cell: info => (
-          <div className="w-full truncate text-center pr-1 sm:pr-2">
-            <span className={`app-qty-sm ${Number(info.getValue()) > 0 ? 'text-accent-emerald' : 'text-accent-rose'}`}>
-              {info.getValue() || 0}
-            </span>
-          </div>
-        )
+        cell: info => {
+          const qty = Number(info.getValue()) || 0;
+          return (
+            <div className="w-full truncate text-center pr-1 sm:pr-2">
+              <span className={`app-qty-sm ${
+                qty > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'
+              }`}>
+                {qty}
+              </span>
+            </div>
+          );
+        }
       })
     ];
-  }, [isSelectionActive, selectedIds, onToggleSelect]);
+  }, [isSelectionActive, selectedIds, onToggleSelect, isDrawerOpen, activeDrawerTool]);
 
   const table = useReactTable({
     data: filtered,
@@ -281,7 +328,7 @@ const ToolsGrid = memo(({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15 }}
-      className="w-full max-w-[1600px] flex flex-col flex-1 gap-2 md:gap-4 min-h-0"
+      className="w-full flex flex-col flex-1 min-h-0"
     >
       {((!hideExtraFilters && availableFilters.length > 0) || showDensityToggle || (!hideExtraFilters && normalizedSelectionMode === 'toggle')) && (
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 px-2">
@@ -337,47 +384,73 @@ const ToolsGrid = memo(({
         </div>
       )}
 
-      <div className="glass-panel rounded-3xl md:rounded-3xl overflow-hidden flex flex-col flex-1 min-h-0">
-        <div className="px-4 md:px-6 py-2.5 md:py-3 border-b dark:border-white/5 border-slate-900/10 flex items-center justify-between bg-white/[0.02]">
-          <p className="app-overline text-accent-orange">
-            {rows.length} utensil{rows.length === 1 ? 'e' : 'i'} trovat{rows.length === 1 ? 'o' : 'i'}
-          </p>
+      <div className="w-full h-full bg-white dark:bg-slate-900 flex flex-col overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          <VirtualizedTable
+            table={table}
+            density={density}
+            selectionMode={normalizedSelectionMode}
+            estimateRowSize={density === 'compact' ? 44 : 56}
+            onRowClick={(tool) => {
+              if (isSelectionActive) {
+                onToggleSelect(tool.id);
+              } else if (onSelectTool) {
+                onSelectTool(tool);
+              }
+            }}
+            getRowClassName={(tool) => {
+              if (isSelectionActive && selectedIds.includes(tool.id)) {
+                return 'bg-sky-50 dark:bg-sky-950/40 shadow-[inset_3px_0_0_#0284c7]';
+              }
+              if (isDrawerOpen && activeDrawerTool && activeDrawerTool.id === tool.id) {
+                return 'bg-sky-50/90 dark:bg-sky-950/70 shadow-[inset_4px_0_0_#0284c7] font-semibold';
+              }
+              if (tool['Stato'] === 'USATO') {
+                return 'bg-slate-50/40 dark:bg-slate-950/20';
+              }
+              return '';
+            }}
+            renderRowTrailing={renderRowTrailing ? renderRowTrailing : (tool) => {
+              const isSelectedInDrawer = isDrawerOpen && activeDrawerTool && tool && activeDrawerTool.id === tool.id;
+              return normalizedSelectionMode === 'pick' ? (
+                <Plus
+                  size={16}
+                  className="text-sky-600 dark:text-sky-400 group-hover:scale-110 transition-transform"
+                />
+              ) : (
+                <ChevronRight
+                  size={18}
+                  className={`transition-colors ${
+                    isSelectedInDrawer
+                      ? 'text-sky-600 dark:text-sky-400'
+                      : 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-sky-400'
+                  }`}
+                />
+              );
+            }}
+            emptyIcon={AlertTriangle}
+            emptyTitle={emptyTitle}
+            emptyDescription={emptyDescription}
+            bottomSpacerClassName=""
+          />
         </div>
 
-        <VirtualizedTable
-          table={table}
-          density={density}
-          selectionMode={normalizedSelectionMode}
-          estimateRowSize={density === 'compact' ? 44 : 56}
-          onRowClick={(tool) => {
-            if (isSelectionActive) {
-              onToggleSelect(tool.id);
-            } else if (onSelectTool) {
-              onSelectTool(tool);
-            }
-          }}
-          getRowClassName={(tool) => (
-            isSelectionActive && selectedIds.includes(tool.id) 
-              ? 'bg-accent-blue/10 shadow-[inset_3px_0_0_var(--color-accent-blue)]' 
-              : ''
+        {/* Footer Status Bar con conteggio utensili */}
+        <div className="px-4 md:px-6 py-2.5 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs shrink-0 select-none">
+          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 font-medium">
+            <span className="w-2 h-2 rounded-full bg-sky-500" />
+            <span className="font-bold text-slate-900 dark:text-slate-100 font-mono">
+              {rows.length.toLocaleString('it-IT')}
+            </span>
+            <span>utensili a catalogo</span>
+          </div>
+          {isDrawerOpen && activeDrawerTool && (
+            <div className="flex items-center gap-2 ml-auto text-slate-500 dark:text-slate-400 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+              <span className="text-xs font-semibold">1 riga selezionata</span>
+            </div>
           )}
-          renderRowTrailing={renderRowTrailing ? renderRowTrailing : () => (
-            normalizedSelectionMode === 'pick' ? (
-              <Plus
-                size={16}
-                className="text-accent-blue group-hover:scale-110 transition-transform"
-              />
-            ) : (
-              <ChevronRight
-                size={14}
-                className="text-slate-500 group-hover:text-accent-blue transition-colors"
-              />
-            )
-          )}
-          emptyIcon={AlertTriangle}
-          emptyTitle={emptyTitle}
-          emptyDescription={emptyDescription}
-        />
+        </div>
       </div>
     </motion.div>
   );

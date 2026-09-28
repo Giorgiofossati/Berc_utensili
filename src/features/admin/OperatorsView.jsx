@@ -520,7 +520,7 @@ const OperatorsView = memo(({ setView }) => {
             <form id="operator-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="app-overline text-slate-600 dark:text-slate-300">Nome *</label>
+                  <label className="app-label text-foreground">Nome *</label>
                   <input 
                     type="text" 
                     name="nome"
@@ -532,7 +532,7 @@ const OperatorsView = memo(({ setView }) => {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="app-overline text-slate-600 dark:text-slate-300">Cognome *</label>
+                  <label className="app-label text-foreground">Cognome *</label>
                   <input 
                     type="text" 
                     name="cognome"
@@ -545,7 +545,7 @@ const OperatorsView = memo(({ setView }) => {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="app-overline text-slate-600 dark:text-slate-300">Codice ID / Barcode *</label>
+                <label className="app-label text-foreground">Codice ID / Barcode *</label>
                 <input 
                   type="text" 
                   name="codice_id"
@@ -557,7 +557,7 @@ const OperatorsView = memo(({ setView }) => {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="app-overline text-slate-600 dark:text-slate-300">Ruolo Operativo *</label>
+                <label className="app-label text-foreground">Ruolo Operativo *</label>
                 <select 
                   value={formData.ruolo}
                   onChange={handleRoleChange}
@@ -576,7 +576,7 @@ const OperatorsView = memo(({ setView }) => {
                     exit={{ opacity: 0, height: 0 }}
                     className="flex flex-col gap-1.5 overflow-hidden"
                   >
-                    <label className="app-overline text-slate-600 dark:text-slate-300 mt-2">Password Admin *</label>
+                    <label className="app-label text-foreground mt-2">Password Admin *</label>
                     <div className="relative">
                       <input 
                         type={showPassword ? "text" : "password"} 

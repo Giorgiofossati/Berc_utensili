@@ -263,7 +263,7 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
                   <div className="flex items-center justify-between gap-2 border-b border-slate-200/60 dark:border-white/10 pb-3">
                     <div className="flex items-center gap-1.5">
                       <Sparkles size={16} className="text-accent-orange animate-pulse shrink-0" />
-                      <span className="text-xs font-black uppercase tracking-[0.2em] text-accent-orange">
+                      <span className="app-overline">
                         Guida
                       </span>
                     </div>
@@ -277,7 +277,7 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
                       >
                         <ChevronLeft size={16} />
                       </button>
-                      <span className="text-xs font-black tracking-widest text-accent-blue px-1.5 tabular-nums select-none">
+                      <span className="text-xs font-black tracking-widest text-accent-blue px-1.5 tabular-nums select-none font-mono">
                         {currentStep + 1} <span className="opacity-40">/</span> {steps.length}
                       </span>
                       <button
@@ -301,17 +301,17 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
 
                   {/* Body Card */}
                   <div className="flex flex-col gap-1.5">
-                    <h3 className="text-sm sm:text-base font-black uppercase tracking-tight text-slate-900 dark:text-white flex items-center gap-2 leading-tight">
+                    <h3 className="app-h3 flex items-center gap-2">
                       {step.title}
                     </h3>
-                    <p className="text-xs sm:text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                    <p className="app-body">
                       {step.content}
                     </p>
                   </div>
 
                   {step.id === 'view-mode-toggle' && setViewMode && (
                     <div className="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-slate-100/80 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 mt-0.5">
-                      <span className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <span className="app-label text-slate-500 dark:text-slate-400">
                         Prova la vista:
                       </span>
                       <div className="flex items-center gap-1.5">

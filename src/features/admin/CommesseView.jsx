@@ -389,16 +389,16 @@ export default function CommesseView({ setView, showToastNotification }) {
                           <FolderKanban size={20} />
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <span className="app-caption text-muted-foreground uppercase tracking-widest leading-none">
+                          <span className="app-label text-muted-foreground leading-none">
                             Codice Commessa
                           </span>
                           <div className="flex items-center gap-2 mt-0.5 min-w-0">
-                            <span className="app-body font-black text-accent-blue truncate min-w-0" title={item.codice}>
+                            <span className="font-mono font-bold text-sm text-accent-blue truncate min-w-0" title={item.codice}>
                               {item.codice}
                             </span>
                             <span className={`badge ${isAttiva ? 'badge-emerald' : 'badge-slate'} inline-flex items-center gap-1.5 shrink-0`}>
                               <span className={`w-1.5 h-1.5 rounded-full ${isAttiva ? 'bg-accent-emerald animate-pulse' : 'bg-slate-400'}`} />
-                              <span className="app-caption uppercase tracking-wider">{item.stato || 'Attiva'}</span>
+                              <span>{item.stato || 'Attiva'}</span>
                             </span>
                           </div>
                         </div>
@@ -421,7 +421,7 @@ export default function CommesseView({ setView, showToastNotification }) {
                   <div className="pt-3 mt-3 border-t border-border/50 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5 text-muted-foreground min-w-0">
                       <MapPin size={14} className="text-accent-orange shrink-0" />
-                      <span className="app-caption truncate" title={item.ubicazione || 'Non specificata'}>
+                      <span className="app-body text-xs text-muted-foreground truncate" title={item.ubicazione || 'Non specificata'}>
                         {item.ubicazione || 'Ubicazione non definita'}
                       </span>
                     </div>
@@ -463,7 +463,7 @@ export default function CommesseView({ setView, showToastNotification }) {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="app-overline text-slate-700 dark:text-slate-200">Codice Commessa *</label>
+                  <label className="app-label text-foreground">Codice Commessa *</label>
                   <input
                     type="text"
                     name="codice"
@@ -477,7 +477,7 @@ export default function CommesseView({ setView, showToastNotification }) {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="app-overline text-slate-700 dark:text-slate-200">Ubicazione / Reparto</label>
+                  <label className="app-label text-foreground">Ubicazione / Reparto</label>
                   <div className="relative">
                     <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
@@ -493,7 +493,7 @@ export default function CommesseView({ setView, showToastNotification }) {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="app-overline text-slate-700 dark:text-slate-200">Descrizione Lavorazione</label>
+                <label className="app-label text-foreground">Descrizione Lavorazione</label>
                 <textarea
                   name="descrizione"
                   rows={3}
@@ -505,7 +505,7 @@ export default function CommesseView({ setView, showToastNotification }) {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="app-overline text-slate-700 dark:text-slate-200">Stato Commessa</label>
+                <label className="app-label text-foreground">Stato Commessa</label>
                 <div className="flex items-center bg-muted/30 border border-border/50 rounded-xl p-1 gap-1">
                   <button
                     type="button"

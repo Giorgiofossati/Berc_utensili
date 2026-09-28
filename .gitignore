@@ -41,3 +41,8 @@ update_app.cjs
 
 # Analisi Mercato
 Analisi Mercato/
+
+# Scratch & Agent Debug
+scratch/
+.gemini-debug/
+.stitch/
