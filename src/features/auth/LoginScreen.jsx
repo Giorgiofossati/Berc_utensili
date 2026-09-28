@@ -170,12 +170,12 @@ export default function LoginScreen() {
         {/* Intestazione: marchio + info sul sistema */}
         <header className="shrink-0 flex items-center justify-between gap-3 pt-1 sm:pt-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-11 h-11 rounded-2xl bg-accent-blue/15 border border-accent-blue/25 flex items-center justify-center text-accent-blue shrink-0">
-              <Package size={20} />
+            <div className="w-11 h-11 rounded-2xl bg-slate-900 border border-slate-700/80 flex items-center justify-center shrink-0 overflow-hidden shadow-xs p-1.5">
+              <img src="/favicon.svg" alt="Bercella" className="w-full h-full object-contain" />
             </div>
             <div className="flex flex-col min-w-0">
               <span className="app-overline text-accent-orange">Bercella S.r.l.</span>
-              <span className="app-h3 uppercase truncate text-slate-900 dark:text-white">Gestione Utensili CNC</span>
+              <span className="app-h3 truncate text-slate-900 dark:text-white">Gestione Utensili CNC</span>
             </div>
           </div>
           <div className="relative shrink-0">
@@ -320,7 +320,7 @@ export default function LoginScreen() {
                       <Button
                         type="submit"
                         disabled={verifyingPassword}
-                        className="action-btn-primary flex-1 h-12 rounded-xl flex items-center justify-center gap-2 text-sm font-black uppercase tracking-wider whitespace-nowrap"
+                        className="action-btn-primary flex-1 h-12 rounded-xl flex items-center justify-center gap-2 text-sm font-black tracking-wider whitespace-nowrap"
                       >
                         {verifyingPassword ? 'Verifica…' : <>Accedi <ArrowRight size={16} /></>}
                       </Button>

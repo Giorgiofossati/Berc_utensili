@@ -8,7 +8,15 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/apple-touch-icon.png', 'vite.svg'],
+      includeAssets: [
+        'favicon.svg',
+        'favicon.ico',
+        'icons/apple-touch-icon.png',
+        'icons/pwa-192x192.png',
+        'icons/pwa-512x512.png',
+        'icons/favicon-32x32.png',
+        'icons/favicon-16x16.png'
+      ],
       manifest: {
         name: "Berc Utensili",
         short_name: "Berc",

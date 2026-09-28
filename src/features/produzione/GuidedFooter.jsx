@@ -21,7 +21,7 @@ export function GuidedFooter({ onBack, onConfirm, confirmLabel, tone = 'scarica'
             type="button"
             onClick={onBack}
             aria-label="Indietro"
-            className="glass-button min-h-12 max-sm:w-12 sm:px-5 rounded-[var(--radius-control,12px)] flex items-center justify-center text-sm font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
+            className="glass-button min-h-12 max-sm:w-12 sm:px-5 rounded-[var(--radius-control,12px)] flex items-center justify-center text-sm font-bold tracking-wider text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
           >
             <ArrowLeft size={20} className="sm:hidden" />
             <span className="max-sm:hidden">Indietro</span>
@@ -34,7 +34,7 @@ export function GuidedFooter({ onBack, onConfirm, confirmLabel, tone = 'scarica'
               disabled={disabled}
               className={cn(
                 tone === 'carica' ? 'action-btn-carica' : 'action-btn-scarica',
-                'flex-1 sm:flex-none min-w-0 min-h-12 px-4 sm:px-6 rounded-[var(--radius-control,12px)] text-sm font-black uppercase tracking-wide sm:tracking-wider whitespace-nowrap flex items-center justify-center gap-2',
+                'flex-1 sm:flex-none min-w-0 min-h-12 px-4 sm:px-6 rounded-[var(--radius-control,12px)] text-sm font-black tracking-wide sm:tracking-wider whitespace-nowrap flex items-center justify-center gap-2',
                 disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
               )}
             >

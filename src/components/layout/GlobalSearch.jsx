@@ -188,7 +188,7 @@ const GlobalSearch = memo(({ placeholder = 'Cerca codice, misura (es. D16)…', 
             title="Scanner Barcode"
             subtitle="Inquadra il codice a barre o QR code dell'utensile"
             badge={
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs font-black uppercase tracking-wider leading-none shrink-0">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs font-black tracking-wider leading-none shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 Live
               </span>
@@ -201,7 +201,7 @@ const GlobalSearch = memo(({ placeholder = 'Cerca codice, misura (es. D16)…', 
             </div>
           </ModalBody>
           <ModalFooter className="justify-between">
-            <span className="app-caption uppercase text-slate-400 dark:text-slate-500 self-center">
+            <span className="app-caption text-slate-400 dark:text-slate-500 self-center">
               Code 128 · Code 39 · EAN · QR
             </span>
             <button

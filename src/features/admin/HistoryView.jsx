@@ -330,7 +330,7 @@ const HistoryView = memo(({
         const meta = getMovementMeta(info.getValue());
         return (
           <div className="w-full truncate text-center">
-            <span className={`badge text-xs font-black uppercase px-2.5 py-0.5 ${meta.badge}`}>
+            <span className={`badge text-xs font-black px-2.5 py-0.5 ${meta.badge}`}>
               {meta.label}
             </span>
           </div>
@@ -375,7 +375,7 @@ const HistoryView = memo(({
             <div className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center shrink-0">
               <User size={14} className="text-slate-500" />
             </div>
-            <span className="app-caption font-bold uppercase truncate text-slate-700 dark:text-slate-300">
+            <span className="app-caption font-bold truncate text-slate-700 dark:text-slate-300">
               {val || '—'}
             </span>
           </div>
@@ -605,7 +605,7 @@ const HistoryView = memo(({
             title="Dettaglio Movimento"
             subtitle="Riepilogo completo della transazione registrata nello storico movimenti."
             badge={
-              <span className={`badge text-xs font-black uppercase px-2.5 py-0.5 ${getMovementMeta(selectedLog?.tipo_operazione).badge}`}>
+              <span className={`badge text-xs font-black px-2.5 py-0.5 ${getMovementMeta(selectedLog?.tipo_operazione).badge}`}>
                 {getMovementMeta(selectedLog?.tipo_operazione).dettaglio}
               </span>
             }

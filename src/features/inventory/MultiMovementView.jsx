@@ -5,18 +5,26 @@ import { useNavigationStore } from '../../store/useNavigationStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ClipboardList, Plus, Minus, Trash2, ArrowDown, ArrowUp, 
-  AlertTriangle, RotateCcw, Briefcase, ChevronDown
+  AlertTriangle, RotateCcw, Briefcase, ChevronDown, Cpu, UserCheck, Send, MessageSquare
 } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { useMultiMovementStore } from '../../store/useMultiMovementStore';
 import { useInventoryStore } from '../../store/useInventoryStore';
 import { useCommesseStore } from '../../store/useCommesseStore';
+import { useMacchineStore } from '../../store/useMacchineStore';
+import { useAuthStore } from '../../store/useAuthStore';
+import { supabase } from '../../lib/supabase';
 import AddToolToMultiModal from './AddToolToMultiModal';
 
 const MultiMovementView = memo(({ showToastNotification }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [pickerQuery, setPickerQuery] = useState('');
+  const [requestNotes, setRequestNotes] = useState('');
+  const [availableOperators, setAvailableOperators] = useState([]);
   const setView = useNavigationStore(state => state.setCurrentView);
+
+  const currentUser = useAuthStore(state => state.currentUser);
+  const isOperatore = currentUser?.ruolo === 'Operatore';
 
   const items = useMultiMovementStore(state => state.items);
   const batchOpType = useMultiMovementStore(state => state.batchOpType);
@@ -25,19 +33,49 @@ const MultiMovementView = memo(({ showToastNotification }) => {
   const updateQuantity = useMultiMovementStore(state => state.updateQuantity);
   const clearItems = useMultiMovementStore(state => state.clearItems);
   const executeMultiMovement = useMultiMovementStore(state => state.executeMultiMovement);
+  const submitMultiRequest = useMultiMovementStore(state => state.submitMultiRequest);
   const isExecuting = useMultiMovementStore(state => state.isExecuting);
   const selectedCommessaId = useMultiMovementStore(state => state.selectedCommessaId);
   const setSelectedCommessaId = useMultiMovementStore(state => state.setSelectedCommessaId);
+  const selectedMacchinaId = useMultiMovementStore(state => state.selectedMacchinaId);
+  const setSelectedMacchinaId = useMultiMovementStore(state => state.setSelectedMacchinaId);
+  const selectedOperatoreDestinatario = useMultiMovementStore(state => state.selectedOperatoreDestinatario);
+  const setSelectedOperatoreDestinatario = useMultiMovementStore(state => state.setSelectedOperatoreDestinatario);
 
   const commesse = useCommesseStore(state => state.commesse);
   const isLoadingCommesse = useCommesseStore(state => state.isLoading);
   const fetchCommesse = useCommesseStore(state => state.fetchCommesse);
 
+  const macchine = useMacchineStore(state => state.macchine);
+  const fetchMacchine = useMacchineStore(state => state.fetchMacchine);
+
   const tools = useInventoryStore(state => state.tools);
 
   useEffect(() => {
     fetchCommesse();
-  }, [fetchCommesse]);
+    fetchMacchine();
+    const loadOperators = async () => {
+      try {
+        const { data } = await supabase.from('utenti').select('id, nome, cognome, codice_id, ruolo').order('nome');
+        if (data && data.length > 0) {
+          setAvailableOperators(data);
+        }
+      } catch (e) {
+        console.warn('loadOperators error:', e);
+      }
+    };
+    loadOperators();
+  }, [fetchCommesse, fetchMacchine]);
+
+  // Precompila automaticamente la macchina CNC quando si seleziona una commessa
+  useEffect(() => {
+    if (selectedCommessaId) {
+      const comm = commesse.find(c => c.id === selectedCommessaId);
+      if (comm?.macchina_id) {
+        setSelectedMacchinaId(comm.macchina_id);
+      }
+    }
+  }, [selectedCommessaId, commesse, setSelectedMacchinaId]);
 
   const activeCommesse = useMemo(
     () => commesse.filter(c => c.stato === 'Attiva'),
@@ -48,9 +86,19 @@ const MultiMovementView = memo(({ showToastNotification }) => {
     [commesse]
   );
 
+  const activeMacchine = useMemo(
+    () => macchine.filter(m => m.is_active !== false),
+    [macchine]
+  );
+
   const selectedCommessa = useMemo(
     () => commesse.find(c => c.id === selectedCommessaId),
     [commesse, selectedCommessaId]
+  );
+
+  const selectedMacchina = useMemo(
+    () => macchine.find(m => m.id === selectedMacchinaId),
+    [macchine, selectedMacchinaId]
   );
 
   // Mappa live per avere giacenze sempre sincronizzate
@@ -79,20 +127,25 @@ const MultiMovementView = memo(({ showToastNotification }) => {
     return { totalPieces: pieces, hasInsufficientStock: insufficient };
   }, [items, batchOpType, liveToolsMap]);
 
-  const handleConfirm = () => {
+  const handleAction = () => {
     if (items.length === 0) return;
-    executeMultiMovement(showToastNotification, undefined, selectedCommessaId);
+    if (isOperatore) {
+      submitMultiRequest(showToastNotification, () => {
+        setView('requests');
+      }, { note: requestNotes });
+    } else {
+      executeMultiMovement(showToastNotification, undefined, selectedCommessaId);
+    }
   };
 
   return (
     <PageTemplate className="w-full h-full flex flex-col min-h-0 relative">
       <PageHeader
-        title="Movimento Multiplo"
-        breadcrumb="Magazzino"
+        title={isOperatore ? "Richiesta Movimento Multiplo" : "Movimento Multiplo"}
+        breadcrumb={isOperatore ? "Richieste Distinta" : "Magazzino"}
         showBack={true}
         onBack={() => setView('home')}
         search={{
-          // Qui si cerca l'utensile da aggiungere: la prima lettera apre il catalogo già filtrato
           value: '',
           onChange: (val) => { setPickerQuery(val); setShowAddModal(true); },
           placeholder: 'Cerca utensile da aggiungere…',
@@ -101,10 +154,10 @@ const MultiMovementView = memo(({ showToastNotification }) => {
       />
 
       {/* 1. Impostazioni della distinta */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-3 sm:px-4 md:px-6 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xs shrink-0">
+      <div className="flex flex-col gap-2.5 px-3 sm:px-4 md:px-6 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xs shrink-0">
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           {/* Assegna Commessa Globale */}
-          <div className="relative min-w-[200px] sm:min-w-[240px] max-sm:basis-full">
+          <div className="relative min-w-[190px] sm:min-w-[220px] flex-1 sm:flex-initial">
             <div className="relative flex items-center">
               <div className="absolute left-3 pointer-events-none text-accent-blue">
                 <Briefcase size={16} />
@@ -117,7 +170,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                 aria-label="Assegna commessa a tutto il lotto"
               >
                 <option value="" className="dark:bg-slate-900 dark:text-white bg-white text-slate-900">
-                  {isLoadingCommesse ? 'Caricamento commesse...' : 'Nessuna commessa (Generale)'}
+                  {isLoadingCommesse ? 'Caricamento commesse...' : 'Nessuna commessa'}
                 </option>
                 {activeCommesse.length > 0 && (
                   <optgroup label="Commesse Attive" className="dark:bg-slate-900 dark:text-white bg-white text-slate-900 font-bold">
@@ -133,7 +186,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
                   </optgroup>
                 )}
                 {closedCommesse.length > 0 && (
-                  <optgroup label="Commesse Chiuse (riattivare per selezionare)" className="dark:bg-slate-900 dark:text-slate-400 bg-white text-slate-400 font-bold">
+                  <optgroup label="Commesse Chiuse" className="dark:bg-slate-900 dark:text-slate-400 bg-white text-slate-400 font-bold">
                     {closedCommesse.map((c) => (
                       <option
                         key={c.id}
@@ -153,31 +206,98 @@ const MultiMovementView = memo(({ showToastNotification }) => {
             </div>
           </div>
 
+          {/* Seleziona Macchina CNC (con prefill automatico da commessa) */}
+          <div className="relative min-w-[190px] sm:min-w-[220px] flex-1 sm:flex-initial">
+            <div className="relative flex items-center">
+              <div className="absolute left-3 pointer-events-none text-accent-cyan">
+                <Cpu size={16} />
+              </div>
+              <select
+                value={selectedMacchinaId || ''}
+                onChange={(e) => setSelectedMacchinaId(e.target.value || null)}
+                className="glass-input w-full border border-slate-300/60 dark:border-white/10 rounded-xl sm:rounded-2xl py-2 pl-9 pr-9 text-xs sm:text-sm font-medium dark:text-white text-slate-900 outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/50 transition-all appearance-none cursor-pointer dark:bg-slate-900 bg-white"
+                aria-label="Assegna macchina CNC"
+              >
+                <option value="" className="dark:bg-slate-900 dark:text-white bg-white text-slate-900">
+                  {selectedCommessa?.macchina_id ? 'Macchina non specificata' : 'Nessuna macchina CNC'}
+                </option>
+                {activeMacchine.map((m) => (
+                  <option
+                    key={m.id}
+                    value={m.id}
+                    className="dark:bg-slate-900 dark:text-white bg-white text-slate-900 font-normal"
+                  >
+                    {m.nome} ({m.codice})
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-3 pointer-events-none text-slate-400">
+                <ChevronDown size={16} />
+              </div>
+            </div>
+          </div>
+
+          {/* Operatore Destinatario/Richiedente (Solo Admin) */}
+          {!isOperatore && (
+            <div className="relative min-w-[180px] sm:min-w-[200px] flex-1 sm:flex-initial">
+              <div className="relative flex items-center">
+                <div className="absolute left-3 pointer-events-none text-accent-orange">
+                  <UserCheck size={16} />
+                </div>
+                <select
+                  value={selectedOperatoreDestinatario || ''}
+                  onChange={(e) => setSelectedOperatoreDestinatario(e.target.value || null)}
+                  className="glass-input w-full border border-slate-300/60 dark:border-white/10 rounded-xl sm:rounded-2xl py-2 pl-9 pr-9 text-xs sm:text-sm font-medium dark:text-white text-slate-900 outline-none focus:border-accent-orange/50 focus:ring-1 focus:ring-accent-orange/50 transition-all appearance-none cursor-pointer dark:bg-slate-900 bg-white"
+                  aria-label="Operatore destinatario o consegnatario"
+                >
+                  <option value="" className="dark:bg-slate-900 dark:text-white bg-white text-slate-900">
+                    Operatore: Non specificato
+                  </option>
+                  {availableOperators.map((u) => {
+                    const fullName = `${u.nome} ${u.cognome || ''}`.trim();
+                    return (
+                      <option
+                        key={u.id}
+                        value={fullName}
+                        className="dark:bg-slate-900 dark:text-white bg-white text-slate-900 font-normal"
+                      >
+                        {fullName} ({u.codice_id || u.ruolo})
+                      </option>
+                    );
+                  })}
+                </select>
+                <div className="absolute right-3 pointer-events-none text-slate-400">
+                  <ChevronDown size={16} />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Toggle Prelievo / Deposito */}
           <div className="flex items-center p-1 rounded-2xl bg-slate-200/50 dark:bg-slate-900/50 border border-slate-300/50 dark:border-white/10 shadow-inner">
             <button
               type="button"
               onClick={() => setBatchOpType('scarico')}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-black tracking-wider transition-all ${
                 batchOpType === 'scarico'
                   ? 'bg-rose-500 text-white shadow-md'
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
               }`}
             >
               <ArrowUp size={14} />
-              <span>Preleva</span>
+              <span>{isOperatore ? 'Richiedi Prelievo' : 'Preleva'}</span>
             </button>
             <button
               type="button"
               onClick={() => setBatchOpType('carico')}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-black tracking-wider transition-all ${
                 batchOpType === 'carico'
                   ? 'bg-emerald-500 text-white shadow-md'
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
               }`}
             >
               <ArrowDown size={14} />
-              <span>Deposita</span>
+              <span>{isOperatore ? 'Richiedi Deposito' : 'Deposita'}</span>
             </button>
           </div>
 
@@ -185,12 +305,26 @@ const MultiMovementView = memo(({ showToastNotification }) => {
           <button
             type="button"
             onClick={() => setShowAddModal(true)}
-            className="action-btn-primary px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-sm hover:scale-[1.02] active:scale-95 transition-transform"
+            className="action-btn-primary px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-black tracking-wider flex items-center gap-2 shadow-sm hover:scale-[1.02] active:scale-95 transition-transform ml-auto"
           >
             <Plus size={16} />
             <span>Aggiungi<span className="max-sm:hidden"> Utensile</span></span>
           </button>
         </div>
+
+        {/* Note Opzionali per Operatore */}
+        {isOperatore && (
+          <div className="flex items-center gap-2 pt-1">
+            <MessageSquare size={14} className="text-slate-400 shrink-0" />
+            <input
+              type="text"
+              value={requestNotes}
+              onChange={(e) => setRequestNotes(e.target.value)}
+              placeholder="Note opzionali per l'Amministratore (es. Urgente per ciclo finitura stampo)..."
+              className="w-full text-xs font-medium bg-transparent border-none focus:outline-none text-slate-700 dark:text-slate-300 placeholder:text-slate-400"
+            />
+          </div>
+        )}
       </div>
 
       {/* 2. Griglia Tabellare della Distinta (Sempre Visibile fin dall'apertura) */}
@@ -201,7 +335,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
           <div className="px-4 md:px-6 py-2.5 md:py-3 border-b dark:border-white/5 border-slate-900/10 flex items-center justify-between bg-white/[0.02] shrink-0">
             <div className="flex items-center gap-2">
               <span className="app-overline text-accent-orange">
-                DISTINTA ARTICOLI
+                Distinta Articoli
               </span>
               <span className="text-slate-400">•</span>
               <span className="app-caption text-xs text-slate-500">
@@ -221,7 +355,7 @@ const MultiMovementView = memo(({ showToastNotification }) => {
           </div>
 
           {/* Intestazione Colonne Tabella */}
-          <div className="hidden md:flex items-center gap-2 px-3 sm:px-4 md:px-6 py-2.5 bg-slate-100/70 dark:bg-slate-900/80 border-b border-slate-200/60 dark:border-white/5 text-xs sm:text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 shrink-0">
+          <div className="hidden md:flex items-center gap-2 px-3 sm:px-4 md:px-6 py-2.5 bg-slate-100/70 dark:bg-slate-900/80 border-b border-slate-200/60 dark:border-white/5 text-xs sm:text-xs font-black tracking-wider text-slate-500 dark:text-slate-400 shrink-0">
             <div className="w-8 sm:w-10 text-center shrink-0">#</div>
             <div className="flex-1 min-w-0">Descrizione Articolo</div>
             <div className="w-28 text-center hidden sm:block shrink-0">Codice</div>
@@ -457,67 +591,108 @@ const MultiMovementView = memo(({ showToastNotification }) => {
       {/* 3. Barra Azione Inferiore (Riepilogo & Conferma Atomica) */}
       <PageFooter className="justify-between">
         <div className="flex items-center w-full justify-between gap-3">
-        <div className="flex flex-col min-w-0">
-          <span className="app-overline leading-none">Riepilogo Distinta</span>
-          <div className="flex items-center gap-2 mt-1 flex-wrap">
-            <span className="app-h2 text-sm sm:text-base dark:text-white text-slate-900">
-              {items.length} {items.length === 1 ? 'articolo' : 'articoli'}
-            </span>
-            <span className="text-slate-400">•</span>
-            <span className="app-qty-sm text-sm sm:text-base text-accent-blue">
-              {totalPieces} pezzi totali
-            </span>
-            {selectedCommessa && (
-              <>
-                <span className="text-slate-400">•</span>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs font-bold">
-                  <Briefcase size={14} />
-                  <span>Commessa: {selectedCommessa.codice}</span>
-                </span>
-              </>
+          <div className="flex flex-col min-w-0">
+            <span className="app-overline leading-none">Riepilogo Distinta</span>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <span className="app-h2 text-sm sm:text-base dark:text-white text-slate-900">
+                {items.length} {items.length === 1 ? 'articolo' : 'articoli'}
+              </span>
+              <span className="text-slate-400">•</span>
+              <span className="app-qty-sm text-sm sm:text-base text-accent-blue">
+                {totalPieces} pezzi totali
+              </span>
+              {selectedCommessa && (
+                <>
+                  <span className="text-slate-400">•</span>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs font-bold">
+                    <Briefcase size={14} />
+                    <span>Commessa: {selectedCommessa.codice}</span>
+                  </span>
+                </>
+              )}
+              {selectedMacchina && (
+                <>
+                  <span className="text-slate-400">•</span>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-accent-cyan text-xs font-bold">
+                    <Cpu size={14} />
+                    <span>CNC: {selectedMacchina.codice}</span>
+                  </span>
+                </>
+              )}
+              {selectedOperatoreDestinatario && !isOperatore && (
+                <>
+                  <span className="text-slate-400">•</span>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold">
+                    <UserCheck size={14} />
+                    <span>Per: {selectedOperatoreDestinatario}</span>
+                  </span>
+                </>
+              )}
+            </div>
+            {hasInsufficientStock && (
+              <span className="text-xs font-bold text-accent-rose flex items-center gap-1 mt-0.5">
+                <AlertTriangle size={14} /> Riduci le quantità segnalate prima di confermare il prelievo
+              </span>
             )}
           </div>
-          {hasInsufficientStock && (
-            <span className="text-xs font-bold text-accent-rose flex items-center gap-1 mt-0.5">
-              <AlertTriangle size={14} /> Riduci le quantità segnalate prima di confermare il prelievo
-            </span>
-          )}
-        </div>
 
-        <div className="flex items-center gap-2">
-          {items.length > 0 && (
-            <button
-              type="button"
-              onClick={clearItems}
-              className="glass-button px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-rose-500 transition-colors"
-            >
-              Annulla
-            </button>
-          )}
-
-          <button
-            type="button"
-            disabled={items.length === 0 || isExecuting || hasInsufficientStock}
-            onClick={handleConfirm}
-            className={`flex-1 sm:flex-initial px-6 py-3.5 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
-              batchOpType === 'scarico' ? 'action-btn-scarica' : 'action-btn-carica'
-            }`}
-          >
-            {isExecuting ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Elaborazione...</span>
-              </>
-            ) : (
-              <>
-                {batchOpType === 'scarico' ? <ArrowUp size={20} /> : <ArrowDown size={20} />}
-                <span>
-                  Conferma {batchOpType === 'scarico' ? 'Prelievo' : 'Deposito'} ({totalPieces} pz)
-                </span>
-              </>
+          <div className="flex items-center gap-2">
+            {items.length > 0 && (
+              <button
+                type="button"
+                onClick={clearItems}
+                className="glass-button px-4 py-3 rounded-xl text-xs font-bold tracking-wider text-slate-500 hover:text-rose-500 transition-colors"
+              >
+                Annulla
+              </button>
             )}
-          </button>
-        </div>
+
+            {isOperatore ? (
+              <button
+                type="button"
+                disabled={items.length === 0 || isExecuting || (batchOpType === 'scarico' && hasInsufficientStock)}
+                onClick={handleAction}
+                className="flex-1 sm:flex-initial px-6 py-3.5 rounded-xl text-xs sm:text-sm font-black tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed action-btn-primary hover:scale-[1.02] active:scale-95"
+              >
+                {isExecuting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Invio richiesta...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send size={18} />
+                    <span>
+                      Invia Richiesta all'Amministratore ({totalPieces} pz)
+                    </span>
+                  </>
+                )}
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled={items.length === 0 || isExecuting || hasInsufficientStock}
+                onClick={handleAction}
+                className={`flex-1 sm:flex-initial px-6 py-3.5 rounded-xl text-xs sm:text-sm font-black tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                  batchOpType === 'scarico' ? 'action-btn-scarica' : 'action-btn-carica'
+                }`}
+              >
+                {isExecuting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Elaborazione...</span>
+                  </>
+                ) : (
+                  <>
+                    {batchOpType === 'scarico' ? <ArrowUp size={20} /> : <ArrowDown size={20} />}
+                    <span>
+                      Conferma {batchOpType === 'scarico' ? 'Prelievo' : 'Deposito'} ({totalPieces} pz)
+                    </span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </PageFooter>
 

@@ -9,7 +9,7 @@ export const TUTORIAL_STEPS = [
     id: 'catalog-categories',
     target: '[data-tour="catalog-categories"]',
     title: 'Catalogo & Tipologie Utensili',
-    content: 'Seleziona la famiglia di utensili (Frese, Punte, Maschi, Inserti...) per accedere ai diametri e alle schede tecniche in magazzino.',
+    content: 'Tocca una tipologia (FRESA, PUNTA, MASCHIO, INSERTO...) per scendere a forma e diametro e consultare le schede tecniche in magazzino.',
     placement: 'bottom',
     targetView: 'home',
     resetFilters: true,
@@ -17,20 +17,19 @@ export const TUTORIAL_STEPS = [
     requireSidebar: false
   },
   {
-    id: 'view-mode-toggle',
-    target: '[data-tour="view-mode-toggle"]',
-    title: 'Cambio Vista: Griglia o Elenco',
-    content: 'Passa dalla vista a icone alla tabella compatta con filtri dinamici a cascata per diametri, forme e materiali. Prova subito a cambiare vista qui sotto!',
+    id: 'search-tools',
+    target: '[data-tour="search-tools"]',
+    title: 'Ricerca Rapida & Barcode',
+    content: 'Trova all\'istante qualsiasi utensile digitando codice aziendale, matricola o misura (es. D16). Puoi usare la fotocamera per scansionare il codice a barre o la scorciatoia da tastiera (Ctrl/⌘+K).',
     placement: 'bottom',
-    interactive: true,
     targetView: 'home',
     requireSidebar: false
   },
   {
-    id: 'search-tools',
-    target: '[data-tour="search-tools"]',
-    title: 'Ricerca Rapida & Scorciatoie',
-    content: 'Trova qualsiasi utensile digitando codice, misura o descrizione. Puoi usare la scorciatoia ⌘K o la fotocamera per il codice a barre.',
+    id: 'view-mode-toggle',
+    target: '[data-tour="view-mode-toggle"]',
+    title: 'Vista Schede o Tabella con Filtri',
+    content: 'Alterna a piacimento tra la vista a schede visive (ideale su touch e tablet) e la tabella dati compatta con filtri dinamici a tendina per ricerche avanzate.',
     placement: 'bottom',
     targetView: 'home',
     requireSidebar: false
@@ -38,36 +37,45 @@ export const TUTORIAL_STEPS = [
   {
     id: 'quick-actions',
     target: '[data-tour="quick-actions"]',
-    title: 'Azioni Rapide: Deposita & Preleva',
-    content: 'Registra i movimenti di magazzino in un tocco: PRELEVA per scaricare l\'utensile per la macchina CNC, DEPOSITA per caricarlo.',
+    title: 'Operazioni & Richieste Rapide',
+    content: 'Registra i movimenti con un tocco: DEPOSITA carica l\'utensile a magazzino, PRELEVA lo scarica per la macchina CNC o invia una richiesta guidata per il turno.',
+    placement: 'right',
+    targetView: 'home',
+    requireSidebar: true
+  },
+  {
+    id: 'multimovement-nav',
+    target: '[data-tour="multimovement-nav"]',
+    title: 'Movimento Multiplo a Distinta',
+    content: 'Compila una distinta per prelevare o depositare più utensili contemporaneamente, associandoli alla Commessa e Macchina CNC con controllo atomico delle giacenze.',
+    placement: 'right',
+    targetView: 'home',
+    requireSidebar: true
+  },
+  {
+    id: 'commesse-produzione-nav',
+    target: '[data-tour="commesse-nav"], [data-tour="produzione-nav"], [data-tour="requests-nav"]',
+    title: 'Commesse, Produzione & Richieste',
+    content: 'Monitora le commesse aperte, le macchine collegate e lo stato degli utensili attualmente montati a bordo macchina o inviati a riaffilatura.',
     placement: 'right',
     targetView: 'home',
     requireSidebar: true
   },
   {
     id: 'menu-history',
-    target: '[data-tour="menu-history"]',
-    title: 'Storico movimenti & Guida',
-    content: 'Controlla tutti i movimenti effettuati con data e operatore. Dalla voce Guida puoi riavviare questo percorso in qualsiasi momento.',
-    placement: 'top',
+    target: '[data-tour="history-nav"]',
+    title: 'Storico Movimenti & Audit Log',
+    content: 'Consulta la cronologia completa di ogni carico, scarico e rettifica con data, ora, operatore, causale e variazioni di magazzino in tempo reale.',
+    placement: 'right',
     targetView: 'home',
     requireSidebar: true
   },
   {
-    id: 'user-profile',
-    target: '[data-tour="user-profile"]',
-    title: 'Profilo Utente & Privilegi',
-    content: 'Verifica il tuo account e ruolo attivo (Operatore o Admin). Il pallino verde indica che sei autenticato e operativo nel sistema.',
-    placement: 'top',
-    targetView: 'home',
-    requireSidebar: true
-  },
-  {
-    id: 'user-logout',
-    target: '[data-tour="user-logout"]',
-    title: 'Fine Turno & Logout',
-    content: 'A fine turno, usa questo tasto per disconnetterti in sicurezza e lasciare il gestionale pronto per il login del collega successivo.',
-    placement: 'top',
+    id: 'help-and-profile',
+    target: '[data-tour="help-nav"], [data-tour="user-profile"]',
+    title: 'Guida & Impostazioni Profilo',
+    content: 'Dalla voce Guida puoi riavviare questo tutorial in qualsiasi momento. Dal tuo profilo gestisci il tema chiaro/scuro e le preferenze personali.',
+    placement: 'right',
     targetView: 'home',
     requireSidebar: true
   }
@@ -77,32 +85,47 @@ export const useTutorialStore = create((set, get) => ({
   isOpen: false,
   currentStep: 0,
   steps: TUTORIAL_STEPS,
+  savedState: null,
 
   startTutorial: () => {
+    const currentView = useNavigationStore.getState().currentView;
+    const viewMode = useFilterStore.getState().viewMode;
     const { steps } = get();
     const firstStep = steps[0];
+
     if (firstStep) {
-      if (firstStep.targetView) {
+      if (firstStep.targetView && useNavigationStore.getState().currentView !== firstStep.targetView) {
         useNavigationStore.getState().setCurrentView(firstStep.targetView);
       }
       if (firstStep.resetFilters) {
         useFilterStore.getState().resetFilters();
       }
-      if (firstStep.viewMode) {
+      if (firstStep.viewMode && useFilterStore.getState().viewMode !== firstStep.viewMode) {
         useFilterStore.getState().setViewMode(firstStep.viewMode);
       }
     }
-    set({ isOpen: true, currentStep: 0 });
+
+    set({
+      isOpen: true,
+      currentStep: 0,
+      savedState: { currentView, viewMode }
+    });
   },
   
-  closeTutorial: () => set({ isOpen: false }),
+  closeTutorial: () => {
+    const { savedState } = get();
+    set({ isOpen: false });
+    if (savedState?.currentView) {
+      useNavigationStore.getState().setCurrentView(savedState.currentView);
+    }
+  },
 
   nextStep: () => {
     const { currentStep, steps } = get();
     if (currentStep < steps.length - 1) {
       set({ currentStep: currentStep + 1 });
     } else {
-      set({ isOpen: false });
+      get().completeTutorial(useAuthStore.getState().currentUser);
     }
   },
 
@@ -127,6 +150,10 @@ export const useTutorialStore = create((set, get) => ({
     // 1. Aggiorna lo stato auth locale senza resettare altre preferenze (es. viewMode)
     useAuthStore.getState().completeTutorial();
 
+    try {
+      localStorage.setItem(`berc_tutorial_completed_${currentUser.id}`, 'true');
+    } catch { /* ignore */ }
+
     // 2. Persisti su database Supabase (tabella utenti)
     try {
       const { error } = await supabase
@@ -135,8 +162,7 @@ export const useTutorialStore = create((set, get) => ({
         .eq('id', currentUser.id);
 
       if (error) {
-        // Se la colonna non esiste ancora nel DB Supabase, non blocchiamo l'app
-        console.warn('Nota Supabase has_completed_tutorial (potrebbe richiedere esecuzione script SQL):', error.message);
+        console.warn('Nota Supabase has_completed_tutorial:', error.message);
       }
     } catch (err) {
       console.warn('Errore aggiornamento flag tutorial su Supabase:', err);

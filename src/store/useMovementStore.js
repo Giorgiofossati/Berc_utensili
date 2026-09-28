@@ -11,15 +11,19 @@ export const useMovementStore = create((set, get) => ({
   selectedTool: null,
   showMoveModal: false,
   selectedCommessaId: null,
+  selectedMacchinaId: null,
+  selectedOperatoreDestinatario: null,
 
   setOpType: (type) => set({ opType: type }),
   setModalQty: (qty) => set({ modalQty: qty }),
   setIsBulkMode: (mode) => set({ isBulkMode: mode }),
   setSelectedTool: (tool) => set({ selectedTool: tool }),
   setSelectedCommessaId: (id) => set({ selectedCommessaId: id }),
+  setSelectedMacchinaId: (id) => set({ selectedMacchinaId: id }),
+  setSelectedOperatoreDestinatario: (name) => set({ selectedOperatoreDestinatario: name }),
   setShowMoveModal: (show) => set({
     showMoveModal: show,
-    ...(!show ? { isBulkMode: false, selectedCommessaId: null, selectedTool: null } : {})
+    ...(!show ? { isBulkMode: false, selectedCommessaId: null, selectedMacchinaId: null, selectedOperatoreDestinatario: null, selectedTool: null } : {})
   }),
   openToolDetail: (tool) => set({
     selectedTool: tool,
@@ -27,6 +31,8 @@ export const useMovementStore = create((set, get) => ({
     modalQty: 1,
     isBulkMode: false,
     selectedCommessaId: null,
+    selectedMacchinaId: null,
+    selectedOperatoreDestinatario: null,
     showMoveModal: true
   }),
 
@@ -127,6 +133,9 @@ export const useMovementStore = create((set, get) => ({
         console.warn('RPC invocation failed, executing resilient client-side fallback:', rpcCallErr);
       }
 
+      const targetMacchinaId = state.selectedMacchinaId;
+      const targetOperatoreDestinatario = state.selectedOperatoreDestinatario;
+
       if (!rpcSucceeded) {
         for (const target of targets) {
           const liveTool = tools.find(t => t.id === target.id) || target;
@@ -150,11 +159,25 @@ export const useMovementStore = create((set, get) => ({
               tipo_operazione: opType,
               quantita: change,
               operatore: operatorName,
+              operatore_destinatario: targetOperatoreDestinatario || null,
               commessa_id: targetCommessaId || null,
+              macchina_id: targetMacchinaId || null,
               created_at: new Date().toISOString()
             });
 
-          if (historyErr) throw historyErr;
+          if (historyErr) {
+            // Fallback se le colonne nuove non esistono ancora sul DB remoto
+            await supabase
+              .from('movements_history')
+              .insert({
+                tool_id: target.id,
+                tipo_operazione: opType,
+                quantita: change,
+                operatore: operatorName,
+                commessa_id: targetCommessaId || null,
+                created_at: new Date().toISOString()
+              });
+          }
         }
       }
 
@@ -164,14 +187,16 @@ export const useMovementStore = create((set, get) => ({
           opType,
           change,
           operator: operatorName,
+          operatoreDestinatario: targetOperatoreDestinatario || null,
           commessaId: targetCommessaId || null,
+          macchinaId: targetMacchinaId || null,
           timestamp: Date.now()
         }
       });
 
       if (showToastNotification) {
         showToastNotification({
-          message: `MAGAZZINO AGGIORNATO: ${opType.toUpperCase()} (${targets.length} ${targets.length === 1 ? 'articolo' : 'articoli'})`,
+          message: `Magazzino aggiornato: ${opType} (${targets.length} ${targets.length === 1 ? 'articolo' : 'articoli'})`,
           type: 'success',
           onUndo: () => get().undoLastMovement(showToastNotification)
         });

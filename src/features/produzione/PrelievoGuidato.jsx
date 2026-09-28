@@ -325,7 +325,7 @@ export function PrelievoGuidato({ tool, onBack, onDone, onOpenOrder, notify }) {
         errore={erroreInvio}
       >
         {massimo === 0 && onOpenOrder && (
-          <button type="button" onClick={onOpenOrder} className="min-h-12 px-4 rounded-[var(--radius-control,12px)] text-sm font-black uppercase tracking-wider text-accent-orange hover:bg-accent-orange/10 cursor-pointer flex items-center gap-2 shrink-0">
+          <button type="button" onClick={onOpenOrder} className="min-h-12 px-4 rounded-[var(--radius-control,12px)] text-sm font-black tracking-wider text-accent-orange hover:bg-accent-orange/10 cursor-pointer flex items-center gap-2 shrink-0">
             <ShoppingCart size={16} /> Crea ordine
           </button>
         )}

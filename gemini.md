@@ -60,7 +60,7 @@ Offre tracciamento in tempo reale, prelievo guidato, carico/scarico rapido e pre
    - *Risoluzione*: Blocco preventivo del tasto (`disabled={qty > stock}`), messaggi di alert live, spinner e testi di caricamento inequivocabili.
 6. **WCAG 2.1 AA & Tipografia Semantica**:
    - *Audit*: Font monospace (`.app-caption`) usato per istruzioni operative causando troncature? Contrasti < 4.5:1? Classi non standard come `text-5xl`?
-   - *Risoluzione*: Usare `.app-caption` solo per codici/SKU/timestamp; usare `.app-body` per spiegazioni; contrasto minimo 4.5:1; font solo `Inter`.
+   - *Risoluzione*: Usare `.app-caption` solo per codici/SKU/timestamp; usare `.app-body` per spiegazioni; contrasto minimo 4.5:1; font solo `Geist`.
 7. **Layout App-Like (Single Screen 100vh) & Mobile Safe-Zones**:
    - *Audit*: Scroll orizzontale su mobile o elementi tagliati dall'overflow?
    - *Risoluzione*: Root a `100vh/100dvh` con `overflow-hidden`; scroll solo nei contenitori interni (`overflow-y-auto`) con safe-padding `p-2 pb-24` per non tagliare ring e ombreggiature.

@@ -335,7 +335,7 @@ const DropdownFilterView = memo(({
                     <Menu.Portal>
                       <Menu.Positioner sideOffset={6} align="start" className="isolate z-50">
                         <Menu.Popup className="min-w-[240px] max-h-[min(340px,50dvh)] overflow-y-auto custom-scrollbar p-1.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl text-slate-800 dark:text-slate-200 outline-none">
-                          <div className="px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-1">
+                          <div className="px-2.5 py-1.5 text-xs font-bold tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-1">
                             Filtri disponibili
                           </div>
                           {inactiveSecondaryKeys.map(key => (
@@ -378,11 +378,11 @@ const DropdownFilterView = memo(({
         )}
       </AnimatePresence>
 
-      {/* Desktop Toolbar: compatto, mai sbordante */}
-      <PageToolbar className="h-11 px-3 sm:px-4 md:px-6 border-b border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xs hidden md:flex items-center shrink-0 min-w-0 w-full gap-2 overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-2 select-none text-xs w-full py-0.5 min-w-0">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 shrink-0 flex items-center gap-1.5 mr-1">
-            <Filter size={14} className="text-slate-400" />
+      {/* Desktop Toolbar: compatto con respiro ed alto contrasto WCAG */}
+      <PageToolbar className="min-h-[50px] h-[50px] py-2 px-3 sm:px-4 md:px-6 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xs hidden md:flex items-center shrink-0 min-w-0 w-full gap-2.5 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-2.5 select-none text-xs w-full min-w-0">
+          <span className="text-xs font-extrabold tracking-wider text-slate-600 dark:text-slate-300 shrink-0 flex items-center gap-1.5 mr-0.5">
+            <Filter size={14} className="text-slate-500 dark:text-slate-400" />
             Filtri:
           </span>
 
@@ -398,12 +398,12 @@ const DropdownFilterView = memo(({
                 >
                   <SelectTrigger 
                     disabled={isDisabled}
-                    className={`h-7 px-2.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium flex items-center gap-1 text-xs shrink-0 whitespace-nowrap shadow-none focus:ring-1 focus:ring-sky-500 w-auto min-w-[90px] ${
-                      filters[key] ? 'border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-300 bg-sky-50/50 dark:bg-sky-950/30 font-semibold' : ''
+                    className={`h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium flex items-center gap-1.5 text-xs shrink-0 whitespace-nowrap shadow-xs focus:ring-1 focus:ring-sky-500 w-auto min-w-[95px] ${
+                      filters[key] ? 'border-sky-400 dark:border-sky-600 text-sky-800 dark:text-sky-200 bg-sky-50/80 dark:bg-sky-950/40 font-semibold ring-1 ring-sky-400/20' : ''
                     } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
                   >
-                    <span className="truncate flex items-center gap-1">
-                      <span className="text-slate-500 dark:text-slate-400 font-normal">{LABELS[key] || key}:</span>
+                    <span className="truncate flex items-center gap-1.5">
+                      <span className="text-slate-600 dark:text-slate-400 font-normal">{LABELS[key] || key}:</span>
                       <strong className="font-bold text-slate-900 dark:text-slate-100">
                         {filters[key] ? (key === 'Diametro' ? `Ø${filters[key]}` : filters[key]) : 'Tutti'}
                       </strong>
@@ -429,7 +429,7 @@ const DropdownFilterView = memo(({
               <div key={key} className="relative shrink-0 flex items-center">
                 <div className={`flex items-center rounded-lg border transition-all ${
                   filters[key]
-                    ? 'border-sky-300 dark:border-sky-700 bg-sky-50/60 dark:bg-sky-950/40 text-sky-800 dark:text-sky-200'
+                    ? 'border-sky-400 dark:border-sky-600 bg-sky-50/80 dark:bg-sky-950/40 text-sky-900 dark:text-sky-200 font-semibold ring-1 ring-sky-400/20'
                     : 'border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                 }`}>
                   <Select
@@ -439,10 +439,10 @@ const DropdownFilterView = memo(({
                   >
                     <SelectTrigger 
                       disabled={isDisabled}
-                      className="h-7 px-2 border-0 bg-transparent shadow-none hover:bg-transparent focus:ring-0 text-xs font-medium gap-1 shrink-0 whitespace-nowrap"
+                      className="h-8 px-2.5 border-0 bg-transparent shadow-none hover:bg-transparent focus:ring-0 text-xs font-medium gap-1.5 shrink-0 whitespace-nowrap"
                     >
-                      <span className="truncate flex items-center gap-1">
-                        <span className="text-slate-500 dark:text-slate-400 font-normal">{LABELS[key] || key}:</span>
+                      <span className="truncate flex items-center gap-1.5">
+                        <span className="text-slate-600 dark:text-slate-400 font-normal">{LABELS[key] || key}:</span>
                         <strong className="font-bold">
                           {filters[key] ? (key === 'Diametro' ? `Ø${filters[key]}` : filters[key]) : 'Tutti'}
                         </strong>
@@ -460,7 +460,7 @@ const DropdownFilterView = memo(({
                   <button
                     type="button"
                     onClick={() => handleRemoveSecondaryFilter(key)}
-                    className="h-7 pr-1.5 pl-0.5 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                    className="h-8 pr-2 pl-0.5 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
                     title={`Rimuovi filtro ${LABELS[key] || key}`}
                     aria-label={`Rimuovi filtro ${LABELS[key] || key}`}
                   >
@@ -475,19 +475,19 @@ const DropdownFilterView = memo(({
           {inactiveSecondaryKeys.length > 0 && (
             <Menu.Root>
               <Menu.Trigger
-                className="h-7 px-2.5 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-600 bg-white/50 dark:bg-slate-800/50 hover:bg-sky-50/50 dark:hover:bg-sky-950/30 text-slate-600 dark:text-slate-400 hover:text-sky-700 dark:hover:text-sky-300 font-semibold flex items-center gap-1.5 text-xs shrink-0 cursor-pointer transition-colors outline-none focus-visible:ring-1 focus-visible:ring-sky-500"
+                className="h-8 px-3 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-600 bg-white/60 dark:bg-slate-800/60 hover:bg-sky-50/60 dark:hover:bg-sky-950/30 text-slate-700 dark:text-slate-300 hover:text-sky-800 dark:hover:text-sky-200 font-semibold flex items-center gap-1.5 text-xs shrink-0 cursor-pointer transition-colors outline-none focus-visible:ring-1 focus-visible:ring-sky-500 shadow-xs"
                 aria-label="Aggiungi altri filtri"
               >
-                <Plus size={13} className="text-slate-400 dark:text-slate-500" />
+                <Plus size={13} className="text-slate-500 dark:text-slate-400" />
                 <span>Altri filtri</span>
-                <span className="app-caption px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold">
+                <span className="app-caption px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold">
                   +{inactiveSecondaryKeys.length}
                 </span>
               </Menu.Trigger>
               <Menu.Portal>
                 <Menu.Positioner sideOffset={6} align="start" className="isolate z-50">
                   <Menu.Popup className="min-w-[200px] max-h-[min(340px,50dvh)] overflow-y-auto custom-scrollbar p-1 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl text-slate-800 dark:text-slate-200 outline-none">
-                    <div className="px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-1">
+                    <div className="px-2.5 py-1.5 text-xs font-bold tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-1">
                       Filtri disponibili
                     </div>
                     {inactiveSecondaryKeys.map(key => {
@@ -521,7 +521,7 @@ const DropdownFilterView = memo(({
             <button
               type="button"
               onClick={handleResetAll}
-              className="ml-auto text-xs font-bold text-sky-600 dark:text-sky-400 hover:text-sky-700 hover:underline shrink-0 cursor-pointer pl-2 whitespace-nowrap"
+              className="ml-auto text-xs font-bold text-sky-700 dark:text-sky-400 hover:text-sky-800 hover:underline shrink-0 cursor-pointer pl-2 whitespace-nowrap"
             >
               Azzera filtri
             </button>

@@ -187,7 +187,7 @@ export default function InProduzioneView({ setView, showToastNotification }) {
                                 type="button"
                                 onClick={() => (inCassetto ? prelevaDalCassetto(r) : setDaSmontare(r))}
                                 className={cn(
-                                  'min-h-11 min-w-24 px-4 rounded-[var(--radius-control,12px)] border text-xs font-black uppercase tracking-wider shrink-0 cursor-pointer transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50',
+                                  'min-h-11 min-w-24 px-4 rounded-[var(--radius-control,12px)] border text-xs font-black tracking-wider shrink-0 cursor-pointer transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50',
                                   inCassetto
                                     ? 'border-accent-rose/50 bg-accent-rose/[0.07] text-accent-rose hover:bg-accent-rose/[0.13]'
                                     : 'border-accent-blue/45 bg-accent-blue/[0.08] text-accent-blue hover:bg-accent-blue/[0.14]'

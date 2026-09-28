@@ -1,27 +1,24 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ChevronLeft, ChevronRight, X, Sparkles, CheckCircle2, 
-  LayoutGrid, List 
+  ChevronLeft, ChevronRight, X, Sparkles, CheckCircle2 
 } from 'lucide-react';
 import { useTutorialStore } from '../../store/useTutorialStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { useFilterStore } from '../../store/useFilterStore';
 import { useTheme } from '../../lib/ThemeContext';
-import { Popover } from '@base-ui/react/popover';
 
-export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode }) {
+export default function AppTutorial({ onRequireSidebar }) {
   const isOpen = useTutorialStore(state => state.isOpen);
   const currentStep = useTutorialStore(state => state.currentStep);
   const steps = useTutorialStore(state => state.steps);
   const nextStep = useTutorialStore(state => state.nextStep);
   const prevStep = useTutorialStore(state => state.prevStep);
+  const closeTutorial = useTutorialStore(state => state.closeTutorial);
   const completeTutorial = useTutorialStore(state => state.completeTutorial);
 
-
   const currentUser = useAuthStore(state => state.currentUser);
-  const setCurrentUser = useAuthStore(state => state.setCurrentUser);
   const { isDarkMode } = useTheme();
 
   const [targetRect, setTargetRect] = useState(null);
@@ -30,117 +27,114 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
     height: typeof window !== 'undefined' ? window.innerHeight : 800
   });
 
+  const cardRef = useRef(null);
+  const [cardHeight, setCardHeight] = useState(240);
+
   const step = steps[currentStep] || steps[0];
 
-  // Coordinamento della vista, filtri e sidebar per lo step attivo del tutorial
+  // 1. Coordinamento della vista, filtri e sidebar per lo step attivo
   useEffect(() => {
     if (!isOpen || !step) return;
 
-    // 1. Sposta l'utente sulla vista richiesta dallo step (es. 'home', 'scanner', 'history', etc.)
     if (step.targetView && useNavigationStore.getState().currentView !== step.targetView) {
       useNavigationStore.getState().setCurrentView(step.targetView);
     }
 
-    // 2. Resetta i filtri se richiesto per far comparire il catalogo principale
     if (step.resetFilters && useFilterStore.getState().filterStack.length > 0) {
       useFilterStore.getState().resetFilters();
     }
 
-    // 3. Imposta la viewMode richiesta (es. 'grid')
     if (step.viewMode && useFilterStore.getState().viewMode !== step.viewMode) {
       useFilterStore.getState().setViewMode(step.viewMode);
-      if (setViewMode) setViewMode(step.viewMode);
     }
 
-    // 4. Gestione apertura automatica sidebar su mobile se lo step la richiede
     if (onRequireSidebar) {
-      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-      if (isMobile) {
+      const isMobileScreen = typeof window !== 'undefined' && window.innerWidth < 768;
+      if (isMobileScreen) {
         if (step.requireSidebar !== undefined) {
           onRequireSidebar(step.requireSidebar);
-        } else {
-          const sidebarSteps = ['quick-actions', 'menu-history', 'user-profile', 'user-logout'];
-          onRequireSidebar(sidebarSteps.includes(step.id));
         }
       }
     }
-  }, [isOpen, currentStep, step, onRequireSidebar, setViewMode]);
+  }, [isOpen, currentStep, step, onRequireSidebar]);
 
-  // Misura e traccia l'elemento target dinamicamente con retry polling per gestire transizioni Framer Motion
-  const updateRect = useCallback(() => {
+  // 2. Misura l'altezza effettiva della card
+  useEffect(() => {
+    if (!isOpen || !cardRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect.height > 0) {
+          setCardHeight(entry.contentRect.height);
+        }
+      }
+    });
+    observer.observe(cardRef.current);
+    return () => observer.disconnect();
+  }, [isOpen, currentStep]);
+
+  // 3. Misura l'elemento target dinamicamente
+  const updateTargetRect = useCallback(() => {
     if (!step?.target) {
       setTargetRect(null);
       return false;
     }
 
-    const el = document.querySelector(step.target);
+    const selectors = step.target.split(',').map(s => s.trim());
+    let el = null;
+    for (const selector of selectors) {
+      el = document.querySelector(selector);
+      if (el) break;
+    }
+
     if (el) {
       const rect = el.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) {
-        setTargetRect(prev => {
-          if (
-            prev &&
-            Math.abs(prev.top - rect.top) < 1 &&
-            Math.abs(prev.left - rect.left) < 1 &&
-            Math.abs(prev.width - rect.width) < 1 &&
-            Math.abs(prev.height - rect.height) < 1
-          ) {
-            return prev;
-          }
-          return {
-            top: rect.top,
-            left: rect.left,
-            width: rect.width,
-            height: rect.height
-          };
+        setTargetRect({
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+          bottom: rect.bottom,
+          right: rect.right
         });
         return true;
       }
     }
-    setTargetRect(prev => (prev === null ? null : null));
+    setTargetRect(null);
     return false;
   }, [step]);
 
+  // 4. Polling attivo per transizioni Framer Motion + ResizeObserver sul target
   useEffect(() => {
     if (!isOpen) return;
 
-    let cancelled = false;
-    let retries = 0;
-    const maxRetries = 25; // 25 * 40ms = 1000ms
-
-    // Prova immediata
-    const found = updateRect();
-    
-    // Se non trovato subito (es. pagina o filtro in transizione), ritenta ogni 40ms
-    let interval = null;
-    if (!found) {
-      interval = setInterval(() => {
-        if (cancelled) return;
-        retries++;
-        if (updateRect() || retries >= maxRetries) {
-          clearInterval(interval);
-        }
-      }, 40);
-    }
+    let frameId;
+    let startTime = performance.now();
+    const trackLoop = (time) => {
+      updateTargetRect();
+      if (time - startTime < 600) {
+        frameId = requestAnimationFrame(trackLoop);
+      }
+    };
+    frameId = requestAnimationFrame(trackLoop);
 
     const handleResize = () => {
       setViewportSize({ width: window.innerWidth, height: window.innerHeight });
-      updateRect();
+      updateTargetRect();
     };
-    const handleScroll = () => updateRect();
+    const handleScroll = () => updateTargetRect();
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll, true);
 
     return () => {
-      cancelled = true;
-      if (interval) clearInterval(interval);
+      if (frameId) cancelAnimationFrame(frameId);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll, true);
     };
-  }, [isOpen, currentStep, updateRect]);
+  }, [isOpen, currentStep, updateTargetRect]);
 
-  // Gestione tastiera
+  // 5. Gestione tastiera
   useEffect(() => {
     if (!isOpen) return;
 
@@ -148,39 +142,117 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
       if (e.key === 'ArrowRight') {
         e.preventDefault();
         if (currentStep < steps.length - 1) nextStep();
-        else completeTutorial(currentUser, setCurrentUser);
+        else completeTutorial(currentUser);
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
         if (currentStep > 0) prevStep();
       } else if (e.key === 'Escape') {
         e.preventDefault();
         if (onRequireSidebar) onRequireSidebar(false);
-        completeTutorial(currentUser, setCurrentUser);
+        closeTutorial();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, currentStep, steps.length, nextStep, prevStep, completeTutorial, currentUser, setCurrentUser, onRequireSidebar]);
+  }, [isOpen, currentStep, steps.length, nextStep, prevStep, closeTutorial, completeTutorial, currentUser, onRequireSidebar]);
 
   const handleFinish = useCallback(() => {
     if (onRequireSidebar) onRequireSidebar(false);
-    completeTutorial(currentUser, setCurrentUser);
-  }, [completeTutorial, currentUser, setCurrentUser, onRequireSidebar]);
+    completeTutorial(currentUser);
+  }, [completeTutorial, currentUser, onRequireSidebar]);
 
-  // Più respiro: padding generoso e margini confortevoli
-  const padding = 16;
-  // const cardWidth = Math.min(400, viewportSize.width - 32);
-// const cardEstimatedHeight = step.interactive ? 270 : 225;
-  const margin = 24;
+  const handleCloseOnly = useCallback(() => {
+    if (onRequireSidebar) onRequireSidebar(false);
+    closeTutorial();
+  }, [closeTutorial, onRequireSidebar]);
 
   if (!isOpen) return null;
 
   const isLastStep = currentStep === steps.length - 1;
+  const isMobile = viewportSize.width < 768;
+  const CARD_WIDTH = 440;
+  const margin = 20;
+  const padding = 12;
+
+  // Calcolo esatto delle coordinate pixel su Desktop (ZERO conflitti con Framer Motion transform)
+  const getDesktopCardPosition = () => {
+    const cardW = Math.min(CARD_WIDTH, viewportSize.width - 32);
+    const cardH = cardHeight || 240;
+    const centerX = Math.round((viewportSize.width - cardW) / 2);
+
+    if (!targetRect) {
+      return {
+        top: Math.round((viewportSize.height - cardH) / 2),
+        left: centerX
+      };
+    }
+
+    // Se l'elemento target copre una porzione estesa dello schermo (es. categorie catalogo)
+    if (targetRect.height > viewportSize.height * 0.45) {
+      return {
+        bottom: 28,
+        left: centerX
+      };
+    }
+
+    const placement = step.placement || 'bottom';
+
+    // 1. Posizionamento a DESTRA (es. per elementi Sidebar)
+    if (placement === 'right') {
+      const idealLeft = targetRect.right + margin;
+      if (idealLeft + cardW <= viewportSize.width - margin) {
+        const idealTop = Math.max(
+          margin,
+          Math.min(
+            targetRect.top + targetRect.height / 2 - cardH / 2,
+            viewportSize.height - cardH - margin
+          )
+        );
+        return { top: Math.round(idealTop), left: Math.round(idealLeft) };
+      }
+    }
+
+    // 2. Posizionamento in ALTO (es. per elementi Footer / Profilo)
+    if (placement === 'top') {
+      const idealTop = targetRect.top - cardH - margin;
+      if (idealTop >= margin) {
+        const idealLeft = Math.max(
+          margin,
+          Math.min(
+            targetRect.left + targetRect.width / 2 - cardW / 2,
+            viewportSize.width - cardW - margin
+          )
+        );
+        return { top: Math.round(idealTop), left: Math.round(idealLeft) };
+      }
+    }
+
+    // 3. Posizionamento in BASSO (Default per Search, Toggle, Header)
+    const idealTop = targetRect.bottom + margin;
+    const clampedTop = Math.min(idealTop, viewportSize.height - cardH - margin);
+    const idealLeft = Math.max(
+      margin,
+      Math.min(
+        targetRect.left + targetRect.width / 2 - cardW / 2,
+        viewportSize.width - cardW - margin
+      )
+    );
+
+    return { top: Math.round(Math.max(margin, clampedTop)), left: Math.round(idealLeft) };
+  };
+
+  const desktopPos = !isMobile ? getDesktopCardPosition() : null;
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[var(--z-tour,9990)] overflow-hidden pointer-events-auto">
+      <div 
+        role="dialog"
+        aria-modal="true"
+        aria-label="Guida Operativa"
+        className="fixed inset-0 z-[var(--z-tour,9990)] overflow-hidden pointer-events-auto select-none"
+      >
+        {/* Scrim Overlay SVG con Maschera Spotlight */}
         <svg className="fixed inset-0 w-full h-full pointer-events-none z-50">
           <defs>
             <mask id="tutorial-spotlight-mask">
@@ -191,9 +263,9 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
                   y={targetRect.top - padding}
                   width={targetRect.width + padding * 2}
                   height={targetRect.height + padding * 2}
-                  rx="22"
+                  rx="18"
                   fill="black"
-                  className="transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
+                  className="transition-all duration-300 ease-out"
                 />
               )}
             </mask>
@@ -201,23 +273,16 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
           <rect
             width="100%"
             height="100%"
-            fill={isDarkMode ? 'rgba(2, 6, 23, 0.78)' : 'rgba(15, 23, 42, 0.42)'}
+            fill={isDarkMode ? 'rgba(2, 6, 23, 0.82)' : 'rgba(15, 23, 42, 0.48)'}
             mask="url(#tutorial-spotlight-mask)"
-            className="backdrop-blur-[3px] transition-colors duration-300"
+            className="backdrop-blur-[2px] transition-colors duration-300"
           />
         </svg>
 
-        {!step?.interactive && (
-          <div
-            onClick={handleFinish}
-            className="fixed inset-0 z-50 pointer-events-auto opacity-0"
-            title="Clicca per chiudere tutorial"
-          />
-        )}
-
+        {/* Cornice Luminosa Spotlight */}
         {targetRect && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{
               opacity: 1,
               scale: 1,
@@ -226,155 +291,118 @@ export default function AppTutorial({ onRequireSidebar, viewMode, setViewMode })
               width: targetRect.width + padding * 2,
               height: targetRect.height + padding * 2
             }}
-            transition={{ type: 'spring', damping: 26, stiffness: 240 }}
-            className={`fixed pointer-events-none z-50 rounded-3xl border-2 border-accent-blue shadow-[0_0_35px_rgba(14,165,233,0.5)] ring-4 ring-accent-blue/20`}
+            transition={{ type: 'spring', damping: 26, stiffness: 260 }}
+            className="fixed pointer-events-none z-50 rounded-2xl border-2 border-sky-400 dark:border-sky-400 shadow-[0_0_35px_rgba(14,165,233,0.45)] ring-4 ring-sky-400/20"
           >
-            <div className="absolute inset-0 rounded-3xl bg-accent-blue/5 animate-pulse" />
+            <div className="absolute inset-0 rounded-2xl bg-sky-400/5 animate-pulse" />
           </motion.div>
         )}
 
-        <Popover.Root open={true}>
-          <Popover.Trigger
-            className="fixed pointer-events-none opacity-0 -z-10"
-            style={{
-              top: targetRect ? targetRect.top : viewportSize.height / 2,
-              left: targetRect ? targetRect.left : viewportSize.width / 2,
-              width: targetRect ? targetRect.width : 0,
-              height: targetRect ? targetRect.height : 0,
-            }}
-          />
-          <Popover.Portal>
-            <Popover.Positioner side="bottom" sideOffset={margin + padding} align="center" collisionPadding={16}>
-              <Popover.Popup className="z-[var(--z-tour,9995)] outline-none">
-                <motion.div
-                  key={currentStep}
-                  initial={{ opacity: 0, y: 15, scale: 0.96 }}
-                  animate={{
-                    opacity: 1,
-                    y: 0,
-                    scale: 1,
-                  }}
-                  exit={{ opacity: 0, scale: 0.96 }}
-                  transition={{ type: 'spring', damping: 26, stiffness: 280 }}
-                  className="w-[90vw] max-w-[400px] glass-panel bg-white/95 dark:bg-slate-950/92 border border-slate-200/90 dark:border-accent-blue/30 text-slate-900 dark:text-white p-4 sm:p-6 rounded-4xl shadow-[0_20px_60px_rgba(15,23,42,0.2)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.7)] backdrop-blur-2xl pointer-events-auto flex flex-col gap-3"
-                  onClick={(e) => e.stopPropagation()}
+        {/* Scheda Guida Interattiva */}
+        <motion.div
+          ref={cardRef}
+          key={currentStep}
+          initial={{ opacity: 0, y: 15, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.97 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 280 }}
+          style={
+            isMobile
+              ? {
+                  position: 'fixed',
+                  bottom: 'max(16px, env(safe-area-inset-bottom, 0px))',
+                  left: '16px',
+                  right: '16px',
+                  maxWidth: '440px',
+                  margin: '0 auto'
+                }
+              : {
+                  position: 'fixed',
+                  width: `${Math.min(CARD_WIDTH, viewportSize.width - 32)}px`,
+                  ...desktopPos
+                }
+          }
+          className="z-[var(--z-tour,9990)] glass-panel bg-white/95 dark:bg-slate-950/95 border border-slate-200/90 dark:border-sky-500/30 text-slate-900 dark:text-white p-5 rounded-3xl shadow-[0_20px_60px_rgba(15,23,42,0.25)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.8)] backdrop-blur-2xl flex flex-col gap-3.5 pointer-events-auto box-border"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header Card */}
+          <div className="flex items-center justify-between gap-2 border-b border-slate-200/70 dark:border-white/10 pb-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <Sparkles size={16} className="text-amber-500 animate-pulse shrink-0" />
+              <span className="text-xs font-black tracking-wider uppercase text-slate-500 dark:text-slate-400 truncate">
+                Guida Bercella CNC
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="font-mono text-xs font-black px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-600 dark:text-sky-400 tabular-nums">
+                {currentStep + 1} <span className="opacity-40">/</span> {steps.length}
+              </span>
+
+              <button
+                type="button"
+                onClick={handleCloseOnly}
+                title="Chiudi guida"
+                aria-label="Chiudi guida"
+                className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-lg text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer"
+              >
+                <X size={17} />
+              </button>
+            </div>
+          </div>
+
+          {/* Body Card */}
+          <div className="flex flex-col gap-1.5">
+            <h2 className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug">
+              {step.title}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+              {step.content}
+            </p>
+          </div>
+
+          {/* Footer Card */}
+          <div className="flex items-center justify-between gap-2 pt-2 mt-1 border-t border-slate-200/70 dark:border-white/10">
+            <button
+              type="button"
+              onClick={handleFinish}
+              className="text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer"
+            >
+              Salta
+            </button>
+
+            <div className="flex items-center gap-2">
+              {currentStep > 0 && (
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  className="min-h-[40px] px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95"
                 >
-                  {/* Header Card */}
-                  <div className="flex items-center justify-between gap-2 border-b border-slate-200/60 dark:border-white/10 pb-3">
-                    <div className="flex items-center gap-1.5">
-                      <Sparkles size={16} className="text-accent-orange animate-pulse shrink-0" />
-                      <span className="app-overline">
-                        Guida
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full px-2 py-1 shadow-inner">
-                      <button
-                        type="button"
-                        onClick={prevStep}
-                        disabled={currentStep === 0}
-                        title="Passaggio precedente"
-                        className="p-1 rounded-full text-slate-600 dark:text-slate-300 hover:text-accent-blue hover:bg-slate-200/60 dark:hover:bg-white/10 disabled:opacity-25 disabled:pointer-events-none transition-all active:scale-90"
-                      >
-                        <ChevronLeft size={16} />
-                      </button>
-                      <span className="text-xs font-black tracking-widest text-accent-blue px-1.5 tabular-nums select-none font-mono">
-                        {currentStep + 1} <span className="opacity-40">/</span> {steps.length}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={isLastStep ? handleFinish : nextStep}
-                        title={isLastStep ? "Completa tutorial" : "Passaggio successivo"}
-                        className="p-1 rounded-full text-slate-600 dark:text-slate-300 hover:text-accent-blue hover:bg-slate-200/60 dark:hover:bg-white/10 transition-all active:scale-90"
-                      >
-                        <ChevronRight size={16} />
-                      </button>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleFinish}
-                      title="Chiudi tutorial"
-                      className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors shrink-0"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
+                  <ChevronLeft size={16} />
+                  <span>Indietro</span>
+                </button>
+              )}
 
-                  {/* Body Card */}
-                  <div className="flex flex-col gap-1.5">
-                    <h3 className="app-h3 flex items-center gap-2">
-                      {step.title}
-                    </h3>
-                    <p className="app-body">
-                      {step.content}
-                    </p>
-                  </div>
-
-                  {step.id === 'view-mode-toggle' && setViewMode && (
-                    <div className="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-slate-100/80 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 mt-0.5">
-                      <span className="app-label text-slate-500 dark:text-slate-400">
-                        Prova la vista:
-                      </span>
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => setViewMode('grid')}
-                          className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                            viewMode === 'grid'
-                              ? 'bg-accent-blue text-slate-950 font-black shadow-sm'
-                              : 'text-slate-600 dark:text-slate-300 hover:bg-accent-blue/10'
-                          }`}
-                        >
-                          <LayoutGrid size={14} />
-                          <span>Griglia</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setViewMode('dropdown')}
-                          className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                            viewMode === 'dropdown'
-                              ? 'bg-accent-blue text-slate-950 font-black shadow-sm'
-                              : 'text-slate-600 dark:text-slate-300 hover:bg-accent-blue/10'
-                          }`}
-                        >
-                          <List size={14} />
-                          <span>Elenco</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Footer Card */}
-                  <div className="flex items-center justify-between gap-2 pt-2 mt-1 border-t border-slate-200/60 dark:border-white/10">
-                    <button
-                      type="button"
-                      onClick={handleFinish}
-                      className="text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5"
-                    >
-                      Salta
-                    </button>
-                    <button
-                      type="button"
-                      onClick={isLastStep ? handleFinish : nextStep}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider text-slate-950 bg-accent-blue hover:bg-sky-400 shadow-md transition-all active:scale-95 group"
-                    >
-                      {isLastStep ? (
-                        <>
-                          <span>Ho Capito!</span>
-                          <CheckCircle2 size={16} />
-                        </>
-                      ) : (
-                        <>
-                          <span>Avanti</span>
-                          <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </motion.div>
-              </Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>
+              <button
+                type="button"
+                onClick={isLastStep ? handleFinish : nextStep}
+                className="min-h-[40px] px-5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-black tracking-wider shadow-sm transition-all flex items-center gap-1.5 group cursor-pointer active:scale-95"
+              >
+                {isLastStep ? (
+                  <>
+                    <span>Ho Capito!</span>
+                    <CheckCircle2 size={16} />
+                  </>
+                ) : (
+                  <>
+                    <span>Avanti</span>
+                    <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </AnimatePresence>
   );

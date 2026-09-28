@@ -479,7 +479,7 @@ const AddToolModal = ({ onClose, onToolAdded, tools = [] }) => {
                 ) : (
                   <>
                     <Save size={16} />
-                    <span>SALVA ARTICOLO</span>
+                    <span>Salva Articolo</span>
                   </>
                 )}
               </button>

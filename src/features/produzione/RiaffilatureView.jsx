@@ -150,7 +150,7 @@ export default function RiaffilatureView({ setView, showToastNotification: notif
                       type="button"
                       onClick={spedisci}
                       disabled={isSubmitting}
-                      className="action-btn-primary min-h-12 px-5 rounded-[var(--radius-control,12px)] text-sm font-black uppercase tracking-wider whitespace-nowrap flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40"
+                      className="action-btn-primary min-h-12 px-5 rounded-[var(--radius-control,12px)] text-sm font-black tracking-wider whitespace-nowrap flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40"
                     >
                       <Send size={16} /> Spedisci cestello
                     </button>
@@ -206,7 +206,7 @@ export default function RiaffilatureView({ setView, showToastNotification: notif
                         <button
                           type="button"
                           onClick={() => { setAperta(s.id); setPrecompilato(null); }}
-                          className="min-h-12 px-5 rounded-[var(--radius-control,12px)] border-[1.5px] border-accent-orange/60 bg-accent-orange/[0.08] hover:bg-accent-orange/[0.14] text-sm font-black uppercase tracking-wider text-foreground whitespace-nowrap cursor-pointer"
+                          className="min-h-12 px-5 rounded-[var(--radius-control,12px)] border-[1.5px] border-accent-orange/60 bg-accent-orange/[0.08] hover:bg-accent-orange/[0.14] text-sm font-black tracking-wider text-foreground whitespace-nowrap cursor-pointer"
                         >
                           È arrivata
                         </button>

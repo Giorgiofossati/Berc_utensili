@@ -84,7 +84,7 @@ class ErrorBoundary extends Component {
             <div className="flex flex-col gap-3 w-full">
               <button
                 onClick={this.handleReload}
-                className="w-full py-3.5 px-4 rounded-xl sm:rounded-2xl bg-accent-blue text-slate-950 font-black text-xs uppercase tracking-widest hover:bg-sky-400 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20 cursor-pointer"
+                className="w-full py-3.5 px-4 rounded-xl sm:rounded-2xl bg-accent-blue text-slate-950 font-black text-xs tracking-widest hover:bg-sky-400 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20 cursor-pointer"
               >
                 <RefreshCw size={16} />
                 <span>Ricarica Applicazione</span>
@@ -92,7 +92,7 @@ class ErrorBoundary extends Component {
 
               <button
                 onClick={this.handleResetAndLogin}
-                className="w-full py-3.5 px-4 rounded-xl sm:rounded-2xl glass-button text-slate-700 dark:text-slate-300 hover:text-accent-orange font-bold text-xs uppercase tracking-wider active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3.5 px-4 rounded-xl sm:rounded-2xl glass-button text-slate-700 dark:text-slate-300 hover:text-accent-orange font-bold text-xs tracking-wider active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <LogOut size={16} />
                 <span>Torna al Login</span>
@@ -120,7 +120,7 @@ class ErrorBoundary extends Component {
                       <button
                         type="button"
                         onClick={this.handleCopyError}
-                        className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-accent-blue flex items-center gap-1 shrink-0 active:scale-95 transition-all text-xs font-bold uppercase tracking-wider cursor-pointer"
+                        className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-accent-blue flex items-center gap-1 shrink-0 active:scale-95 transition-all text-xs font-bold tracking-wider cursor-pointer"
                         title="Copia errore negli appunti"
                       >
                         {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}

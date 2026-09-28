@@ -417,7 +417,7 @@ const OperatorsView = memo(({ setView }) => {
                   className="action-btn action-btn-primary px-6 py-2.5 rounded-xl font-black text-sm flex items-center justify-center gap-2"
                 >
                   <UserPlus size={16} />
-                  <span>NUOVO OPERATORE</span>
+                  <span>Nuovo Operatore</span>
                 </button>
               )
             }
@@ -470,11 +470,11 @@ const OperatorsView = memo(({ setView }) => {
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 min-w-0">
-                        <h4 className="font-bold dark:text-white text-slate-900 uppercase tracking-tight text-sm truncate min-w-0">
+                        <h4 className="font-bold dark:text-white text-slate-900 tracking-tight text-sm truncate min-w-0">
                           {u.nome} {u.cognome}
                         </h4>
                         {isSelf && (
-                          <span className="text-xs font-black uppercase tracking-wider bg-accent-orange/10 text-accent-orange px-2 py-0.5 rounded border border-accent-orange/20 shrink-0">
+                          <span className="text-xs font-black tracking-wider bg-accent-orange/10 text-accent-orange px-2 py-0.5 rounded border border-accent-orange/20 shrink-0">
                             Tu
                           </span>
                         )}
@@ -486,12 +486,17 @@ const OperatorsView = memo(({ setView }) => {
                           {u.ruolo === 'Admin' ? (
                             <>
                               <Shield size={14} className="text-accent-orange" />
-                              <span className="text-accent-orange font-bold uppercase tracking-wider">Admin</span>
+                              <span className="text-accent-orange font-bold tracking-wider">Admin</span>
+                            </>
+                          ) : u.ruolo === 'Manager' ? (
+                            <>
+                              <Shield size={14} className="text-amber-500" />
+                              <span className="text-amber-500 font-bold tracking-wider">Manager</span>
                             </>
                           ) : (
                             <>
                               <User size={14} className="text-accent-blue" />
-                              <span className="text-accent-blue font-bold uppercase tracking-wider">Operatore</span>
+                              <span className="text-accent-blue font-bold tracking-wider">Operatore</span>
                             </>
                           )}
                         </span>
@@ -561,10 +566,11 @@ const OperatorsView = memo(({ setView }) => {
                 <select 
                   value={formData.ruolo}
                   onChange={handleRoleChange}
-                  className="glass-input w-full border dark:border-white/10 border-slate-900/10 rounded-xl py-2.5 px-3 text-sm"
+                  className="glass-input w-full border dark:border-white/10 border-slate-900/10 rounded-xl py-2.5 px-3 text-sm dark:bg-slate-900 bg-white"
                 >
-                  <option value="Operatore">Operatore (Solo Prelievo/Deposito)</option>
-                  <option value="Admin">Admin (Accesso Completo + Gestione)</option>
+                  <option value="Operatore">Operatore (Richieste, Distinta, Produzione, Storico)</option>
+                  <option value="Admin">Amministratore (Gestione Richieste, Magazzino, Commesse, Macchine)</option>
+                  <option value="Manager">Manager (Dashboard Economica, Analisi Costi e Commesse)</option>
                 </select>
               </div>
 

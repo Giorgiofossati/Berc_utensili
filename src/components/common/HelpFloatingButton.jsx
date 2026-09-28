@@ -13,7 +13,11 @@ export default function HelpFloatingButton() {
 
   return (
     <div 
-      className="fixed bottom-3 right-3 sm:bottom-4 sm:right-4 z-50 flex items-center gap-2 pointer-events-auto"
+      className="fixed z-30 flex items-center gap-2 pointer-events-auto"
+      style={{
+        bottom: 'calc(14px + env(safe-area-inset-bottom, 0px))',
+        right: 'calc(14px + env(safe-area-inset-right, 0px))'
+      }}
       data-tour="help-button"
     >
       <AnimatePresence>
@@ -23,7 +27,7 @@ export default function HelpFloatingButton() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 8 }}
             transition={{ duration: 0.15 }}
-            className="hidden sm:flex items-center px-2.5 py-1 rounded-lg bg-slate-900/90 text-white text-xs font-black uppercase tracking-wider border border-accent-blue/30 shadow-lg backdrop-blur-md pointer-events-none whitespace-nowrap"
+            className="hidden sm:flex items-center px-2.5 py-1 rounded-lg bg-slate-900/90 text-white text-xs font-black tracking-wider border border-sky-500/30 shadow-lg backdrop-blur-md pointer-events-none whitespace-nowrap"
           >
             Guida
           </motion.div>
@@ -39,9 +43,9 @@ export default function HelpFloatingButton() {
         onClick={startTutorial}
         aria-label="Guida"
         title="Guida"
-        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full glass-panel bg-white/70 dark:bg-slate-900/80 border border-slate-300/60 dark:border-accent-blue/30 text-accent-blue hover:text-white hover:bg-accent-blue shadow-md hover:shadow-accent-blue/20 flex items-center justify-center transition-all duration-200 cursor-pointer"
+        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full glass-panel bg-white/80 dark:bg-slate-900/80 border border-slate-300/70 dark:border-sky-500/30 text-sky-600 dark:text-sky-400 hover:text-white hover:bg-sky-600 shadow-md hover:shadow-sky-500/20 flex items-center justify-center transition-all duration-200 cursor-pointer"
       >
-        <HelpCircle size={20} className="drop-shadow-sm" />
+        <HelpCircle size={20} className="drop-shadow-xs" />
       </motion.button>
     </div>
   );

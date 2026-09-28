@@ -35,7 +35,7 @@ export const useCommesseStore = create((set, get) => ({
     }
   },
 
-  createCommessa: async ({ codice, descrizione, ubicazione, stato = 'Attiva' }) => {
+  createCommessa: async ({ codice, descrizione, ubicazione, macchina_id, stato = 'Attiva' }) => {
     const trimmedCodice = (codice || '').trim().toUpperCase();
     if (!trimmedCodice) {
       return { success: false, error: new Error('Il codice commessa è obbligatorio.') };
@@ -45,15 +45,24 @@ export const useCommesseStore = create((set, get) => ({
       codice: trimmedCodice,
       descrizione: (descrizione || '').trim() || null,
       ubicazione: (ubicazione || '').trim() || null,
+      macchina_id: macchina_id || null,
       stato: stato === 'Chiusa' ? 'Chiusa' : 'Attiva'
     };
 
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('commesse')
         .insert([newRecord])
         .select()
         .single();
+
+      if (error && error.message?.includes('macchina_id')) {
+        // Fallback se colonna non ancora migrata su DB remoto
+        delete newRecord.macchina_id;
+        const fallbackRes = await supabase.from('commesse').insert([newRecord]).select().single();
+        data = fallbackRes.data;
+        error = fallbackRes.error;
+      }
 
       if (error) {
         console.error('Errore durante la creazione della commessa:', error);
@@ -73,7 +82,7 @@ export const useCommesseStore = create((set, get) => ({
     }
   },
 
-  updateCommessa: async (id, { codice, descrizione, ubicazione, stato }) => {
+  updateCommessa: async (id, { codice, descrizione, ubicazione, macchina_id, stato }) => {
     const trimmedCodice = (codice || '').trim().toUpperCase();
     if (!trimmedCodice) {
       return { success: false, error: new Error('Il codice commessa è obbligatorio.') };
@@ -83,16 +92,24 @@ export const useCommesseStore = create((set, get) => ({
       codice: trimmedCodice,
       descrizione: (descrizione || '').trim() || null,
       ubicazione: (ubicazione || '').trim() || null,
+      macchina_id: macchina_id || null,
       stato: stato === 'Chiusa' ? 'Chiusa' : 'Attiva'
     };
 
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('commesse')
         .update(updatedRecord)
         .eq('id', id)
         .select()
         .single();
+
+      if (error && error.message?.includes('macchina_id')) {
+        delete updatedRecord.macchina_id;
+        const fallbackRes = await supabase.from('commesse').update(updatedRecord).eq('id', id).select().single();
+        data = fallbackRes.data;
+        error = fallbackRes.error;
+      }
 
       if (error) {
         console.error('Errore durante l\'aggiornamento della commessa:', error);

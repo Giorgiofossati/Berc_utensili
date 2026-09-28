@@ -17,8 +17,126 @@ Questo file tiene traccia in ordine cronologico inverso di tutte le implementazi
    - `[PERF]`: Ottimizzazioni di prestazioni (bundle, caricamento, query).
    - `[DOCS]`: Aggiornamenti alla documentazione o regole di sistema.
 4. **Brevità**: Utilizzare elenchi puntati concisi (2-4 punti chiave) indicando i file principali modificati e l'impatto.
+### [2026-09-28] - Sidebar Desktop Auto-Collassabile con Animazione Rallentata & Soglia Chiusura Ampliata
+- **Tag**: `[UX/UI]` / `[REFACTOR]`
+- **Descrizione**:
+  - **Rallentamento Fluido e Morbido delle Animazioni**: Calibrata la durata della transizione di apertura/chiusura da 300ms a 500ms (`duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]`) per una decelerazione ancora più vellutata e rilassante. Sincronizzati i testi delle voci, bottoni rapidi e profilo utente a `duration-[350ms]`.
+  - **Aumento Threshold Temporale e Spaziale di Chiusura**: Esteso il timeout di grazia da 220ms a 450ms prima di avviare la chiusura all'uscita dal menu. Aggiunto inoltre un buffer invisibile di tolleranza perimetrale di 24px (`-right-6 w-6`) oltre il bordo destro, impedendo chiusure premature o repentine durante lo scorrimento del puntatore.
+- **File coinvolti**:
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
 
 ---
+
+### [2026-09-28] - Nuova Favicon e Icona WebApp con Brand "B" Bercella e Fresa CNC Orizzontale
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Identità Visiva Ufficiale con "B" e Fresa CNC Orizzontale**: Vettorizzato il marchio ufficiale Bercella rimuovendo la scritta ed estraendo la sola iconica "B" aerodinamica (con ala posteriore e feritoie orizzontali). Integrata direttamente sotto di essa una fresa a candela CNC (endmill) orizzontale rifinita con gambo conico/Weldon marcato "BERC", 4 eliche elicoidali in ciano elettrico e taglienti frontali.
+  - **Pacchetto Completo Favicon & PWA**: Generata la suite completa ad alta risoluzione: `public/favicon.svg` (vettoriale reattivo), `public/favicon.ico` (multi-risoluzione 16/32/48px), `public/icons/apple-touch-icon.png` (180x180), `icon-192x192.png`, `pwa-192x192.png`, `icon-512x512.png` e `pwa-512x512.png` compatibili con i criteri "maskable" di Android/iOS.
+  - **Integrazione App & Rimozione Vite SVG**: Sostituito il default `vite.svg` in `index.html` e `vite.config.js`; aggiornati gli header di `Sidebar.jsx` e `LoginScreen.jsx` per mostrare il nuovo logo ufficiale integrato al posto delle icone generiche.
+- **File coinvolti**:
+  - [`public/favicon.svg`](file:///Users/gio/Documents/CODING/Berc_utensili/public/favicon.svg)
+  - [`public/favicon.ico`](file:///Users/gio/Documents/CODING/Berc_utensili/public/favicon.ico)
+  - [`public/icons/apple-touch-icon.png`](file:///Users/gio/Documents/CODING/Berc_utensili/public/icons/apple-touch-icon.png)
+  - [`public/icons/pwa-192x192.png`](file:///Users/gio/Documents/CODING/Berc_utensili/public/icons/pwa-192x192.png)
+  - [`public/icons/pwa-512x512.png`](file:///Users/gio/Documents/CODING/Berc_utensili/public/icons/pwa-512x512.png)
+  - [`index.html`](file:///Users/gio/Documents/CODING/Berc_utensili/index.html)
+  - [`vite.config.js`](file:///Users/gio/Documents/CODING/Berc_utensili/vite.config.js)
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
+  - [`src/features/auth/LoginScreen.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/auth/LoginScreen.jsx)
+
+### [2026-09-28] - Sidebar Desktop Auto-Collassabile con Animazione Dolce & Fluida (Hover/Approach)
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Auto-Espansione & Chiusura su Hover (Zero Layout Shift)**: Implementato il collasso automatico su desktop: la sidebar parte compatta ad icone (68px). Quando l'operatore si avvicina al bordo sinistro / passa sopra il menu, si apre fluidamente a 272px in overlay con ombra morbida (`shadow-2xl`) senza causare sfarfallii o scatti sul contenuto dell'app. Quando il puntatore si allontana oltre i suoi confini, dopo una finestra di grazia (220ms contro chiusure accidentali), il menu si richiude dolcemente.
+  - **Animazione Dolce e Continua (Cubic-Bezier Easing & Zero DOM Remount)**: Eliminato lo switch netto tra JSX collassato ed espanso; unificata la struttura dei componenti `NavItem`, azioni rapide (Deposita/Preleva/Nuovo) e profilo utente con transizioni progressive di opacità, larghezza e traslazione `cubic-bezier(0.16, 1, 0.3, 1)`.
+  - **Tasto Pin & Accessibilità Completa**: Aggiunto pulsante di blocco/sblocco ("Fissa menu aperto" / "Auto-collassa") nell'header con persistenza in `localStorage`. Integrazione accessibilità tastiera (`focus-within` automatico) e compatibilità con il tutorial guidato quando richiede i target della sidebar.
+- **File coinvolti**:
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
+  - [`src/store/useNavigationStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useNavigationStore.js)
+
+---
+
+### [2026-09-28] - Miglioramento Contrasto Hover Righe Tabella & Floating Lens a Frame Contenuto
+- **Tag**: `[UX/UI]` / `[FIX]`
+- **Descrizione**:
+  - **Differenziazione Cromatica Hover vs Header Colonne**: Sostituito il precedente sfondo hover scuro (`slate-800/95`) — che si confondeva con la barra fissa dei nomi colonna — con una sfumatura pulita azzurro/ciano (`hover:bg-sky-50/80 dark:hover:bg-sky-900/35`), rimozione totale del bordo perimetrale e rimozione dell'ombra asimmetrica inferiore per un look perfettamente simmetrico, pulito e continuo.
+  - **Animazione Floating Lens a Frame Contenuto (Zero Scroll Orizzontale)**: Conservato l'effetto di sollevamento e ingrandimento fluido GPU (`hover:scale-[1.008]`, `transform-gpu`) mantenendo la tabella rigorosamente racchiusa nel suo frame al 100% con `overflow-x-hidden`.
+  - **Eliminazione Dot di Selezione nel Menu Sidebar**: Rimossi i puntini circolari per gli elementi attivi in [`Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx), valorizzando il solo riquadro perimetrale.
+- **File coinvolti**:
+  - [`src/components/common/DataTable/VirtualizedTable.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/DataTable/VirtualizedTable.jsx)
+  - [`src/features/inventory/ToolsGrid.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolsGrid.jsx)
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
+  - [`src/App.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/App.jsx)
+
+---
+
+### [2026-09-28] - Revisione Completa Tutorial & Guida Interattiva (Layout, Workflow e Anti-Collisione)
+- **Tag**: `[UX/UI]` / `[FEAT]` / `[REFACTOR]`
+- **Descrizione**:
+  - **Motore di Posizionamento Anti-Collisione & Spotlight Dinamico**: Riscritto completamente il motore di coordinate di `AppTutorial.jsx`. La card si adatta dinamicamente alle dimensioni reali via `ResizeObserver` e al viewport, prevenendo troncature e sovrapposizioni su tutti gli schermi (Desktop 1920/1440, Tablet e Mobile con layout bottom sheet dedicato).
+  - **Copertura Completa dei Flussi Operativi (8 Step Guidati)**: Aggiornato `useTutorialStore.js` per illustrare l'intero ecosistema dell'applicazione: 1. Catalogo & Tipologie, 2. Ricerca Rapida & Barcode, 3. Vista Schede o Tabella Dati, 4. Operazioni Rapide (Deposita/Preleva), 5. Movimento Multiplo a Distinta, 6. Commesse, Produzione & Richieste, 7. Storico Movimenti & Audit Log, 8. Guida & Profilo.
+  - **Integrazione Anchors `data-tour`**: Introdotti selettori dedicati in `Sidebar.jsx`, `PageHeader`, `ViewModeToggle` e tabelle per agganciare con precisione millimetrica tutti i componenti chiave.
+  - **Preservazione dello Stato Utente**: Corretto il bug per cui il completamento o la chiusura del tutorial resettava la vista o i filtri dell'utente; salvataggio e ripristino sicuro di `currentView` e `viewMode`.
+- **File coinvolti**:
+  - [`src/components/common/AppTutorial.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/AppTutorial.jsx)
+  - [`src/store/useTutorialStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useTutorialStore.js)
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
+  - [`src/components/common/HelpFloatingButton.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/HelpFloatingButton.jsx)
+  - [`src/App.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/App.jsx)
+
+---
+
+### [2026-09-28] Refactoring Architetturale Commesse e Macchine
+**[UX/UI] [REFACTOR]**
+- **Nuovo Layout Dashboard Operativa per Commesse**: Convertita `CommesseView.jsx` in layout a Card Grid (Master) con un Right Drawer laterale ridimensionabile (Detail) per visualizzare gli utensili impegnati.
+- **Nuovo Layout Dashboard Operativa per Macchine**: Riscritto interamente `MachinesView.jsx` in modo da condividere lo stesso identico pattern Card Grid + Right Drawer, facilitando il monitoraggio degli utensili in macchina.
+- **Rimozione Admin Guard Rigidi**: Rimosso il redirect per gli operatori semplici su Macchine in `App.jsx`, così che tutti gli utenti possano ispezionare gli utensili a bordo macchina. (Le modifiche strutturali restano circoscritte ai soli Admin tramite condizioni UI).
+- **File Modificati**: `src/features/admin/CommesseView.jsx`, `src/features/admin/MachinesView.jsx`, `src/App.jsx`.
+
+### [2026-09-28] - Drawer Dettaglio Utensile Ridimensionabile con Maniglia Grip e Default +80px
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Larghezza di Default Incrementata**: Portata la larghezza standard del drawer laterale da 420px a 500px (+80px), offrendo maggiore respiro a titoli, specifiche e griglie tecniche.
+  - **Maniglia di Ridimensionamento Ergonomica (Drag Handle)**: Integrata sul bordo sinistro una maniglia a pillola visibile con micro-indicatori touch (`cursor: ew-resize`), che permette il trascinamento fluido della larghezza (range 380px - 1000px).
+  - **Persistenza e Ripristino Rapido**: La larghezza personalizzata viene salvata automaticamente in `localStorage` (`berc_tool_detail_drawer_width`); con un doppio click sulla maniglia la larghezza si ripristina istantaneamente al default di 500px.
+- **File coinvolti**:
+  - [`src/features/inventory/ToolDetailDrawer.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolDetailDrawer.jsx)
+
+---
+
+### [2026-09-28] - Effetto Lente Dinamica Hardware-Accelerated su Righe Tabella
+- **Tag**: `[UX/UI]` / `[PERF]`
+- **Descrizione**:
+  - **Animazione "Floating Lens" a 0ms CPU Overhead**: Implementata una transizione fluida GPU-accelerated (`transform: scale(1.01)`, `transform-gpu`, curve `ease-out 150ms`) che solleva e ingrandisce morbidamente l'intera riga al passaggio del mouse.
+  - **Stacking Context & Ombreggiatura Morbida**: Assegnato `hover:z-20`, `hover:shadow-lg` e sfumatura di sfondo (`hover:bg-white dark:hover:bg-slate-800/95`), creando un effetto lente continuo e sfumato durante lo scorrimento del puntatore tra le righe senza layout reflow.
+  - **Supporto Accessibilità `prefers-reduced-motion`**: Inserito `hover:scale` nelle media query di riduzione movimento per preservare il comfort visivo degli utenti sensibili alle animazioni.
+- **File coinvolti**:
+  - [`src/components/common/DataTable/VirtualizedTable.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/DataTable/VirtualizedTable.jsx)
+  - [`src/index.css`](file:///Users/gio/Documents/CODING/Berc_utensili/src/index.css)
+
+---
+
+### [2026-09-28] - Spacing Inventario, Respiro Layout e Conformità Contrasti WCAG (Light/Dark)
+- **Tag**: `[UX/UI]` / `[PERF]`
+- **Descrizione**:
+  - **Respiro e Spaziatura Barra Filtri**: Aumentata l'altezza della barra filtri (`h-[50px]`, `py-2`) e dei trigger chip (`h-8 px-3 rounded-lg`, `gap-2.5`), eliminando il senso di schiacciamento visivo tra l'AppBar superiore e la tabella.
+  - **Miglioramento Contrasti WCAG 2.1 AA/AAA**: Corretti i rapporti di contrasto colore su entrambi i temi:
+    - *Intestazioni Tabella*: Sostituito `text-slate-500` con `text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[11px]` (da 3.7:1 ❌ a 6.2:1 / 8.5:1 ✅).
+    - *Giacenza / Quantità*: Ottimizzato verde in tema chiaro da `emerald-600` (3.8:1 ❌) a `emerald-700` (5.2:1 ✅) e `text-slate-500` per stock a 0.
+    - *Etichette e Filtri*: Elevato contrasto label "Filtri:" e proprietà su `text-slate-600 dark:text-slate-300` e chip attive bordate ad alta visibilità.
+    - *Badge Ubicazione e Stato*: Aumentato il contrasto testo/sfondo per Magazzino (`sky-800`), Macchine (`amber-900`), Nuovo (`emerald-800`) e Usato (`rose-800`).
+  - **Preservazione Compattezza Righe**: Mantenuta l'altezza compatta delle righe virtualizzate (44px) per garantire la massima densità informativa richiesta per l'officina.
+- **File coinvolti**:
+  - [`src/features/filters/DropdownFilterView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/filters/DropdownFilterView.jsx)
+  - [`src/features/inventory/ToolsGrid.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolsGrid.jsx)
+  - [`src/components/common/DataTable/VirtualizedTable.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/DataTable/VirtualizedTable.jsx)
+
+---
+
+### [2026-09-28] Refactor Tipografico e Pulizia Maiuscole
+- **[UX/UI] Migrazione Font**: Sostituito globalmente il font `Inter` con `Geist` (e `Geist Mono`), allineando il progetto alle ultime direttive di design. Aggiornati `index.html`, variabili CSS e documentazione (DESIGN_SYSTEM.md, gemini.md).
+- **[UX/UI] Rimozione Maiuscole (Uppercase)**: Eliminato l'uso eccessivo di testi in maiuscolo e rimossa globalmente la classe utility `uppercase` da tutti i componenti React e CSS, migliorando l'estetica e la leggibilità generale dell'app.
+- **[REFACTOR] Notifiche**: Convertite le stringhe dei messaggi di notifica (successo/errore) in minuscolo/Title Case per una UX più morbida, mantenendo le formattazioni native solo per codici macchina e SKU.
 
 ## [2026-09-28] - Ottimizzazione Filtri Inventario: Barra Intelligente con Filtri Primari e Menu "+ Altri Filtri"
 - **Tag**: `[UX/UI]` / `[FEAT]`

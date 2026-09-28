@@ -132,7 +132,7 @@ const OrderModal = ({ tool, onClose, currentUser, onSuccess }) => {
                 type="submit" 
                 form="order-form"
                 disabled={isLoading}
-                className="action-btn action-btn-order py-3.5 sm:py-4 px-6 rounded-xl sm:rounded-2xl w-full flex items-center justify-center gap-2 text-xs sm:text-sm font-black uppercase tracking-widest disabled:opacity-50 cursor-pointer"
+                className="action-btn action-btn-order py-3.5 sm:py-4 px-6 rounded-xl sm:rounded-2xl w-full flex items-center justify-center gap-2 text-xs sm:text-sm font-black tracking-widest disabled:opacity-50 cursor-pointer"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

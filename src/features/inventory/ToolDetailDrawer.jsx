@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, memo, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
@@ -13,11 +13,18 @@ import {
   AlertTriangle, 
   Briefcase, 
   ChevronDown,
-  Layers
+  Layers,
+  Send,
+  Cpu,
+  User,
+  ClipboardList
 } from 'lucide-react';
 import { buildDesc } from '../../lib/toolUtils';
 import { useCommesseStore } from '../../store/useCommesseStore';
+import { useMacchineStore } from '../../store/useMacchineStore';
+import { useRichiesteStore } from '../../store/useRichiesteStore';
 import { useMovementStore } from '../../store/useMovementStore';
+import { useMultiMovementStore } from '../../store/useMultiMovementStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useInventoryStore } from '../../store/useInventoryStore';
 import { useFilterStore } from '../../store/useFilterStore';
@@ -25,6 +32,7 @@ import { lifecycleUiEnabled } from '../../lib/lifecycleApi';
 import { useProduzioneStore } from '../../store/useProduzioneStore';
 import { PrelievoGuidato } from '../produzione/PrelievoGuidato';
 import { DepositoGuidato } from '../produzione/DepositoGuidato';
+import { supabase } from '../../lib/supabase';
 
 /**
  * ToolDetailDrawer - Drawer Laterale Dettaglio Utensile
@@ -51,9 +59,42 @@ export const ToolDetailDrawer = memo(({
   const isLoadingCommesse = useCommesseStore(state => state.isLoading);
   const fetchCommesse = useCommesseStore(state => state.fetchCommesse);
 
+  const macchine = useMacchineStore(state => state.macchine);
+  const fetchMacchine = useMacchineStore(state => state.fetchMacchine);
+  const creaRichiesta = useRichiesteStore(state => state.creaRichiesta);
+  const addMultiItem = useMultiMovementStore(state => state.addItem);
+
+  const [selectedMacchinaId, setSelectedMacchinaId] = useState('');
+  const [selectedOperatoreDestinatario, setSelectedOperatoreDestinatario] = useState('');
+  const [requestNote, setRequestNote] = useState('');
+  const [availableOperators, setAvailableOperators] = useState([]);
+  const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
+
   useEffect(() => {
     fetchCommesse();
-  }, [fetchCommesse]);
+    fetchMacchine();
+    const loadOperators = async () => {
+      try {
+        const { data } = await supabase.from('utenti').select('id, nome, cognome, codice_id, ruolo').order('nome');
+        if (data && data.length > 0) {
+          setAvailableOperators(data);
+        }
+      } catch (e) {
+        console.warn('loadOperators error:', e);
+      }
+    };
+    loadOperators();
+  }, [fetchCommesse, fetchMacchine]);
+
+  // Precompila automaticamente la macchina CNC quando si seleziona una commessa
+  useEffect(() => {
+    if (selectedCommessaId) {
+      const comm = commesse.find(c => c.id === selectedCommessaId);
+      if (comm?.macchina_id) {
+        setSelectedMacchinaId(comm.macchina_id);
+      }
+    }
+  }, [selectedCommessaId, commesse]);
 
   // Gestione tasto Escape per chiudere il drawer
   useEffect(() => {
@@ -77,6 +118,7 @@ export const ToolDetailDrawer = memo(({
   );
   
   const currentUser = useAuthStore(state => state.currentUser);
+  const isOperatore = currentUser?.ruolo === 'Operatore';
   const tools = useInventoryStore(state => state.tools);
   const selectedToolsIds = useFilterStore(state => state.selectedToolsIds);
 
@@ -91,16 +133,42 @@ export const ToolDetailDrawer = memo(({
   const currentQtyNum = Number(modalQty) || 0;
   const isExceedingStock = opType === 'scarico' && currentQtyNum > minAvailableStock;
   const isZeroStock = opType === 'scarico' && minAvailableStock <= 0;
-  const isConfirmDisabled = currentQtyNum <= 0 || isExceedingStock || (opType === 'scarico' && isZeroStock);
+  const isConfirmDisabled = currentQtyNum <= 0 || (isOperatore ? false : (isExceedingStock || (opType === 'scarico' && isZeroStock)));
 
   // Identifica lo stato: Step 1 (Dettaglio) o Step 2 (Operazione Movimento)
   const isDetailsStep = !opType;
-  const isGuidedStep = !isDetailsStep && lifecycleUiEnabled && !isBulkMode && selectedTool && typeof selectedTool === 'object';
+  const isGuidedStep = !isDetailsStep && lifecycleUiEnabled && !isBulkMode && selectedTool && typeof selectedTool === 'object' && !isOperatore;
 
   const handleClose = useCallback(() => {
     useProduzioneStore.getState().setContestoPrelievo(null);
     setShowMoveModal(false);
   }, [setShowMoveModal]);
+
+  // Invio richiesta operatore
+  const handleOperatorRequestSubmit = async () => {
+    if (isConfirmDisabled || isSubmittingRequest || !selectedTool) return;
+    setIsSubmittingRequest(true);
+    try {
+      await creaRichiesta({
+        tipo: opType === 'carico' ? 'deposito' : 'prelievo',
+        operatoreId: currentUser?.id,
+        operatoreNome: currentUser ? `${currentUser.nome} ${currentUser.cognome || ''}`.trim() : 'Operatore',
+        commessaId: selectedCommessaId || null,
+        macchinaId: selectedMacchinaId || null,
+        note: requestNote.trim(),
+        items: [{ tool: selectedTool, quantity: modalQty }]
+      });
+
+      if (notify) {
+        notify(`Richiesta di ${opType === 'carico' ? 'DEPOSITO' : 'PRELIEVO'} inviata con successo all'Amministratore!`, 'success');
+      }
+      handleClose();
+    } catch (err) {
+      if (notify) notify(err.message || 'Errore invio richiesta', 'error');
+    } finally {
+      setIsSubmittingRequest(false);
+    }
+  };
 
   // Generatore e stampa etichetta barcode/QR termica da officina
   const handlePrintBarcode = useCallback(() => {
@@ -135,7 +203,7 @@ export const ToolDetailDrawer = memo(({
         <body>
           <div>
             <div class="header">
-              <span class="logo">BERCELLA CNC</span>
+              <span class="logo">Bercella CNC</span>
               <span class="code">${code}</span>
             </div>
             <div class="desc">${desc}</div>
@@ -171,6 +239,66 @@ export const ToolDetailDrawer = memo(({
   const toolCode = selectedTool?.Codice || selectedTool?.['Codice Aziendale'] || null;
   const toolState = selectedTool?.Stato || 'NUOVO';
   const stockQty = selectedTool ? (Number(selectedTool['Quantità']) || 0) : 0;
+
+  // Larghezza Drawer ridimensionabile (Default aumentato da 420px a 500px, salvato in localStorage)
+  const DEFAULT_DRAWER_WIDTH = 500;
+  const MIN_DRAWER_WIDTH = 380;
+
+  const [drawerWidth, setDrawerWidth] = useState(() => {
+    if (typeof window === 'undefined') return DEFAULT_DRAWER_WIDTH;
+    try {
+      const saved = localStorage.getItem('berc_tool_detail_drawer_width');
+      const num = saved ? parseInt(saved, 10) : DEFAULT_DRAWER_WIDTH;
+      return (!isNaN(num) && num >= MIN_DRAWER_WIDTH) ? num : DEFAULT_DRAWER_WIDTH;
+    } catch {
+      return DEFAULT_DRAWER_WIDTH;
+    }
+  });
+
+  const [isResizing, setIsResizing] = useState(false);
+
+  const handlePointerDown = useCallback((e) => {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    e.preventDefault();
+    setIsResizing(true);
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'ew-resize';
+
+    const handlePointerMove = (moveEvent) => {
+      const maxWidth = Math.min(1000, window.innerWidth - 60);
+      const calculatedWidth = window.innerWidth - moveEvent.clientX;
+      const clamped = Math.max(MIN_DRAWER_WIDTH, Math.min(maxWidth, calculatedWidth));
+      setDrawerWidth(clamped);
+    };
+
+    const handlePointerUp = () => {
+      setIsResizing(false);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      setDrawerWidth(curr => {
+        try {
+          localStorage.setItem('berc_tool_detail_drawer_width', String(curr));
+        } catch {
+          /* ignore error */
+        }
+        return curr;
+      });
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+  }, []);
+
+  const handleResetWidth = useCallback(() => {
+    setDrawerWidth(DEFAULT_DRAWER_WIDTH);
+    try {
+      localStorage.setItem('berc_tool_detail_drawer_width', String(DEFAULT_DRAWER_WIDTH));
+    } catch {
+      /* ignore error */
+    }
+  }, []);
 
   // Dati tecnici accessori filtrati
   const extraSpecs = useMemo(() => {
@@ -210,8 +338,36 @@ export const ToolDetailDrawer = memo(({
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-        className="fixed top-0 right-0 bottom-0 z-50 w-full sm:w-[420px] max-w-full bg-white dark:bg-slate-900 border-l border-slate-200/90 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden pointer-events-auto"
+        style={{
+          width: typeof window !== 'undefined' && window.innerWidth >= 640 ? `${drawerWidth}px` : undefined,
+          maxWidth: 'calc(100vw - 20px)'
+        }}
+        className={`fixed top-0 right-0 bottom-0 z-50 w-full max-w-full bg-white dark:bg-slate-900 border-l border-slate-200/90 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden pointer-events-auto ${
+          isResizing ? 'select-none transition-none' : ''
+        }`}
       >
+        {/* Maniglia di ridimensionamento laterale visibile (Desktop/Tablet) */}
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Ridimensiona pannello dettaglio"
+          title="Trascina per ridimensionare la larghezza (Doppio click per ripristinare 500px)"
+          onPointerDown={handlePointerDown}
+          onDoubleClick={handleResetWidth}
+          className="hidden sm:flex absolute -left-2 top-0 bottom-0 w-4 items-center justify-center cursor-ew-resize z-50 group hover:bg-sky-500/10 active:bg-sky-500/20 transition-colors select-none touch-none"
+        >
+          {/* Maniglia grip visibile ed ergonomica */}
+          <div className={`w-1.5 h-12 rounded-full transition-all duration-150 flex flex-col items-center justify-center gap-0.5 shadow-xs ${
+            isResizing 
+              ? 'bg-sky-500 shadow-md scale-y-110 w-2' 
+              : 'bg-slate-300 dark:bg-slate-600 group-hover:bg-sky-500 dark:group-hover:bg-sky-400 group-hover:scale-y-105'
+          }`}>
+            <span className="w-0.5 h-0.5 rounded-full bg-white/70 dark:bg-slate-900/70" />
+            <span className="w-0.5 h-0.5 rounded-full bg-white/70 dark:bg-slate-900/70" />
+            <span className="w-0.5 h-0.5 rounded-full bg-white/70 dark:bg-slate-900/70" />
+          </div>
+        </div>
+
         {/* HEADER DEL DRAWER */}
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between bg-slate-50/70 dark:bg-slate-900/60 shrink-0">
           <div className="flex flex-col gap-1 min-w-0 pr-2">
@@ -255,7 +411,7 @@ export const ToolDetailDrawer = memo(({
                   </button>
                 )}
                 <div>
-                  <span className={`text-xs font-bold uppercase tracking-wider ${
+                  <span className={`text-xs font-bold tracking-wider ${
                     opType === 'scarico' ? 'text-accent-rose' : 'text-accent-emerald'
                   }`}>
                     {opType === 'scarico' ? 'Conferma Prelievo' : 'Conferma Deposito'}
@@ -294,7 +450,7 @@ export const ToolDetailDrawer = memo(({
                 {/* Scheda 1: Specifiche Tecniche */}
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3.5 shadow-2xs flex flex-col gap-2.5">
                   <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                    <span className="text-xs font-bold tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
                       <SlidersHorizontal size={14} className="text-sky-600 dark:text-sky-400" />
                       Specifiche Tecniche
                     </span>
@@ -333,7 +489,7 @@ export const ToolDetailDrawer = memo(({
                 {/* Scheda 2: Ubicazione e Stock */}
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3.5 shadow-2xs flex flex-col gap-2.5">
                   <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                    <span className="text-xs font-bold tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
                       <Archive size={14} className="text-sky-600 dark:text-sky-400" />
                       Ubicazione &amp; Giacenza
                     </span>
@@ -353,7 +509,7 @@ export const ToolDetailDrawer = memo(({
                         <MapPin size={16} />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-xs font-bold uppercase tracking-wider text-sky-700 dark:text-sky-300">Ubicazione Fisica</span>
+                        <span className="text-xs font-bold tracking-wider text-sky-700 dark:text-sky-300">Ubicazione Fisica</span>
                         <span className="text-xs font-bold text-slate-900 dark:text-white">
                           {selectedTool?.Ubicazione || 'Magazzino Centrale'}
                         </span>
@@ -364,7 +520,7 @@ export const ToolDetailDrawer = memo(({
                   {/* Giacenza Disponibile in grande Geist Mono */}
                   <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
                     <div className="flex flex-col">
-                      <span className="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider">Giacenza Disponibile</span>
+                      <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider">Giacenza Disponibile</span>
                       <span className="text-xs text-slate-400 dark:text-slate-500">Non impegnato in produzione</span>
                     </div>
                     <div className="text-right flex items-baseline gap-1">
@@ -388,14 +544,14 @@ export const ToolDetailDrawer = memo(({
                 {/* Scheda 3: Parametri Aggiuntivi (se disponibili) */}
                 {extraSpecs.length > 0 && (
                   <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3 shadow-2xs flex flex-col gap-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                    <span className="text-xs font-bold tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
                       <Layers size={13} className="text-sky-600 dark:text-sky-400" />
                       Dati Aggiuntivi
                     </span>
                     <div className="grid grid-cols-2 gap-2">
                       {extraSpecs.map(([label, val]) => (
                         <div key={label} className="p-2 rounded bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800/60 flex flex-col">
-                          <span className="text-xs text-slate-400 uppercase font-semibold truncate">{label}</span>
+                          <span className="text-xs text-slate-400 font-semibold truncate">{label}</span>
                           <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{String(val)}</span>
                         </div>
                       ))}
@@ -411,22 +567,42 @@ export const ToolDetailDrawer = memo(({
                     type="button"
                     onClick={() => setOpType('scarico')}
                     disabled={stockQty <= 0 && currentUser?.ruolo !== 'Admin'}
-                    className="h-11 bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:pointer-events-none text-white rounded-xl flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-wider shadow-sm transition-all duration-150 active:scale-[0.98] group cursor-pointer action-btn-scarica"
-                    title="Preleva questo utensile"
+                    className="h-11 bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:pointer-events-none text-white rounded-xl flex items-center justify-center gap-2 font-bold text-xs tracking-wider shadow-sm transition-all duration-150 active:scale-[0.98] group cursor-pointer action-btn-scarica"
+                    title={isOperatore ? "Richiedi il prelievo all'amministratore" : "Preleva questo utensile"}
                   >
                     <ArrowUp size={18} className="group-hover:-translate-y-0.5 transition-transform" />
-                    <span className="font-extrabold tracking-widest">PRELEVA</span>
+                    <span className="font-extrabold tracking-wider">
+                      {isOperatore ? 'RICHIEDI PRELIEVO' : 'PRELEVA'}
+                    </span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setOpType('carico')}
-                    className="h-11 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-wider shadow-sm transition-all duration-150 active:scale-[0.98] group cursor-pointer action-btn-carica"
-                    title="Deposita questo utensile"
+                    className="h-11 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl flex items-center justify-center gap-2 font-bold text-xs tracking-wider shadow-sm transition-all duration-150 active:scale-[0.98] group cursor-pointer action-btn-carica"
+                    title={isOperatore ? "Richiedi il deposito all'amministratore" : "Deposita questo utensile"}
                   >
                     <ArrowDown size={18} className="group-hover:translate-y-0.5 transition-transform" />
-                    <span className="font-extrabold tracking-widest">DEPOSITA</span>
+                    <span className="font-extrabold tracking-wider">
+                      {isOperatore ? 'RICHIEDI DEPOSITO' : 'DEPOSITA'}
+                    </span>
                   </button>
                 </div>
+
+                {isOperatore && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      addMultiItem(selectedTool, 1);
+                      if (notify) notify(`${buildDesc(selectedTool)} aggiunto alla distinta di richiesta!`, 'success');
+                      handleClose();
+                    }}
+                    className="w-full h-9 rounded-xl border border-sky-300 dark:border-sky-800 bg-sky-50/60 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/60 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <ClipboardList size={15} />
+                    <span>Aggiungi a Richiesta Multipla</span>
+                  </button>
+                )}
+
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -435,7 +611,7 @@ export const ToolDetailDrawer = memo(({
                     title="Stampa etichetta barcode con matricola"
                   >
                     <Printer size={15} className="text-slate-500 dark:text-slate-400" />
-                    <span>Stampa Etichetta Barcode / QR</span>
+                    <span>Stampa Barcode / QR</span>
                   </button>
                   {onOpenOrder && (
                     <button
@@ -493,7 +669,7 @@ export const ToolDetailDrawer = memo(({
                 {/* Indicatore visivo disponibilità */}
                 <div className="flex flex-col items-center justify-center gap-1 text-center">
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-xs">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <span className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400">
                       {opType === 'scarico' ? 'Disponibili:' : 'Giacenza:'}
                     </span>
                     <span className={`text-xs font-black tabular-nums ${minAvailableStock > 0 ? 'text-accent-emerald' : 'text-accent-rose'}`}>
@@ -518,7 +694,7 @@ export const ToolDetailDrawer = memo(({
                     -
                   </button>
                   <div className="flex flex-col items-center">
-                    <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${opType === 'scarico' ? 'text-accent-rose' : 'text-accent-emerald'}`}>
+                    <p className={`text-xs font-bold tracking-wider mb-1 ${opType === 'scarico' ? 'text-accent-rose' : 'text-accent-emerald'}`}>
                       Quantità {opType === 'carico' ? 'da caricare' : 'da prelevare'}
                     </p>
                     <input 
@@ -581,7 +757,7 @@ export const ToolDetailDrawer = memo(({
                         <button
                           type="button"
                           onClick={() => setModalQty(minAvailableStock)}
-                          className={`px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider transition-all border cursor-pointer ${
+                          className={`px-3 py-1 rounded-xl text-xs font-black tracking-wider transition-all border cursor-pointer ${
                             modalQty === minAvailableStock 
                               ? 'bg-accent-rose text-white border-accent-rose shadow-sm' 
                               : 'bg-rose-500/10 text-accent-rose border-rose-500/30 hover:bg-rose-500/20'
@@ -612,7 +788,7 @@ export const ToolDetailDrawer = memo(({
                   <div className="flex items-center justify-between">
                     <label 
                       htmlFor="movement-commessa-select"
-                      className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5"
+                      className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5"
                     >
                       <Briefcase size={13} className="text-accent-blue shrink-0" />
                       <span>Commessa</span>
@@ -620,7 +796,10 @@ export const ToolDetailDrawer = memo(({
                     {selectedCommessaId && (
                       <button
                         type="button"
-                        onClick={() => setSelectedCommessaId(null)}
+                        onClick={() => {
+                          setSelectedCommessaId(null);
+                          setSelectedMacchinaId('');
+                        }}
                         className="text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
                       >
                         Resetta
@@ -636,7 +815,7 @@ export const ToolDetailDrawer = memo(({
                       className="glass-input w-full border dark:border-white/10 border-slate-900/10 rounded-xl py-2 pl-3 pr-8 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all font-medium appearance-none text-xs cursor-pointer dark:bg-slate-900 bg-white"
                     >
                       <option value="" className="dark:bg-slate-900 dark:text-white bg-white text-slate-900">
-                        {isLoadingCommesse ? 'Caricamento commesse...' : 'Nessuna (Magazzino centrale)'}
+                        {isLoadingCommesse ? 'Caricamento commesse...' : 'Nessuna (Lavorazione generale)'}
                       </option>
                       {activeCommesse.length > 0 && (
                         <optgroup label="Commesse Attive" className="dark:bg-slate-900 dark:text-white bg-white text-slate-900 font-bold">
@@ -671,6 +850,103 @@ export const ToolDetailDrawer = memo(({
                     </div>
                   </div>
                 </div>
+
+                {/* Selezione Macchina CNC (precompilata in base a commessa) */}
+                <div className="w-full max-w-xs mx-auto flex flex-col gap-1">
+                  <div className="flex items-center justify-between">
+                    <label 
+                      htmlFor="movement-macchina-select"
+                      className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5"
+                    >
+                      <Cpu size={13} className="text-accent-blue shrink-0" />
+                      <span>Macchina CNC</span>
+                    </label>
+                    {selectedMacchinaId && (
+                      <span className="text-xs font-bold text-sky-600 dark:text-sky-400">
+                        {commesse.find(c => c.id === selectedCommessaId)?.macchina_id === selectedMacchinaId ? 'Precompilata' : 'Modificata'}
+                      </span>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <select
+                      id="movement-macchina-select"
+                      value={selectedMacchinaId}
+                      onChange={(e) => setSelectedMacchinaId(e.target.value)}
+                      className="glass-input w-full border dark:border-white/10 border-slate-900/10 rounded-xl py-2 pl-3 pr-8 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all font-medium appearance-none text-xs cursor-pointer dark:bg-slate-900 bg-white"
+                    >
+                      <option value="" className="dark:bg-slate-900 dark:text-white bg-white text-slate-900">
+                        Nessuna macchina specifica
+                      </option>
+                      {macchine.filter(m => m.is_active).map((m) => (
+                        <option
+                          key={m.id}
+                          value={m.id}
+                          className="dark:bg-slate-900 dark:text-white bg-white text-slate-900 font-normal"
+                        >
+                          {m.nome} ({m.codice || m.reparto})
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                      <ChevronDown size={14} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Per ADMIN: Selezione Operatore Destinatario */}
+                {!isOperatore && (
+                  <div className="w-full max-w-xs mx-auto flex flex-col gap-1">
+                    <label 
+                      htmlFor="movement-operator-dest"
+                      className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5"
+                    >
+                      <User size={13} className="text-accent-blue shrink-0" />
+                      <span>{opType === 'scarico' ? 'Consegna all\'operatore' : 'Ricevuto dall\'operatore'}</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        id="movement-operator-dest"
+                        value={selectedOperatoreDestinatario}
+                        onChange={(e) => setSelectedOperatoreDestinatario(e.target.value)}
+                        className="glass-input w-full border dark:border-white/10 border-slate-900/10 rounded-xl py-2 pl-3 pr-8 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50 transition-all font-medium appearance-none text-xs cursor-pointer dark:bg-slate-900 bg-white"
+                      >
+                        <option value="">Seleziona operatore (opzionale)</option>
+                        {availableOperators.map((u) => (
+                          <option
+                            key={u.id}
+                            value={`${u.nome} ${u.cognome || ''}`.trim()}
+                            className="dark:bg-slate-900 dark:text-white bg-white text-slate-900 font-normal"
+                          >
+                            {u.nome} {u.cognome} ({u.codice_id || u.ruolo})
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <ChevronDown size={14} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Per OPERATORE: Note Operative per l'Amministratore */}
+                {isOperatore && (
+                  <div className="w-full max-w-xs mx-auto flex flex-col gap-1">
+                    <label 
+                      htmlFor="movement-request-note"
+                      className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5"
+                    >
+                      <span>Note operative per l'amministratore</span>
+                    </label>
+                    <input
+                      id="movement-request-note"
+                      type="text"
+                      value={requestNote}
+                      onChange={(e) => setRequestNote(e.target.value)}
+                      placeholder="Es. Da preparare per commessa DMU..."
+                      className="glass-input w-full border dark:border-white/10 border-slate-900/10 rounded-xl py-2 px-3 dark:text-white text-slate-900 outline-none focus:border-accent-blue/50 text-xs"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Footer di conferma operazione */}
@@ -679,25 +955,44 @@ export const ToolDetailDrawer = memo(({
                   <button 
                     type="button"
                     onClick={() => setOpType(null)} 
-                    className="glass-button px-3.5 py-3 rounded-xl text-slate-600 dark:text-slate-300 font-bold text-xs uppercase tracking-wider shrink-0 transition-all cursor-pointer"
+                    className="glass-button px-3.5 py-3 rounded-xl text-slate-600 dark:text-slate-300 font-bold text-xs tracking-wider shrink-0 transition-all cursor-pointer"
                   >
                     Indietro
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (onConfirm) onConfirm(selectedCommessaId);
-                  }}
-                  disabled={isConfirmDisabled}
-                  className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-wider shadow-md transition-all ${
-                    isConfirmDisabled
-                      ? 'opacity-40 cursor-not-allowed pointer-events-none bg-slate-300 dark:bg-slate-800 text-slate-500'
-                      : `hover:scale-[1.01] active:scale-[0.99] cursor-pointer ${opType === 'carico' ? 'action-btn-carica' : 'action-btn-scarica'}`
-                  }`}
-                >
-                  CONFERMA {opType === 'carico' ? 'DEPOSITO' : 'PRELIEVO'}
-                </button>
+
+                {isOperatore ? (
+                  <button
+                    type="button"
+                    onClick={handleOperatorRequestSubmit}
+                    disabled={isConfirmDisabled || isSubmittingRequest}
+                    className="flex-1 py-3 rounded-xl text-xs font-black tracking-wider shadow-md transition-all cursor-pointer action-btn action-btn-primary flex items-center justify-center gap-2 disabled:opacity-40 disabled:pointer-events-none"
+                  >
+                    <Send size={15} />
+                    <span>
+                      {isSubmittingRequest 
+                        ? 'Invio in corso...' 
+                        : (opType === 'carico' ? 'INVIA RICHIESTA DI DEPOSITO' : 'INVIA RICHIESTA DI PRELIEVO')}
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      useMovementStore.getState().setSelectedMacchinaId(selectedMacchinaId || null);
+                      useMovementStore.getState().setSelectedOperatoreDestinatario(selectedOperatoreDestinatario || null);
+                      if (onConfirm) onConfirm(selectedCommessaId);
+                    }}
+                    disabled={isConfirmDisabled}
+                    className={`flex-1 py-3 rounded-xl text-xs font-black tracking-wider shadow-md transition-all ${
+                      isConfirmDisabled
+                        ? 'opacity-40 cursor-not-allowed pointer-events-none bg-slate-300 dark:bg-slate-800 text-slate-500'
+                        : `hover:scale-[1.01] active:scale-[0.99] cursor-pointer ${opType === 'carico' ? 'action-btn-carica' : 'action-btn-scarica'}`
+                    }`}
+                  >
+                    CONFERMA {opType === 'carico' ? 'DEPOSITO' : 'PRELIEVO'}
+                  </button>
+                )}
               </div>
             </motion.div>
           )}

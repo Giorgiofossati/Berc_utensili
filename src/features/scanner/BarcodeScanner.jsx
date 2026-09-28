@@ -150,7 +150,7 @@ const BarcodeScanner = ({ onScan }) => {
           <button
             type="button"
             onClick={() => { setError(null); setRetryCount(c => c + 1); }}
-            className="glass-button px-4 py-2 rounded-xl text-accent-cyan text-xs font-bold uppercase tracking-wider border border-cyan-400/30 flex items-center gap-1.5 hover:bg-cyan-400/10 transition-colors"
+            className="glass-button px-4 py-2 rounded-xl text-accent-cyan text-xs font-bold tracking-wider border border-cyan-400/30 flex items-center gap-1.5 hover:bg-cyan-400/10 transition-colors"
           >
             <RefreshCw size={14} /> Riprova
           </button>

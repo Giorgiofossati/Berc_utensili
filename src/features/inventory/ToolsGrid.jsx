@@ -103,14 +103,14 @@ const ToolsGrid = memo(({
       if (!clean) {
         return (
           <div className="w-full truncate text-center">
-            <span className="text-slate-400 dark:text-slate-600 font-mono text-xs">—</span>
+            <span className="text-slate-400 dark:text-slate-500 font-mono text-xs">—</span>
           </div>
         );
       }
       return (
         <div className="w-full truncate text-center px-1">
           <span 
-            className="font-mono text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 tracking-tight whitespace-nowrap inline-block"
+            className="font-mono text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800/90 text-slate-800 dark:text-slate-200 border border-slate-200/90 dark:border-slate-700 tracking-tight whitespace-nowrap inline-block shadow-2xs"
             title={tooltip || clean}
           >
             {clean}
@@ -129,7 +129,7 @@ const ToolsGrid = memo(({
             <span className="ml-1 truncate">Descrizione</span>
           </div>
         ),
-        meta: { isFlex: true, flex: '2.2 1 0%', minWidth: 220 },
+        meta: { isFlex: true, flex: '2.5 1 0%', minWidth: 160 },
         size: 0,
         sortingFn: (rowA, rowB, columnId) => {
           return String(rowA.getValue(columnId) || '').localeCompare(
@@ -161,10 +161,10 @@ const ToolsGrid = memo(({
                 isRowSelectedInDrawer
                   ? 'bg-sky-600 text-white border-sky-600 dark:bg-sky-500 dark:border-sky-400 shadow-xs'
                   : isMachine 
-                  ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800/60 text-amber-600 dark:text-amber-400' 
-                  : 'bg-sky-50 dark:bg-sky-950/40 border-sky-200/60 dark:border-sky-800/60 text-sky-600 dark:text-sky-400'
+                  ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-300/80 dark:border-amber-800 text-amber-900 dark:text-amber-300' 
+                  : 'bg-sky-50 dark:bg-sky-950/50 border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300'
               }`}>
-                <ToolIcon type={tool['Tipologia']} size={22} className={`opacity-90 group-hover:scale-105 transition-transform ${isRowSelectedInDrawer ? 'text-white' : ''}`} />
+                <ToolIcon type={tool['Tipologia']} size={22} className={`opacity-95 group-hover:scale-105 transition-transform ${isRowSelectedInDrawer ? 'text-white' : ''}`} />
               </div>
               <div className="min-w-0 flex-1 ml-1 flex items-center">
                 <span className={`app-h3 transition-colors truncate ${
@@ -192,7 +192,7 @@ const ToolsGrid = memo(({
           className: 'hidden xl:flex justify-center', 
           isFlex: true, 
           flex: '1 1 0%', 
-          minWidth: 140 
+          minWidth: 110 
         },
         cell: info => renderCodeBadge(info.getValue())
       }),
@@ -213,7 +213,7 @@ const ToolsGrid = memo(({
           className: 'hidden xl:flex justify-center', 
           isFlex: true, 
           flex: '1 1 0%', 
-          minWidth: 140 
+          minWidth: 110 
         },
         cell: info => {
           const val = info.getValue();
@@ -234,22 +234,22 @@ const ToolsGrid = memo(({
         meta: { 
           className: 'hidden md:flex justify-center', 
           isFlex: true, 
-          flex: '0.9 1 0%', 
-          minWidth: 115, 
-          maxWidth: 160 
+          flex: '0.8 1 0%', 
+          minWidth: 90, 
+          maxWidth: 150 
         },
         cell: info => {
           const val = info.getValue();
-          if (!val) return <div className="w-full flex items-center justify-center"><span className="text-slate-400 dark:text-slate-600 font-mono text-xs">—</span></div>;
+          if (!val) return <div className="w-full flex items-center justify-center"><span className="text-slate-400 dark:text-slate-500 font-mono text-xs">—</span></div>;
           const isMachine = val.toLowerCase().includes('belotti') || 
             val.toLowerCase().includes('extrema') || 
             val.toLowerCase().includes('cnc');
           return (
             <div className="w-full flex items-center justify-center px-1">
-              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border max-w-full tracking-tight whitespace-nowrap ${
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border max-w-full tracking-tight whitespace-nowrap shadow-2xs ${
                 isMachine
-                  ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800'
-                  : 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800'
+                  ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-900 dark:text-amber-300 border-amber-300/80 dark:border-amber-800'
+                  : 'bg-sky-50 dark:bg-sky-950/50 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800'
               }`}>
                 {isMachine ? <Factory size={12} className="shrink-0" /> : <MapPin size={12} className="shrink-0" />}
                 <span className="truncate">{val}</span>
@@ -260,7 +260,7 @@ const ToolsGrid = memo(({
       }),
       columnHelper.accessor('Stato', {
         header: 'Stato',
-        size: 105,
+        size: 90,
         sortingFn: (rowA, rowB, columnId) => {
           return String(rowA.getValue(columnId) || '').localeCompare(
             String(rowB.getValue(columnId) || '')
@@ -268,18 +268,18 @@ const ToolsGrid = memo(({
         },
         meta: { 
           className: 'hidden lg:flex justify-center', 
-          minWidth: 100 
+          minWidth: 80 
         },
         cell: info => {
           const val = info.getValue();
-          if (!val) return <div className="w-full flex items-center justify-center"><span className="text-slate-400 dark:text-slate-600 font-mono text-xs">—</span></div>;
+          if (!val) return <div className="w-full flex items-center justify-center"><span className="text-slate-400 dark:text-slate-500 font-mono text-xs">—</span></div>;
           const isOk = val === 'Disponibile' || val === 'NUOVO';
           return (
             <div className="w-full flex items-center justify-center px-1">
-              <span className={`inline-flex items-center justify-center px-2.5 py-1 rounded-md text-xs font-semibold uppercase border tracking-tight whitespace-nowrap ${
+              <span className={`inline-flex items-center justify-center px-2.5 py-1 rounded-md text-xs font-bold border tracking-tight whitespace-nowrap shadow-2xs ${
                 isOk 
-                  ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' 
-                  : 'bg-rose-100 dark:bg-rose-950/50 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-800'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700' 
+                  : 'bg-rose-50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-700'
               }`}>
                 {val}
               </span>
@@ -289,19 +289,19 @@ const ToolsGrid = memo(({
       }),
       columnHelper.accessor('Quantità', {
         header: 'Giacenza',
-        size: 76,
+        size: 70,
         sortingFn: (rowA, rowB, columnId) => {
           const a = Number(rowA.getValue(columnId)) || 0;
           const b = Number(rowB.getValue(columnId)) || 0;
           return a - b;
         },
-        meta: { className: 'shrink-0 justify-center', minWidth: 64 },
+        meta: { className: 'shrink-0 justify-center', minWidth: 56 },
         cell: info => {
           const qty = Number(info.getValue()) || 0;
           return (
             <div className="w-full truncate text-center pr-1 sm:pr-2">
-              <span className={`app-qty-sm ${
-                qty > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'
+              <span className={`app-qty-sm font-mono font-black ${
+                qty > 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-500'
               }`}>
                 {qty}
               </span>
@@ -328,7 +328,7 @@ const ToolsGrid = memo(({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15 }}
-      className="w-full flex flex-col flex-1 min-h-0"
+      className="w-full flex flex-col flex-1 min-h-0 overflow-hidden"
     >
       {((!hideExtraFilters && availableFilters.length > 0) || showDensityToggle || (!hideExtraFilters && normalizedSelectionMode === 'toggle')) && (
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 px-2">
@@ -384,8 +384,8 @@ const ToolsGrid = memo(({
         </div>
       )}
 
-      <div className="w-full h-full bg-white dark:bg-slate-900 flex flex-col overflow-hidden">
-        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+      <div className="w-full flex-1 min-h-0 bg-white dark:bg-slate-900 flex flex-col overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col w-full">
           <VirtualizedTable
             table={table}
             density={density}
@@ -437,15 +437,15 @@ const ToolsGrid = memo(({
 
         {/* Footer Status Bar con conteggio utensili */}
         <div className="px-4 md:px-6 py-2.5 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs shrink-0 select-none">
-          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 font-medium">
+          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium">
             <span className="w-2 h-2 rounded-full bg-sky-500" />
-            <span className="font-bold text-slate-900 dark:text-slate-100 font-mono">
+            <span className="font-bold text-slate-900 dark:text-white font-mono">
               {rows.length.toLocaleString('it-IT')}
             </span>
             <span>utensili a catalogo</span>
           </div>
           {isDrawerOpen && activeDrawerTool && (
-            <div className="flex items-center gap-2 ml-auto text-slate-500 dark:text-slate-400 font-medium">
+            <div className="flex items-center gap-2 ml-auto text-slate-600 dark:text-slate-300 font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
               <span className="text-xs font-semibold">1 riga selezionata</span>
             </div>

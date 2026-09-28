@@ -13,11 +13,19 @@ import { useNavigationStore } from './store/useNavigationStore';
 import { useCommesseStore } from './store/useCommesseStore';
 import { useFilters } from './hooks/useFilters';
 
+import { useMacchineStore } from './store/useMacchineStore';
+import { useRichiesteStore } from './store/useRichiesteStore';
+
 // Lazy load only secondary admin/separate views
 const HistoryView = lazy(() => import('./features/admin/HistoryView'));
 const ScannerView = lazy(() => import('./features/scanner/ScannerView'));
 const OperatorsView = lazy(() => import('./features/admin/OperatorsView'));
 const CommesseView = lazy(() => import('./features/admin/CommesseView'));
+const MachinesView = lazy(() => import('./features/admin/MachinesView'));
+const RichiesteView = lazy(() => import('./features/admin/RichiesteView'));
+const ManagerDashboardView = lazy(() => import('./features/manager/ManagerDashboardView'));
+const CostAnalysisView = lazy(() => import('./features/manager/CostAnalysisView'));
+const CommessaAnalysisView = lazy(() => import('./features/manager/CommessaAnalysisView'));
 
 // Standard imports for critical core UI to guarantee instant rendering and eliminate PWA logout chunk failures
 import Sidebar from './components/layout/Sidebar';
@@ -49,11 +57,10 @@ const FILTER_ORDER = ['Tipologia', 'Forma', 'Diametro', ...EXTRA_FILTER_KEYS.map
 preloadToolImages();
 
 // Toggle elenco/griglia (§2.2). Da md sta nella barra; su mobile sta accanto a "Mostra filtri"
-// (vista elenco e tabella del 3° livello) o nella stessa posizione, da solo, sopra la griglia.
-function ViewModeToggle({ viewMode, setViewMode, className, tour }) {
+function ViewModeToggle({ viewMode, setViewMode, className }) {
   return (
     <div
-      data-tour={tour ? 'view-mode-toggle' : undefined}
+      data-tour="view-mode-toggle"
       role="group"
       aria-label="Tipo di vista"
       className={`shrink-0 flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700 ${className || ''}`}
@@ -91,6 +98,12 @@ function App() {
   const cleanupInventoryRealtime = useInventoryStore(state => state.cleanupRealtime);
   const initCommesseRealtime = useCommesseStore(state => state.initRealtime);
   const cleanupCommesseRealtime = useCommesseStore(state => state.cleanupRealtime);
+  const fetchMacchine = useMacchineStore(state => state.fetchMacchine);
+  const initMacchineRealtime = useMacchineStore(state => state.initRealtime);
+  const cleanupMacchineRealtime = useMacchineStore(state => state.cleanupRealtime);
+  const fetchRichieste = useRichiesteStore(state => state.fetchRichieste);
+  const initRichiesteRealtime = useRichiesteStore(state => state.initRealtime);
+  const cleanupRichiesteRealtime = useRichiesteStore(state => state.cleanupRealtime);
   
   const {
     filterStack, setFilterStack,
@@ -123,10 +136,25 @@ function App() {
   const view = useNavigationStore(state => state.currentView);
   const setView = useNavigationStore(state => state.setCurrentView);
 
-  // Security Guard: Se un utente con ruolo non-Admin si trova sulla vista operatori, reindirizza a 'home'
+  // Security Guard: Controllo accessi per ruolo e reindirizzamento preventivo
   useEffect(() => {
-    if (currentUser && currentUser.ruolo !== 'Admin' && view === 'operators') {
-      setView('home');
+    if (!currentUser) return;
+    const role = currentUser.ruolo || 'Operatore';
+    if (role === 'Operatore') {
+      const forbiddenForOperatore = [
+        'operators', 'scanner', 'admin_requests', 
+        'manager_dashboard', 'manager_costs', 'manager_commesse'
+      ];
+      if (forbiddenForOperatore.includes(view)) {
+        setView('home');
+      }
+    } else if (role === 'Manager') {
+      const forbiddenForManager = [
+        'operators', 'scanner', 'admin_requests'
+      ];
+      if (forbiddenForManager.includes(view)) {
+        setView('manager_dashboard');
+      }
     }
   }, [currentUser, view, setView]);
 
@@ -193,8 +221,12 @@ function App() {
 
   useEffect(() => {
     fetchTools();
+    fetchMacchine();
+    fetchRichieste();
     initInventoryRealtime();
     initCommesseRealtime();
+    initMacchineRealtime();
+    initRichiesteRealtime();
 
     const historyChannel = supabase
       .channel('realtime:movements_history')
@@ -210,9 +242,18 @@ function App() {
     return () => {
       cleanupInventoryRealtime();
       cleanupCommesseRealtime();
+      cleanupMacchineRealtime();
+      cleanupRichiesteRealtime();
       supabase.removeChannel(historyChannel);
     };
-  }, [fetchTools, initInventoryRealtime, cleanupInventoryRealtime, initCommesseRealtime, cleanupCommesseRealtime, fetchHistory]);
+  }, [
+    fetchTools, fetchMacchine, fetchRichieste,
+    initInventoryRealtime, cleanupInventoryRealtime, 
+    initCommesseRealtime, cleanupCommesseRealtime,
+    initMacchineRealtime, cleanupMacchineRealtime,
+    initRichiesteRealtime, cleanupRichiesteRealtime,
+    fetchHistory
+  ]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -433,7 +474,7 @@ function App() {
                         {currentLevel < 3 && (
                           <div className="md:hidden flex justify-end px-2 pt-2 shrink-0">{mobileViewToggle}</div>
                         )}
-                        <div className={`w-full flex-1 flex flex-col items-center justify-center-safe min-h-0 @container ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar py-2 md:py-0' : ''}`}>
+                        <div className={`w-full flex-1 flex flex-col items-center justify-center-safe min-h-0 @container ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar py-2 md:py-0' : 'overflow-hidden'}`}>
                           {renderGridHome()}
                         </div>
                       </>
@@ -496,6 +537,41 @@ function App() {
                   <MultiMovementView showToastNotification={showToastNotification} />
                 </ErrorBoundary>
               )}
+              {view === 'machines' && (
+                <ErrorBoundary>
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+                    <MachinesView key="machines" setView={setView} showToastNotification={showToastNotification} />
+                  </Suspense>
+                </ErrorBoundary>
+              )}
+              {(view === 'requests' || view === 'admin_requests') && (
+                <ErrorBoundary>
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+                    <RichiesteView key="richieste" setView={setView} showToastNotification={showToastNotification} />
+                  </Suspense>
+                </ErrorBoundary>
+              )}
+              {view === 'manager_dashboard' && (
+                <ErrorBoundary>
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+                    <ManagerDashboardView key="manager_dashboard" setView={setView} />
+                  </Suspense>
+                </ErrorBoundary>
+              )}
+              {view === 'manager_costs' && (
+                <ErrorBoundary>
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+                    <CostAnalysisView key="manager_costs" setView={setView} />
+                  </Suspense>
+                </ErrorBoundary>
+              )}
+              {view === 'manager_commesse' && (
+                <ErrorBoundary>
+                  <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-16 h-16 border-4 border-accent-blue border-t-transparent rounded-full animate-spin" /></div>}>
+                    <CommessaAnalysisView key="manager_commesse" setView={setView} />
+                  </Suspense>
+                </ErrorBoundary>
+              )}
             </AnimatePresence>
         </main>
 
@@ -514,7 +590,7 @@ function App() {
                     className="action-btn action-btn-primary py-2 sm:py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 group shadow-sm text-xs md:text-sm flex-1 font-black tracking-wider"
                   >
                     <ClipboardList size={16} />
-                    <span>APRI IN MOVIMENTO MULTIPLO</span>
+                    <span>Apri in Movimento Multiplo</span>
                   </button>
                   <button onClick={() => setSelectedToolsIds([])} className="glass-button p-2 rounded-xl md:rounded-xl text-rose-400 hover:bg-rose-400/10 flex items-center justify-center shrink-0" title="Annulla Selezione">
                     <X size={16} />
@@ -582,7 +658,7 @@ function App() {
                   )}
                 </div>
                 <div className="flex flex-col min-w-0 pr-1 flex-1">
-                  <p className={`text-xs font-black uppercase tracking-[0.2em] mb-0.5 ${
+                  <p className={`text-xs font-black tracking-[0.2em] mb-0.5 ${
                     toast.type === 'error'
                       ? 'text-accent-rose'
                       : toast.type === 'warning'
@@ -603,7 +679,7 @@ function App() {
                       setToast(null);
                       undoFn();
                     }}
-                    className="ml-auto px-3 py-1.5 rounded-xl bg-accent-orange/15 hover:bg-accent-orange/25 border border-accent-orange/30 text-accent-orange text-xs sm:text-xs font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer shrink-0"
+                    className="ml-auto px-3 py-1.5 rounded-xl bg-accent-orange/15 hover:bg-accent-orange/25 border border-accent-orange/30 text-accent-orange text-xs sm:text-xs font-black tracking-wider transition-all active:scale-95 cursor-pointer shrink-0"
                   >
                     Annulla
                   </button>

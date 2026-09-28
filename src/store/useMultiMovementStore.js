@@ -2,15 +2,20 @@ import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { useInventoryStore } from './useInventoryStore';
 import { useAuthStore } from './useAuthStore';
+import { useRichiesteStore } from './useRichiesteStore';
 
 export const useMultiMovementStore = create((set, get) => ({
   items: [],
   batchOpType: 'scarico', // 'scarico' | 'carico'
   isExecuting: false,
   selectedCommessaId: null,
+  selectedMacchinaId: null,
+  selectedOperatoreDestinatario: null,
 
   setBatchOpType: (type) => set({ batchOpType: type }),
   setSelectedCommessaId: (id) => set({ selectedCommessaId: id }),
+  setSelectedMacchinaId: (id) => set({ selectedMacchinaId: id }),
+  setSelectedOperatoreDestinatario: (name) => set({ selectedOperatoreDestinatario: name }),
 
   addItem: (tool, qty = 1) => {
     if (!tool || !tool.id) return;
@@ -53,7 +58,53 @@ export const useMultiMovementStore = create((set, get) => ({
     }));
   },
 
-  clearItems: () => set({ items: [], selectedCommessaId: null, batchOpType: 'scarico' }),
+  clearItems: () => set({ items: [], selectedCommessaId: null, selectedMacchinaId: null, selectedOperatoreDestinatario: null, batchOpType: 'scarico' }),
+
+  submitMultiRequest: async (showToastNotification, onSuccess, extra = {}) => {
+    const state = get();
+    const { items, batchOpType, selectedCommessaId, selectedMacchinaId } = state;
+    if (!items || items.length === 0) {
+      if (showToastNotification) {
+        showToastNotification('La distinta è vuota. Aggiungi almeno un articolo prima di inviare la richiesta.', 'warning');
+      }
+      return;
+    }
+
+    const authState = useAuthStore.getState();
+    const { currentUser } = authState;
+    const operatorName = currentUser ? `${currentUser.nome} ${currentUser.cognome || ''}`.trim() : 'Operatore';
+    const operatorId = currentUser ? currentUser.id : null;
+
+    try {
+      await useRichiesteStore.getState().creaRichiesta({
+        tipo: batchOpType === 'carico' ? 'deposito' : 'prelievo',
+        operatoreId: operatorId,
+        operatoreNome: operatorName,
+        commessaId: extra.commessaId !== undefined ? extra.commessaId : selectedCommessaId,
+        macchinaId: extra.macchinaId !== undefined ? extra.macchinaId : selectedMacchinaId,
+        note: extra.note || `Richiesta distinta multipla (${items.length} articoli)`,
+        items: items
+      });
+
+      const totalPieces = items.reduce((sum, item) => sum + item.quantity, 0);
+      const actionLabel = batchOpType === 'carico' ? 'DEPOSITO' : 'PRELIEVO';
+
+      if (showToastNotification) {
+        showToastNotification(
+          `RICHIESTA INVIATA: ${actionLabel} di ${totalPieces} pz (${items.length} articol${items.length === 1 ? 'o' : 'i'}) all'Amministratore`,
+          'success'
+        );
+      }
+
+      set({ items: [], selectedCommessaId: null, selectedMacchinaId: null, selectedOperatoreDestinatario: null, batchOpType: 'scarico' });
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      console.error('Errore creazione richiesta distinta:', err);
+      if (showToastNotification) {
+        showToastNotification('Errore invio richiesta: ' + (err.message || err), 'error');
+      }
+    }
+  },
 
   executeMultiMovement: async (arg1, arg2, arg3) => {
     let showToastNotification;
@@ -161,6 +212,9 @@ export const useMultiMovementStore = create((set, get) => ({
         p_commessa_id: targetCommessaId || null
       });
 
+      const targetMacchinaId = state.selectedMacchinaId;
+      const targetOperatoreDestinatario = state.selectedOperatoreDestinatario;
+
       if (rpcErr) {
         console.warn('handle_multi_movement RPC error, executing resilient client-side fallback:', rpcErr);
         for (const item of items) {
@@ -185,11 +239,24 @@ export const useMultiMovementStore = create((set, get) => ({
               tipo_operazione: item.opType || batchOpType,
               quantita: item.quantity,
               operatore: operatorName,
+              operatore_destinatario: targetOperatoreDestinatario || null,
               commessa_id: item.commessa_id || targetCommessaId || null,
+              macchina_id: targetMacchinaId || null,
               created_at: new Date().toISOString()
             });
 
-          if (insertErr) throw insertErr;
+          if (insertErr) {
+            await supabase
+              .from('movements_history')
+              .insert({
+                tool_id: item.tool.id,
+                tipo_operazione: item.opType || batchOpType,
+                quantita: item.quantity,
+                operatore: operatorName,
+                commessa_id: item.commessa_id || targetCommessaId || null,
+                created_at: new Date().toISOString()
+              });
+          }
         }
       }
 

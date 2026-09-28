@@ -214,7 +214,7 @@ export function PageHeader({
         {crumbs && crumbs.length > 1 ? (
           <Breadcrumbs crumbs={crumbs} />
         ) : (
-          <span className="text-xs font-extrabold uppercase tracking-wide text-slate-800 dark:text-slate-100 truncate">
+          <span className="text-xs font-extrabold tracking-wide text-slate-800 dark:text-slate-100 truncate">
             {title}
           </span>
         )}
@@ -282,7 +282,7 @@ export function ResetFiltersButton({ onClick, placement = 'bar', count }) {
         type="button"
         onClick={onClick}
         aria-label="Reset filtri"
-        className="h-[42px] min-w-[44px] flex items-center justify-center gap-1.5 px-2.5 sm:pr-3 rounded-r-[var(--radius-control,12px)] text-accent-rose hover:bg-accent-rose/10 active:bg-accent-rose/15 text-xs font-black uppercase tracking-wider whitespace-nowrap border-l border-slate-900/10 dark:border-white/10 transition-colors"
+        className="h-[42px] min-w-[44px] flex items-center justify-center gap-1.5 px-2.5 sm:pr-3 rounded-r-[var(--radius-control,12px)] text-accent-rose hover:bg-accent-rose/10 active:bg-accent-rose/15 text-xs font-black tracking-wider whitespace-nowrap border-l border-slate-900/10 dark:border-white/10 transition-colors"
       >
         <X size={16} /> <span className="max-sm:sr-only">Reset</span>
       </button>
@@ -292,7 +292,7 @@ export function ResetFiltersButton({ onClick, placement = 'bar', count }) {
     <button
       type="button"
       onClick={onClick}
-      className="hidden lg:flex h-11 items-center gap-1.5 px-3.5 rounded-[var(--radius-control,12px)] glass-button border border-accent-rose/25 text-accent-rose hover:bg-accent-rose/10 text-xs font-black uppercase tracking-wider whitespace-nowrap transition-colors"
+      className="hidden lg:flex h-11 items-center gap-1.5 px-3.5 rounded-[var(--radius-control,12px)] glass-button border border-accent-rose/25 text-accent-rose hover:bg-accent-rose/10 text-xs font-black tracking-wider whitespace-nowrap transition-colors"
     >
       <X size={14} /> Reset filtri{count ? ` (${count})` : ''}
     </button>
@@ -309,7 +309,7 @@ export function MobileFiltersToggle({ open, onToggle, count = 0, className }) {
       type="button"
       onClick={onToggle}
       aria-expanded={open}
-      className={cn("md:hidden w-full h-11 flex items-center justify-center gap-1.5 glass-button px-3 rounded-xl text-xs font-black uppercase tracking-wider text-accent-blue", className)}
+      className={cn("md:hidden w-full h-11 flex items-center justify-center gap-1.5 glass-button px-3 rounded-xl text-xs font-black tracking-wider text-accent-blue", className)}
     >
       <Filter size={14} className="shrink-0" />
       <span className="truncate">{open ? 'Nascondi filtri' : 'Mostra filtri'}</span>

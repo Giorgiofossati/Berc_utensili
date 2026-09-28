@@ -34,40 +34,40 @@ colors:
   dark-ink-secondary: '#94a3b8'
 typography:
   overline:
-    fontFamily: Inter
+    fontFamily: Geist
     fontSize: 10px
     fontWeight: '900'
     lineHeight: 14px
     letterSpacing: 0.25em
     textTransform: uppercase
   h1:
-    fontFamily: Inter
+    fontFamily: Geist
     fontSize: clamp(1.25rem, 1rem + 1.2vw, 1.875rem)
     fontWeight: '900'
     lineHeight: '1.2'
     letterSpacing: -0.025em
     textTransform: uppercase
   h2:
-    fontFamily: Inter
+    fontFamily: Geist
     fontSize: 20px
     fontWeight: '900'
     lineHeight: 28px
     letterSpacing: -0.025em
     textTransform: uppercase
   h3:
-    fontFamily: Inter
+    fontFamily: Geist
     fontSize: 14px
     fontWeight: '700'
     lineHeight: 20px
     letterSpacing: -0.01em
   body:
-    fontFamily: Inter
+    fontFamily: Geist
     fontSize: 14px
     fontWeight: '500'
     lineHeight: 22px
     letterSpacing: '0'
   label:
-    fontFamily: Inter
+    fontFamily: Geist
     fontSize: 12px
     fontWeight: '700'
     lineHeight: 16px
@@ -141,7 +141,7 @@ The color system enforces strict semantic meaning to eliminate operator error du
 
 ## Typography
 
-Typography is engineered for extreme legibility under industrial conditions. **Inter** (`--font-inter`) provides structured, neutral letterforms for all prose, labels, and headings, while monospace with **`tabular-nums`** is strictly enforced for all tool codes, SKU identifiers, timestamps, drawer locations, and quantities.
+Typography is engineered for extreme legibility under industrial conditions. **Geist** (`--font-geist`) provides structured, neutral letterforms for all prose, labels, and headings, while monospace with **`tabular-nums`** is strictly enforced for all tool codes, SKU identifiers, timestamps, drawer locations, and quantities.
 
 ### Semantic Utility Classes (`src/index.css`)
 Arbitrary font classes (`text-5xl`, `text-[13px]`) are prohibited. Use only the `.app-*` typography scale:

@@ -41,15 +41,15 @@ export const VirtualizedTable = memo(({
       ref={parentRef}
       data-density={density}
       data-selection-mode={selectionMode}
-      className={`overflow-y-auto custom-scrollbar overflow-x-auto flex-1 min-h-0 relative w-full flex flex-col ${className}`}
+      className={`overflow-y-auto custom-scrollbar overflow-x-hidden flex-1 min-h-0 relative w-full flex flex-col ${className}`}
     >
       {/* Sticky Header */}
       {rows.length > 0 && (
-        <div className="sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800 bg-slate-100/95 dark:bg-slate-800/95 backdrop-blur-xs flex min-w-full w-fit md:w-full shrink-0 shadow-xs">
+        <div className="sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800 bg-slate-100/95 dark:bg-slate-800/95 backdrop-blur-xs flex w-full shrink-0 shadow-xs">
           {table.getHeaderGroups().map((headerGroup) => (
             <div
               key={headerGroup.id}
-              className="flex flex-1 min-w-full app-label text-slate-500 dark:text-slate-400 select-none"
+              className="flex flex-1 w-full text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[11px] select-none"
             >
               {headerGroup.headers.map((header) => {
                 const meta = header.column.columnDef.meta;
@@ -61,7 +61,7 @@ export const VirtualizedTable = memo(({
                 const customSortIcon = meta?.customSortIcon;
                 const minWidth = meta?.minWidth 
                   ? `${meta.minWidth}px` 
-                  : (isFlex ? '180px' : `${colSize}px`);
+                  : (isFlex ? '120px' : `${colSize}px`);
                 const flexStyle = meta?.flex || (isFlex ? '1 1 0%' : undefined);
                 const maxWidth = meta?.maxWidth 
                   ? `${meta.maxWidth}px` 
@@ -72,7 +72,7 @@ export const VirtualizedTable = memo(({
                   <div
                     key={header.id}
                     className={`flex items-center gap-1.5 ${density === 'compact' ? 'py-2.5 px-3' : 'py-3.5 px-4'} transition-colors group relative overflow-hidden ${
-                      canSort ? 'cursor-pointer hover:text-slate-900 dark:hover:text-slate-100' : ''
+                      canSort ? 'cursor-pointer hover:text-slate-950 dark:hover:text-white' : ''
                     } ${meta?.className || ''} ${
                       isFlex ? 'min-w-0' : 'flex-shrink-0 justify-center'
                     }`}
@@ -106,7 +106,7 @@ export const VirtualizedTable = memo(({
 
       {/* Virtualized Body */}
       <div
-        className="w-full min-w-full shrink-0"
+        className="w-full shrink-0"
         style={{
           height: `${rowVirtualizer.getTotalSize()}px`,
           position: 'relative',
@@ -137,62 +137,65 @@ export const VirtualizedTable = memo(({
                   top: 0,
                   left: 0,
                   width: '100%',
-                  minWidth: '100%',
                   transform: `translateY(${virtualRow.start}px)`,
                 }}
-                onClick={() => onRowClick && onRowClick(row.original, row)}
-                onKeyDown={(e) => {
-                  if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
-                    e.preventDefault();
-                    onRowClick(row.original, row);
-                  }
-                }}
-                role={onRowClick ? "button" : undefined}
-                tabIndex={onRowClick ? 0 : undefined}
-                aria-selected={selectionMode !== 'none' ? Boolean(isSelected) : undefined}
-                className={`flex items-center min-w-full w-fit md:w-full hover:bg-sky-50/50 dark:hover:bg-sky-950/30 ${
-                  onRowClick ? 'cursor-pointer' : ''
-                } transition-colors border-b border-slate-100 dark:border-slate-800/60 group select-none text-xs text-slate-700 dark:text-slate-300 ${
-                  isSelected ? 'bg-sky-50 dark:bg-sky-950/40 shadow-[inset_3px_0_0_#0284c7]' : ''
-                } ${customClassName}`}
+                className="w-full relative hover:z-20"
               >
-                {row.getVisibleCells().map((cell) => {
-                  const meta = cell.column.columnDef.meta;
-                  const isFlex =
-                    meta?.isFlex ??
-                    cell.column.columnDef.size === 0;
-                  const colSize = cell.column.getSize();
-                  const minWidth = meta?.minWidth 
-                    ? `${meta.minWidth}px` 
-                    : (isFlex ? '180px' : `${colSize}px`);
-                  const flexStyle = meta?.flex || (isFlex ? '1 1 0%' : undefined);
-                  const maxWidth = meta?.maxWidth 
-                    ? `${meta.maxWidth}px` 
-                    : (isFlex ? undefined : `${colSize}px`);
-                  const width = isFlex ? undefined : `${colSize}px`;
+                <div
+                  onClick={() => onRowClick && onRowClick(row.original, row)}
+                  onKeyDown={(e) => {
+                    if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault();
+                      onRowClick(row.original, row);
+                    }
+                  }}
+                  role={onRowClick ? "button" : undefined}
+                  tabIndex={onRowClick ? 0 : undefined}
+                  aria-selected={selectionMode !== 'none' ? Boolean(isSelected) : undefined}
+                  className={`flex items-center w-full border-b border-slate-100 dark:border-slate-800/60 group select-none text-xs text-slate-700 dark:text-slate-300 ${
+                    onRowClick ? 'cursor-pointer' : ''
+                  } transform-gpu transition-all duration-150 ease-out origin-center hover:scale-[1.008] md:hover:scale-[1.01] hover:bg-sky-50/80 dark:hover:bg-sky-900/35 hover:border-transparent ${
+                    isSelected ? 'bg-sky-50 dark:bg-sky-950/40 shadow-[inset_3px_0_0_#0284c7]' : ''
+                  } ${customClassName}`}
+                >
+                  {row.getVisibleCells().map((cell) => {
+                    const meta = cell.column.columnDef.meta;
+                    const isFlex =
+                      meta?.isFlex ??
+                      cell.column.columnDef.size === 0;
+                    const colSize = cell.column.getSize();
+                    const minWidth = meta?.minWidth 
+                      ? `${meta.minWidth}px` 
+                      : (isFlex ? '120px' : `${colSize}px`);
+                    const flexStyle = meta?.flex || (isFlex ? '1 1 0%' : undefined);
+                    const maxWidth = meta?.maxWidth 
+                      ? `${meta.maxWidth}px` 
+                      : (isFlex ? undefined : `${colSize}px`);
+                    const width = isFlex ? undefined : `${colSize}px`;
 
-                  return (
-                    <div
-                      key={cell.id}
-                      className={`flex items-center ${density === 'compact' ? 'py-2' : 'py-3.5'} overflow-hidden ${
-                        meta?.className || ''
-                      } ${isFlex ? 'min-w-0' : 'flex-shrink-0 justify-center'}`}
-                      style={{
-                        flex: flexStyle,
-                        width: width,
-                        maxWidth: maxWidth,
-                        minWidth: minWidth,
-                      }}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    return (
+                      <div
+                        key={cell.id}
+                        className={`flex items-center ${density === 'compact' ? 'py-2' : 'py-3.5'} overflow-hidden ${
+                          meta?.className || ''
+                        } ${isFlex ? 'min-w-0' : 'flex-shrink-0 justify-center'}`}
+                        style={{
+                          flex: flexStyle,
+                          width: width,
+                          maxWidth: maxWidth,
+                          minWidth: minWidth,
+                        }}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </div>
+                    );
+                  })}
+                  {renderRowTrailing && (
+                    <div className="w-6 flex-shrink-0 flex items-center justify-center mx-3 sm:mx-4 md:mx-6">
+                      {renderRowTrailing(row.original, row)}
                     </div>
-                  );
-                })}
-                {renderRowTrailing && (
-                  <div className="w-6 flex-shrink-0 flex items-center justify-center mx-3 sm:mx-4 md:mx-6">
-                    {renderRowTrailing(row.original, row)}
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             );
           })

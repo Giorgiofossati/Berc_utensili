@@ -1,0 +1,186 @@
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+      <defs>
+        <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0d1627" />
+          <stop offset="40%" stop-color="#030712" />
+          <stop offset="100%" stop-color="#020617" />
+        </linearGradient>
+
+        <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="rgba(56, 189, 248, 0.7)" />
+          <stop offset="35%" stop-color="rgba(255, 255, 255, 0.2)" />
+          <stop offset="70%" stop-color="rgba(6, 182, 212, 0.5)" />
+          <stop offset="100%" stop-color="rgba(249, 115, 22, 0.35)" />
+        </linearGradient>
+
+        <radialGradient id="glowRadial" cx="50%" cy="44%" r="50%">
+          <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.35" />
+          <stop offset="55%" stop-color="#06b6d4" stop-opacity="0.08" />
+          <stop offset="100%" stop-color="#020617" stop-opacity="0" />
+        </radialGradient>
+
+        <linearGradient id="shankGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#94a3b8" />
+          <stop offset="20%" stop-color="#f8fafc" />
+          <stop offset="50%" stop-color="#cbd5e1" />
+          <stop offset="80%" stop-color="#64748b" />
+          <stop offset="100%" stop-color="#334155" />
+        </linearGradient>
+
+        <linearGradient id="neckGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#475569" />
+          <stop offset="50%" stop-color="#1e293b" />
+          <stop offset="100%" stop-color="#0f172a" />
+        </linearGradient>
+
+        <linearGradient id="fluteDeep" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#0369a1" />
+          <stop offset="45%" stop-color="#0c4a6e" />
+          <stop offset="100%" stop-color="#020617" />
+        </linearGradient>
+
+        <linearGradient id="fluteFace" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#38bdf8" />
+          <stop offset="30%" stop-color="#06b6d4" />
+          <stop offset="70%" stop-color="#0284c7" />
+          <stop offset="100%" stop-color="#075985" />
+        </linearGradient>
+
+        <linearGradient id="cuttingLipGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="30%" stop-color="#a5f3fc" />
+          <stop offset="70%" stop-color="#38bdf8" />
+          <stop offset="100%" stop-color="#0284c7" />
+        </linearGradient>
+
+        <linearGradient id="tipGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#67e8f9" />
+          <stop offset="50%" stop-color="#0284c7" />
+          <stop offset="100%" stop-color="#0369a1" />
+        </linearGradient>
+
+        <filter id="bShadow" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.8" />
+          <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#0284c7" flood-opacity="0.25" />
+        </filter>
+
+        <filter id="toolShadow" x="-10%" y="-15%" width="120%" height="150%">
+          <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.75" />
+          <feDropShadow dx="0" dy="1" stdDeviation="4" flood-color="#06b6d4" flood-opacity="0.2" />
+        </filter>
+      </defs>
+
+      <rect width="512" height="512" rx="96" fill="url(#bgGrad)" />
+      <rect x="1" y="1" width="510" height="510" rx="95" fill="none" stroke="url(#borderGrad)" stroke-width="2" />
+      <circle cx="256" cy="210" r="190" fill="url(#glowRadial)" opacity="0.45" />
+
+      <g transform="translate(107, 64) scale(1.48)" filter="url(#bShadow)">
+        <path d="M 73.500 1.472 C 39.144 6.942, 11.920 31.633, 2.902 65.500 C -0.102 76.781, -0.102 96.219, 2.902 107.500 C 12.276 142.706, 40.724 167.422, 77.147 172.007 C 100.558 174.954, 126.913 166.521, 144.648 150.409 L 150.500 145.092 92.250 145.046 C 39.674 145.004, 34 144.845, 34 143.409 C 34 141.695, 64.751 30.212, 65.605 28.831 C 65.887 28.374, 85.104 27.979, 108.309 27.954 L 150.500 27.908 144.648 22.591 C 132.198 11.280, 114.369 3.218, 97.026 1.056 C 86.765 -0.223, 83.815 -0.171, 73.500 1.472 M 90.518 60.250 C 90.287 60.938, 89.602 63.441, 88.994 65.813 C 88.386 68.184, 87.639 70.778, 87.333 71.575 C 86.852 72.829, 91.644 72.990, 122.625 72.763 L 158.474 72.500 159.692 69.958 C 160.362 68.560, 161.213 65.522, 161.583 63.208 L 162.256 59 126.596 59 C 98.959 59, 90.843 59.281, 90.518 60.250 M 78.459 103.750 C 77.581 106.912, 76.681 110.068, 76.458 110.763 C 76.136 111.767, 83.365 111.971, 111.763 111.763 L 147.474 111.500 148.848 108.632 C 149.604 107.055, 150.456 104.018, 150.743 101.882 L 151.263 98 115.660 98 L 80.056 98 78.459 103.750" fill="#14223b" />
+        <path d="M 151.696 29.196 C 160.927 40.871, 166.786 51.777, 170.238 63.715 C 173.502 74.998, 173.502 98.002, 170.238 109.285 C 167.431 118.993, 161.586 130.730, 155.675 138.532 L 151.153 144.500 154.510 144.806 C 161.993 145.489, 170.311 141.167, 173.544 134.915 C 175.499 131.134, 185 96.779, 185 93.489 C 185 92.070, 183.955 89.864, 182.677 88.586 L 180.355 86.264 183.427 84.579 C 185.117 83.652, 187.274 81.838, 188.220 80.549 C 190.108 77.974, 201 39.887, 201 35.858 C 201 34.454, 199.864 32.280, 198.422 30.924 C 195.872 28.527, 195.590 28.497, 173.254 28.196 C 154.788 27.947, 150.853 28.129, 151.696 29.196 M 149 97.393 C 149 97.609, 149.698 98.054, 150.552 98.382 C 151.442 98.723, 151.843 98.555, 151.493 97.989 C 150.906 97.038, 149 96.583, 149 97.393" fill="#94a3b8" opacity="0.8" />
+        <path d="M 65.131 32.250 C 64.568 34.038, 57.538 59.350, 49.509 88.500 C 41.481 117.650, 34.721 142.063, 34.487 142.750 C 34.151 143.741, 46.263 144, 92.863 144 L 151.664 144 155.937 138.250 C 161.697 130.497, 167.506 118.734, 170.238 109.285 C 173.502 98.002, 173.502 74.998, 170.238 63.715 C 167.506 54.266, 161.697 42.503, 155.937 34.750 L 151.664 29 108.910 29 L 66.155 29 65.131 32.250 M 88.652 64.335 C 87.773 67.833, 86.767 71.444, 86.415 72.360 C 85.825 73.898, 88.561 74.005, 122.138 73.763 L 158.500 73.500 160.263 69.895 C 161.233 67.912, 162.133 64.537, 162.263 62.395 L 162.500 58.500 126.375 58.238 L 90.249 57.975 88.652 64.335 M 77.301 105 L 75.194 113 110.942 113 C 151.331 113, 148.600 113.561, 150.968 104.785 C 153.208 96.485, 155.573 97, 115.235 97 L 79.407 97 77.301 105" fill="#ffffff" fill-rule="evenodd" />
+      </g>
+
+      
+    <g id="cnc_fresa" filter="url(#toolShadow)">
+      <rect x="208" y="356" width="220" height="40" rx="2" fill="#020617" />
+      
+      <path d="M 92 354 
+               L 208 354 
+               L 208 398 
+               L 92 398 
+               L 84 390 
+               L 84 362 Z" 
+            fill="url(#shankGrad)" />
+            
+      <path d="M 84 362 L 92 354 L 92 398 L 84 390 Z" fill="#64748b" opacity="0.6" />
+      <line x1="84" y1="362" x2="92" y2="354" stroke="#f8fafc" stroke-width="1.8" />
+
+      <rect x="94" y="361.92" width="108" height="11" rx="2" fill="#ffffff" opacity="0.7" />
+      
+      <rect x="118" y="359" width="34" height="8" rx="2.5" fill="#0f172a" opacity="0.9" />
+      <rect x="119" y="360" width="32" height="2.5" rx="1" fill="#475569" opacity="0.7" />
+      
+      <text x="166" y="385.68" font-family="sans-serif" font-size="10" font-weight="800" fill="#64748b" letter-spacing="1">BERC</text>
+
+      <rect x="206" y="354" width="12" height="44" fill="url(#neckGrad)" />
+      <line x1="208" y1="354" x2="208" y2="398" stroke="#1e293b" stroke-width="1.5" />
+      <line x1="216" y1="354" x2="216" y2="398" stroke="#06b6d4" stroke-width="1" opacity="0.8" />
+
+      
+      <path d="M 216 354 
+               Q 237.2 376, 200.1 398
+               L 229.25 398
+               Q 263.7 376, 245.15 354 Z"
+            fill="url(#fluteDeep)" />
+            
+      <path d="M 245.15 354 
+               Q 263.7 376, 229.25 398
+               L 261.05 398
+               Q 295.5 376, 276.95 354 Z"
+            fill="url(#fluteFace)" />
+
+      <path d="M 245.15 354 
+               Q 263.7 376, 229.25 398"
+            stroke="url(#cuttingLipGlow)" stroke-width="4" stroke-linecap="round" fill="none" />
+    
+      <path d="M 269 354 
+               Q 290.2 376, 253.1 398
+               L 282.25 398
+               Q 316.7 376, 298.15 354 Z"
+            fill="url(#fluteDeep)" />
+            
+      <path d="M 298.15 354 
+               Q 316.7 376, 282.25 398
+               L 314.05 398
+               Q 348.5 376, 329.95 354 Z"
+            fill="url(#fluteFace)" />
+
+      <path d="M 298.15 354 
+               Q 316.7 376, 282.25 398"
+            stroke="url(#cuttingLipGlow)" stroke-width="4" stroke-linecap="round" fill="none" />
+    
+      <path d="M 322 354 
+               Q 343.2 376, 306.1 398
+               L 335.25 398
+               Q 369.7 376, 351.15 354 Z"
+            fill="url(#fluteDeep)" />
+            
+      <path d="M 351.15 354 
+               Q 369.7 376, 335.25 398
+               L 367.05 398
+               Q 401.5 376, 382.95 354 Z"
+            fill="url(#fluteFace)" />
+
+      <path d="M 351.15 354 
+               Q 369.7 376, 335.25 398"
+            stroke="url(#cuttingLipGlow)" stroke-width="4" stroke-linecap="round" fill="none" />
+    
+      <path d="M 375 354 
+               Q 396.2 376, 359.1 398
+               L 388.25 398
+               Q 422.7 376, 404.15 354 Z"
+            fill="url(#fluteDeep)" />
+            
+      <path d="M 404.15 354 
+               Q 422.7 376, 388.25 398
+               L 420.05 398
+               Q 454.5 376, 435.95 354 Z"
+            fill="url(#fluteFace)" />
+
+      <path d="M 404.15 354 
+               Q 422.7 376, 388.25 398"
+            stroke="url(#cuttingLipGlow)" stroke-width="4" stroke-linecap="round" fill="none" />
+    
+
+      <path d="M 428 356 
+               L 434 361 
+               L 434 391 
+               L 428 396 Z" 
+            fill="url(#tipGrad)" />
+      <path d="M 434 361 L 434 391" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+      <circle cx="434" cy="376" r="2" fill="#38bdf8" />
+    </g>
+  
+    </svg>
+  

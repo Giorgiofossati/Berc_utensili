@@ -129,7 +129,7 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
               <button
                 type="button"
                 onClick={() => setShowCamera(true)}
-                className="action-btn action-btn-primary h-12 px-6 mb-6 max-w-full rounded-xl flex items-center justify-center gap-2 text-sm font-black uppercase tracking-wider whitespace-nowrap"
+                className="action-btn action-btn-primary h-12 px-6 mb-6 max-w-full rounded-xl flex items-center justify-center gap-2 text-sm font-black tracking-wider whitespace-nowrap"
               >
                 <Camera size={20} /> Apri fotocamera
               </button>

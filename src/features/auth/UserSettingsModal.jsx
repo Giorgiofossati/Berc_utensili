@@ -58,7 +58,7 @@ export default function UserSettingsModal({ isOpen, onClose }) {
                   }`}
                 >
                   <LayoutGrid size={24} className="mb-2" />
-                  <span className="text-xs font-bold uppercase tracking-wider">Griglia</span>
+                  <span className="text-xs font-bold tracking-wider">Griglia</span>
                 </button>
                 
                 <button
@@ -70,7 +70,7 @@ export default function UserSettingsModal({ isOpen, onClose }) {
                   }`}
                 >
                   <List size={24} className="mb-2" />
-                  <span className="text-xs font-bold uppercase tracking-wider">Elenco</span>
+                  <span className="text-xs font-bold tracking-wider">Elenco</span>
                 </button>
               </div>
             </div>
@@ -82,7 +82,7 @@ export default function UserSettingsModal({ isOpen, onClose }) {
             onClick={handleSave}
             className="action-btn action-btn-primary py-2.5 px-6 rounded-xl text-sm font-black tracking-wider"
           >
-            SALVA IMPOSTAZIONI
+            Salva Impostazioni
           </button>
         </ModalFooter>
       </DialogContent>

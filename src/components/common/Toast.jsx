@@ -47,7 +47,7 @@ export function ToastProvider({ children }) {
               <Toast.Action altText="Annulla" asChild>
                 <button
                   onClick={t.onUndo}
-                  className="px-3 py-1.5 text-xs font-bold uppercase rounded-md border hover:bg-muted transition-colors"
+                  className="px-3 py-1.5 text-xs font-bold rounded-md border hover:bg-muted transition-colors"
                 >
                   Annulla
                 </button>
