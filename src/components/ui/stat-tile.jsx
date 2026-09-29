@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '@/lib/utils';
+export { CollapsibleStatGrid } from './collapsible-stat-grid';
 
 const accentConfig = {
   blue: {
@@ -22,6 +23,11 @@ const accentConfig = {
     bg: 'bg-accent-orange/10',
     border: 'border-accent-orange/20',
     icon: 'text-accent-orange'
+  },
+  default: {
+    bg: 'bg-slate-500/10',
+    border: 'border-slate-500/20',
+    icon: 'text-slate-500 dark:text-slate-400'
   }
 };
 
@@ -45,10 +51,13 @@ export function StatTile({
   label,
   value,
   delta,
-  accent = 'blue',
+  accent,
+  tone,
+  subtext,
   className
 }) {
-  const color = accentConfig[accent] || accentConfig.blue;
+  const chosenAccent = accent || tone || 'blue';
+  const color = accentConfig[chosenAccent] || accentConfig.blue;
   const deltaStyle = delta && deltaConfig[delta.direction]
     ? deltaConfig[delta.direction]
     : deltaConfig.flat;
@@ -59,20 +68,20 @@ export function StatTile({
       return icon;
     }
     const IconComponent = icon;
-    return <IconComponent size={24} className={cn("w-6 h-6", color.icon)} />;
+    return <IconComponent size={16} className={cn("w-4 h-4", color.icon)} />;
   };
 
   return (
     <div
       className={cn(
-        "flex flex-col justify-between p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 select-none",
+        "flex flex-col justify-between p-2.5 sm:p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 select-none shadow-xs transition-colors",
         className
       )}
     >
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-2 min-w-0">
         <div
           className={cn(
-            "w-[36px] h-[36px] shrink-0 flex items-center justify-center rounded-[11px] border",
+            "w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-lg border",
             color.bg,
             color.border
           )}
@@ -87,12 +96,14 @@ export function StatTile({
         </div>
       </div>
 
-      <div className="flex items-baseline gap-2 mt-3 flex-wrap">
-        <span className="app-qty-lg text-foreground">{value}</span>
+      <div className="flex items-baseline gap-1.5 mt-1 sm:mt-1.5 flex-wrap">
+        <span className="text-lg sm:text-xl font-black font-mono tracking-tight leading-tight text-foreground">
+          {value}
+        </span>
         {delta && delta.text && (
           <span
             className={cn(
-              "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold tracking-tight border",
+              "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-bold tracking-tight border",
               deltaStyle.badge
             )}
           >
@@ -105,6 +116,12 @@ export function StatTile({
           </span>
         )}
       </div>
+
+      {subtext && (
+        <p className="text-xs text-muted-foreground truncate mt-0.5 font-normal" title={typeof subtext === 'string' ? subtext : undefined}>
+          {subtext}
+        </p>
+      )}
     </div>
   );
 }
@@ -117,7 +134,9 @@ StatTile.propTypes = {
     direction: PropTypes.oneOf(['up', 'down', 'flat']),
     text: PropTypes.string.isRequired
   }),
-  accent: PropTypes.oneOf(['blue', 'emerald', 'rose', 'orange']),
+  accent: PropTypes.oneOf(['blue', 'emerald', 'rose', 'orange', 'default']),
+  tone: PropTypes.oneOf(['blue', 'emerald', 'rose', 'orange', 'default']),
+  subtext: PropTypes.string,
   className: PropTypes.string
 };
 

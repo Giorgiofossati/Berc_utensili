@@ -5,7 +5,7 @@ import {
   Cpu, Calendar, ShieldCheck, RefreshCw
 } from 'lucide-react';
 import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
-import { StatTile } from '@/components/ui/stat-tile';
+import { StatTile, CollapsibleStatGrid } from '@/components/ui/stat-tile';
 import { IconButton } from '@/components/ui/icon-button';
 import { useInventoryStore } from '../../store/useInventoryStore';
 import { useCommesseStore } from '../../store/useCommesseStore';
@@ -99,79 +99,44 @@ export default function ManagerDashboardView({ setView }) {
       />
 
       <PageContent className="flex-1 min-h-0 flex flex-col p-3 sm:p-5 md:p-6 pb-24 overflow-y-auto gap-4 sm:gap-6">
-        {/* ROW 1: KPI HERO TILES */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="glass-panel p-4 sm:p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold tracking-wider text-slate-400">Valore Magazzino</span>
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-accent-emerald flex items-center justify-center">
-                <DollarSign size={18} />
-              </div>
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-mono">
-                € {kpi.estimatedTotalValue.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Asset giacente totale ({kpi.totalStockPieces} pz)
-            </p>
-          </div>
-
-          <div className="glass-panel p-4 sm:p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold tracking-wider text-slate-400">Referenze Totali</span>
-              <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-accent-blue flex items-center justify-center">
-                <Package size={18} />
-              </div>
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-mono">
-                {kpi.totalToolsCount}
-              </span>
-              <span className="text-xs font-bold text-slate-400">SKU</span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Catalogo utensili CNC Bercella
-            </p>
-          </div>
-
-          <div className="glass-panel p-4 sm:p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold tracking-wider text-slate-400">Criticità & Sottoscorta</span>
-              <div className="w-8 h-8 rounded-xl bg-rose-500/10 text-accent-rose flex items-center justify-center">
-                <AlertTriangle size={18} />
-              </div>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-400 font-mono">
-                {kpi.zeroStockCount}
-              </span>
-              <span className="text-xs font-bold text-slate-400">a 0 pz ({kpi.lowStockCount} critici)</span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Rischio fermo macchina da riordinare
-            </p>
-          </div>
-
-          <div className="glass-panel p-4 sm:p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold tracking-wider text-slate-400">Produzione Attiva</span>
-              <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-accent-orange flex items-center justify-center">
-                <Cpu size={18} />
-              </div>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-mono">
-                {kpi.activeCommesseCount}
-              </span>
-              <span className="text-xs font-bold text-slate-400">commesse su {kpi.activeMachinesCount} CNC</span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Centri di lavoro operativi
-            </p>
-          </div>
-        </div>
+        {/* ROW 1: KPI TILES */}
+        <CollapsibleStatGrid
+          title="Indicatori Magazzino & Produzione"
+          count={4}
+          gridClassName="grid-cols-2 lg:grid-cols-4"
+        >
+          <StatTile
+            label="Valore Magazzino"
+            value={`€ ${kpi.estimatedTotalValue.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+            subtext={`Asset giacente totale (${kpi.totalStockPieces} pz)`}
+            accent="emerald"
+            icon={<DollarSign size={16} />}
+          />
+          <StatTile
+            label="Referenze Totali"
+            value={kpi.totalToolsCount}
+            subtext="Catalogo utensili CNC"
+            accent="blue"
+            delta={{ direction: 'flat', text: "SKU" }}
+            icon={<Package size={16} />}
+          />
+          <StatTile
+            label="Criticità Sottoscorta"
+            value={kpi.zeroStockCount}
+            subtext={`${kpi.lowStockCount} critici sotto scorta`}
+            accent="rose"
+            delta={{ direction: 'down', text: "a 0 pz" }}
+            icon={<AlertTriangle size={16} />}
+          />
+          <StatTile
+            label="Produzione Attiva"
+            value={kpi.activeCommesseCount}
+            subtext={`${kpi.activeMachinesCount} CNC operativi`}
+            accent="orange"
+            delta={{ direction: 'up', text: "commesse" }}
+            icon={<Cpu size={16} />}
+          />
+        </CollapsibleStatGrid>
 
         {/* ROW 2: ANALISI PER CATEGORIA UTENSILE */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

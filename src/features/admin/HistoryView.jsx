@@ -3,7 +3,7 @@ import React, { useState, useMemo, useCallback, useEffect, memo } from 'react';
 import { PageTemplate, PageHeader, PageToolbar, PageContent, ResetFiltersButton, MobileFiltersToggle } from '@/components/layout/PageTemplate';
 import { IconButton } from '@/components/ui/icon-button';
 import { StateBlock } from '@/components/common/StateBlock';
-import { StatTile } from '@/components/ui/stat-tile';
+import { StatTile, CollapsibleStatGrid } from '@/components/ui/stat-tile';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { 
   useReactTable, 
@@ -514,9 +514,13 @@ const HistoryView = memo(({
 
       {/* Main Table Container */}
       <PageContent className="flex flex-col gap-4 sm:gap-6 p-2 pb-6 sm:p-4 sm:pb-8 md:p-6 md:pb-10 lg:p-8 lg:pb-12">
-        {/* KPI & Summary StatTiles with @container wrapper (§1.14, §4.5) */}
+        {/* KPI & Summary StatTiles with CollapsibleStatGrid (§1.14, §4.5) */}
         <div className="@container shrink-0">
-          <div className="grid gap-3 sm:gap-4 grid-cols-2 @xl:grid-cols-4 items-stretch">
+          <CollapsibleStatGrid
+            title="Riepilogo Movimenti"
+            count={filteredHistory.length}
+            gridClassName="grid-cols-2 @xl:grid-cols-4"
+          >
             <StatTile 
               icon={Layers} 
               label="Totale Movimenti" 
@@ -543,7 +547,7 @@ const HistoryView = memo(({
               value={uniqueOperators.length} 
               accent="orange" 
             />
-          </div>
+          </CollapsibleStatGrid>
         </div>
 
         {/* Table Wrapper with showDensityToggle={true} (§5.2) */}

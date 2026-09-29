@@ -155,12 +155,12 @@ export const ToolDetailDrawer = memo(({
         operatoreNome: currentUser ? `${currentUser.nome} ${currentUser.cognome || ''}`.trim() : 'Operatore',
         commessaId: selectedCommessaId || null,
         macchinaId: selectedMacchinaId || null,
-        note: requestNote.trim(),
+        note: (requestNote || '').trim() || null,
         items: [{ tool: selectedTool, quantity: modalQty }]
       });
 
       if (notify) {
-        notify(`Richiesta di ${opType === 'carico' ? 'DEPOSITO' : 'PRELIEVO'} inviata con successo all'Amministratore!`, 'success');
+        notify(`Richiesta di ${opType === 'carico' ? 'DEPOSITO' : 'PRELIEVO'} registrata con successo! In attesa di approvazione dell'Amministratore.`, 'success');
       }
       handleClose();
     } catch (err) {
@@ -369,7 +369,7 @@ export const ToolDetailDrawer = memo(({
         </div>
 
         {/* HEADER DEL DRAWER */}
-        <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between bg-slate-50/70 dark:bg-slate-900/60 shrink-0">
+        <div className="p-4 pt-[max(1rem,env(safe-area-inset-top,0px))] border-b border-slate-100 dark:border-slate-800 flex items-start justify-between bg-slate-50/70 dark:bg-slate-900/60 shrink-0">
           <div className="flex flex-col gap-1 min-w-0 pr-2">
             {isDetailsStep ? (
               <>
@@ -448,36 +448,36 @@ export const ToolDetailDrawer = memo(({
             >
               <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3.5 text-xs custom-scrollbar">
                 {/* Scheda 1: Specifiche Tecniche */}
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3.5 shadow-2xs flex flex-col gap-2.5">
-                  <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800">
-                    <span className="text-xs font-bold tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-800/90 p-4 shadow-xs flex flex-col gap-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700/60">
+                    <span className="text-xs font-bold tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-1.5 uppercase">
                       <SlidersHorizontal size={14} className="text-sky-600 dark:text-sky-400" />
                       Specifiche Tecniche
                     </span>
-                    <span className="text-xs font-mono text-slate-400 dark:text-slate-500 font-semibold">
+                    <span className="text-xs font-mono text-slate-500 dark:text-slate-400 font-semibold">
                       {[selectedTool?.Tolleranza, selectedTool?.Norma || 'DIN 212'].filter(Boolean).join(' · ')}
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2.5 pt-1">
-                    <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex flex-col">
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200/70 dark:border-slate-800/90 shadow-inner flex flex-col">
                       <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Diametro Nominale</span>
                       <span className="font-mono font-bold text-sm text-slate-900 dark:text-white mt-0.5">
                         {selectedTool?.Diametro ? `Ø ${selectedTool.Diametro} mm` : '—'}
                       </span>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex flex-col">
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200/70 dark:border-slate-800/90 shadow-inner flex flex-col">
                       <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Tolleranza Foro</span>
                       <span className="font-mono font-bold text-sm text-sky-700 dark:text-sky-400 mt-0.5">
                         {selectedTool?.Tolleranza || 'ISO H7'}
                       </span>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex flex-col">
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200/70 dark:border-slate-800/90 shadow-inner flex flex-col">
                       <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Materiale Costruttivo</span>
                       <span className="font-semibold text-xs text-slate-900 dark:text-white mt-0.5 truncate" title={selectedTool?.Materiale || 'Metallo duro integrale'}>
                         {selectedTool?.Materiale || 'Metallo duro integrale'}
                       </span>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex flex-col">
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200/70 dark:border-slate-800/90 shadow-inner flex flex-col">
                       <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Attacco / Codolo</span>
                       <span className="font-mono font-semibold text-xs text-slate-900 dark:text-white mt-0.5 truncate">
                         {selectedTool?.Forma || selectedTool?.['Attacco / Codolo'] || 'Cilindrico h6'}
@@ -487,13 +487,13 @@ export const ToolDetailDrawer = memo(({
                 </div>
 
                 {/* Scheda 2: Ubicazione e Stock */}
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3.5 shadow-2xs flex flex-col gap-2.5">
-                  <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800">
-                    <span className="text-xs font-bold tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-800/90 p-4 shadow-xs flex flex-col gap-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700/60">
+                    <span className="text-xs font-bold tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-1.5 uppercase">
                       <Archive size={14} className="text-sky-600 dark:text-sky-400" />
                       Ubicazione &amp; Giacenza
                     </span>
-                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold ${
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold ${
                       stockQty > 0
                         ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                         : 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
@@ -502,23 +502,23 @@ export const ToolDetailDrawer = memo(({
                     </span>
                   </div>
 
-                  {/* Ubicazione fisica dettagliata */}
-                  <div className="p-2.5 rounded-lg bg-sky-50/60 dark:bg-sky-950/40 border border-sky-200/80 dark:border-sky-800/80 flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 flex items-center justify-center shrink-0">
-                        <MapPin size={16} />
+                  {/* Ubicazione fisica in forte evidenza cromatica (Ambra industriale) */}
+                  <div className="p-3.5 rounded-xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/30 flex items-center justify-between shadow-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                        <MapPin size={18} />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-xs font-bold tracking-wider text-sky-700 dark:text-sky-300">Ubicazione Fisica</span>
-                        <span className="text-xs font-bold text-slate-900 dark:text-white">
+                        <span className="text-xs font-bold tracking-wider text-amber-700 dark:text-amber-400 uppercase">Ubicazione a Magazzino</span>
+                        <span className="text-sm font-black text-slate-900 dark:text-white mt-0.5">
                           {selectedTool?.Ubicazione || 'Magazzino Centrale'}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Giacenza Disponibile in grande Geist Mono */}
-                  <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  {/* Giacenza Disponibile in riquadro recessed Level 2 */}
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200/70 dark:border-slate-800/90 flex items-center justify-between shadow-inner">
                     <div className="flex flex-col">
                       <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider">Giacenza Disponibile</span>
                       <span className="text-xs text-slate-400 dark:text-slate-500">Non impegnato in produzione</span>
@@ -532,7 +532,7 @@ export const ToolDetailDrawer = memo(({
                   </div>
 
                   {/* Stato Tagliente */}
-                  <div className="px-2.5 py-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                  <div className="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200/70 dark:border-slate-800/90 flex items-center justify-between text-xs shadow-inner">
                     <span className="text-slate-500 dark:text-slate-400 text-xs">Stato Tagliente:</span>
                     <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 text-xs">
                       <span className={`w-2 h-2 rounded-full ${stockQty > 0 ? 'bg-emerald-500' : 'bg-rose-500'}`} />
@@ -543,14 +543,14 @@ export const ToolDetailDrawer = memo(({
 
                 {/* Scheda 3: Parametri Aggiuntivi (se disponibili) */}
                 {extraSpecs.length > 0 && (
-                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3 shadow-2xs flex flex-col gap-2">
-                    <span className="text-xs font-bold tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                  <div className="rounded-2xl border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-800/90 p-4 shadow-xs flex flex-col gap-3">
+                    <span className="text-xs font-bold tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-1.5 uppercase">
                       <Layers size={13} className="text-sky-600 dark:text-sky-400" />
                       Dati Aggiuntivi
                     </span>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2.5">
                       {extraSpecs.map(([label, val]) => (
-                        <div key={label} className="p-2 rounded bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800/60 flex flex-col">
+                        <div key={label} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200/70 dark:border-slate-800/90 shadow-inner flex flex-col">
                           <span className="text-xs text-slate-400 font-semibold truncate">{label}</span>
                           <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{String(val)}</span>
                         </div>
@@ -561,7 +561,7 @@ export const ToolDetailDrawer = memo(({
               </div>
 
               {/* FOOTER DEL DRAWER: AZIONI RAPIDE */}
-              <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 flex flex-col gap-2 shrink-0">
+              <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 flex flex-col gap-2 shrink-0">
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -950,7 +950,7 @@ export const ToolDetailDrawer = memo(({
               </div>
 
               {/* Footer di conferma operazione */}
-              <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 flex items-center gap-2 shrink-0">
+              <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/80 flex items-center gap-2 shrink-0">
                 {!isBulkMode && (
                   <button 
                     type="button"

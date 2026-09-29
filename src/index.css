@@ -79,19 +79,35 @@
     --shadow-4: 0 18px 44px rgba(0, 0, 0, 0.70);
   }
 
-  html, body, #root {
-    min-height: 100vh;
-    min-height: 100dvh;
-    height: 100dvh;
+  html {
+    height: 100%;
     width: 100%;
     overflow: hidden;
     overscroll-behavior: none;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    @apply font-sans;
   }
 
   body {
+    height: 100%;
+    width: 100%;
+    min-height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    position: fixed;
+    inset: 0;
+    touch-action: manipulation;
     @apply font-geist antialiased bg-background text-foreground;
     transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease;
     background-image: var(--theme-bg-gradient);
+  }
+
+  #root {
+    height: 100%;
+    width: 100%;
+    min-height: 100%;
+    overflow: hidden;
   }
 
   /* Style select option dropdowns for dark theme */
@@ -102,9 +118,6 @@
   }
   * {
     @apply border-border outline-ring/50;
-  }
-  html {
-    @apply font-sans;
   }
 }
 

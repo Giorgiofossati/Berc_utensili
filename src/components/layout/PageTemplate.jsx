@@ -187,14 +187,17 @@ export function PageHeader({
   const hideOnMobileSearch = mobileSearchOpen && "max-md:hidden";
 
   return (
-    <header className={cn("h-16 px-3 sm:px-4 md:px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3 shrink-0 z-20", className)}>
+    <header className={cn(
+      "h-[calc(4rem+env(safe-area-inset-top,0px))] pt-[env(safe-area-inset-top,0px)] px-3 sm:px-4 md:px-6 pl-[max(0.75rem,env(safe-area-inset-left,0px))] pr-[max(0.75rem,env(safe-area-inset-right,0px))] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3 shrink-0 z-20",
+      className
+    )}>
       <h1 className="sr-only">{title}</h1>
       <IconButton
         icon={<MenuIcon size={20} />}
         onClick={() => setMobileSidebarOpen(true)}
         aria-label="Apri menu"
         variant="ghost"
-        className={cn("md:hidden text-sky-600 dark:text-sky-400", hideOnMobileSearch)}
+        className={cn("md:hidden text-sky-600 dark:text-sky-400 min-w-[44px] min-h-[44px]", hideOnMobileSearch)}
       />
       {showBack && (
         <IconButton

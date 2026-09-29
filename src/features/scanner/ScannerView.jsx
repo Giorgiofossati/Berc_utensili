@@ -90,7 +90,7 @@ const ScannerView = memo(({ setView, setShowMoveModal, isMobile }) => {
             exit={{ opacity: 0, height: 0 }}
             className="glass-panel w-full rounded-3xl overflow-hidden mt-4 shrink-0"
           >
-            <BarcodeScanner onScan={handleScan} />
+            <BarcodeScanner onScan={handleScan} onClose={() => setShowCamera(false)} />
           </motion.div>
         )}
       </div>

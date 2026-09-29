@@ -23,6 +23,7 @@ const saveStoredRichieste = (richieste) => {
 };
 
 let realtimeChannel = null;
+let realtimeDebounceTimer = null;
 
 export const useRichiesteStore = create((set, get) => ({
   richieste: loadStoredRichieste(),
@@ -70,18 +71,32 @@ export const useRichiesteStore = create((set, get) => ({
       }
 
       if (data) {
+        const currentRichieste = get().richieste || [];
         // Normalizza struttura voci
-        const normalized = data.map(r => ({
-          ...r,
-          voci: (r.richieste_movimento_voci || []).map(v => ({
+        const normalized = data.map(r => {
+          let voices = (r.richieste_movimento_voci || []).map(v => ({
             id: v.id,
             tool_id: v.tool_id,
             quantita: v.quantita,
             tool: v['Utensili_B1'] || null
-          })),
-          commessa: r.commesse || null,
-          macchina: r.macchine_cnc || null
-        }));
+          }));
+
+          // Se le voci remote risultano temporaneamente vuote durante la finestra di scrittura Realtime
+          // ma lo store locale possiede già le voci per questa richiesta, preserva le voci locali.
+          if (voices.length === 0) {
+            const existing = currentRichieste.find(cr => cr.id === r.id);
+            if (existing && existing.voci && existing.voci.length > 0) {
+              voices = existing.voci;
+            }
+          }
+
+          return {
+            ...r,
+            voci: voices,
+            commessa: r.commesse || null,
+            macchina: r.macchine_cnc || null
+          };
+        });
 
         saveStoredRichieste(normalized);
         set({ richieste: normalized, isLoading: false });
@@ -141,7 +156,9 @@ export const useRichiesteStore = create((set, get) => ({
 
     const completeLocalItem = {
       ...requestRecord,
-      voci: vociRecords
+      voci: vociRecords,
+      commessa: null,
+      macchina: null
     };
 
     try {
@@ -345,14 +362,24 @@ export const useRichiesteStore = create((set, get) => ({
   initRealtime: () => {
     if (realtimeChannel) return;
     try {
+      const handleRealtimeChange = () => {
+        if (realtimeDebounceTimer) clearTimeout(realtimeDebounceTimer);
+        realtimeDebounceTimer = setTimeout(() => {
+          get().fetchRichieste();
+        }, 350);
+      };
+
       realtimeChannel = supabase
         .channel('realtime:richieste_movimento')
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'richieste_movimento' },
-          () => {
-            get().fetchRichieste();
-          }
+          handleRealtimeChange
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'richieste_movimento_voci' },
+          handleRealtimeChange
         )
         .subscribe();
     } catch (e) {
@@ -361,6 +388,10 @@ export const useRichiesteStore = create((set, get) => ({
   },
 
   cleanupRealtime: () => {
+    if (realtimeDebounceTimer) {
+      clearTimeout(realtimeDebounceTimer);
+      realtimeDebounceTimer = null;
+    }
     if (realtimeChannel) {
       try {
         supabase.removeChannel(realtimeChannel);

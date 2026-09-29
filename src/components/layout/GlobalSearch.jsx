@@ -66,7 +66,7 @@ export const SearchField = memo(({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             placeholder={placeholder}
-            className="flex-1 w-0 min-w-0 h-full bg-transparent border-0 outline-none text-xs md:text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 p-0 focus:ring-0"
+            className="flex-1 w-0 min-w-0 h-full bg-transparent border-0 outline-none text-base md:text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 p-0 focus:ring-0"
           />
         </label>
 
@@ -197,7 +197,7 @@ const GlobalSearch = memo(({ placeholder = 'Cerca codice, misura (es. D16)…', 
           />
           <ModalBody className="flex flex-col gap-4">
             <div className="w-full aspect-[4/3] max-h-[300px] sm:max-h-[330px] rounded-2xl overflow-hidden border border-slate-200/80 dark:border-white/10 shadow-2xl relative bg-black">
-              {showCamera && <BarcodeScanner onScan={handleScanBarcode} />}
+              {showCamera && <BarcodeScanner onScan={handleScanBarcode} onClose={() => setShowCamera(false)} />}
             </div>
           </ModalBody>
           <ModalFooter className="justify-between">

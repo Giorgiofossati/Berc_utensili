@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/dialog";
-import { X, LayoutGrid, List, Settings } from 'lucide-react';
+import { LayoutGrid, List, Settings, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useFilterStore } from '../../store/useFilterStore';
+import { usePwaStore } from '../../store/usePwaStore';
 
 export default function UserSettingsModal({ isOpen, onClose }) {
   const currentUser = useAuthStore(state => state.currentUser);
   const [defaultView, setDefaultView] = useState('grid');
+
+  const needRefresh = usePwaStore(state => state.needRefresh);
+  const isUpdating = usePwaStore(state => state.isUpdating);
+  const isCheckingUpdate = usePwaStore(state => state.isCheckingUpdate);
+  const lastCheckMessage = usePwaStore(state => state.lastCheckMessage);
+  const updateApp = usePwaStore(state => state.updateApp);
+  const checkForUpdate = usePwaStore(state => state.checkForUpdate);
 
   useEffect(() => {
     if (currentUser) {
@@ -73,6 +81,54 @@ export default function UserSettingsModal({ isOpen, onClose }) {
                   <span className="text-xs font-bold tracking-wider">Elenco</span>
                 </button>
               </div>
+            </div>
+
+            {/* Sezione Versione e Aggiornamenti PWA */}
+            <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-2.5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="app-h3 text-slate-800 dark:text-slate-200">Aggiornamenti & Versione</h3>
+                  <p className="app-body text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Verifica disponibilità di nuove versioni o forza l'aggiornamento dell'applicazione.
+                  </p>
+                </div>
+                {needRefresh && (
+                  <span className="badge badge-emerald text-[11px] font-bold">
+                    Nuova versione pronta
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                {needRefresh ? (
+                  <button
+                    type="button"
+                    onClick={updateApp}
+                    disabled={isUpdating}
+                    className="action-btn action-btn-primary py-2.5 px-4 rounded-xl text-xs font-black tracking-wider flex items-center justify-center gap-2 flex-1 shadow-sm cursor-pointer"
+                  >
+                    <RefreshCw size={14} className={isUpdating ? 'animate-spin' : ''} />
+                    <span>{isUpdating ? 'Aggiornamento in corso…' : 'Aggiorna ora alla nuova versione'}</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={checkForUpdate}
+                    disabled={isCheckingUpdate}
+                    className="glass-button py-2.5 px-4 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-2 flex-1 transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
+                  >
+                    <RefreshCw size={14} className={isCheckingUpdate ? 'animate-spin text-accent-blue' : ''} />
+                    <span>{isCheckingUpdate ? 'Controllo in corso…' : 'Controlla aggiornamenti ora'}</span>
+                  </button>
+                )}
+              </div>
+
+              {lastCheckMessage && !needRefresh && (
+                <p className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 mt-0.5">
+                  <CheckCircle2 size={13} />
+                  <span>{lastCheckMessage}</span>
+                </p>
+              )}
             </div>
           </div>
         </ModalBody>

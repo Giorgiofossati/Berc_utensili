@@ -16,6 +16,154 @@ Questo file tiene traccia in ordine cronologico inverso di tutte le implementazi
    - `[REFACTOR]`: Riorganizzazione del codice o hook senza cambi funzionali esterni.
    - `[PERF]`: Ottimizzazioni di prestazioni (bundle, caricamento, query).
    - `[DOCS]`: Aggiornamenti alla documentazione o regole di sistema.
+### [2026-09-29] - Upgrade Algoritmico Scanner: Motore ZXing-C++ WebAssembly (WASM) 100% Offline
+- **Tag**: `[PERF]` / `[FEAT]`
+- **Descrizione**:
+  - **Sostituzione Motore Algoritmico**: Rimpiazzato il decodificatore software legacy JS (ZXing 2008) con **ZXing-C++20 compilato in WebAssembly (WASM)** con istruzioni SIMD tramite `barcode-detector` e `zxing-wasm`.
+  - **Funzionalità Algoritmiche Industriali per Officina**:
+    - *Binarizzazione Adattiva Locale (`LocalAverage`)*: elimina i fallimenti da riflessi speculari (glare di luci su superfici metalliche lucide o oliate).
+    - *Tolleranza Totale alla Rotazione (`tryRotate: true`)*: scansione istantanea a qualsiasi angolazione (0°, 90°, 180°, 270° o diagonale/inclinata).
+    - *Supporto Marcature Laser e Codici Invertiti (`tryInvert: true`)*: decodifica affidabile di codici chiari incisi a laser su metallo scuro o satinato.
+    - *Super-campionamento Sub-pixel (`tryHarder: true`)*: decodifica di codici a barre densi, sbiaditi o danneggiati.
+  - **Architettura 100% Offline per PWA**: Binario `.wasm` (1 MB uncomp., ~450 kB gzip) servito localmente tramite chunk statico Vite e inserito nel precache del Service Worker PWA (`workbox`), senza alcuna dipendenza da CDN esterne.
+- **File coinvolti**:
+  - [`src/features/scanner/setupBarcodeDetector.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/scanner/setupBarcodeDetector.js) *(nuovo modulo)*
+  - [`src/features/scanner/BarcodeScanner.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/scanner/BarcodeScanner.jsx)
+  - `package.json` (`barcode-detector`, `zxing-wasm`)
+
+### [2026-09-29] - Gerarchia Visiva a Livelli di Luminanza (Surface Stacking) & Risoluzione Anti-Pattern "Box-in-a-Box"
+- **Tag**: `[UX/UI]` / `[REFACTOR]`
+- **Descrizione**:
+  - **Architettura di Luminanza a Due Livelli (Surface Stacking)**: Risolto l'effetto "scatole cinesi piatte" in Dark Mode. Il contenitore principale (Level 1) è ora elevato e più chiaro (`bg-white dark:bg-slate-800/90 border-slate-750`), mentre i riquadri di dettaglio interni (Level 2) sono incassati e più scuri (`bg-slate-50 dark:bg-slate-950/85 border-slate-800 shadow-inner`), creando contrasto volumetrico immediato a colpo d'occhio.
+  - **Semplificazione e De-Cluttering Richieste (Cards & Dettaglio)**: In `RichiesteView.jsx`, eliminata la moltiplicazione disordinata di micro-riquadri adiacenti. Accorpati "Chi ha chiesto", "Commessa" e "Macchina" in una striscia di contesto coerente con avatar, pillole semantiche e icone dedicate. Nel modale di dettaglio, raggruppati in Master Containers tematici.
+  - **Gerarchia nei Dettagli Utensile (`ToolDetailDrawer.jsx`)**: Applicata la medesima gerarchia di superfici nelle schede tecniche: container di sezione elevati e celle parametriche incassate; risalto cromatico prioritario per l'Ubicazione a Magazzino in badge ambra industriale ad alta visibilità.
+- **File coinvolti**:
+  - [`src/features/admin/RichiesteView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/RichiesteView.jsx)
+  - [`src/features/inventory/ToolDetailDrawer.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolDetailDrawer.jsx)
+
+### [2026-09-29] - Redesign Schermata ErrorBoundary: Da Cerchio Monolitico a Riquadro Card Responsive
+- **Tag**: `[UX/UI]`
+- **Descrizione**:
+  - **Superamento Layout Circolare Anomalo**: Rimosso il vecchio vincolo `sm:rounded-full` che trasformava la finestra di ripristino in un cerchio/ovale sgradevole su schermi desktop e tablet.
+  - **Riquadro Card Responsive Standard**: Convertito il contenitore in una card ergonomica (`w-full max-w-lg sm:max-w-xl rounded-2xl sm:rounded-3xl .glass-panel`), con gerarchia visiva calibrata, icona di avviso in badge dedicato e bottoni di azione affiancati su desktop (`sm:flex-row min-h-[44px]`).
+  - **Accordion Dettagli Tecnici Pulito**: Console tecnica richiudibile con contrasto elevato, font mono e pulsante di copia rapida dell'errore negli appunti.
+- **File coinvolti**:
+  - [`src/components/common/ErrorBoundary.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/ErrorBoundary.jsx)
+
+### [2026-09-29] - Fix Invio Richieste Operatore: Risoluzione Crash ErrorBoundary, Race Condition Realtime e Feedback Unambiguo
+- **Tag**: `[FIX]` / `[UX/UI]`
+- **Descrizione**:
+  - **Risoluzione Crash ErrorBoundary su Richieste Senza Commessa/Macchina/Note**: Eliminati tutti i percorsi critici non sicuri con optional chaining in `RichiesteView.jsx` (es. `(r.note || '').toLowerCase().includes(q)`, `resolveCommessa`, `resolveMacchina`), che scatenavano `TypeError: Cannot read properties of undefined (reading 'includes')` causando la schermata di ripristino React ErrorBoundary.
+  - **Prevenzione Race Condition Realtime**: Introdotto debounce di 350ms sugli eventi Realtime per sincronizzare gli inserimenti a due fasi (`richieste_movimento` e `richieste_movimento_voci`). In `fetchRichieste`, preservate le voci presenti nello store locale se i dettagli remoti non sono ancora stati consolidati dal backend durante la finestra di scrittura.
+  - **Feedback Operativo Chiaro e Reassuring**: Aggiunto stato di caricamento esplicito (`isExecuting`, spinner e testo "Invio richiesta...") che disabilita il pulsante per prevenire doppi click. Notifica toast inequivocabile ("RICHIESTA REGISTRATA CON SUCCESSO [...] in attesa di approvazione dell'Amministratore").
+  - **Resilienza Componenti e Modali**: Supportata la prop `onSelectTool` e aggiunto `isOpen` in `AddToolToMultiModal`; reso `ToolIcon` polimorfico (accetta sia `type` testuale che oggetto `tool`).
+- **File coinvolti**:
+  - [`src/store/useRichiesteStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useRichiesteStore.js)
+  - [`src/store/useMultiMovementStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useMultiMovementStore.js)
+  - [`src/features/admin/RichiesteView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/RichiesteView.jsx)
+  - [`src/features/inventory/ToolDetailDrawer.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolDetailDrawer.jsx)
+  - [`src/features/inventory/AddToolToMultiModal.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/AddToolToMultiModal.jsx)
+  - [`src/lib/toolUtils.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/lib/toolUtils.jsx)
+
+### [2026-09-29] - Potenziamento Scanner Barcode: Accelerazione Hardware, Torcia, Zoom 2x e Feedback Istantaneo
+- **Tag**: `[FEAT]` / `[PERF]` / `[UX/UI]`
+- **Descrizione**:
+  - **Accelerazione Hardware e Risoluzione HD**: Attivato `useBarCodeDetectorIfSupported: true` per decodifica nativa ultra-rapida (15-30ms) tramite GPU/sistema operativo, impostati vincoli video a 1080p ideale (`width: 1920, height: 1080`) con autofocus continuo e frequenza a 12 fps per evitare colli di bottiglia e surriscaldamento CPU sui dispositivi mobili.
+  - **Area di Scansione Panoramica (`qrbox`)**: Riconfigurata l'area di scansione (fino al 90% della larghezza / 480px) in formato panoramico 2.5:1 per inquadrare interamente codici 1D lunghi (Code 128 / Code 39) senza tagli laterali accidentali.
+  - **Comandi Hardware Rapidi (Torcia & Zoom)**: Aggiunti controlli touch accessibili (`min-h-[44px] min-w-[44px]`) sul mirino:
+    - *Torcia (Flash)*: toggle istantaneo per illuminare cassettiere e scaffalature in officina.
+    - *Zoom Rapido (1x / 2x)*: toggle per ingrandire etichette e codici piccoli rimanendo alla distanza di fuoco ideale (20cm) senza incorrere in sfocature macro.
+  - **Feedback Multimediale e Guida Operativa**:
+    - *Bip Sonoro Istantaneo*: generato con Web Audio API sintetico (880Hz/1760Hz), funzionante 100% offline senza caricamenti multimediali.
+    - *Flash Visivo e Aptico*: vibrazione aptica combinata a mirino verde smeraldo neon e badge con codice scansionato.
+    - *Guida Ergonomica a Schermo*: pillola informativa con distanza ideale (15–25 cm) e suggerimento antisfocatura.
+  - **Chiusura Rapida**: Integrato pulsante di chiusura `onClose` sul mirino sia in `ScannerView` sia in `GlobalSearch`.
+- **File coinvolti**:
+  - [`src/features/scanner/BarcodeScanner.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/scanner/BarcodeScanner.jsx)
+  - [`src/features/scanner/ScannerView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/scanner/ScannerView.jsx)
+  - [`src/components/layout/GlobalSearch.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/GlobalSearch.jsx)
+
+### [2026-09-29] - Schede Statistiche/KPI Collassabili su Mobile (Default Chiuse) e Compatte su Desktop
+- **Tag**: `[UX/UI]` / `[PERF]`
+- **Descrizione**:
+  - **Mobile First & Spazio Verticale Salvaguardato**: Su schermi mobile (< 768px), le card con le statistiche sono ora raggruppate nel nuovo componente `CollapsibleStatGrid`, impostato con **chiusura predefinita** (`defaultOpenMobile = false`). Viene mostrata solo una barra trigger minimale (`min-h-[40px]`) con contatore e freccia per aprire/chiudere al tocco, liberando il 100% dell'area verticale per liste, filtri e tabelle.
+  - **Desktop Meno Invasivo e Altamente Compatto**: Ridisegnato `StatTile`: ridotti i padding (`p-2.5 sm:p-3`), il box icona (`w-7 h-7 sm:w-8 sm:h-8` con icone da 16px), la spaziatura verticale (`mt-1 sm:mt-1.5`) e la tipografia del valore numerico (`text-lg sm:text-xl font-black font-mono` al posto del sovradimensionato `app-qty-lg`), evitando che le statistiche occupino spazio sproporzionato rispetto ai contenuti operativi.
+  - **Unificazione su Tutte le Viste con Statistiche**:
+    - `HistoryView` (Movimenti di Magazzino): 4 KPI (Totale, Carichi, Scarichi, Operatori) integrati in `CollapsibleStatGrid`.
+    - `RichiesteView` (Gestione Richieste): 4 KPI (In Attesa, Prelievi, Depositi, Evase) unificati in `CollapsibleStatGrid`.
+    - `CostAnalysisView` (Analisi Costi): 3 KPI (Valore Scorte, Costo Medio, Alto Valore) racchiusi in `CollapsibleStatGrid`.
+    - `ManagerDashboardView` (Dashboard Direzione): sostituiti i 4 pannelli hero giganti con `StatTile` compatti in `CollapsibleStatGrid`.
+  - **Pulizia Codice**: Rimosso import inutilizzato di `StatTile` in `CommessaAnalysisView`.
+- **File coinvolti**:
+  - [`src/components/ui/collapsible-stat-grid.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/ui/collapsible-stat-grid.jsx) *(nuovo componente)*
+  - [`src/components/ui/stat-tile.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/ui/stat-tile.jsx)
+  - [`src/features/admin/HistoryView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/HistoryView.jsx)
+  - [`src/features/admin/RichiesteView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/RichiesteView.jsx)
+  - [`src/features/manager/CostAnalysisView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/manager/CostAnalysisView.jsx)
+  - [`src/features/manager/ManagerDashboardView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/manager/ManagerDashboardView.jsx)
+  - [`src/features/manager/CommessaAnalysisView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/manager/CommessaAnalysisView.jsx)
+
+---
+
+### [2026-09-29] - Riprogettazione Pagina Richieste (TanStack Table Fullscreen, 4 Info Chiave & Mobile First)
+- **Tag**: `[FEAT]` / `[UX/UI]`
+- **Descrizione**:
+  - **4 Informazioni Chiave a Colpo d'Occhio**: Ristrutturata la presentazione di ciascuna richiesta per evidenziare immediatamente:
+    1. *Chi ha chiesto*: Operatore con avatar, nome in evidenza e note operative visibili.
+    2. *Per quale Commessa*: Codice commessa in badge, descrizione e cassetto/ubicazione dedicata alla commessa.
+    3. *Su quale Macchina*: Centro di lavoro CNC, codice e reparto assegnato.
+    4. *Cosa ha chiesto + Ubicazione Magazzino*: Icona utensile, codice, quantità richiesta, disponibilità live e pillola dedicata in risalto con l'**Ubicazione fisica a magazzino** (`📍 Ubicazione: [Scaffale/Cassetto]`).
+  - **Mobile First & Zero Scroll Orizzontale**:
+    - Su schermi mobile (< 768px), la pagina commuta automaticamente a **Schede Card Responsive**, eliminando l'inutilizzabilità della tabella orizzontale e garantendo lettura fluida e target touch ampi (min 44px).
+    - KPI Bar salvaspazio: creata una barra compatta 4-colonne per mobile (~44px di altezza), risparmiando oltre 160px di spazio verticale che soffocava la visualizzazione su smartphone.
+  - **Tabella TanStack Table Fullscreen nel suo Container**:
+    - Su desktop e tablet, la tabella TanStack Table v8 si estende ora a pieno schermo dentro il proprio container (`p-0 w-full h-full flex flex-col`), eliminando doppie cornici e padding ridondanti.
+    - Sticky header sincronizzato e scorrimento confinato all'interno del contenitore dati.
+  - **Dual Mode & Switcher Sempre Accessibile**: `SegmentedControl` accessibile sia su desktop sia su smartphone (con icone compatte) per alternare liberamente tra Tabella e Schede in qualunque momento.
+  - **Modale Dettaglio Completo & Ricerca Estesa**: Apertura modale con scheda esaustiva al tocco e ricerca globale estesa alle ubicazioni fisiche degli articoli e delle commesse.
+- **File coinvolti**:
+  - [`src/features/admin/RichiesteView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/RichiesteView.jsx)
+
+---
+
+### [2026-09-29] - Notifica e Ricarica Istantanea Nuova Versione PWA (One-Click Update)
+- **Tag**: `[FEAT]` / `[UX/UI]` / `[PERF]`
+- **Descrizione**:
+  - **PWA Prompt Mode**: Configurato `registerType: 'prompt'` in `vite.config.js` per intercettare i nuovi deploy e permettere l'aggiornamento controllato via `SKIP_WAITING` del Service Worker.
+  - **Store Reattivo PWA (`usePwaStore`)**: Centralizzata la gestione del ciclo di vita PWA (`virtual:pwa-register`), inclusi i trigger di verifica immediata al ritorno in primo piano (`visibilitychange`, `focus`) e polling periodico ogni 15 minuti.
+  - **Banner Flottante Aggiornamento (`PwaUpdatePrompt`)**: Implementata una notifica floating non intrusiva con pulsante "Aggiorna ora" a 1 click (disponibile sia nella schermata principale sia in `LoginScreen`).
+  - **Pulsante Manuale & Badge in Sidebar/Impostazioni**: Aggiunto badge reattivo pulsante sul tasto Impostazioni della Sidebar e integrata la sezione "Aggiornamenti & Versione" in `UserSettingsModal` con verifica manuale della release.
+- **File coinvolti**:
+  - [`vite.config.js`](file:///Users/gio/Documents/CODING/Berc_utensili/vite.config.js)
+  - [`src/store/usePwaStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/usePwaStore.js)
+  - [`src/components/common/PwaUpdatePrompt.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/PwaUpdatePrompt.jsx)
+  - [`src/main.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/main.jsx)
+  - [`src/App.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/App.jsx)
+  - [`src/features/auth/LoginScreen.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/auth/LoginScreen.jsx)
+  - [`src/features/auth/UserSettingsModal.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/auth/UserSettingsModal.jsx)
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
+
+---
+
+### [2026-09-29] - Fix Notch/Dynamic Island PWA iPhone 15, Blocco Viewport Desktop e Pulizia Codice
+- **Tag**: `[FIX]` / `[UX/UI]`
+- **Descrizione**:
+  - **Safe Area Top & Menu Mobile**: In `PageHeader` implementato `pt-[env(safe-area-inset-top,0px)]` e altezza dinamica `h-[calc(4rem+env(safe-area-inset-top,0px))]`, posizionando il pulsante hamburger (44×44px) perfettamente al di sotto della Dynamic Island/notch di iPhone 15 in modalità PWA standalone, risolvendo l'impossibilità di cliccare il menu.
+  - **Drawer & Mobile Safe Areas**: Applicate le safe-zone (`env(safe-area-inset-*)`) all'header/footer della Sidebar mobile e al `ToolDetailDrawer` per evitare sovrapposizioni con l'Home Indicator e il notch.
+  - **Blocco Viewport Desktop & Niente Zoom Involontario**: Rafforzate le regole in `src/index.css` per `html`, `body` e `#root` con `position: fixed; inset: 0; touch-action: manipulation; -webkit-text-size-adjust: 100%`, bloccando l'applicazione alla dimensione esatta della finestra desktop senza panning o rimbalzi.
+  - **Prevenzione Auto-Zoom Safari/iOS**: Adeguati i campi di input (`GlobalSearch`, `LoginScreen`) a `text-base md:text-sm` (16px su mobile) per impedire a Safari di zoomare forzatamente l'interfaccia quando si interagisce con la ricerca o il form.
+  - **Pulizia Codice & Refactor Sidebar**: Rimosso l'hack invasivo di misurazione DOM con clone a `left: -9999px` e `MutationObserver` in `Sidebar.jsx`, sostituito da una larghezza stabile `w-60` (240px) che previene reflow e distorsioni di layout; rimosso l'uso non valido di `justify-center-safe` in `App.jsx`.
+- **File coinvolti**:
+  - [`src/components/layout/PageTemplate.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/PageTemplate.jsx)
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
+  - [`src/index.css`](file:///Users/gio/Documents/CODING/Berc_utensili/src/index.css)
+  - [`src/App.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/App.jsx)
+  - [`src/components/layout/GlobalSearch.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/GlobalSearch.jsx)
+  - [`src/features/auth/LoginScreen.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/auth/LoginScreen.jsx)
+  - [`src/features/inventory/ToolDetailDrawer.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolDetailDrawer.jsx)
+
+---
+
 ### [2026-09-29] - Hardening SQL e Schema Database per Ruoli, Macchine CNC e Richieste
 - **Tag**: `[FEAT]` / `[PERF]`
 - **Descrizione**:

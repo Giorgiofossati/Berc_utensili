@@ -8,7 +8,7 @@ import { useInventoryStore } from '../../store/useInventoryStore';
 import { useMultiMovementStore } from '../../store/useMultiMovementStore';
 import ToolsGrid from './ToolsGrid';
 
-const AddToolToMultiModal = memo(({ isOpen, onClose, showToastNotification, initialQuery = '' }) => {
+const AddToolToMultiModal = memo(({ isOpen, onClose, showToastNotification, initialQuery = '', onSelectTool }) => {
   const [query, setQuery] = useState('');
   const inputRef = useRef(null);
 
@@ -32,9 +32,13 @@ const AddToolToMultiModal = memo(({ isOpen, onClose, showToastNotification, init
   }, [tools, query]);
 
   const handleSelectTool = (tool) => {
-    addItem(tool, 1);
-    if (showToastNotification) {
-      showToastNotification(`${buildDesc(tool)} aggiunto alla distinta`, 'success');
+    if (onSelectTool) {
+      onSelectTool(tool);
+    } else {
+      addItem(tool, 1);
+      if (showToastNotification) {
+        showToastNotification(`${buildDesc(tool)} aggiunto alla distinta`, 'success');
+      }
     }
     onClose();
   };

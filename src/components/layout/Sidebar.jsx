@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useLayoutEffect, useState, useRef, useCallback } from 'react';
+import React, { useMemo, useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Database, History, Users, 
@@ -17,6 +17,7 @@ import { useTutorialStore } from '../../store/useTutorialStore';
 import { useRichiesteStore } from '../../store/useRichiesteStore';
 import { lifecycleUiEnabled } from '../../lib/lifecycleApi';
 import { useProduzioneStore } from '../../store/useProduzioneStore';
+import { usePwaStore } from '../../store/usePwaStore';
 
 const NavItem = ({ 
   icon, 
@@ -94,6 +95,7 @@ const SidebarContent = ({
   const startTutorial = useTutorialStore(state => state.startTutorial);
   const multiMovementCount = useMultiMovementStore(state => state.items.length);
   const pezziCestello = useProduzioneStore(state => state.riaffilature.cestello.reduce((a, c) => a + c.quantita, 0));
+  const needRefresh = usePwaStore(state => state.needRefresh);
 
   const ruolo = currentUser?.ruolo || 'Operatore';
   const isOperatore = ruolo === 'Operatore';
@@ -115,7 +117,11 @@ const SidebarContent = ({
   return (
     <div className="w-full h-full flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden select-none">
       {/* Header / Brand & Pin / Close Toggle */}
-      <div className="h-16 px-3 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 shrink-0 overflow-hidden">
+      <div className={`px-3 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 shrink-0 overflow-hidden ${
+        isMobile 
+          ? 'pt-[env(safe-area-inset-top,0px)] h-[calc(4rem+env(safe-area-inset-top,0px))]' 
+          : 'h-16'
+      }`}>
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-700/80 flex items-center justify-center shrink-0 overflow-hidden shadow-xs p-1">
             <img src="/favicon.svg" alt="Bercella" className="w-full h-full object-contain" />
@@ -138,7 +144,7 @@ const SidebarContent = ({
             type="button"
             onClick={onClose} 
             aria-label="Chiudi barra laterale"
-            className="p-1.5 rounded-lg border border-slate-200/80 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 shrink-0 transition-colors cursor-pointer"
+            className="w-10 h-10 rounded-xl border border-slate-200/80 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 shrink-0 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -559,7 +565,9 @@ const SidebarContent = ({
       {/* Footer / User Profile */}
       <div 
         data-tour="user-profile"
-        className="p-2.5 border-t border-slate-100 dark:border-slate-800 shrink-0 flex flex-col bg-slate-50/50 dark:bg-slate-900/50 overflow-hidden"
+        className={`p-2.5 border-t border-slate-100 dark:border-slate-800 shrink-0 flex flex-col bg-slate-50/50 dark:bg-slate-900/50 overflow-hidden ${
+          isMobile ? 'pb-[max(0.625rem,env(safe-area-inset-bottom,0px))]' : ''
+        }`}
       >
         <div className={`flex items-center rounded-xl transition-all duration-200 ${
           isCollapsed ? 'justify-center p-0' : 'justify-between p-1.5 border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs'
@@ -603,11 +611,17 @@ const SidebarContent = ({
                 if (setShowSettingsModal) setShowSettingsModal(true);
                 if (onClose) onClose();
               }}
-              className="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
-              title="Impostazioni"
+              className="relative w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
+              title={needRefresh ? "Nuovo aggiornamento disponibile! Apri Impostazioni" : "Impostazioni"}
               aria-label="Impostazioni"
             >
               <Settings size={15} />
+              {needRefresh && (
+                <>
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-accent-blue animate-ping" />
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-accent-blue" />
+                </>
+              )}
             </button>
             <button 
               type="button"
@@ -695,41 +709,7 @@ export default function Sidebar(props) {
     };
   }, []);
 
-  // Larghezza da espanso = la minima che contiene le etichette senza troncarle.
-  // Misurata su un clone fuori schermo a max-content (il nome utente nel footer
-  // è escluso: è un dato variabile e può troncarsi).
-  const asideRef = useRef(null);
-  const [expandedWidth, setExpandedWidth] = useState(null);
   const isExpanded = isSidebarPinned || isHovered || isTourFocusingSidebar;
-
-  useLayoutEffect(() => {
-    const aside = asideRef.current;
-    if (!aside || !isExpanded) return;
-
-    const measure = () => {
-      const clone = aside.cloneNode(true);
-      clone.removeAttribute('id');
-      clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
-      clone.querySelectorAll('[data-tour]').forEach(el => el.removeAttribute('data-tour'));
-      clone.querySelectorAll('[data-fit-ignore]').forEach(el => { el.style.maxWidth = '0px'; });
-      clone.setAttribute('aria-hidden', 'true');
-      Object.assign(clone.style, {
-        width: 'max-content', visibility: 'hidden', pointerEvents: 'none',
-        position: 'fixed', left: '-9999px', top: '0', transition: 'none',
-      });
-      document.body.appendChild(clone);
-      const width = Math.ceil(clone.getBoundingClientRect().width);
-      clone.remove();
-      setExpandedWidth(prev => (prev === width ? prev : width));
-    };
-
-    measure();
-    // Ricalcola quando cambiano le voci (ruolo, badge) o dopo il caricamento dei font
-    const observer = new MutationObserver(measure);
-    observer.observe(aside, { childList: true, subtree: true, characterData: true });
-    document.fonts?.ready.then(measure);
-    return () => observer.disconnect();
-  }, [isExpanded]);
 
   if (isMobile) {
     return (
@@ -758,18 +738,15 @@ export default function Sidebar(props) {
     );
   }
 
-  const widthStyle = expandedWidth ? { width: expandedWidth } : undefined;
-
   return (
     <div 
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onFocusCapture={handleFocusCapture}
       onBlurCapture={handleBlurCapture}
-      className={`hidden md:block shrink-0 relative h-full select-none transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] z-40 ${
-        isSidebarPinned ? 'w-56' : 'w-[68px]'
+      className={`hidden md:block shrink-0 relative h-full select-none transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] z-40 ${
+        isSidebarPinned ? 'w-60' : 'w-[68px]'
       }`}
-      style={isSidebarPinned ? widthStyle : undefined}
     >
       {/* Buffer di tolleranza perimetrale solo quando espanso, per evitare chiusure accidentali */}
       {isExpanded && (
@@ -781,11 +758,9 @@ export default function Sidebar(props) {
 
       <aside 
         id="sidebar"
-        ref={asideRef}
-        style={isExpanded ? widthStyle : undefined}
-        className={`absolute top-0 left-0 bottom-0 flex flex-col h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${
+        className={`absolute top-0 left-0 bottom-0 flex flex-col h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${
           isExpanded 
-            ? 'w-56 shadow-2xl shadow-slate-900/15 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/5' 
+            ? 'w-60 shadow-2xl shadow-slate-900/15 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/5' 
             : 'w-[68px] shadow-none'
         }`}
       >

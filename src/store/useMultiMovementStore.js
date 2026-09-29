@@ -70,6 +70,8 @@ export const useMultiMovementStore = create((set, get) => ({
       return;
     }
 
+    set({ isExecuting: true });
+
     const authState = useAuthStore.getState();
     const { currentUser } = authState;
     const operatorName = currentUser ? `${currentUser.nome} ${currentUser.cognome || ''}`.trim() : 'Operatore';
@@ -91,7 +93,7 @@ export const useMultiMovementStore = create((set, get) => ({
 
       if (showToastNotification) {
         showToastNotification(
-          `RICHIESTA INVIATA: ${actionLabel} di ${totalPieces} pz (${items.length} articol${items.length === 1 ? 'o' : 'i'}) all'Amministratore`,
+          `RICHIESTA REGISTRATA CON SUCCESSO: ${actionLabel} di ${totalPieces} pz (${items.length} articol${items.length === 1 ? 'o' : 'i'}) inviata all'Amministratore. In attesa di approvazione.`,
           'success'
         );
       }
@@ -103,6 +105,8 @@ export const useMultiMovementStore = create((set, get) => ({
       if (showToastNotification) {
         showToastNotification('Errore invio richiesta: ' + (err.message || err), 'error');
       }
+    } finally {
+      set({ isExecuting: false });
     }
   },
 

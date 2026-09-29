@@ -52,14 +52,15 @@ export const preloadToolImages = () => {
   });
 };
 
-export const ToolIcon = ({ type, size = 24, className = "", mode = 'icon' }) => {
+export const ToolIcon = ({ type, tool, size = 24, className = "", mode = 'icon' }) => {
+  const resolvedType = type || (typeof tool === 'object' ? tool?.Tipologia : tool) || '';
   if (mode === 'image') {
-    const src = getToolImage(type);
+    const src = getToolImage(resolvedType);
     return (
       <div className={`relative overflow-hidden flex items-center justify-center bg-slate-900/5 dark:bg-slate-900/20 ${className}`} style={{ width: size, height: size }}>
         <img 
           src={src} 
-          alt={type} 
+          alt={resolvedType} 
           fetchPriority="high"
           decoding="sync"
           className="w-full h-full object-cover select-none pointer-events-none"
@@ -69,7 +70,7 @@ export const ToolIcon = ({ type, size = 24, className = "", mode = 'icon' }) => 
     );
   }
 
-  const { icon: Icon, color, bg, border } = getToolIconConfig(type);
+  const { icon: Icon, color, bg, border } = getToolIconConfig(resolvedType);
   return (
     <div className={`flex items-center justify-center rounded-lg border ${bg} ${border} ${className}`} style={{ width: size, height: size }}>
       <Icon size={size * 0.6} className={color} />

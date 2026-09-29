@@ -44,6 +44,7 @@ import UserSettingsModal from './features/auth/UserSettingsModal';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import AppTutorial from './components/common/AppTutorial';
 import HelpFloatingButton from './components/common/HelpFloatingButton';
+import PwaUpdatePrompt from './components/common/PwaUpdatePrompt';
 import { useTutorialStore } from './store/useTutorialStore';
 import { preloadToolImages } from './lib/toolUtils';
 import { PageTemplate, PageHeader, ResetFiltersButton } from './components/layout/PageTemplate';
@@ -384,7 +385,7 @@ function App() {
 
   const renderGridHome = () => {
     if (currentLevel >= 2 && currentLevel < 3) return (
-      <div className="@container w-full flex-1 flex flex-col items-center justify-center-safe my-auto px-2 sm:px-4 md:px-6 py-2 overflow-hidden">
+      <div className="@container w-full flex-1 flex flex-col items-center justify-center my-auto px-2 sm:px-4 md:px-6 py-2 overflow-hidden">
         <DiameterList 
           diameters={diameters} 
           tools={filteredByStack} 
@@ -425,7 +426,7 @@ function App() {
   }
 
   return (
-    <div ref={mainRef} className="min-h-[100dvh] h-[100dvh] w-full flex flex-row overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
+    <div ref={mainRef} className="h-full w-full flex flex-row overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
       <Sidebar 
         isMobile={isMobile} 
         isOpen={showSidebarMobile} 
@@ -437,7 +438,7 @@ function App() {
         view={view}
       />
 
-      <div className="flex-1 flex flex-col relative overflow-hidden custom-scrollbar min-w-0 h-full isolate">
+      <div className="flex-1 flex flex-col relative overflow-hidden min-w-0 h-full isolate">
 
         <main className="flex-1 w-full flex flex-col items-center justify-start relative min-h-0 overflow-hidden">
             <AnimatePresence mode="wait">
@@ -474,7 +475,7 @@ function App() {
                         {currentLevel < 3 && (
                           <div className="md:hidden flex justify-end px-2 pt-2 shrink-0">{mobileViewToggle}</div>
                         )}
-                        <div className={`w-full flex-1 flex flex-col items-center justify-center-safe min-h-0 @container ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar py-2 md:py-0' : 'overflow-hidden'}`}>
+                        <div className={`w-full flex-1 flex flex-col items-center justify-center min-h-0 @container ${currentLevel < 3 ? 'overflow-y-auto custom-scrollbar py-2 md:py-0' : 'overflow-hidden'}`}>
                           {renderGridHome()}
                         </div>
                       </>
@@ -691,6 +692,9 @@ function App() {
 
         {/* Pulsante discreto in basso per riavviare la guida/tutorial */}
         <HelpFloatingButton />
+
+        {/* Notifica di aggiornamento PWA */}
+        <PwaUpdatePrompt />
 
         {/* Tutorial interattivo guidato */}
         <AppTutorial 

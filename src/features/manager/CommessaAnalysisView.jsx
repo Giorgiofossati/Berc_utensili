@@ -4,7 +4,6 @@ import {
   Search, RefreshCw, ChevronRight, Activity, Calendar
 } from 'lucide-react';
 import { PageTemplate, PageHeader, PageToolbar, PageContent, ResetFiltersButton } from '@/components/layout/PageTemplate';
-import { StatTile } from '@/components/ui/stat-tile';
 import { IconButton } from '@/components/ui/icon-button';
 import { useCommesseStore } from '../../store/useCommesseStore';
 import { useMacchineStore } from '../../store/useMacchineStore';

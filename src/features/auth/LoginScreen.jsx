@@ -6,6 +6,7 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from '../../store/useAuthStore';
+import PwaUpdatePrompt from '../../components/common/PwaUpdatePrompt';
 
 export default function LoginScreen() {
   const setCurrentUser = useAuthStore(state => state.setCurrentUser);
@@ -230,7 +231,7 @@ export default function LoginScreen() {
                       placeholder="Cerca nome o ID…"
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      className="glass-input w-full rounded-xl h-11 pl-10 pr-4 text-sm font-medium"
+                      className="glass-input w-full rounded-xl h-11 pl-10 pr-4 text-base md:text-sm font-medium"
                     />
                   </div>
                 </div>
@@ -308,7 +309,7 @@ export default function LoginScreen() {
                           onChange={(e) => { setPassword(e.target.value); if (error) setError(''); }}
                           aria-invalid={Boolean(error)}
                           aria-describedby={error ? 'password-error' : undefined}
-                          className="glass-input w-full rounded-xl h-12 pl-10 pr-4 text-sm font-medium"
+                          className="glass-input w-full rounded-xl h-12 pl-10 pr-4 text-base md:text-sm font-medium"
                         />
                       </div>
                       {error && <p id="password-error" className="app-body text-accent-rose font-semibold mt-1.5">{error}</p>}
@@ -338,6 +339,7 @@ export default function LoginScreen() {
         </motion.main>
         </div>
       </div>
+      <PwaUpdatePrompt />
     </div>
   );
 }

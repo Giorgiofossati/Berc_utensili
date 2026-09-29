@@ -65,34 +65,36 @@ class ErrorBoundary extends Component {
       const { error, showDetails, copied } = this.state;
 
       return (
-        <div className="min-h-[100dvh] h-[100dvh] w-full flex flex-col items-center justify-center p-4 dark:bg-slate-950 bg-slate-50 text-slate-800 dark:text-slate-100">
-          <div className="w-full max-w-md glass-panel p-6 sm:p-8 rounded-3xl sm:rounded-full flex flex-col items-center text-center shadow-2xl border dark:border-white/10 border-slate-900/10 max-h-[92vh] overflow-y-auto custom-scrollbar">
-            <div className="w-16 h-16 rounded-2xl bg-accent-orange/20 flex items-center justify-center text-accent-orange mb-4 shadow-inner shrink-0">
-              <AlertTriangle size={32} />
+        <div className="min-h-[100dvh] h-[100dvh] w-full flex flex-col items-center justify-center p-4 sm:p-6 dark:bg-slate-950 bg-slate-50 text-slate-800 dark:text-slate-100">
+          <div className="w-full max-w-lg sm:max-w-xl glass-panel p-6 sm:p-8 rounded-2xl sm:rounded-3xl flex flex-col items-center text-center shadow-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 max-h-[92dvh] overflow-y-auto custom-scrollbar">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-500 mb-3 shadow-inner shrink-0">
+              <AlertTriangle size={30} />
             </div>
             
-            <p className="app-overline mb-1">
+            <p className="app-overline mb-1 text-slate-400">
               Sistema di Ripristino
             </p>
-            <h2 className="app-h2 italic mb-2">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
               Si è verificato un errore
             </h2>
-            <p className="app-body mb-6">
+            <p className="app-body text-slate-600 dark:text-slate-400 max-w-md mb-6 text-xs sm:text-sm">
               L'applicazione ha riscontrato un'anomalia. Puoi ricaricare la pagina o ripristinare la sessione di accesso.
             </p>
 
-            <div className="flex flex-col gap-3 w-full">
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
               <button
+                type="button"
                 onClick={this.handleReload}
-                className="w-full py-3.5 px-4 rounded-xl sm:rounded-2xl bg-accent-blue text-slate-950 font-black text-xs tracking-widest hover:bg-sky-400 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20 cursor-pointer"
+                className="w-full sm:flex-1 py-3 px-4 rounded-xl action-btn action-btn-primary flex items-center justify-center gap-2 font-bold text-xs sm:text-sm cursor-pointer shadow-md min-h-[44px]"
               >
                 <RefreshCw size={16} />
-                <span>Ricarica Applicazione</span>
+                <span>Ricarica Pagina</span>
               </button>
 
               <button
+                type="button"
                 onClick={this.handleResetAndLogin}
-                className="w-full py-3.5 px-4 rounded-xl sm:rounded-2xl glass-button text-slate-700 dark:text-slate-300 hover:text-accent-orange font-bold text-xs tracking-wider active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:flex-1 py-3 px-4 rounded-xl glass-button text-slate-700 dark:text-slate-300 hover:text-amber-500 border border-slate-200 dark:border-slate-800 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
               >
                 <LogOut size={16} />
                 <span>Torna al Login</span>
@@ -101,26 +103,26 @@ class ErrorBoundary extends Component {
 
             {/* Dettagli tecnici dell'errore consultabili e copiabili direttamente da mobile */}
             {error && (
-              <div className="w-full mt-6 pt-4 border-t border-slate-900/10 dark:border-white/10 flex flex-col items-center">
+              <div className="w-full mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col items-center">
                 <button
                   type="button"
                   onClick={() => this.setState(prev => ({ showDetails: !prev.showDetails }))}
-                  className="text-xs font-bold text-slate-500 hover:text-accent-blue flex items-center gap-1.5 transition-colors cursor-pointer py-1"
+                  className="text-xs font-bold text-slate-500 hover:text-accent-blue flex items-center gap-1.5 transition-colors cursor-pointer py-1.5 min-h-[36px]"
                 >
-                  <span>{showDetails ? 'Nascondi dettagli tecnici' : 'Mostra dettagli errore'}</span>
+                  <span>{showDetails ? 'Nascondi dettagli tecnici' : 'Mostra dettagli tecnici'}</span>
                   {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                 </button>
 
                 {showDetails && (
-                  <div className="mt-3 w-full p-3 rounded-2xl bg-slate-950/90 text-slate-200 border border-white/10 text-left font-mono text-xs flex flex-col gap-2 shadow-inner">
-                    <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
-                      <span className="text-rose-400 font-bold truncate text-xs">
+                  <div className="mt-3 w-full p-3.5 rounded-xl bg-slate-950 text-slate-200 border border-slate-800 text-left font-mono text-xs flex flex-col gap-2 shadow-inner">
+                    <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2">
+                      <span className="text-rose-400 font-bold truncate text-xs flex-1">
                         {String(error?.name || 'Error')}: {String(error?.message || error)}
                       </span>
                       <button
                         type="button"
                         onClick={this.handleCopyError}
-                        className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-accent-blue flex items-center gap-1 shrink-0 active:scale-95 transition-all text-xs font-bold tracking-wider cursor-pointer"
+                        className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-accent-blue flex items-center gap-1 shrink-0 active:scale-95 transition-all text-xs font-bold tracking-wider cursor-pointer min-h-[32px]"
                         title="Copia errore negli appunti"
                       >
                         {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
@@ -129,7 +131,7 @@ class ErrorBoundary extends Component {
                     </div>
 
                     {error?.stack && (
-                      <pre className="text-slate-400 whitespace-pre-wrap break-all text-xs max-h-36 overflow-y-auto custom-scrollbar leading-relaxed">
+                      <pre className="text-slate-400 whitespace-pre-wrap break-all text-xs max-h-48 overflow-y-auto custom-scrollbar leading-relaxed">
                         {error.stack}
                       </pre>
                     )}

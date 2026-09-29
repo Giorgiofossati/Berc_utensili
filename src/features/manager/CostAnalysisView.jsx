@@ -4,7 +4,7 @@ import {
   Search, RefreshCw, BarChart2, PieChart, ShieldAlert
 } from 'lucide-react';
 import { PageTemplate, PageHeader, PageToolbar, PageContent, ResetFiltersButton } from '@/components/layout/PageTemplate';
-import { StatTile } from '@/components/ui/stat-tile';
+import { StatTile, CollapsibleStatGrid } from '@/components/ui/stat-tile';
 import { IconButton } from '@/components/ui/icon-button';
 import { useInventoryStore } from '../../store/useInventoryStore';
 import { buildDesc, ToolIcon } from '../../lib/toolUtils';
@@ -89,28 +89,34 @@ export default function CostAnalysisView({ setView }) {
       />
 
       {/* KPI TILES COSTI */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4 px-3 sm:px-4 md:px-6 py-3 border-b border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 shrink-0">
-        <StatTile
-          label="Valore Totale Scorte"
-          value={`€ ${totalValue.toLocaleString('it-IT', { maximumFractionDigits: 0 })}`}
-          subtext="Valore stimato complessivo"
-          tone="emerald"
-          icon={<DollarSign size={16} />}
-        />
-        <StatTile
-          label="Costo Medio Referenza"
-          value={`€ ${(avgCost).toFixed(2)}`}
-          subtext="Valore medio per articolo SKU"
-          tone="blue"
-          icon={<TrendingUp size={16} />}
-        />
-        <StatTile
-          label="Articoli a Valore Alto (>€200)"
-          value={toolsWithCosts.filter(t => t.rowValue > 200).length}
-          subtext="Asset ad alto impatto"
-          tone="orange"
-          icon={<Layers size={16} />}
-        />
+      <div className="px-3 sm:px-4 md:px-6 py-2 border-b border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 shrink-0">
+        <CollapsibleStatGrid
+          title="Riepilogo Costi"
+          count={3}
+          gridClassName="grid-cols-1 sm:grid-cols-3"
+        >
+          <StatTile
+            label="Valore Totale Scorte"
+            value={`€ ${totalValue.toLocaleString('it-IT', { maximumFractionDigits: 0 })}`}
+            subtext="Valore stimato complessivo"
+            tone="emerald"
+            icon={<DollarSign size={16} />}
+          />
+          <StatTile
+            label="Costo Medio Referenza"
+            value={`€ ${(avgCost).toFixed(2)}`}
+            subtext="Valore medio per articolo SKU"
+            tone="blue"
+            icon={<TrendingUp size={16} />}
+          />
+          <StatTile
+            label="Articoli a Valore Alto (>€200)"
+            value={toolsWithCosts.filter(t => t.rowValue > 200).length}
+            subtext="Asset ad alto impatto"
+            tone="orange"
+            icon={<Layers size={16} />}
+          />
+        </CollapsibleStatGrid>
       </div>
 
       <PageToolbar>
