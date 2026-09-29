@@ -72,7 +72,7 @@ export default function AppTutorial({ onRequireSidebar }) {
     return () => observer.disconnect();
   }, [isOpen, currentStep]);
 
-  // 3. Misura l'elemento target dinamicamente
+  // 3. Misura l'elemento target dinamicamente (trova il primo elemento realmente visibile nel DOM)
   const updateTargetRect = useCallback(() => {
     if (!step?.target) {
       setTargetRect(null);
@@ -80,31 +80,68 @@ export default function AppTutorial({ onRequireSidebar }) {
     }
 
     const selectors = step.target.split(',').map(s => s.trim());
-    let el = null;
+    let visibleEl = null;
+    let visibleRect = null;
+
     for (const selector of selectors) {
-      el = document.querySelector(selector);
-      if (el) break;
+      const elements = document.querySelectorAll(selector);
+      for (const el of elements) {
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity || '1') === 0) {
+          continue;
+        }
+        const rect = el.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          visibleEl = el;
+          visibleRect = rect;
+          break;
+        }
+      }
+      if (visibleEl) break;
     }
 
-    if (el) {
-      const rect = el.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
-        setTargetRect({
-          top: rect.top,
-          left: rect.left,
-          width: rect.width,
-          height: rect.height,
-          bottom: rect.bottom,
-          right: rect.right
-        });
-        return true;
-      }
+    if (visibleEl && visibleRect) {
+      setTargetRect({
+        top: visibleRect.top,
+        left: visibleRect.left,
+        width: visibleRect.width,
+        height: visibleRect.height,
+        bottom: visibleRect.bottom,
+        right: visibleRect.right
+      });
+      return true;
     }
     setTargetRect(null);
     return false;
   }, [step]);
 
-  // 4. Polling attivo per transizioni Framer Motion + ResizeObserver sul target
+  // 4. Se il target è in un contenitore scrollabile (es. drawer o pagina) ed è fuori vista, scrollalo dolcemente
+  useEffect(() => {
+    if (!isOpen || !step) return;
+
+    const timer = setTimeout(() => {
+      const selectors = step.target.split(',').map(s => s.trim());
+      for (const selector of selectors) {
+        const elements = document.querySelectorAll(selector);
+        for (const el of elements) {
+          const style = window.getComputedStyle(el);
+          if (style.display !== 'none' && style.visibility !== 'hidden') {
+            const rect = el.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+              if (rect.top < 40 || rect.bottom > window.innerHeight - 40) {
+                el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+              }
+              return;
+            }
+          }
+        }
+      }
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [isOpen, currentStep, step]);
+
+  // 5. Polling attivo per transizioni Framer Motion + ResizeObserver sul target
   useEffect(() => {
     if (!isOpen) return;
 
@@ -112,7 +149,7 @@ export default function AppTutorial({ onRequireSidebar }) {
     let startTime = performance.now();
     const trackLoop = (time) => {
       updateTargetRect();
-      if (time - startTime < 600) {
+      if (time - startTime < 750) {
         frameId = requestAnimationFrame(trackLoop);
       }
     };
@@ -134,7 +171,7 @@ export default function AppTutorial({ onRequireSidebar }) {
     };
   }, [isOpen, currentStep, updateTargetRect]);
 
-  // 5. Gestione tastiera
+  // 6. Gestione tastiera
   useEffect(() => {
     if (!isOpen) return;
 
@@ -242,6 +279,40 @@ export default function AppTutorial({ onRequireSidebar }) {
     return { top: Math.round(Math.max(margin, clampedTop)), left: Math.round(idealLeft) };
   };
 
+  // Calcolo dinamico della posizione su Mobile (inverte alto/basso per non coprire il target)
+  const getMobileCardPosition = () => {
+    if (!targetRect) {
+      return {
+        bottom: 'max(16px, env(safe-area-inset-bottom, 0px))',
+        left: '16px',
+        right: '16px',
+        maxWidth: '440px',
+        margin: '0 auto'
+      };
+    }
+
+    const targetCenterY = targetRect.top + targetRect.height / 2;
+    const isTargetInBottomHalf = targetCenterY > viewportSize.height * 0.48;
+
+    if (isTargetInBottomHalf) {
+      return {
+        top: 'max(16px, env(safe-area-inset-top, 0px))',
+        left: '16px',
+        right: '16px',
+        maxWidth: '440px',
+        margin: '0 auto'
+      };
+    }
+
+    return {
+      bottom: 'max(16px, env(safe-area-inset-bottom, 0px))',
+      left: '16px',
+      right: '16px',
+      maxWidth: '440px',
+      margin: '0 auto'
+    };
+  };
+
   const desktopPos = !isMobile ? getDesktopCardPosition() : null;
 
   return (
@@ -259,10 +330,10 @@ export default function AppTutorial({ onRequireSidebar }) {
               <rect width="100%" height="100%" fill="white" />
               {targetRect && (
                 <rect
-                  x={targetRect.left - padding}
-                  y={targetRect.top - padding}
-                  width={targetRect.width + padding * 2}
-                  height={targetRect.height + padding * 2}
+                  x={Math.max(2, targetRect.left - padding)}
+                  y={Math.max(2, targetRect.top - padding)}
+                  width={Math.min(viewportSize.width - 4, targetRect.width + padding * 2)}
+                  height={Math.min(viewportSize.height - 4, targetRect.height + padding * 2)}
                   rx="18"
                   fill="black"
                   className="transition-all duration-300 ease-out"
@@ -286,10 +357,10 @@ export default function AppTutorial({ onRequireSidebar }) {
             animate={{
               opacity: 1,
               scale: 1,
-              top: targetRect.top - padding,
-              left: targetRect.left - padding,
-              width: targetRect.width + padding * 2,
-              height: targetRect.height + padding * 2
+              top: Math.max(2, targetRect.top - padding),
+              left: Math.max(2, targetRect.left - padding),
+              width: Math.min(viewportSize.width - 4, targetRect.width + padding * 2),
+              height: Math.min(viewportSize.height - 4, targetRect.height + padding * 2)
             }}
             transition={{ type: 'spring', damping: 26, stiffness: 260 }}
             className="fixed pointer-events-none z-50 rounded-2xl border-2 border-sky-400 dark:border-sky-400 shadow-[0_0_35px_rgba(14,165,233,0.45)] ring-4 ring-sky-400/20"
@@ -310,11 +381,7 @@ export default function AppTutorial({ onRequireSidebar }) {
             isMobile
               ? {
                   position: 'fixed',
-                  bottom: 'max(16px, env(safe-area-inset-bottom, 0px))',
-                  left: '16px',
-                  right: '16px',
-                  maxWidth: '440px',
-                  margin: '0 auto'
+                  ...getMobileCardPosition()
                 }
               : {
                   position: 'fixed',
@@ -322,11 +389,11 @@ export default function AppTutorial({ onRequireSidebar }) {
                   ...desktopPos
                 }
           }
-          className="z-[var(--z-tour,9990)] glass-panel bg-white/95 dark:bg-slate-950/95 border border-slate-200/90 dark:border-sky-500/30 text-slate-900 dark:text-white p-5 rounded-3xl shadow-[0_20px_60px_rgba(15,23,42,0.25)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.8)] backdrop-blur-2xl flex flex-col gap-3.5 pointer-events-auto box-border"
+          className="z-[var(--z-tour,9990)] glass-panel bg-white/95 dark:bg-slate-950/95 border border-slate-200/90 dark:border-sky-500/30 text-slate-900 dark:text-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-[0_20px_60px_rgba(15,23,42,0.25)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.8)] backdrop-blur-2xl flex flex-col gap-3 sm:gap-3.5 pointer-events-auto box-border"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header Card */}
-          <div className="flex items-center justify-between gap-2 border-b border-slate-200/70 dark:border-white/10 pb-3">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-200/70 dark:border-white/10 pb-2.5 sm:pb-3">
             <div className="flex items-center gap-2 min-w-0">
               <Sparkles size={16} className="text-amber-500 animate-pulse shrink-0" />
               <span className="text-xs font-black tracking-wider uppercase text-slate-500 dark:text-slate-400 truncate">
@@ -344,15 +411,15 @@ export default function AppTutorial({ onRequireSidebar }) {
                 onClick={handleCloseOnly}
                 title="Chiudi guida"
                 aria-label="Chiudi guida"
-                className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-lg text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer"
+                className="w-10 h-10 sm:w-8 sm:h-8 min-w-[40px] min-h-[40px] sm:min-w-[32px] sm:min-h-[32px] rounded-lg text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer"
               >
-                <X size={17} />
+                <X size={18} />
               </button>
             </div>
           </div>
 
           {/* Body Card */}
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1 sm:gap-1.5">
             <h2 className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug">
               {step.title}
             </h2>
@@ -362,11 +429,11 @@ export default function AppTutorial({ onRequireSidebar }) {
           </div>
 
           {/* Footer Card */}
-          <div className="flex items-center justify-between gap-2 pt-2 mt-1 border-t border-slate-200/70 dark:border-white/10">
+          <div className="flex items-center justify-between gap-2 pt-2 mt-0.5 border-t border-slate-200/70 dark:border-white/10">
             <button
               type="button"
               onClick={handleFinish}
-              className="text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer"
+              className="min-h-[40px] sm:min-h-[36px] text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer flex items-center justify-center"
             >
               Salta
             </button>
@@ -376,7 +443,7 @@ export default function AppTutorial({ onRequireSidebar }) {
                 <button
                   type="button"
                   onClick={prevStep}
-                  className="min-h-[40px] px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95"
+                  className="min-h-[44px] sm:min-h-[40px] px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95"
                 >
                   <ChevronLeft size={16} />
                   <span>Indietro</span>
@@ -386,7 +453,7 @@ export default function AppTutorial({ onRequireSidebar }) {
               <button
                 type="button"
                 onClick={isLastStep ? handleFinish : nextStep}
-                className="min-h-[40px] px-5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-black tracking-wider shadow-sm transition-all flex items-center gap-1.5 group cursor-pointer active:scale-95"
+                className="min-h-[44px] sm:min-h-[40px] px-5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-black tracking-wider shadow-sm transition-all flex items-center gap-1.5 group cursor-pointer active:scale-95"
               >
                 {isLastStep ? (
                   <>

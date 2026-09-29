@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useFilterStore } from '../../store/useFilterStore';
 import { toolMatchesQuery } from '../../lib/searchUtils';
 
-const PRIMARY_FILTER_KEYS = ['Tipologia', 'Forma', 'Diametro', 'Stato'];
+const PRIMARY_FILTER_KEYS = ['Tipologia', 'Forma', 'Diametro', 'Stato', 'Ubicazione'];
 
 const DropdownFilterView = memo(({ 
   tools: allTools, 
@@ -24,6 +24,7 @@ const DropdownFilterView = memo(({
   const searchQuery = useFilterStore(state => state.searchQuery);
   const [filters, setFilters] = useState(initialFilters);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(!isMobile);
+  const [isDesktopDrawerOpen, setIsDesktopDrawerOpen] = useState(false);
 
   // Synchronize internal filters state with changes to the parent's initialFilters prop
   const serializedInitialFilters = JSON.stringify(initialFilters);
@@ -252,7 +253,7 @@ const DropdownFilterView = memo(({
                     >
                       <SelectTrigger 
                         disabled={isDisabled}
-                        className={`w-full max-md:h-11! glass-button rounded-xl px-3 py-1.5 app-overline bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-accent-blue/40 outline-none transition-all ${
+                        className={`w-full max-md:h-11! glass-button rounded-xl px-3 py-1.5 text-xs font-medium truncate capitalize bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-accent-blue/40 outline-none transition-all ${
                           filters[key] ? 'text-accent-blue border-accent-blue/30 font-bold' : 'dark:text-slate-300 text-slate-700'
                         } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
                       >
@@ -287,7 +288,7 @@ const DropdownFilterView = memo(({
                       >
                         <SelectTrigger 
                           disabled={isDisabled}
-                          className={`w-full max-md:h-11! glass-button rounded-xl px-3 py-1.5 app-overline bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-accent-blue/40 outline-none transition-all ${
+                          className={`w-full max-md:h-11! glass-button rounded-xl px-3 py-1.5 text-xs font-medium truncate capitalize bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-accent-blue/40 outline-none transition-all ${
                             filters[key] ? 'text-accent-blue border-accent-blue/30 font-bold' : 'dark:text-slate-300 text-slate-700'
                           } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
                         >
@@ -323,7 +324,7 @@ const DropdownFilterView = memo(({
                 <div className="w-full">
                   <Menu.Root>
                     <Menu.Trigger
-                      className="w-full max-md:h-11! glass-button rounded-xl px-3 py-1.5 app-overline border-dashed border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="w-full max-md:h-11! glass-button rounded-xl px-3 py-1.5 text-xs font-medium truncate capitalize border-dashed border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 flex items-center justify-center gap-1.5 cursor-pointer"
                       aria-label="Aggiungi altri filtri"
                     >
                       <Plus size={15} className="text-slate-400" />
@@ -367,7 +368,7 @@ const DropdownFilterView = memo(({
                 <button
                   type="button"
                   onClick={handleResetAll}
-                  className="w-full max-md:h-11! glass-button rounded-xl px-3 py-1.5 app-overline text-accent-rose hover:bg-accent-rose/10 transition-all flex items-center justify-center gap-1.5 font-bold cursor-pointer"
+                  className="w-full max-md:h-11! glass-button rounded-xl px-3 py-1.5 text-xs font-medium truncate capitalize text-accent-rose hover:bg-accent-rose/10 transition-all flex items-center justify-center gap-1.5 font-bold cursor-pointer"
                 >
                   <X size={15} />
                   <span>Azzera tutti i filtri</span>
@@ -381,12 +382,29 @@ const DropdownFilterView = memo(({
       {/* Desktop Toolbar: compatto con respiro ed alto contrasto WCAG */}
       <PageToolbar className="min-h-[50px] h-[50px] py-2 px-3 sm:px-4 md:px-6 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xs hidden md:flex items-center shrink-0 min-w-0 w-full gap-2.5 overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-2.5 select-none text-xs w-full min-w-0">
-          <span className="text-xs font-extrabold tracking-wider text-slate-600 dark:text-slate-300 shrink-0 flex items-center gap-1.5 mr-0.5">
-            <Filter size={14} className="text-slate-500 dark:text-slate-400" />
-            Filtri:
-          </span>
+          {/* Pulsante Apri Drawer spostato a sinistra */}
+          <button
+            onClick={() => setIsDesktopDrawerOpen(prev => !prev)}
+            className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors shrink-0 cursor-pointer mr-1"
+          >
+            <Filter size={14} />
+            <span>Tutti i Filtri</span>
+            {activeFiltersCount > 0 && (
+              <span className="app-caption px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 font-bold ml-1">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
+          
+          <div className="w-[1px] h-5 bg-slate-200 dark:bg-slate-700 mx-1"></div>
 
-          {/* Filtri Primari (Tipologia, Forma, Diametro, Stato) */}
+          {isDesktopDrawerOpen ? (
+            <div className="flex-1 text-sm font-semibold text-slate-500 italic pl-2">
+              Modifica i filtri nel pannello laterale...
+            </div>
+          ) : (
+            <>
+              {/* Filtri Primari (Tipologia, Forma, Diametro, Stato) */}
           {primaryKeys.map(key => {
             const isDisabled = !filters[key] && (!filterOptions[key] || filterOptions[key].length === 0);
             return (
@@ -402,7 +420,7 @@ const DropdownFilterView = memo(({
                       filters[key] ? 'border-sky-400 dark:border-sky-600 text-sky-800 dark:text-sky-200 bg-sky-50/80 dark:bg-sky-950/40 font-semibold ring-1 ring-sky-400/20' : ''
                     } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
                   >
-                    <span className="truncate flex items-center gap-1.5">
+                    <span className="truncate flex items-center gap-1.5 capitalize">
                       <span className="text-slate-600 dark:text-slate-400 font-normal">{LABELS[key] || key}:</span>
                       <strong className="font-bold text-slate-900 dark:text-slate-100">
                         {filters[key] ? (key === 'Diametro' ? `Ø${filters[key]}` : filters[key]) : 'Tutti'}
@@ -441,7 +459,7 @@ const DropdownFilterView = memo(({
                       disabled={isDisabled}
                       className="h-8 px-2.5 border-0 bg-transparent shadow-none hover:bg-transparent focus:ring-0 text-xs font-medium gap-1.5 shrink-0 whitespace-nowrap"
                     >
-                      <span className="truncate flex items-center gap-1.5">
+                      <span className="truncate flex items-center gap-1.5 capitalize">
                         <span className="text-slate-600 dark:text-slate-400 font-normal">{LABELS[key] || key}:</span>
                         <strong className="font-bold">
                           {filters[key] ? (key === 'Diametro' ? `Ø${filters[key]}` : filters[key]) : 'Tutti'}
@@ -516,12 +534,15 @@ const DropdownFilterView = memo(({
             </Menu.Root>
           )}
 
+            </>
+          )}
+
           {/* Reset filtri */}
-          {activeFiltersCount > 0 && (
+          {activeFiltersCount > 0 && !isDesktopDrawerOpen && (
             <button
               type="button"
               onClick={handleResetAll}
-              className="ml-auto text-xs font-bold text-sky-700 dark:text-sky-400 hover:text-sky-800 hover:underline shrink-0 cursor-pointer pl-2 whitespace-nowrap"
+              className="ml-2 text-xs font-bold text-sky-700 dark:text-sky-400 hover:text-sky-800 hover:underline shrink-0 cursor-pointer pl-2 whitespace-nowrap"
             >
               Azzera filtri
             </button>
@@ -529,21 +550,95 @@ const DropdownFilterView = memo(({
         </div>
       </PageToolbar>
 
-      <div className="flex-1 min-h-0 flex flex-col w-full overflow-hidden">
-      {/* Deleghiamo il rendering della griglia a ToolsGrid con TanStack Table */}
-      <ToolsGrid 
-        tools={filtered} 
-        onSelectTool={onSelectTool} 
-        isMobile={isMobile} 
-        hideExtraFilters={true} 
-        selectionMode={isSelectionMode ? "toggle" : "none"} 
-        emptyTitle={searchQuery ? "Nessun utensile trovato" : "Nessun utensile presente"}
-        emptyDescription={
-          searchQuery
-            ? `Nessun risultato corrispondente a "${searchQuery.trim()}". Controlla i caratteri inseriti o prova con un altro parametro.`
-            : null
-        }
-      />
+      <div className="flex-1 min-h-0 flex flex-row w-full overflow-hidden">
+        {/* Desktop Drawer (Integrated Left Sidebar) */}
+        <AnimatePresence initial={false}>
+          {isDesktopDrawerOpen && !isMobile && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 280, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="h-full bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-md border-r border-slate-200 dark:border-slate-800 flex flex-col shrink-0 overflow-hidden relative z-10"
+            >
+              <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800 shrink-0 w-[280px]">
+                <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
+                  <Filter size={18} />
+                  <span className="font-bold">Tutti i Filtri</span>
+                </div>
+                <button
+                  onClick={() => setIsDesktopDrawerOpen(false)}
+                  className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer shrink-0"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 w-[280px]">
+                {filterKeys.map(key => {
+                  const isDisabled = !filters[key] && (!filterOptions[key] || filterOptions[key].length === 0);
+                  return (
+                    <div key={key} className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold text-slate-500 dark:text-slate-400">{LABELS[key] || key}</label>
+                      <Select
+                        value={filters[key] ? String(filters[key]) : null}
+                        onValueChange={(val) => setFilter(key, val === 'all' ? '' : val)}
+                        disabled={isDisabled}
+                      >
+                        <SelectTrigger 
+                          disabled={isDisabled}
+                          className={`w-full h-10 glass-button rounded-xl px-3 text-xs font-medium truncate capitalize bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-accent-blue/40 outline-none transition-all ${
+                            filters[key] ? 'text-accent-blue border-accent-blue/30 font-bold' : 'dark:text-slate-300 text-slate-700'
+                          } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
+                        >
+                          <span className="truncate flex items-center gap-1">
+                            <strong>{filters[key] ? (key === 'Diametro' ? `Ø${filters[key]}` : filters[key]) : 'Tutti'}</strong>
+                          </span>
+                        </SelectTrigger>
+                        <SelectContent className="glass-panel z-[var(--z-popover)] border-slate-200 dark:border-slate-800 dark:bg-slate-950/95 bg-white/95 backdrop-blur-xl">
+                          <SelectItem value="all" className="cursor-pointer font-bold opacity-60 italic">{LABELS[key] || key} (Tutti)</SelectItem>
+                          {(filterOptions[key] || []).map(val => (
+                            <SelectItem key={val} value={String(val)} className="cursor-pointer font-bold">
+                              {key === 'Diametro' ? `Ø${val}` : val}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  );
+                })}
+              </div>
+              {activeFiltersCount > 0 && (
+                <div className="p-4 border-t border-slate-200 dark:border-slate-800 shrink-0 w-[280px]">
+                  <button
+                    type="button"
+                    onClick={handleResetAll}
+                    className="w-full h-11 glass-button rounded-xl text-sm font-bold text-accent-rose hover:bg-accent-rose/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <X size={16} />
+                    Azzera tutti i filtri
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="flex-1 min-h-0 min-w-0 flex flex-col w-full overflow-hidden">
+          {/* Deleghiamo il rendering della griglia a ToolsGrid con TanStack Table */}
+          <ToolsGrid 
+            tools={filtered} 
+            onSelectTool={onSelectTool} 
+            isMobile={isMobile} 
+            hideExtraFilters={true} 
+            selectionMode={isSelectionMode ? "toggle" : "none"} 
+            emptyTitle={searchQuery ? "Nessun utensile trovato" : "Nessun utensile presente"}
+            emptyDescription={
+              searchQuery
+                ? `Nessun risultato corrispondente a "${searchQuery.trim()}". Controlla i caratteri inseriti o prova con un altro parametro.`
+                : null
+            }
+          />
+        </div>
       </div>
     </motion.div>
 

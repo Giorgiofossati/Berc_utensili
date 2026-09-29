@@ -16,6 +16,175 @@ Questo file tiene traccia in ordine cronologico inverso di tutte le implementazi
    - `[REFACTOR]`: Riorganizzazione del codice o hook senza cambi funzionali esterni.
    - `[PERF]`: Ottimizzazioni di prestazioni (bundle, caricamento, query).
    - `[DOCS]`: Aggiornamenti alla documentazione o regole di sistema.
+### [2026-09-30] - Diagramma Sankey: Ripartizione Costi e Valore per Tipologie Utensili nell'Area Manager
+- **Tag**: `[FEAT]` / `[UX/UI]`
+- **Descrizione**:
+  - **Componente Sankey SVG Puro e Reattivo (`SankeyChart.jsx`)**: Sviluppato motore grafico Sankey nativo a zero dipendenze esterne, ultra-leggero (~5 kB gzipped), compatibile al 100% con React 19, Tailwind v4 e PWA. Include gradienti cromatici da sorgente a destinazione, nastri Bézier proporzionali, evidenziazione dinamica dei percorsi al passaggio del mouse e tooltip interattivo con dettagli di flusso, quota percentuale e pezzi.
+  - **Card Analitica Flussi Utensileria (`CostSankeyCard.jsx`)**: Creata card per l'Area Manager con controllo a segmenti per alternare tre modalità di ripartizione: *Tipologia ➔ Forma/Geometria*, *Tipologia ➔ Stato Giacenze* (Regolare, Sottoscorta, Esaurito), e *Tipologia ➔ Fascia Prezzo*. Include statistiche di sintesi (categoria principale e capitale a rischio) e interattività bidirezionale (il click su una tipologia applica il filtro).
+  - **Integrazione in `CostAnalysisView` e `ManagerDashboardView`**: Integrata la visualizzazione Sankey come hero analitico in testa all'Analisi Costi e aggiunta opzione con toggle (*Diagramma Sankey* / *Classifica a barre*) nella Dashboard Direzionale Manager. Conforme al 100% alle linee guida di design Bercella (zero indigo, contrasti WCAG, tipografia conforme).
+- **File coinvolti**:
+  - [`src/components/charts/SankeyChart.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/charts/SankeyChart.jsx)
+  - [`src/features/manager/components/CostSankeyCard.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/manager/components/CostSankeyCard.jsx)
+  - [`src/features/manager/CostAnalysisView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/manager/CostAnalysisView.jsx)
+  - [`src/features/manager/ManagerDashboardView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/manager/ManagerDashboardView.jsx)
+  - [`CHANGELOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/CHANGELOG.md)
+
+### [2026-09-30] - Inventario: Vista Tabella Dati di Default per Tutti e Colonne Ottimizzate con Divisori Excel
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Vista Lista/Tabella di Default per Tutti gli Utenti**: Impostata la vista a elenco/tabella (`dropdown`) come vista iniziale predefinita per qualsiasi account (non solo Admin) in `useFilterStore`, `useAuthStore` e `UserSettingsModal`. Le preferenze personali salvate esplicitamente nelle impostazioni utente continuano a essere rispettate.
+  - **Ridistribuzione Ottimale Colonne Tabella Inventario**:
+    - Assegnato maggiore spazio alla colonna `Descrizione` (`flex: 3.5`, `minWidth: 200px`), consentendo la lettura completa delle descrizioni lunghe di frese, punte e maschi senza troncature premature. Aggiunto anche il tooltip nativo `title` al testo.
+    - Calibrate con `maxWidth` e `minWidth` dedicate le colonne secondarie (`Codice Aziendale` 120-155px, `Codice Fornitore` 135-185px, `Ubicazione` 105-145px, `Stato` 85-105px, `Prezzo Unit.` 90-115px, `Giacenza` 75-90px) per evitare dispersioni di spazio bianco vuoto su schermi grandi.
+  - **Divisori Verticali Stile Excel**: Introdotto il supporto e lo stile per sottili divisori verticali di colonna in `VirtualizedTable` (`showDividers={true}`), con celle estese a piena altezza riga (`items-stretch` / `self-stretch`) e colori calibrati per Light e Dark mode (`border-slate-200/50` / `dark:border-slate-800/60`).
+- **File coinvolti**:
+  - [`src/store/useFilterStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useFilterStore.js)
+  - [`src/store/useAuthStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useAuthStore.js)
+  - [`src/features/auth/UserSettingsModal.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/auth/UserSettingsModal.jsx)
+  - [`src/components/common/DataTable/VirtualizedTable.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/DataTable/VirtualizedTable.jsx)
+  - [`src/features/inventory/ToolsGrid.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolsGrid.jsx)
+  - [`CHANGELOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/CHANGELOG.md)
+
+### [2026-09-30] - Login: Spostamento "Come Funziona?" nel Footer e Visibilità Permanente di Logo e Titolo Officina 4.0
+- **Tag**: `[UX/UI]` / `[LAYOUT]`
+- **Descrizione**:
+  - **Spostamento "Come Funziona?" nel Footer della Card**: Rimosso il pulsante informativo dall'header (dove creava congestione con il marchio) e riposizionato con rilievo ed eleganza nel footer del pannello di login (`Come funziona? Scopri funzionalità e vantaggi ✨`), garantendogli piena visibilità senza togliere spazio al branding.
+  - **Visibilità Permanente 100% di Logo e Titoli**: L'header è ora interamente dedicato all'identità istituzionale: il Logo Bercella, il divisore verticale e il blocco *Officina 4.0 - Gestione Utensili CNC* sono sempre tutti visibili contemporaneamente su smartphone, tablet e desktop, senza troncature o classi di nascondimento.
+- **File coinvolti**:
+  - [`src/features/auth/LoginScreen.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/auth/LoginScreen.jsx)
+  - [`CHANGELOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/CHANGELOG.md)
+
+### [2026-09-30] - Login: Raddoppio Finale Logo Hero Bercella e Card Operatore a Riga Singola (Zero Wrapping)
+- **Tag**: `[UX/UI]` / `[FIX]`
+- **Descrizione**:
+  - **Logo Bercella Raddoppiato Ulteriormente**: Portata l'altezza del logo a `h-28 sm:h-36 md:h-44 lg:h-52` (fino a 208px di altezza), rendendolo un vero e proprio hero badge monumentale ed elegante con padding e proporzioni calibrati (`max-w-[220px] sm:max-w-none`).
+  - **Nomi e ID Rigorosamente su Riga Singola (Zero Wrapping)**: 
+    - Ottimizzata la griglia card a `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` (al posto delle 4 colonne strette): su mobile ogni riga è ampia e spaziosa, eliminando ogni accavallamento.
+    - Applicato `whitespace-nowrap truncate` sia sul Nome Operatore (`text-sm sm:text-base font-bold`) sia sull'ID Badge (`text-xs font-mono`), garantendo che stiano rigorosamente su una sola riga senza andare a capo.
+    - Riorganizzato il layout interno della card con `flex items-center justify-between` e badge di sicurezza (`[🔒 Admin]` / `[🔒 Manager]`) allineato a destra.
+  - **Sostituzione Z-Index Arbitrari in DropdownFilterView**: Corretti z-index non standard (`z-[90]`, `z-[100]`, `z-[110]`) con i token ufficiali del Design System (`z-[var(--z-drawer)]`, `z-[var(--z-dialog)]`, `z-[var(--z-popover)]`).
+- **File coinvolti**:
+  - [`src/features/auth/LoginScreen.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/auth/LoginScreen.jsx)
+  - [`src/features/filters/DropdownFilterView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/filters/DropdownFilterView.jsx)
+  - [`CHANGELOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/CHANGELOG.md)
+
+### [2026-09-30] - Miglioramento Gestione Filtri Inventario Lista
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- Aggiunto "Ubicazione" alla barra dei filtri fissi.
+- Corretta tipografia filtri mobile e desktop: applicato `capitalize` (prima lettera maiuscola per tutti i filtri) e font ridotto a `text-xs` per una UI più pulita ed evitare overflow.
+- Spostato il pulsante "Tutti i Filtri" sulla parte sinistra della toolbar desktop.
+- Introdotto drawer laterale per filtri su desktop: il pannello ora si apre **sulla sinistra integrandosi a fianco della tabella** (push layout stile e-commerce).
+
+### [2026-09-29] - Supporto Lucchetto e Password per Ruolo Manager (Rocco Bercella) e Allineamento Gestione Utenti
+- **Tag**: `[FIX]` / `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Identificazione Ruolo Protetto da Password**: Il login verificava la presenza del lucchetto con `u.ruolo === 'Admin'`, escludendo il ruolo `Manager` (come Rocco Bercella che ha password e accesso alla dashboard economica/costi). Implementata la funzione `requiresPassword(u)` che copre sia `Admin` che `Manager`.
+  - **Badge e Lucchetto Dinamici su Card Operatore**: Mostrato badge dedicato con icona lucchetto: `[🔒 Admin]` in ambra industriale per gli amministratori e `[🔒 Manager]` in sky blue per i manager. Gli account `Operatore` mantengono l'accesso immediato a 1-click senza lucchetto.
+  - **Form di Autenticazione Password Dinamico**: Il modale di inserimento password ora mostra dinamicamente il ruolo corretto (`Manager` o `Amministratore`), etichetta appropriata (*"Password Manager"* o *"Password Amministratore"*) e placeholder contestuale.
+  - **Supporto Password Manager in OperatorsView**: Esteso [`OperatorsView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/OperatorsView.jsx) affinché il campo password sia visibile, validato e salvato correttamente sia per gli Admin sia per i Manager, evitando che la password venga azzerata al salvataggio.
+- **File coinvolti**:
+  - [`src/features/auth/LoginScreen.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/auth/LoginScreen.jsx)
+  - [`src/features/admin/OperatorsView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/OperatorsView.jsx)
+  - [`CHANGELOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/CHANGELOG.md)
+
+### [2026-09-29] - Refinement Login: Micro-Stepper Fisso e Tutto Visibile (No Scroll), Rimozione B1 e Pulizia Subtitle
+- **Tag**: `[UX/UI]` / `[FIX]`
+- **Descrizione**:
+  - **Micro-Stepper Fisso e Sempre Visibile (No Scroll)**: Eliminato lo scroll orizzontale su mobile. Il micro-stepper è ora rigidamente fisso su una griglia a 3 colonne (`grid-cols-3`), garantendo che tutte e 3 le fasi (`1. Identificati`, `2. Sfoglia catalogo`, `3. Preleva, Deposita o Gestisci`) siano sempre visibili al 100% su qualsiasi dispositivo e risoluzione senza richiedere alcuno scorrimento o gesto touch.
+  - **Eliminazione Completa Telemetria B1**: Rimosso totalmente il chip `Sincronizzato B1` / `TERMINALE OFFICINA` sia da desktop che da mobile per alleggerire l'header e dare massimo respiro visivo al logo Hero.
+  - **Pulizia Subtitle Operatore**: Rimossa completamente la scritta/pulsante "scopri di più" sotto *Identificazione Operatore*, mantenendo unicamente il sottotitolo operativo pulito e privo di distrazioni.
+- **File coinvolti**:
+  - [`src/features/auth/LoginScreen.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/auth/LoginScreen.jsx)
+  - [`CHANGELOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/CHANGELOG.md)
+
+### [2026-09-29] - Risoluzione Sparizione Tutorial su Mobile, Stacking Context e Spotlight Intelligente
+- **Tag**: `[FIX]` / `[UX/UI]`
+- **Descrizione**:
+  - **Stacking Context Globale (Fix Sparizione sotto Drawer)**: Spostato `<AppTutorial />` al livello radice di `App.jsx`, liberandolo dalla trappola di isolamento (`div.isolate`) che faceva finire la card e la guida dietro al drawer della sidebar mobile e al suo backdrop (`z-drawer`).
+  - **Soppressione Backdrop Conflittuale Mobile**: Disattivato il backdrop oscurante di default della sidebar mobile quando il tutorial è attivo (`!isTutorialOpen`), affidando il focus interamente alla maschera spotlight SVG di `AppTutorial` ed evitando che tocchi accidentali chiudano la barra laterale facendo sparire l'elemento evidenziato.
+  - **Rilevamento Bersagli Visibili (`querySelectorAll`)**: Refattorizzato `updateTargetRect` in `AppTutorial.jsx` per scansionare tutti i nodi e ignorare elementi con `display: none` o `0x0px`. Questo ha ripristinato l'evidenziazione di `data-tour="search-tools"` sul pulsante lente mobile e di `data-tour="view-mode-toggle"` sul toggle visibile su mobile (`md:hidden`).
+  - **Posizionamento Adattivo Card su Schermi Touch**: Implementato `getMobileCardPosition` con inversione automatica in alto (`top: env(safe-area-inset-top)`) quando il bersaglio si trova nella metà inferiore (es. Storico, Guida e Profilo utente), prevenendo sovrapposizioni e coperture visive. Aggiunto scroll dolce automatico (`scrollIntoView`) per portare in vista voci della barra laterale fuori schermo.
+- **File coinvolti**:
+  - [`src/App.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/App.jsx)
+  - [`src/components/common/AppTutorial.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/AppTutorial.jsx)
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
+  - [`src/components/layout/PageTemplate.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/PageTemplate.jsx)
+  - [`src/store/useTutorialStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useTutorialStore.js)
+  - [`CHANGELOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/CHANGELOG.md)
+
+### [2026-09-29] - Raddoppio Logo Hero Bercella, Aggiornamento Micro-Stepper (Catalogo/Gestisci) con Navigazione Mobile e Callout Curiosità Info
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Logo Bercella Raddoppiato**: Incrementata l'altezza del logo orizzontale a `h-16 sm:h-20 md:h-24 lg:h-28` (almeno il doppio rispetto a prima), esaltando l'identità del brand e rendendolo l'elemento visivo dominante dell'header su ogni risoluzione.
+  - **Aggiornamento Copy Micro-Stepper**: Modificati i passaggi in `1. Identificati` → `2. Sfoglia catalogo` → `3. Preleva, Deposita o Gestisci`.
+  - **Micro-Stepper Scrollabile con Barra di Navigazione Mobile**: Reso il container dello stepper scorrevole orizzontalmente con snap touch (`snap-x touch-pan-x`) su schermi compatti, con barra di avanzamento visiva dedicata a 3 segmenti e indicatore guidato per la consultazione dei passaggi.
+  - **Inviti alla Lettura della Guida ("Come funziona? • Scopri vantaggi")**: Sostituito il pulsante anonimo con un elemento informativo cliccabile nell'header (`Come funziona? Funzionalità & Vantaggi ✨`), integrato un pulsante-teaser contestuale sotto il sottotitolo operativo (*"Nuovo dell'officina? Clicca qui per scoprire funzionalità e vantaggi"*) e un link di approfondimento nel footer.
+- **File coinvolti**:
+  - [`src/features/auth/LoginScreen.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/auth/LoginScreen.jsx)
+  - [`CHANGELOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/CHANGELOG.md)
+
+### [2026-09-29] - Ottimizzazione Cognitiva Login, Micro-Stepper Operativo, Telemetria Macchina e Installazione PWA 1-Click
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Sottotitolo Operativo Diretto**: Aggiunto sotto *Identificazione Operatore* il copy chiaro e immediato *"Tocca il tuo profilo per registrare prelievi, depositi o verificare la disponibilità delle frese a magazzino."* per orientare istantaneamente qualsiasi operatore.
+  - **Micro-Stepper di Flusso in 3 Fasi**: Implementato percorso visivo (`1. Identificati` → `2. Cerca o Barcode` → `3. Preleva o Deposita`) sopra la lista operatori per spiegare graficamente la sequenza d'azione senza caricare la mente dell'utente.
+  - **Telemetria Macchina B1**: Inserito nell'header il chip di stato live `● Sincronizzato B1 • TERMINALE OFFICINA` (con versione compatta `● B1` su mobile) per dare rassicurazione immediata sulla sincronizzazione in tempo reale.
+  - **Modale Guida & Valore Sistema (Radix Dialog)**: Implementato il modale di approfondimento attivabile dal tasto info che espone fedelmente i 5 cardini di valore approvati (*Inventario intelligente, Zero fermi Macchina, Gestione scorte, Gestione Rapida, Gestione costi*).
+  - **Installazione WebApp PWA a 1-Click (Desktop & Mobile)**: Esteso [`usePwaStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/usePwaStore.js) con intercettazione nativa di `beforeinstallprompt` (Chromium desktop/Android) e supporto guidato per iOS Safari con modale in 2 passaggi, abilitando l'installazione PWA con un singolo tap dall'header del login.
+- **File coinvolti**:
+  - [`src/features/auth/LoginScreen.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/auth/LoginScreen.jsx)
+  - [`src/store/usePwaStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/usePwaStore.js)
+  - [`src/index.css`](file:///Users/gio/Documents/CODING/Berc_utensili/src/index.css)
+  - [`public/logo-bercella_orizzontale_white.png`](file:///Users/gio/Documents/CODING/Berc_utensili/public/logo-bercella_orizzontale_white.png)
+
+### [2026-09-29] - Inserimento Massivo Prezzi d'Acquisto da Storico Ordini Excel & Visualizzazione Frontend
+- **Tag**: `[FEAT]` / `[FIX]` / `[PERF]`
+- **Descrizione**:
+  - **Parsing ed Estrapolazione da Ordini Storici (2023-2026)**: Analizzati tutti i fogli dell'archivio ordini aziendale Excel (`Inserimento ordini 2026`, `2025`, `2024`, `2023`, `richieste offerte`, `Codici Utensili`), estraendo oltre 1.280 prezzi d'acquisto unitari effettivi confermati (`prezzo cad.`) al netto di IVA.
+  - **Incrocio & Valorizzazione Inventario (`Utensili_B1`)**: Elaborato matching intelligente incrociando `Codice` BRCL (sia formato breve che esteso `BRCL0004...`), matricole/codici fornitore (`Serial Number`) e i 26 prezzi certificati dal Report Ducati del 28/09.
+  - **Aggiornamento Database Supabase**: Valorizzati con successo **217 utensili reali** con prezzo effettivo (copertura 100% per `CASS.DUCATI`, `CASS.DUCATI 27`, `DUCATI`, `CASS.OPERCOLI CHIAVI`, oltre il 74% su `IR27` e `OPERCOLI`, e decine di articoli in tutto il magazzino). Valore totale inventario prezzato: **€ 105.919,42**.
+  - **Fix Visualizzazione Localhost & Invalidazione Cache Offline**: 
+    - Rilevato che la stored procedure Postgres `get_tools_catalog()` escludeva la colonna `"Prezzo"`: corretto [`useInventoryStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useInventoryStore.js) con verifica selettiva e fallback con `.select('*')` completo.
+    - Incrementato `DB_VERSION = 2` in [`catalogCache.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/lib/catalogCache.js) con invalidazione automatica della vecchia cache IndexedDB locale priva del prezzo.
+    - Aggiunta colonna visibile `Prezzo Unit.` in [`ToolsGrid.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolsGrid.jsx) (su desktop/tablet) e badge con stato tagliente/prezzo in [`ToolDetailDrawer.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolDetailDrawer.jsx).
+- **File coinvolti**:
+  - [`scripts/match_excel_prices.py`](file:///Users/gio/Documents/CODING/Berc_utensili/scripts/match_excel_prices.py)
+  - [`scripts/update_all_inventory_prices.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/scripts/update_all_inventory_prices.sql)
+  - [`src/lib/catalogCache.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/lib/catalogCache.js)
+  - [`src/store/useInventoryStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useInventoryStore.js)
+  - [`src/features/inventory/ToolsGrid.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolsGrid.jsx)
+  - [`src/features/inventory/ToolDetailDrawer.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolDetailDrawer.jsx)
+  - [`src/features/manager/CostAnalysisView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/manager/CostAnalysisView.jsx)
+  - [`src/features/manager/ManagerDashboardView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/manager/ManagerDashboardView.jsx)
+
+### [2026-09-29] - Integrazione Logo Ufficiale Orizzontale Bercella (Hero Size & Dark Mode Invertita) & Refactoring Login
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Generazione Versione Dark Mode Invertita del Logo**: Generato il nuovo asset ad alta risoluzione [`public/logo-bercella_orizzontale_white.png`](file:///Users/gio/Documents/CODING/Berc_utensili/public/logo-bercella_orizzontale_white.png) tramite elaborazione della palette PNG e canale `tRNS`. Il wordmark `"BERCELLA"` e l'emblema circolare sono in bianco pieno `#ffffff`, il ritaglio della lettera `"B"` è trasparente (lasciando intravedere la tonalità scura sottostante) e l'ala d'ombra è sfumata in tonalità slate.
+  - **Hero Branding Dimensionale**: Il logo è stato ingrandito considerevolmente (`h-9 sm:h-12 md:h-14 lg:h-16`) passando da elemento secondario a fulcro distintivo dell'identità visiva della pagina di login, con resa fluida e responsive per smartphone, tablet e monitor touch d'officina.
+  - **Switch Automatico Light/Dark Mode**: Utilizzo nativo di `dark:hidden` e `hidden dark:block` per mostrare il logo blu navy originale su sfondi chiari e la versione bianca invertita su sfondi scuri, senza cornici o box artificiali.
+  - **Rimozione Effetto Glass sul Pannello di Login**: Sostituito `glass-panel` con una superficie opaca solida (`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl`), eliminando l'effetto smerigliato/trasparente per una resa più nitida, pulita e conforme agli standard industriali di visibilità.
+  - **Campi Input & Card Solidi**: Sostituita la classe `glass-input` sui campi di ricerca e password con input solidi a contrasto calibrato (`bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700`), e aggiornate le card operatore con background opaco pulito.
+  - **Eliminazione Fuga Monospace (`Geist Mono`)**: Rimossa la classe `.app-caption` (`font-mono`) dai testi operativi (la frase di legenda `"= richiede password"` e la dicitura `"Amministratore"`), ripristinando il corretto impiego semantico di `font-sans` (`Geist`) e riservando il font monospace esclusivamente a codici ID e quantità.
+  - **Ereditarietà Tipografica nei Form Controls**: Aggiunta la regola `font-family: inherit` a `button, input, optgroup, select, textarea` in `@layer base` e specificato `font-sans` su tutte le classi utility semantiche (`.app-overline`, `.app-h1`, `.app-h2`, `.app-h3`, `.app-body`, `.app-label`) in [`src/index.css`](file:///Users/gio/Documents/CODING/Berc_utensili/src/index.css).
+  - **Ergonomia Card Operatore Touchscreen**: Aumentata l'altezza minima delle card operatore da 68px a 72px (`min-h-[72px]`), ottimizzando i target di tocco per guanti da lavoro e touch monitor d'officina.
+  - **Header & Gerarchia Visiva**: Titolo applicazione scalato da `app-h3` a testo semibold/black proporzionato al logo, e overline/heading card normalizzati a `"Accesso Sistema"` / `"Identificazione Operatore"`.
+- **File coinvolti**:
+  - [`public/logo-bercella_orizzontale_white.png`](file:///Users/gio/Documents/CODING/Berc_utensili/public/logo-bercella_orizzontale_white.png) *(nuovo asset generato)*
+  - [`src/features/auth/LoginScreen.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/auth/LoginScreen.jsx)
+  - [`src/features/inventory/ToolDetailDrawer.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolDetailDrawer.jsx)
+  - [`src/index.css`](file:///Users/gio/Documents/CODING/Berc_utensili/src/index.css)
+
+### [2026-09-29] - Sincronizzazione Prezzi Industriali B2B & Script di Estrazione Listini Hoffmann
+- **Tag**: `[FEAT]` / `[PERF]`
+- **Descrizione**:
+  - **Aggiunta Campo Prezzo Unitario Netto**: Predisposta la colonna `"Prezzo"` (tipo `NUMERIC(10, 2)`) su Supabase per la tabella `Utensili_B1` a valore netto d'acquisto (IVA esclusa).
+  - **Script Sincronizzazione Locale Zero-Token**: Realizzato [`scripts/sync_tool_prices.py`](file:///Users/gio/Documents/CODING/Berc_utensili/scripts/sync_tool_prices.py) ad altissima efficienza e verifica rigorosa su Hoffmann Group B2B. Nessun dato inventato o presunto: i codici non verificati al 100% restano non valorizzati (`NULL`).
+  - **Generazione Comandi SQL Atomici**: Creato [`scripts/update_prices.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/scripts/update_prices.sql) con i comandi `UPDATE` pronti all'esecuzione per le cassette richieste (DUCATI, CASS.IR27, CASS.JANUS, CASS.OPERCOLI, CASS.SPARKWING).
+- **File coinvolti**:
+  - [`scripts/sync_tool_prices.py`](file:///Users/gio/Documents/CODING/Berc_utensili/scripts/sync_tool_prices.py) *(nuovo script)*
+  - [`scripts/update_prices.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/scripts/update_prices.sql) *(nuovo file comandi)*
+
 ### [2026-09-29] - Upgrade Algoritmico Scanner: Motore ZXing-C++ WebAssembly (WASM) 100% Offline
 - **Tag**: `[PERF]` / `[FEAT]`
 - **Descrizione**:
@@ -104,6 +273,20 @@ Questo file tiene traccia in ordine cronologico inverso di tutte le implementazi
   - [`src/features/manager/CommessaAnalysisView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/manager/CommessaAnalysisView.jsx)
 
 ---
+
+## [2026-09-29] - Ottimizzazione Dashboard Manager: Tipografia, Formattazione e Spaziature
+- **Tag**: `[UX/UI]` / `[REFACTOR]`
+- **Descrizione**:
+  - Sostituite classi CSS custom maiuscole (es. font-extrabold) con i token tipografici semantici previsti dal sistema (`.app-h3`, `.app-body`, `.app-caption`).
+  - Rimossi gli stili testuali maiuscoli in `ManagerDashboardView`, `CostAnalysisView` e `CommessaAnalysisView`.
+  - Sistemata la formattazione numerica per adottare univocamente lo standard italiano (`new Intl.NumberFormat('it-IT')`), rimuovendo i vecchi arrotondamenti (`.toFixed(2)`) che inserivano erroneamente punti per i decimali.
+  - Incrementati e standardizzati padding e spaziature nei pannelli di dashboard per rispettare le regole di ergonomia touch.
+- **File Coinvolti**:
+  - `src/features/manager/ManagerDashboardView.jsx`
+  - `src/features/manager/CostAnalysisView.jsx`
+  - `src/features/manager/CommessaAnalysisView.jsx`
+  - `CHANGELOG.md`
+
 
 ### [2026-09-29] - Riprogettazione Pagina Richieste (TanStack Table Fullscreen, 4 Info Chiave & Mobile First)
 - **Tag**: `[FEAT]` / `[UX/UI]`

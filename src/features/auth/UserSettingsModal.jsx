@@ -7,7 +7,7 @@ import { usePwaStore } from '../../store/usePwaStore';
 
 export default function UserSettingsModal({ isOpen, onClose }) {
   const currentUser = useAuthStore(state => state.currentUser);
-  const [defaultView, setDefaultView] = useState('grid');
+  const [defaultView, setDefaultView] = useState('dropdown');
 
   const needRefresh = usePwaStore(state => state.needRefresh);
   const isUpdating = usePwaStore(state => state.isUpdating);
@@ -22,12 +22,8 @@ export default function UserSettingsModal({ isOpen, onClose }) {
       if (savedView) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setDefaultView(savedView);
-      } else if (currentUser.ruolo === 'Admin') {
-         
-        setDefaultView('dropdown');
       } else {
-         
-        setDefaultView('grid');
+        setDefaultView('dropdown');
       }
     }
   }, [currentUser]);

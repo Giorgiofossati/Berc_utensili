@@ -6,7 +6,7 @@
  */
 
 const DB_NAME = 'bercella_inventory_db';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // v2: aggiornamento schema per inclusione campo Prezzo
 const STORE_NAME = 'tools_cache';
 const CATALOG_KEY = 'global_catalog';
 
@@ -24,9 +24,10 @@ function openDB() {
 
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'key' });
+      if (db.objectStoreNames.contains(STORE_NAME)) {
+        db.deleteObjectStore(STORE_NAME);
       }
+      db.createObjectStore(STORE_NAME, { keyPath: 'key' });
     };
 
     request.onsuccess = () => resolve(request.result);
@@ -53,6 +54,12 @@ export async function getCachedCatalog() {
 
       req.onsuccess = () => {
         if (req.result && Array.isArray(req.result.tools)) {
+          // Se la cache non include il campo Prezzo, invalidala per forzare fetch fresco
+          const hasPrezzo = req.result.tools.some(t => 'Prezzo' in t);
+          if (!hasPrezzo) {
+            resolve(null);
+            return;
+          }
           resolve({
             tools: req.result.tools,
             lastUpdated: req.result.lastUpdated || 0

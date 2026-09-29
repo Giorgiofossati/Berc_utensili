@@ -100,13 +100,13 @@ export const useInventoryStore = create((set, get) => ({
     try {
       let rawTools = null;
 
-      // Prova prima la stored procedure compressa ad alta velocità
+      // Prova prima la stored procedure solo se include la nuova colonna Prezzo
       const { data: rpcData, error: rpcError } = await supabase.rpc('get_tools_catalog');
       
-      if (!rpcError && Array.isArray(rpcData) && rpcData.length > 0) {
+      if (!rpcError && Array.isArray(rpcData) && rpcData.length > 0 && ('Prezzo' in rpcData[0])) {
         rawTools = rpcData;
       } else {
-        // Fallback automatico a blocchi di 1000 righe
+        // Fallback automatico a blocchi di 1000 righe con select('*') che garantisce tutte le colonne inclusa Prezzo
         rawTools = await fetchAllToolsInChunks();
       }
 

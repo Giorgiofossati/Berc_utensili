@@ -235,6 +235,7 @@ export function PageHeader({
         <button
           type="button"
           onClick={openMobileSearch}
+          data-tour="search-tools"
           aria-label={searchHasValue ? 'Modifica la ricerca attiva' : 'Cerca'}
           className="md:hidden relative shrink-0 w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs text-slate-500 dark:text-slate-400 active:bg-sky-50"
         >

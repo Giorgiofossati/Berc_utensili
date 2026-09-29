@@ -1,0 +1,2172 @@
+[
+  {
+    "id": "00b1d4ac-0720-4b7a-8f0d-34f5d94980c3",
+    "codice": "BRCL01359C",
+    "serial_number": "K10 23603347",
+    "descrizione": "GUHRING ALESATORE D10  H7",
+    "ubicazione": "ALESATORI",
+    "fornitore": "FIMU",
+    "price": 131.51,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "01b5d6f9-6473-445e-816f-1915c51404a9",
+    "codice": "BRCL00054C",
+    "serial_number": "JMB16 85R03 KD16",
+    "descrizione": "INSERTI RIVESTITI - JMB16-85R03-KD16",
+    "ubicazione": "CASS.IR27",
+    "fornitore": "JONGEN",
+    "price": 46.35,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "048dcda4-9da8-4466-ab8d-15333d786294",
+    "codice": "BRCL01163C",
+    "serial_number": "RAFF-SDT90-D.10",
+    "descrizione": "SMUSSATORE D10 90°",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "RAFF",
+    "price": 62.5,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "04b53b2f-e828-45dc-8093-0fc64f6b5fc0",
+    "codice": "BRCL01429C",
+    "serial_number": "2097556",
+    "descrizione": "GARANT FRESA DIAMANTATA D6X1",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "HOFFMAN",
+    "price": 98.58,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "08724525-1374-4a17-afea-126f85dd094b",
+    "codice": "BRCL00217C",
+    "serial_number": "50477508",
+    "descrizione": "INSERTO FRESA XDHT 11T308FR-27PH216T",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "CERATIZIT",
+    "price": 24.35,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "08d9a692-3eee-4f40-99f4-ea36bf5da1d1",
+    "codice": "BRCL01376C",
+    "serial_number": "1149-6.000",
+    "descrizione": "GUHRING PUNTA ALLUMINIO NUDA D5",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "FIMU",
+    "price": 85.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "09830d43-a749-414d-a2af-bf837edce2fc",
+    "codice": null,
+    "serial_number": "8577150",
+    "descrizione": "OSG PUNTA D1.5",
+    "ubicazione": "PUNTE1",
+    "fornitore": "RAFF",
+    "price": 38.8,
+    "source": "Ordine 2025 (Match SN '8577150')"
+  },
+  {
+    "id": "0afd3ec6-0507-42cb-825c-618bdd148a60",
+    "codice": "BRCL000400000137",
+    "serial_number": "202272",
+    "descrizione": "FRESA METALLO DURO D8",
+    "ubicazione": "BELOTTIC1",
+    "fornitore": "HOFFMAN",
+    "price": 33.8,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "0b2ffe6b-66ec-4064-9b24-e66399ecf71e",
+    "codice": "BRCL00976C",
+    "serial_number": "6240535 538",
+    "descrizione": "SECO FRESA DIAMANTATA D8 R0.2",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "FIMU",
+    "price": 160.0,
+    "source": "Ordine 2026 (Inserimento ordini 2026)"
+  },
+  {
+    "id": "0de4714c-affd-4803-aeb2-482cdcd815af",
+    "codice": "BRCL000400000033",
+    "serial_number": null,
+    "descrizione": "WNT FRESA METALLO DURO D9.65",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "CERATIZIT",
+    "price": 33.61,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "1097a093-0a0c-433e-a6d2-7d7a3b637bef",
+    "codice": "BRCL01569C",
+    "serial_number": "1171508800",
+    "descrizione": "PUNTA AD ELEVATE PRESTAZIONI D8.8",
+    "ubicazione": "PUNTE2",
+    "fornitore": "CERATIZIT",
+    "price": 85.0,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "10aae6ee-d117-4374-97d1-c787a4a51ced",
+    "codice": "BRCL01242C",
+    "serial_number": null,
+    "descrizione": "PUNTA D5",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 31.48,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "11a7444f-ecfb-40f3-b3f6-1686552e9cf4",
+    "codice": null,
+    "serial_number": "VHM 19406 KD14",
+    "descrizione": "FRESA DIAMANTATA D8",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "JONGEN",
+    "price": 165.54,
+    "source": "Ordine 2025 (Match SN 'VHM 19406 KD14')"
+  },
+  {
+    "id": "12d3a19f-d3e6-40a9-b4c5-a45e6ccbeca8",
+    "codice": "BRCL01352C",
+    "serial_number": "02985",
+    "descrizione": "SMUSATORE D20 100°",
+    "ubicazione": "SMUSSATORI",
+    "fornitore": "RAFF",
+    "price": 127.5,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "13268ac5-1f18-4fb2-8432-cdaa9fb0f883",
+    "codice": "BRCL00463C",
+    "serial_number": "1170206800",
+    "descrizione": "PUNTA AD ELEVATE PRESTAZIONI D6.8 5XD",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "CERATIZIT",
+    "price": 30.37,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "14c70643-4b33-4400-9f2d-18cade5b336b",
+    "codice": "BRCL01430C",
+    "serial_number": "205275 8",
+    "descrizione": "GARANT FRESA SGROSSATURA SLOTMACHINE D8",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "HOFFMAN",
+    "price": 99.92,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "156d7828-72cd-4bc0-9cac-30bf170feb54",
+    "codice": "BRCL00705C",
+    "serial_number": "23152916",
+    "descrizione": "GUHRING MASCHIO M12",
+    "ubicazione": "MASCHI",
+    "fornitore": "FIMU",
+    "price": 64.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "1601712b-209b-4c7e-b250-3a802e77ee0a",
+    "codice": "BRCL01292C",
+    "serial_number": "206071 10/1.5",
+    "descrizione": "GARANT FRESA TOROIDALE HMI D10 R1.5",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "HOFFMAN",
+    "price": 112.63,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "18b1040b-8fba-4fc2-9f72-38232da8abdf",
+    "codice": "BRCL000400000344",
+    "serial_number": "11 703 03300",
+    "descrizione": "WNT PUNTA D3.3 R5",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 30.56,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "19fbf433-0ad8-4b16-984a-f68f533c9c1a",
+    "codice": "BRCL01044C",
+    "serial_number": "VHM 19210 KD14 D12",
+    "descrizione": "FRESA LUNGA D12",
+    "ubicazione": "RIAFFILATE1",
+    "fornitore": "JONGEN",
+    "price": 449.9,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "1a1a1d29-243f-4ec7-b54c-b3e9db14c350",
+    "codice": null,
+    "serial_number": "2823843",
+    "descrizione": "INSERTO XOEX10T308FR",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "FIMU",
+    "price": 19.7,
+    "source": "Ordine 2024 (Match SN '2823843')"
+  },
+  {
+    "id": "1c681e7d-12d2-4a35-961a-87ebf82105c4",
+    "codice": "BRCL000400000407",
+    "serial_number": "10 787 032",
+    "descrizione": "WNT PUNTA D3.2",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 88.7,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "1cf15575-07e6-4f38-b11f-64a96644f98a",
+    "codice": null,
+    "serial_number": "20978110",
+    "descrizione": "GARANT FRESA SFERICA METALLO DURO D9.75",
+    "ubicazione": "FRESA METALLI2",
+    "fornitore": "HOFFMAN",
+    "price": 200.72,
+    "source": "Ordine 2025 (Match SN '20978110')"
+  },
+  {
+    "id": "1d535799-cb6a-4ec5-b33b-9b507fb927fd",
+    "codice": "BRCL00985C",
+    "serial_number": "5768-5.100",
+    "descrizione": "GUHRING PUNTA MD D5.1",
+    "ubicazione": "CASS. NIMBUS",
+    "fornitore": "FIMU",
+    "price": 86.2,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "1d8899dd-8610-434b-af8a-8c9e25f2e0a8",
+    "codice": "BRCL01291C",
+    "serial_number": "217252",
+    "descrizione": "GARANT FRESA A INTERPOLAZIONE 18L",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "HOFFMAN",
+    "price": 224.64,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "1dc2ce3b-735b-4bca-aa31-d86fe14023ef",
+    "codice": "BRCL000402343601",
+    "serial_number": "32105",
+    "descrizione": "ALESATORE D6 X85",
+    "ubicazione": "BELOTTIC4",
+    "fornitore": "UOP",
+    "price": 18.0,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "1ea021ea-8adf-47f4-a217-3883a6b92050",
+    "codice": "BRCL01437C",
+    "serial_number": "DH408141",
+    "descrizione": "YG PUNTA D14.1X16X83Z133",
+    "ubicazione": "CASS.IR27",
+    "fornitore": "RAFF",
+    "price": 150.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "1fe0de0a-8c16-45a2-abea-271500dd2d66",
+    "codice": null,
+    "serial_number": "1170403000",
+    "descrizione": "PUNTA D3XD",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 86.86,
+    "source": "Ordine 2024 (Match SN '1170403000')"
+  },
+  {
+    "id": "203fa10b-da1c-42b9-a00b-9c36a64fcaaa",
+    "codice": "BRCL01372C",
+    "serial_number": "K10 23575490",
+    "descrizione": "GUHRING ALESATORE D16 H7",
+    "ubicazione": "ALESATORI",
+    "fornitore": "FIMU",
+    "price": 196.52,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "209fb464-5c2f-45d5-852f-1f5b7f3ef9fc",
+    "codice": "BRCL00576C",
+    "serial_number": "880080R020Z4.0",
+    "descrizione": "SECO FRESA DA SGROSSO D8 DIAMANTATA",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "FIMU",
+    "price": 155.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "23d7ae19-9aab-468a-b1e6-b22ef5ec4c97",
+    "codice": null,
+    "serial_number": "10 787 050",
+    "descrizione": "WNT PUNTA D5",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 88.7,
+    "source": "Ordine 2023 (Match SN '10 787 050')"
+  },
+  {
+    "id": "241a6b1e-881e-4fc0-8761-c8a5273f457c",
+    "codice": "BRCL01049C",
+    "serial_number": "HSSE 22919707",
+    "descrizione": "GUHRING MASCHIO AMERICANO 5/16",
+    "ubicazione": "MASCHI A",
+    "fornitore": "FIMU",
+    "price": 127.05,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "24d12db4-847c-4c00-a62d-f186099152e8",
+    "codice": "BRCL000400000219",
+    "serial_number": "HM84/15.8",
+    "descrizione": "FRESA DIAMANTATA D1.5X8",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "RIME",
+    "price": 40.278,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "252fe986-8f87-4c0f-a4c9-6688694e6c3c",
+    "codice": null,
+    "serial_number": "TD850 GP 0600",
+    "descrizione": "PUNTA  MDI D6",
+    "ubicazione": "EXTREMA1",
+    "fornitore": "BURZONI",
+    "price": 30.56,
+    "source": "Ordine 2023 (Match SN 'TD850 GP 0600')"
+  },
+  {
+    "id": "2660bc40-e7aa-4059-a4a7-a31b773f301b",
+    "codice": "BRCL01366",
+    "serial_number": "00015861",
+    "descrizione": "SECO INSERTI FRESA TCGT32.51 F-AL",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "FIMU",
+    "price": 18.5,
+    "source": "Ordine 2025 (Match SN '00015861')"
+  },
+  {
+    "id": "2706c011-6b1e-4cba-aada-9ca10cc1a326",
+    "codice": null,
+    "serial_number": "48139192",
+    "descrizione": "OSG MASCHIO M14X1.5 6HX HSSE",
+    "ubicazione": "EXTREMA3",
+    "fornitore": "RAFF",
+    "price": 60.96,
+    "source": "Ordine 2023 (Match SN '48139192')"
+  },
+  {
+    "id": "28a93e57-ad14-4310-8643-05f91f52ca41",
+    "codice": "BRCL01059C",
+    "serial_number": "HM63/05 D8 R4",
+    "descrizione": "RIME FRESA SFERICA D8",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "RAFF",
+    "price": 218.7,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "297e33a6-03f7-4ccf-83b4-aa2419c71840",
+    "codice": "BRCL00086C",
+    "serial_number": "209548 8",
+    "descrizione": "GARANT FRESA DIAMANTATA D8",
+    "ubicazione": "DIAMANTATE1",
+    "fornitore": "HOFFMAN",
+    "price": 138.71,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "2b1dc593-eebc-4d61-922c-f216e4424845",
+    "codice": null,
+    "serial_number": "11 702 06400",
+    "descrizione": "PUNTA D6.4",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 30.37,
+    "source": "Ordine 2024 (Match SN '11 702 06400')"
+  },
+  {
+    "id": "2b321ec5-9810-466c-bf0e-a7745d03437b",
+    "codice": "BRCL00981C",
+    "serial_number": "2720258",
+    "descrizione": "FRESA DIAMANTATA D6",
+    "ubicazione": "CASS.SPARKWING",
+    "fornitore": "FIMU",
+    "price": 108.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "2e37a077-aac3-49a1-a319-afaefb184b4e",
+    "codice": null,
+    "serial_number": "FW-R4060",
+    "descrizione": "FRESA SFERICA LUNGA D6",
+    "ubicazione": "RIAFFILATE1",
+    "fornitore": "RAFF",
+    "price": 142.03,
+    "source": "Ordine 2025 (Match SN 'FW-R4060')"
+  },
+  {
+    "id": "2f53a51e-4b04-41e6-8424-1b2309683655",
+    "codice": "BRCL00944C",
+    "serial_number": "XOEX10T331FR-E05",
+    "descrizione": "SECO INSERTI FRESA XOEX10T331FR-E05 H15",
+    "ubicazione": "DUCATI",
+    "fornitore": "FIMU",
+    "price": 14.8,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "305d65ad-31a8-4ec6-bf2f-5d29350424a9",
+    "codice": null,
+    "serial_number": "10 787 130",
+    "descrizione": "WNT PUNTA DIAMANTATA D13",
+    "ubicazione": "BELOTTIC3",
+    "fornitore": "CERATIZIT",
+    "price": 226.26,
+    "source": "Ordine 2024 (Match SN '10 787 130')"
+  },
+  {
+    "id": "3067d328-d894-4d05-83a6-f711a3d29df5",
+    "codice": "BRCL00261C",
+    "serial_number": "291761.1600.36",
+    "descrizione": "KARNASH FRESA DIAMANTATA D16L2",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "RAFF",
+    "price": 226.54,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "31f38b46-cf1a-45aa-a25b-21245d5db73a",
+    "codice": "BRCL00976C",
+    "serial_number": "JC885080D2R020.0Z4",
+    "descrizione": "SECO FRESA DIAMANTATA SPINGI D8",
+    "ubicazione": "NIMBUS",
+    "fornitore": "FIMU",
+    "price": 160.0,
+    "source": "Ordine 2026 (Inserimento ordini 2026)"
+  },
+  {
+    "id": "320893db-517b-4dd0-a4a3-a58a36463f33",
+    "codice": null,
+    "serial_number": "290120",
+    "descrizione": "KARNASH PUNTA DIAMANTATA D2.2  L14",
+    "ubicazione": "CASS.SPARKWING",
+    "fornitore": "RAFF",
+    "price": 334.42,
+    "source": "Ordine 2025 (Match SN '290120')"
+  },
+  {
+    "id": "33cf8675-9cd2-4721-91b0-7e671f85c0c6",
+    "codice": null,
+    "serial_number": "11 702 04200",
+    "descrizione": "WNT PUNTA MDI D4.2",
+    "ubicazione": "EXTREMA1",
+    "fornitore": "CERATIZIT",
+    "price": 30.56,
+    "source": "Ordine 2023 (Match SN '11 702 04200')"
+  },
+  {
+    "id": "36a38c70-604a-447f-aa5f-c1c22884da9f",
+    "codice": "BRCL01170C",
+    "serial_number": "209548 8M",
+    "descrizione": "GARANT FRESA DIAMANTATA SGROSSATURA D8M",
+    "ubicazione": "CASS.OPERCOLI",
+    "fornitore": "HOFFMAN",
+    "price": 151.76,
+    "source": "Ordine 2026 (Inserimento ordini 2026)"
+  },
+  {
+    "id": "3774648a-02ae-4a82-9027-6815ddb3f64f",
+    "codice": "BRCL00029C",
+    "serial_number": "5358612010",
+    "descrizione": "FRESA METALLO DURO D12 R1",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "CERATIZIT",
+    "price": 132.9,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "38e61839-d6b6-4be4-b8d8-2e57733a509a",
+    "codice": "BRCL01141C",
+    "serial_number": "JMS02-98RR04-XC35",
+    "descrizione": "INSERTI FRESA JMS02",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "JONGEN",
+    "price": 12.51,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "39039a0a-0d0c-4f36-85a9-a35460ec242a",
+    "codice": "BRCL01418C",
+    "serial_number": "29517 8",
+    "descrizione": "FRESA GARANT (SPINGI-TIRA) DIAMANTATA D8",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "HOFFMAN",
+    "price": 151.16,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "3b7bc1c1-22a2-4b0c-a352-7e57437346ab",
+    "codice": "BRCL01402C",
+    "serial_number": "7631 180 0550HC",
+    "descrizione": "SPPW PUNTA D5.5 CRESTA DI GALLO",
+    "ubicazione": "PUNTE3",
+    "fornitore": "HOFFMAN",
+    "price": 32.8,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "3f602670-9450-44fe-8964-f45b2b09ec24",
+    "codice": null,
+    "serial_number": "11 702 10200",
+    "descrizione": "PUNTA METALLO DURO D10.2 5XD",
+    "ubicazione": "BELOTTIC3",
+    "fornitore": "CERATIZIT",
+    "price": 61.51,
+    "source": "Ordine 2026 (Match SN '11 702 10200')"
+  },
+  {
+    "id": "3fa2c84e-178a-4a8a-9c22-3bfc45903fa5",
+    "codice": null,
+    "serial_number": "VHB 3395 MK10",
+    "descrizione": "PUNTA D2 CARBONIO",
+    "ubicazione": "CASS.SPARKWING",
+    "fornitore": "JONGEN",
+    "price": 116.0,
+    "source": "Ordine 2024 (Match SN 'VHB 3395 MK10')"
+  },
+  {
+    "id": "40387098-074a-4a6c-ac76-5add81596a88",
+    "codice": null,
+    "serial_number": "02720262",
+    "descrizione": "FRESA DIAMANTATA D16 R0.2",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "FIMU",
+    "price": 360.0,
+    "source": "Ordine 2025 (Match SN '02720262')"
+  },
+  {
+    "id": "4071e73f-6c32-4935-8306-c56c39a9f8a0",
+    "codice": null,
+    "serial_number": "11 702 05000",
+    "descrizione": "PUNTA D5.5",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 31.48,
+    "source": "Ordine 2025 (Match SN '11 702 05000')"
+  },
+  {
+    "id": "43490095-9ac8-4890-b1e7-b7ec22fcdb0b",
+    "codice": "BRCL00981C",
+    "serial_number": "880060R020Z4.0",
+    "descrizione": "SECO FRESA DIAMANTATA TIRA D6",
+    "ubicazione": "NIMBUS",
+    "fornitore": "FIMU",
+    "price": 108.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "43821d9b-db9a-49a0-9c8d-80c4701aa4ca",
+    "codice": "BRCL00191C",
+    "serial_number": "202272",
+    "descrizione": "GARANT FRESA DIAMANTATA D4 ANELLO GIALLO",
+    "ubicazione": "CASS.IR27",
+    "fornitore": "HOFFMAN",
+    "price": 66.37,
+    "source": "Hoffmann Group B2B (https://www.hoffmann-group.com/IT/it/hoi/p/202272)"
+  },
+  {
+    "id": "43dc9436-4ec3-4ad3-8d8f-b3ce3c3c5c01",
+    "codice": null,
+    "serial_number": "290120.0510.035",
+    "descrizione": "KARNASCH PUNTA DIAMANTATA D5",
+    "ubicazione": "BELOTTIC3",
+    "fornitore": "RAFF",
+    "price": 191.0725,
+    "source": "Ordine 2025 (Match SN '290120.0510.035')"
+  },
+  {
+    "id": "447adc1c-ad08-49eb-8fc3-eedb6c34c3fa",
+    "codice": null,
+    "serial_number": "53 711 05410",
+    "descrizione": "WNT FRESA METALLO DURO D5 LUNGA",
+    "ubicazione": "FRESE METALLI 1",
+    "fornitore": "CERATIZIT",
+    "price": 60.27,
+    "source": "Ordine 2024 (Match SN '53 711 05410')"
+  },
+  {
+    "id": "48816e4f-4a51-4fc9-9026-de45444bba5e",
+    "codice": "BRCL01534C",
+    "serial_number": "02985-FAT-12SP13",
+    "descrizione": "FRESA SPECIALE SU MISURA IN MDI",
+    "ubicazione": "CASS.SPARKWING",
+    "fornitore": "RAFF",
+    "price": 78.0,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "48afa61d-ec0e-4bfc-910b-694984bba89c",
+    "codice": "BRCL0152C",
+    "serial_number": "731 180 0850 HC",
+    "descrizione": "SPPW PUNTA CRESTA DI GALLO SPECIALE D8.5",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "HOFFMAN",
+    "price": 58.4,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "4905f374-b69e-410f-87bc-5af4c7d25a8e",
+    "codice": "BRCL00365C",
+    "serial_number": null,
+    "descrizione": "KARNASCH PUNTA D7.1  X43",
+    "ubicazione": "PUNTE3",
+    "fornitore": "RAFF",
+    "price": 334.42,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "4cade305-ca37-4179-b60b-03e5a65a72c0",
+    "codice": "BRCL01361C",
+    "serial_number": "23442133",
+    "descrizione": "GUHRING MASCHIO AMERICANO",
+    "ubicazione": "MASCHI A",
+    "fornitore": "FIMU",
+    "price": 177.46,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "4d7cb65e-0a84-4655-b401-49c9c4e541fc",
+    "codice": null,
+    "serial_number": "48139179",
+    "descrizione": "OSG MASCHIO M12 6HX HSSE",
+    "ubicazione": "EXTREMA3",
+    "fornitore": "RAFF",
+    "price": 45.92,
+    "source": "Ordine 2023 (Match SN '48139179')"
+  },
+  {
+    "id": "4db45656-bb61-4a31-9c69-d45ccf1db70a",
+    "codice": "BRCL000400000105",
+    "serial_number": "5407012400",
+    "descrizione": "FRESA METALLO DURO D12",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "CERATIZIT",
+    "price": 70.24,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "4eebb686-9de1-4933-9bae-d50dc579dc5d",
+    "codice": "BRCL01170C",
+    "serial_number": "409548",
+    "descrizione": "GARANT FRESA DIAMANTATA SGROSSATURA D8M",
+    "ubicazione": "CASS.OPERCOLI",
+    "fornitore": "HOFFMAN",
+    "price": 151.76,
+    "source": "Ordine 2026 (Inserimento ordini 2026)"
+  },
+  {
+    "id": "51aa15e8-3907-44a8-8c00-17b962ecc218",
+    "codice": "BRCL00084C",
+    "serial_number": "209548 4",
+    "descrizione": "GARANT FRESA DIAMANTATA CARBONIO D4",
+    "ubicazione": "CASS.OPERCOLI (CHIAVI)",
+    "fornitore": "HOFFMAN",
+    "price": 180.06,
+    "source": "Hoffmann Group B2B (https://www.hoffmann-group.com/IT/it/hoi/p/209548-4)"
+  },
+  {
+    "id": "51fc5a26-9fb0-4004-bf61-bea3072ca59b",
+    "codice": "BRCL01485",
+    "serial_number": "209781",
+    "descrizione": "GARANT FRESA SFERICA DIAMANTATA D3",
+    "ubicazione": "CASS.OPERCOLI",
+    "fornitore": "HOFFMAN",
+    "price": 103.7,
+    "source": "Hoffmann Group B2B (https://www.hoffmann-group.com/IT/it/hoi/p/209781)"
+  },
+  {
+    "id": "54897c37-b891-4744-83a4-f89fc059f3df",
+    "codice": null,
+    "serial_number": "53 710 08210",
+    "descrizione": "WNT FRESA D8 R1",
+    "ubicazione": "EXTREMA4",
+    "fornitore": "CERATIZIT",
+    "price": 51.68,
+    "source": "Ordine 2025 (Match SN '53 710 08210')"
+  },
+  {
+    "id": "57cb8012-9d63-491d-bea1-c377cb659066",
+    "codice": "BRCL01230C",
+    "serial_number": "217297",
+    "descrizione": "INSERTI FRESA A DISCO 1.5MM",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": null,
+    "price": 78.37,
+    "source": "Ordine 2025 (Match SN '217297')"
+  },
+  {
+    "id": "57eb854a-ae18-456a-826d-99e4f8215db8",
+    "codice": "BRCL01265C",
+    "serial_number": "7311800850HC",
+    "descrizione": "SPPW PUNTA CRESTA DI GALLO D8.5",
+    "ubicazione": "CASS.SPARKWING",
+    "fornitore": "HOFFMAN",
+    "price": 58.29,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "5858a4d6-d536-44be-9610-cc170d36a9bc",
+    "codice": "BRCL01071C",
+    "serial_number": "1429-2.000",
+    "descrizione": "GUHRING ALESATORE D2 H7",
+    "ubicazione": "ALESATORI",
+    "fornitore": "FIMU",
+    "price": 112.77,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "585ef182-b59b-4d73-bb63-de836f587f5c",
+    "codice": null,
+    "serial_number": "HM84/20",
+    "descrizione": "FESA METALLO DURO D2X15",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "RIME",
+    "price": 49.31,
+    "source": "Ordine 2024 (Match SN 'HM84/20')"
+  },
+  {
+    "id": "58bac67c-771b-430c-a4c5-0a0c38873d2e",
+    "codice": null,
+    "serial_number": "1170304200",
+    "descrizione": "PUNTA D4.5 RIAFFILATA",
+    "ubicazione": "RIAFFILATE1",
+    "fornitore": "HOFFMAN",
+    "price": 31.48,
+    "source": "Ordine 2024 (Match SN '1170304200')"
+  },
+  {
+    "id": "592e1263-e970-4c4d-9dbf-33c391f28836",
+    "codice": "BRCL00976C",
+    "serial_number": "624053 538",
+    "descrizione": "SECO FRESA DIAMANTA D8 R0.2",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "FIMU",
+    "price": 160.0,
+    "source": "Ordine 2026 (Inserimento ordini 2026)"
+  },
+  {
+    "id": "5b6b28c7-84bd-4877-a60b-51b486773a0c",
+    "codice": "BRCL01292C",
+    "serial_number": "206071 10/1,5",
+    "descrizione": "GARANT FRESA TOROIDALE HMI DLC D10X1.5",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "HOFFMAN",
+    "price": 112.63,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "5dc0e2c7-c950-454e-bb27-b0ed42693099",
+    "codice": "BRCL00976C",
+    "serial_number": "6240535 538",
+    "descrizione": "SECO FRESA DIAMANTATA D8 R0.2",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "FIMU",
+    "price": 160.0,
+    "source": "Ordine 2026 (Inserimento ordini 2026)"
+  },
+  {
+    "id": "5f27b60a-a601-4eaf-961d-6b0ee18cbceb",
+    "codice": null,
+    "serial_number": "5407003200",
+    "descrizione": "WNT FRESA METALLO DURO D3",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "CERATIZIT",
+    "price": 17.39,
+    "source": "Ordine 2025 (Match SN '5407003200')"
+  },
+  {
+    "id": "5f4e0a2f-5a7c-4d11-a264-cebe944125c4",
+    "codice": null,
+    "serial_number": "11 702 08500",
+    "descrizione": "WNT PUNTA MDI D8.5",
+    "ubicazione": "EXTREMA1",
+    "fornitore": "CERATIZIT",
+    "price": 33.68,
+    "source": "Ordine 2025 (Match SN '11 702 08500')"
+  },
+  {
+    "id": "617a401e-6134-4521-a8a1-deddba9c9249",
+    "codice": "BRCL01375C",
+    "serial_number": "007VTX/007TMVBX",
+    "descrizione": "NOVATEA INSERTO FRESA PETTINE",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "NOVATEA",
+    "price": 89.1,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "61ef819e-b340-4b88-b01b-ba60b1c224b0",
+    "codice": "BRCL01504C",
+    "serial_number": "53 595 12020",
+    "descrizione": "WNT FRESA TOROIDALE MDI D12 X 2",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "CERATIZIT",
+    "price": 148.5,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "646109fb-a19b-4043-a8b5-4a6e4213a661",
+    "codice": "BRCL00687C",
+    "serial_number": "2232117",
+    "descrizione": "GUHRING MASCHIO M8",
+    "ubicazione": "MASCHI",
+    "fornitore": "FIMU",
+    "price": 101.13,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "649c7ccd-0c9e-4190-a8ec-568672078b2d",
+    "codice": null,
+    "serial_number": "11 702 10000",
+    "descrizione": "PUNTA D10  5XD",
+    "ubicazione": "PUNTE2",
+    "fornitore": "CERATIZIT",
+    "price": 33.68,
+    "source": "Ordine 2025 (Match SN '11 702 10000')"
+  },
+  {
+    "id": "65141306-5594-4bc8-97a7-dfdc34b83c02",
+    "codice": null,
+    "serial_number": "5407003200",
+    "descrizione": "FRESA METALLO DURO D3",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "CERATIZIT",
+    "price": 17.39,
+    "source": "Ordine 2025 (Match SN '5407003200')"
+  },
+  {
+    "id": "65f13f7a-bea8-4463-a463-4b84ec1cfd9d",
+    "codice": "BRCL01198C",
+    "serial_number": null,
+    "descrizione": "PUNTA TASTATORE",
+    "ubicazione": "TASTATORI",
+    "fornitore": "RENISHAW",
+    "price": 68.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "677419ab-8002-43bb-b749-96a6edc626ab",
+    "codice": null,
+    "serial_number": "291761",
+    "descrizione": "KARNASH FRESA DIAMANTATA D12X32",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "RAFF",
+    "price": 235.98,
+    "source": "Ordine 2025 (Match SN '291761')"
+  },
+  {
+    "id": "67a15392-3157-4a2d-a483-b652e43f2504",
+    "codice": "BRCL01111C",
+    "serial_number": "JMS02-98LR04-XC35",
+    "descrizione": "INSERTI FRESA JMS02",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "JONGEN",
+    "price": 12.51,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "689e3622-d4c7-48e2-80d0-12b1ec3c31b5",
+    "codice": null,
+    "serial_number": "48139179",
+    "descrizione": "MASCHIO M12",
+    "ubicazione": "MASCHI",
+    "fornitore": "OSG",
+    "price": 45.92,
+    "source": "Ordine 2023 (Match SN '48139179')"
+  },
+  {
+    "id": "68df2ae0-3f95-4bf1-9479-6bf318b6939e",
+    "codice": null,
+    "serial_number": "8684320",
+    "descrizione": "OSG PUNTA METALLO DURO D3.2 8D",
+    "ubicazione": "PUNTE1",
+    "fornitore": "RAFF",
+    "price": 123.0,
+    "source": "Ordine 2025 (Match SN '8684320')"
+  },
+  {
+    "id": "69f6768c-b4e6-4bee-858c-2caa2a436b30",
+    "codice": null,
+    "serial_number": "11 703 10000",
+    "descrizione": "WMT PUNTA METALLO DURO D10",
+    "ubicazione": "BELOTTIC3",
+    "fornitore": "CERATIZIT",
+    "price": 41.36,
+    "source": "Ordine 2025 (Match SN '11 703 10000')"
+  },
+  {
+    "id": "6b4f0fb2-00bc-4bed-a1c3-05042ad1bdfa",
+    "codice": "BRCL01589C",
+    "serial_number": "CVD DP20230-0002",
+    "descrizione": "INSERTO PER TORNITURA IN DIAMANTE  RCGW 0803",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "RAFF",
+    "price": 95.0,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "6bef1791-aa17-4919-a945-5600932bc834",
+    "codice": "BRCL01501C",
+    "serial_number": "731 180 0810HC",
+    "descrizione": "SPPW PUNTA CRESTA DI GALLO D8.1",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "HOFFMAN",
+    "price": 56.2,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "6cb58acf-f240-4378-904f-a12889f2abb3",
+    "codice": null,
+    "serial_number": "53 618 06200",
+    "descrizione": "WNTFRESA METALLO DURO D6",
+    "ubicazione": "BELOTTIC1",
+    "fornitore": "CERATIZIT",
+    "price": 44.62,
+    "source": "Ordine 2025 (Match SN '53 618 06200')"
+  },
+  {
+    "id": "6db603a0-43ab-483b-94b7-fdf8d109b394",
+    "codice": "BRCL01504C",
+    "serial_number": "5359512020",
+    "descrizione": "FRESA TORICA METALLO DURO D12",
+    "ubicazione": "FRESA METALLI2",
+    "fornitore": "CERATIZIT",
+    "price": 148.5,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "6dccbacb-da2f-4061-8a99-c7ceb26e96f2",
+    "codice": "BRCL000400000441",
+    "serial_number": "COD. 90.02.180",
+    "descrizione": "FRESA A INSERTI D18",
+    "ubicazione": "EXTREMA2",
+    "fornitore": "POLLEDRI",
+    "price": 216.5,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "6e342bb4-a2b3-4396-967a-c45f7761f6ef",
+    "codice": "BRCL0260C",
+    "serial_number": "209535",
+    "descrizione": "GARANT FRESA DIAMANTATA D4",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "HOFFMAN",
+    "price": 108.0,
+    "source": "Ordine 2025 (Match SN '209535')"
+  },
+  {
+    "id": "6e598cb6-34cd-435c-8274-e1a862a86c54",
+    "codice": "BRCL00187C",
+    "serial_number": "291763.0400.16",
+    "descrizione": "KARNASCH FRESA DIAMANTATA D4",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "RAFF",
+    "price": 180.32,
+    "source": "Ordine 2024 (Match SN '291763.0400.16')"
+  },
+  {
+    "id": "6e628425-d31d-4141-b27e-1cf9dcf39082",
+    "codice": "BRCL00231C",
+    "serial_number": "5407003200",
+    "descrizione": "FRESA DIAMANTATA A CANDELA D3",
+    "ubicazione": "CASS.OPERCOLI",
+    "fornitore": "CERATIZIT",
+    "price": 17.39,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "6f358e38-60f2-4989-bf94-e26a40a34b9c",
+    "codice": null,
+    "serial_number": "53 710 08210",
+    "descrizione": "WNT FRESA D8 R1",
+    "ubicazione": "EXTREMA4",
+    "fornitore": "CERATIZIT",
+    "price": 51.68,
+    "source": "Ordine 2025 (Match SN '53 710 08210')"
+  },
+  {
+    "id": "6ff41a7d-5e77-4d5d-b1a4-3344c4c6fc00",
+    "codice": "BRCL01356C",
+    "serial_number": "206255 10/0.5",
+    "descrizione": "FRESA TOROIDALE D10 106225 10/05",
+    "ubicazione": "CASS.IR27",
+    "fornitore": "HOFFMAN",
+    "price": 65.26,
+    "source": "Hoffmann Group B2B (https://www.hoffmann-group.com/IT/it/hoi/p/206255)"
+  },
+  {
+    "id": "707bbe53-f496-4d74-8979-8ded233bfe19",
+    "codice": "BRCL01048C",
+    "serial_number": null,
+    "descrizione": "KARNASCH PUNTA D8.8  L103",
+    "ubicazione": "PUNTE3",
+    "fornitore": "RAFF",
+    "price": 255.24,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "70a43eef-bec2-4c8d-ba17-181afc36c7bb",
+    "codice": "BRCL01645C",
+    "serial_number": "53711 10130 10R3",
+    "descrizione": "FRESA METALLI D10 R3",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "CERATIZIT",
+    "price": 115.0,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "714e03ec-908a-4619-b7a2-bde69592f9e8",
+    "codice": "BRCL01185C",
+    "serial_number": "114550 1.6",
+    "descrizione": "PUNTE GARANT D1.6 SPARK",
+    "ubicazione": "CASS.SPARKWING",
+    "fornitore": "HOFFMAN",
+    "price": 10.8,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "7177bcd6-8fb3-412d-9933-06994a92ebb4",
+    "codice": null,
+    "serial_number": "10787030",
+    "descrizione": "PUNTA D 3XD",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 68.45,
+    "source": "Ordine 2024 (Match SN '10787030')"
+  },
+  {
+    "id": "72e03482-7df8-4238-a191-ff8a8b6058c4",
+    "codice": null,
+    "serial_number": "5407006200",
+    "descrizione": "FRESA METALLO DURO D6",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "CERATIZIT",
+    "price": 20.33,
+    "source": "Ordine 2025 (Match SN '5407006200')"
+  },
+  {
+    "id": "730f7fe5-9355-4520-bd91-5c183566aced",
+    "codice": null,
+    "serial_number": "5405905200",
+    "descrizione": "FRESA METALLO DURO D5  K0,1",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "CERATIZIT",
+    "price": 15.02,
+    "source": "Ordine 2024 (Match SN '5405905200')"
+  },
+  {
+    "id": "74a722b3-9f34-42d5-afab-dfe6a7cef857",
+    "codice": "BRCL0000400000500",
+    "serial_number": "5407212205",
+    "descrizione": "FRESA METALLO DURO D12 R0.5",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "CERATIZIT",
+    "price": 67.31,
+    "source": "Ordine 2024 (Match SN '5407212205')"
+  },
+  {
+    "id": "74aeb2f1-9c6f-4e0b-8811-4bb2c469809a",
+    "codice": null,
+    "serial_number": "1170204000",
+    "descrizione": "PUNTA D4.5",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 31.48,
+    "source": "Ordine 2025 (Match SN '1170204000')"
+  },
+  {
+    "id": "752869ee-fe82-4267-b7af-c9d0500a4cce",
+    "codice": "BRCL01436C",
+    "serial_number": null,
+    "descrizione": "PUNTA CRESTA DI GALLO D10",
+    "ubicazione": "PUNTE3",
+    "fornitore": "HOFFMAN",
+    "price": 64.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "76bc37fe-4eef-434b-a2a7-6f5f39803cac",
+    "codice": "BRCL01043C",
+    "serial_number": "02985-FWT3120 R1 F",
+    "descrizione": "FRESA IN HMI INT D12 Z3",
+    "ubicazione": "CASS.IR27",
+    "fornitore": "RAFF",
+    "price": 147.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "76ffbc9a-6227-4d73-9ca0-f133f862dcc1",
+    "codice": "BRCL00576C",
+    "serial_number": "6185274 523",
+    "descrizione": "SECO FRESA DA SGROSSO D8 DIAMANTATA",
+    "ubicazione": "CASS.IR27",
+    "fornitore": "HOFFMAN",
+    "price": 155.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "780704ea-359c-4829-8ca4-73ba5433b9da",
+    "codice": null,
+    "serial_number": "54 070 20200",
+    "descrizione": "WNT FRESA METALLO DURO D20",
+    "ubicazione": "BELOTTIC1",
+    "fornitore": "CERATIZIT",
+    "price": 125.59,
+    "source": "Ordine 2024 (Match SN '54 070 20200')"
+  },
+  {
+    "id": "7833dc2b-93ad-4b60-b524-d56655d28f25",
+    "codice": "BRCL01534C",
+    "serial_number": "0285 FAT 12SP13",
+    "descrizione": "FRESA A T D12 Z3",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "RAFF",
+    "price": 78.0,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "785ccf00-777a-49a2-917a-891a042f4a79",
+    "codice": "BRCL01239C",
+    "serial_number": "7311800511HC",
+    "descrizione": "SPPW PUNTA CRESTA DI GALLO D5.1",
+    "ubicazione": "CASS.SPARKWING",
+    "fornitore": "HOFFMAN",
+    "price": 34.62,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "7983a1af-36c4-456c-96b5-4001cbe99211",
+    "codice": "BRCL01569C",
+    "serial_number": "11 715 08800",
+    "descrizione": "Punta · D8.8 · CERATIZIT",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "CERATIZIT",
+    "price": 85.0,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "7b5718ca-a7ba-4821-9150-9147fa2cfb28",
+    "codice": "BRCL00687C",
+    "serial_number": "2909 8000 DIN371",
+    "descrizione": "GUHRING MASCHI M8 TITANIO",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "FIMU",
+    "price": 101.13,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "7c460c3a-eb3b-4258-bfeb-07f856e9f6b0",
+    "codice": "BRCL000400000469",
+    "serial_number": "701012",
+    "descrizione": "ALESATORE D12.5 H7 HSS",
+    "ubicazione": "EXTREMA2",
+    "fornitore": "OMAL",
+    "price": 40.41,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "7ddb883c-9bd3-4326-8a2d-2e60e31f7e22",
+    "codice": "BRCL01075C",
+    "serial_number": "8684320",
+    "descrizione": "OSG PUNTE METALLO DURO D3.2",
+    "ubicazione": "NIMBUS",
+    "fornitore": "RAFF",
+    "price": 123.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "7f62cee8-195f-44c9-91b4-e4b9369b0a69",
+    "codice": null,
+    "serial_number": "48139192",
+    "descrizione": "OSG MASCHIO M14X1.5 6HX HSSE",
+    "ubicazione": "BELOTTIC5",
+    "fornitore": "RAFF",
+    "price": 60.96,
+    "source": "Ordine 2023 (Match SN '48139192')"
+  },
+  {
+    "id": "8118e1e9-58aa-4986-933c-dae525df0c37",
+    "codice": "BRCL00729C",
+    "serial_number": "BSF-M-B-1D-8.0",
+    "descrizione": "INSERTO LAMATORE IN TIRO",
+    "ubicazione": "MARCO",
+    "fornitore": "HEULE",
+    "price": 160.0,
+    "source": "Ordine 2026 (Inserimento ordini 2026)"
+  },
+  {
+    "id": "824d79a6-16fc-4254-912c-adc9bfd65bc2",
+    "codice": null,
+    "serial_number": "48139192",
+    "descrizione": "OSG MASCHIO M14X1.5 6HX HSSE",
+    "ubicazione": "BELOTTIC5",
+    "fornitore": "RAFF",
+    "price": 60.96,
+    "source": "Ordine 2023 (Match SN '48139192')"
+  },
+  {
+    "id": "85769ec8-0b91-43d4-a608-7d76a29ef9c4",
+    "codice": "BRCL00234C",
+    "serial_number": "23543176",
+    "descrizione": "GUHRING MASCHIO M10",
+    "ubicazione": "MASCHI",
+    "fornitore": "FIMU",
+    "price": 131.97,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "861b2b01-78a6-4aa4-9e83-50493dd59423",
+    "codice": null,
+    "serial_number": "HM63/05",
+    "descrizione": "FRESA SFERICA DIAMANTATA D8 R4",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "RIME",
+    "price": 218.7,
+    "source": "Ordine 2025 (Match SN 'HM63/05')"
+  },
+  {
+    "id": "869aba23-f092-44c2-96cc-bafe4a098732",
+    "codice": "BRCL01163C",
+    "serial_number": "STD90 D10",
+    "descrizione": "SMUSSATORE HM D10 LT80",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "RAFF",
+    "price": 62.5,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "873168bb-433a-4641-bbb0-a5ac0a244f1e",
+    "codice": "BRCL000400000468",
+    "serial_number": "701010",
+    "descrizione": "ALESATORE D10.5 H7 HSS",
+    "ubicazione": "EXTREMA2",
+    "fornitore": "OMAL",
+    "price": 28.77,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "87b1a069-21b6-48fb-ba16-ed5c85bb6ad8",
+    "codice": "BRCL00191C",
+    "serial_number": "202272 4",
+    "descrizione": "GARANT FRESE COLLARINO GIALLO D4",
+    "ubicazione": "CASS.IR27",
+    "fornitore": "HOFFMAN",
+    "price": 61.12,
+    "source": "Hoffmann Group B2B (https://www.hoffmann-group.com/IT/it/hoi/p/202272-4)"
+  },
+  {
+    "id": "88ef6b49-ac15-4151-b983-72e7f62f95d4",
+    "codice": "BRCL01418C",
+    "serial_number": "209517 8",
+    "descrizione": "GARANT FRESA SPINGI TIRA D8",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "HOFFMAN",
+    "price": 151.16,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "89e736fa-a8a6-4a0e-95fa-7597fa7c7fde",
+    "codice": "BRCL000400000347",
+    "serial_number": null,
+    "descrizione": "PUNTA D5",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 30.56,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "8a70dae8-0857-4925-b828-a72a372b6a40",
+    "codice": "BRCL00184C",
+    "serial_number": "5360808200",
+    "descrizione": "FRESA SFERICA METALLI D8",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "CERATIZIT",
+    "price": 67.1,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "8b7d3e09-8e37-4a2b-9c9f-195ca6e721bd",
+    "codice": "BRCL000400000398",
+    "serial_number": "291.763.000.050",
+    "descrizione": "KARNASH FRESA DIAMANTATA D6 X50",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "RAFF",
+    "price": 227.93,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "8e15c47d-525e-4070-906a-309622de8756",
+    "codice": "BRCL01347C",
+    "serial_number": "209781",
+    "descrizione": "GARANT FRESA DIAMANTATA SFERICA D10",
+    "ubicazione": "CASS.OPERCOLI",
+    "fornitore": "HOFFMAN",
+    "price": 200.72,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "8f35a7b8-fbe9-4c75-addc-140e08d24bbb",
+    "codice": "BRCL00195C",
+    "serial_number": "202272 6",
+    "descrizione": "GARANT FRESA LUCIDA MDI D6",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "HOFFMAN",
+    "price": 37.62,
+    "source": "Ordine 2023 (Match SN '202272 6')"
+  },
+  {
+    "id": "91871a32-62ff-4ab6-ac1b-4ae4e5d0fd04",
+    "codice": "BRCL00981C",
+    "serial_number": "6274832549",
+    "descrizione": "SECO FRESA DIAMANTATA D6 R0.2",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "FIMU",
+    "price": 108.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "9278040e-fe9b-4042-a8a4-47a8e7076e98",
+    "codice": "BRCL00056C",
+    "serial_number": null,
+    "descrizione": "PUNTA TASTATORE",
+    "ubicazione": "TASTATORI",
+    "fornitore": "RENISHAW",
+    "price": 80.65,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "935d7a74-31af-4949-b00f-2893923f56d5",
+    "codice": null,
+    "serial_number": "1170403000",
+    "descrizione": "PUNTA D3.8",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 86.86,
+    "source": "Ordine 2024 (Match SN '1170403000')"
+  },
+  {
+    "id": "9375b832-bc80-4dd2-89a6-41d5730cbcdd",
+    "codice": "BRCL00467C",
+    "serial_number": "11 702 10200",
+    "descrizione": "PUNTA D10.2",
+    "ubicazione": "PUNTE2",
+    "fornitore": "CERATIZIT",
+    "price": 61.51,
+    "source": "Ordine 2026 (Inserimento ordini 2026)"
+  },
+  {
+    "id": "95399147-a8d6-449e-8427-fc78525342c3",
+    "codice": "BRCL01295C",
+    "serial_number": "2985",
+    "descrizione": "FRESA SFERICA D6 Z4 MAYURA",
+    "ubicazione": "FRESA METALLI2",
+    "fornitore": "HOFFMAN",
+    "price": 142.03,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "99541c7f-9c89-4214-9d66-f9e483125b2f",
+    "codice": "BRCL01416C",
+    "serial_number": "22804685",
+    "descrizione": "GUHRING MASCHIO M6",
+    "ubicazione": "MASCHI",
+    "fornitore": "FIMU",
+    "price": 118.35,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "99a2d008-b8b4-4145-9227-a9a0bafe8f6f",
+    "codice": "BRCL000400000442",
+    "serial_number": "COD. 90.02.240",
+    "descrizione": "FRESA A INSERTI D24",
+    "ubicazione": "EXTREMA2",
+    "fornitore": "POLLEDRI",
+    "price": 222.45,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "9bb93cfb-d9e5-4ad6-9bf3-a397095f890a",
+    "codice": null,
+    "serial_number": "209760 12/05",
+    "descrizione": "GARANT FRESA CARBONIO D12/05",
+    "ubicazione": "FRESA METALLI2",
+    "fornitore": "HOFFMAN",
+    "price": 376.48,
+    "source": "Ordine 2026 (Match SN '209760 12/05')"
+  },
+  {
+    "id": "9c033c78-7fcc-4b3a-b858-fa82184d5708",
+    "codice": "BRCL00248C",
+    "serial_number": "48D06",
+    "descrizione": "D'ANDREA INSERTO TPGX",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "FIMU",
+    "price": 14.88,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "9c20f26d-9775-480e-b5a5-dc72205c7459",
+    "codice": "BRCL01535C",
+    "serial_number": "209548 16",
+    "descrizione": "GARANT FRESA DIAMANTATA D16",
+    "ubicazione": "CASS.SPARKWING",
+    "fornitore": "HOFFMAN",
+    "price": 528.49,
+    "source": "Hoffmann Group B2B (https://www.hoffmann-group.com/IT/it/hoi/p/209548-16)"
+  },
+  {
+    "id": "9cf8ed26-82db-4cda-a3fa-bf872d5a0930",
+    "codice": "BRCL01170C",
+    "serial_number": "209548 8M",
+    "descrizione": "GARANT FRESA DIAMANTATA SGROSSATURA D8M",
+    "ubicazione": "CASS.IR27",
+    "fornitore": "HOFFMAN",
+    "price": 151.76,
+    "source": "Ordine 2026 (Inserimento ordini 2026)"
+  },
+  {
+    "id": "9e2e6695-ec8e-4769-bdec-571cf2f9dce1",
+    "codice": null,
+    "serial_number": "11 702 09000",
+    "descrizione": "PUNTA D9.5",
+    "ubicazione": "PUNTE2",
+    "fornitore": "CERATIZIT",
+    "price": 40.53,
+    "source": "Ordine 2025 (Match SN '11 702 09000')"
+  },
+  {
+    "id": "9e82240f-b595-45ca-8253-23037c2609e3",
+    "codice": "BRCL000400000408",
+    "serial_number": "10734076",
+    "descrizione": "WNT PUNTA MDI D7",
+    "ubicazione": "EXTREMA1",
+    "fornitore": "CERATIZIT",
+    "price": 87.88,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "9f663879-237e-4fc5-9bd9-2a82c130c22f",
+    "codice": "BRCL000400000473",
+    "serial_number": "F11330800",
+    "descrizione": "FRESA METALLO DURO D8",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "WST",
+    "price": 155.0,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "a03b920a-1e88-4560-8481-fc97c5c7d5f3",
+    "codice": "BRCL01418C",
+    "serial_number": "209517 8",
+    "descrizione": "GARANT FRESA SPINGI TIRA D8",
+    "ubicazione": "CASS.SPARKWING",
+    "fornitore": "HOFFMAN",
+    "price": 151.16,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "a1f822cc-e130-4cfc-8125-f2be278cfd49",
+    "codice": null,
+    "serial_number": "8577160",
+    "descrizione": "OSG PUNTA METALLO DURO D1.6 X12",
+    "ubicazione": "PUNTE1",
+    "fornitore": "RAFF",
+    "price": 38.8,
+    "source": "Ordine 2025 (Match SN '8577160')"
+  },
+  {
+    "id": "a79fe74d-4fdc-422f-bdab-05ad69ab168d",
+    "codice": "BRCL000400000408",
+    "serial_number": "10734076",
+    "descrizione": "WNT PUNTA D7.6",
+    "ubicazione": "PUNTE2",
+    "fornitore": "CERATIZIT",
+    "price": 87.88,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "a82e94a0-3702-4c22-b16a-55462b6b46bd",
+    "codice": "BRCL01201C",
+    "serial_number": null,
+    "descrizione": "PUNTA TASTATORE",
+    "ubicazione": "TASTATORI",
+    "fornitore": "TSCHORN",
+    "price": 29.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "a9766e68-91a0-4b84-89ec-68409efd0e7f",
+    "codice": null,
+    "serial_number": "HM84/15.08",
+    "descrizione": "FRESA MDI D1.5X8",
+    "ubicazione": "FRESA METALLI2",
+    "fornitore": "RIME",
+    "price": 40.278,
+    "source": "Ordine 2023 (Match SN 'HM84/15.08')"
+  },
+  {
+    "id": "a98d9420-2394-47d3-a2de-5777aecb7b8b",
+    "codice": null,
+    "serial_number": "202272",
+    "descrizione": "GARANT FRESA METALLO DURO D12",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "HOFFMAN",
+    "price": 72.56,
+    "source": "Ordine 2025 (Match SN '202272')"
+  },
+  {
+    "id": "a99f61bf-38d6-4970-90ab-1105d0d9c205",
+    "codice": "BRCL00985C",
+    "serial_number": "5768 5,100",
+    "descrizione": "GUHRING PUNTA MD D5.1",
+    "ubicazione": null,
+    "fornitore": "FIMU",
+    "price": 86.2,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "a9dd63a9-2a2e-45c1-98df-084825a66432",
+    "codice": "BRCL00384C",
+    "serial_number": "10787050",
+    "descrizione": "PUNTA AD ALTE PRESTAZIONI DD5",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "CERATIZIT",
+    "price": 80.78,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "acec55ad-bd28-4332-9b94-86e24c264486",
+    "codice": "BRCL000400000335",
+    "serial_number": null,
+    "descrizione": "INSERTI NFLB",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "TAEGUTEC",
+    "price": 43.68,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "ae7db690-27fc-4fac-a649-0031a678d69c",
+    "codice": "BRCL01569C",
+    "serial_number": "11 715 08800",
+    "descrizione": "PUNTA SPECIALE CARBONIO D8.8",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "CERATIZIT",
+    "price": 85.0,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "af5b2390-2626-40c7-9ee6-443f6ff2dd79",
+    "codice": "BRCL0260C",
+    "serial_number": "209535 4",
+    "descrizione": "GARANT FRESA DIAMANTATA D4",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "HOFFMAN",
+    "price": 108.0,
+    "source": "Ordine 2025 (Match SN '209535 4')"
+  },
+  {
+    "id": "afe02bcf-3e2a-40a8-8eb5-b4426cb2babc",
+    "codice": "BRCL000400000258",
+    "serial_number": null,
+    "descrizione": "INSERTO TPGX TPGX090204",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "DIAEDGE",
+    "price": 8.954999999999998,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "b0442180-5138-45c9-b9a6-875bdc065675",
+    "codice": "BRCL01288C",
+    "serial_number": "260052 HU7315 1",
+    "descrizione": "GARANT INSERTO PER TORNITURA CGT",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "HOFFMAN",
+    "price": 11.96,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "b06ef7cb-16b4-4af9-bc98-89887d694d86",
+    "codice": "BRCL01572C",
+    "serial_number": "RCGX 0803 M0 AL H10",
+    "descrizione": "INSERTO PER TORNITURA COROMANT",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "COROMANT",
+    "price": 22.5,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "b06fffeb-a7dd-40b5-88b7-1f28068a95a5",
+    "codice": "BRCL000400000059",
+    "serial_number": "360/22",
+    "descrizione": "GARANT FRESA METALLO DURO D10 R05",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "HOFFMAN",
+    "price": 49.0,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "b1afb35c-23a0-45fb-b896-ff5820b29e91",
+    "codice": null,
+    "serial_number": "50 946 060",
+    "descrizione": "WNT FRESA PER POLIMERI D6",
+    "ubicazione": "FRESE METALLI 1",
+    "fornitore": "CERATIZIT",
+    "price": 52.29,
+    "source": "Ordine 2024 (Match SN '50 946 060')"
+  },
+  {
+    "id": "b48530de-efa8-4331-bcec-5d75c8cde6bb",
+    "codice": null,
+    "serial_number": "5614736800",
+    "descrizione": "INSERTI FRESA SFERICA D25",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "CERATIZIT",
+    "price": 70.94,
+    "source": "Ordine 2025 (Match SN '5614736800')"
+  },
+  {
+    "id": "b7accd03-07ce-413a-b23e-3531ec477a45",
+    "codice": "BRCL000400000066",
+    "serial_number": "94199384",
+    "descrizione": "WNT FRESA METALLO DURO D20",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "CERATIZIT",
+    "price": 133.76,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "b875de96-9dc6-482f-b66d-987340713121",
+    "codice": "BRCL0260C",
+    "serial_number": "209548 4",
+    "descrizione": "GARANT FRESA DIAMANTATA SGROSSATURA D4",
+    "ubicazione": "CASS.OPERCOLI",
+    "fornitore": "HOFFMAN",
+    "price": 180.06,
+    "source": "Hoffmann Group B2B (https://www.hoffmann-group.com/IT/it/hoi/p/209548-4)"
+  },
+  {
+    "id": "bb5c7ad7-6551-4e2e-99c6-d91152ff5fc7",
+    "codice": null,
+    "serial_number": "50477508",
+    "descrizione": "INSERTO DXHT 11T308FR-27P",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "CERATIZIT",
+    "price": 24.35,
+    "source": "Ordine 2024 (Match SN '50477508')"
+  },
+  {
+    "id": "bca7c428-2118-41b5-a168-25fb753eae01",
+    "codice": "BRCL000400000256",
+    "serial_number": "23 172 031",
+    "descrizione": "WNT MASCHIO AMERICANO UNC 5/16",
+    "ubicazione": "EXTREMA3",
+    "fornitore": "CERATIZIT",
+    "price": 52.69,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "beca457e-f53a-4dd6-8140-793113054fe6",
+    "codice": "BRCL4008727",
+    "serial_number": "5371105410",
+    "descrizione": "FRESA METALLO DURO D5  R1",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "CERATIZIT",
+    "price": 60.27,
+    "source": "Ordine 2024 (Match SN '5371105410')"
+  },
+  {
+    "id": "c0305f33-d8e7-461b-8de1-4b6f0965e3db",
+    "codice": "BRCL01418C",
+    "serial_number": "209517 8",
+    "descrizione": "GARANT FRESA SPINGI TIRA D8",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "HOFFMAN",
+    "price": 151.16,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "c19aa2f5-5797-4b49-ba75-bdc64269531c",
+    "codice": "BRCL00197C",
+    "serial_number": "11 703 06800",
+    "descrizione": "PUNTA D6.8",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 36.16,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "c272f558-6beb-4f78-9d7f-175710079834",
+    "codice": "BRCL00200C",
+    "serial_number": "2909 6.000 DIN 371",
+    "descrizione": "MASCHIO GUHRING M6 6HX",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "FIMU",
+    "price": 91.26,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "c3455e5b-cc49-4024-9952-92b25393c4fc",
+    "codice": null,
+    "serial_number": "TD850 GP 0850",
+    "descrizione": "PUNTA MDI D8.5",
+    "ubicazione": "EXTREMA1",
+    "fornitore": "BURZONI",
+    "price": 55.2,
+    "source": "Ordine 2023 (Match SN 'TD850 GP 0850')"
+  },
+  {
+    "id": "c3d5c38e-2d46-48d3-b687-a4aa93481dd5",
+    "codice": null,
+    "serial_number": "1170310000",
+    "descrizione": "WNT PUNTA D10",
+    "ubicazione": "PUNTE2",
+    "fornitore": "CERATIZIT",
+    "price": 41.36,
+    "source": "Ordine 2025 (Match SN '1170310000')"
+  },
+  {
+    "id": "c590c9b4-a38a-4e84-ac92-5cce8bf440e0",
+    "codice": null,
+    "serial_number": "11 702 08500",
+    "descrizione": "WNT PUNTA MDI D8.5",
+    "ubicazione": "EXTREMA1",
+    "fornitore": "CERATIZIT",
+    "price": 33.68,
+    "source": "Ordine 2025 (Match SN '11 702 08500')"
+  },
+  {
+    "id": "c70f1aa1-f79e-4ebe-8b1a-2d728648e6a2",
+    "codice": "BRCL01528C",
+    "serial_number": "207 106-1",
+    "descrizione": "GARANT FRESA SFERICA HMI D1",
+    "ubicazione": "CASS.DUCATI 27",
+    "fornitore": "HOFFMAN",
+    "price": 41.18,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "c968b4df-f996-4c02-adc9-5c3b05adbf97",
+    "codice": null,
+    "serial_number": "11 703 05200",
+    "descrizione": "PUNTA D5.2",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 43.66,
+    "source": "Ordine 2023 (Match SN '11 703 05200')"
+  },
+  {
+    "id": "cb6e3221-dd4d-4dc2-81e6-c438f734c750",
+    "codice": null,
+    "serial_number": "11 702 10000",
+    "descrizione": "PUNTA D10.5 FORATA ALTE PRESTAZIONI",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 33.68,
+    "source": "Ordine 2025 (Match SN '11 702 10000')"
+  },
+  {
+    "id": "ce25e51c-48b3-4703-96a8-aaa8c9b74b56",
+    "codice": null,
+    "serial_number": "11 704  09800",
+    "descrizione": "PUNTA D9.8  8XD",
+    "ubicazione": "PUNTE2",
+    "fornitore": "CERATIZIT",
+    "price": 95.13,
+    "source": "Ordine 2025 (Match SN '11 704  09800')"
+  },
+  {
+    "id": "d8efa623-0eed-40b7-97a8-a5accf57805b",
+    "codice": "BRCL000400000137",
+    "serial_number": "202272 8",
+    "descrizione": "GARANT FRESA METALLO DURO D8",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "HOFFMAN",
+    "price": 33.8,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "d95a75bf-37c4-40dd-b217-a5668e73d29f",
+    "codice": "BRCL00564C",
+    "serial_number": "880160R020Z4",
+    "descrizione": "SECO FRESA DIAMANTATA JARBO D16",
+    "ubicazione": "CASS.IR27",
+    "fornitore": "FIMU",
+    "price": 360.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "d9bc18a4-fb25-4027-a387-087540bead35",
+    "codice": "BRCL01288C",
+    "serial_number": "2060052 HU7315-1",
+    "descrizione": "INSERTO PER TORNITURA CCT",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "HOFFMAN",
+    "price": 11.96,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "da6f1cf6-21ae-4ad4-9893-c0117dad0591",
+    "codice": "BRCL01239C",
+    "serial_number": "120010",
+    "descrizione": "PUNTA CRESTA DI GALLO D5.1",
+    "ubicazione": "PUNTE3",
+    "fornitore": null,
+    "price": 34.62,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "dc070eba-0dd3-48e8-b5d6-808088c866bf",
+    "codice": "BRCL000400000398",
+    "serial_number": null,
+    "descrizione": "FRESA KARNASCH DIAMANTATA D6 L2",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "HOFFMAN",
+    "price": 227.93,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "dc58043c-3172-49fc-8294-5b6af3d2789a",
+    "codice": "BRCL01018C",
+    "serial_number": "11 702 08200",
+    "descrizione": "PUNTA DIAMANTATA D8.2",
+    "ubicazione": "CASS.IR27",
+    "fornitore": "CERATIZIT",
+    "price": 34.74,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "dcb5523c-a7c1-47c7-93f0-6b91b11cf7b5",
+    "codice": "BRCL01416C",
+    "serial_number": "2910-6.004 DIN371",
+    "descrizione": "GUHRING FRESA METALLO DURO D6",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "FIMU",
+    "price": 118.35,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "dd9c2af3-400a-4d67-a0ae-f1e05f84dc80",
+    "codice": "BRCL00969C",
+    "serial_number": "2720261",
+    "descrizione": "SECO FRESA SGROSSATURA D12",
+    "ubicazione": "CASS.IR27",
+    "fornitore": "HOFFMAN",
+    "price": 247.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "dee6024a-0b41-41ae-801e-b452ae636525",
+    "codice": "BRCL01290C",
+    "serial_number": "045197707062",
+    "descrizione": "GARANT INSERTI FRESA 1.5 HB7720",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "HOFFMAN",
+    "price": 75.24,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "defea4b2-5d14-402c-b3da-8d8edbb526e6",
+    "codice": null,
+    "serial_number": "KC410M",
+    "descrizione": "INSERTO FRESA EDCT",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "FIMU",
+    "price": 18.3,
+    "source": "Ordine 2025 (Match SN 'KC410M')"
+  },
+  {
+    "id": "e00b6211-88bc-40d4-88d9-7396a015c391",
+    "codice": "BRCL01414C",
+    "serial_number": "SA350-3",
+    "descrizione": "DC MASCHIO AMERICANO 5/16",
+    "ubicazione": "MASCHI A",
+    "fornitore": "DC",
+    "price": 99.5,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "e010c557-8490-4814-b8b8-accc0214e04c",
+    "codice": "BRCL01197C",
+    "serial_number": "KDMB20M0ERLD",
+    "descrizione": "KENNAMETAL INSERTI FRESA SFERICI D20",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "FIMU",
+    "price": 40.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "e1f992e2-6992-4361-b38e-d67eeeb8029d",
+    "codice": "BRCL00214C",
+    "serial_number": "94818038",
+    "descrizione": "WNT FRESA METALLO DURO D20",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "CERATIZIT",
+    "price": 125.59,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "e28f6847-bea8-4f57-bd02-643b8dfee133",
+    "codice": "BRCL01417C",
+    "serial_number": "21146789",
+    "descrizione": "GUHRING MASCHIO M10",
+    "ubicazione": "MASCHI",
+    "fornitore": "FIMU",
+    "price": 185.19,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "e3c60297-8a51-41e5-b77d-8478a2624bdb",
+    "codice": "BRCL000400000592",
+    "serial_number": "2903 6,004 DIN 371",
+    "descrizione": "GUHRING MASCHIO M6 X0.75",
+    "ubicazione": "MASCHI",
+    "fornitore": "FIMU",
+    "price": 114.7,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "e3cd4c67-b5a6-41cf-bdbf-d71bc7a98726",
+    "codice": null,
+    "serial_number": "02985-FWT3120",
+    "descrizione": "FRESA D11.33",
+    "ubicazione": "FRESA METALLI2",
+    "fornitore": "RAFF",
+    "price": 147.0,
+    "source": "Ordine 2025 (Match SN '02985-FWT3120')"
+  },
+  {
+    "id": "e5b28141-f5f7-4b18-a40c-db86ccdff972",
+    "codice": "BRCL00191C",
+    "serial_number": "202272",
+    "descrizione": "GARANT FRESA DIAMANTATA D4 ANELLO GIALLO",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "HOFFMAN",
+    "price": 72.56,
+    "source": "Ordine 2025 (Match SN '202272')"
+  },
+  {
+    "id": "e66ab062-5b56-4fdc-92ba-fe1ca6ec2714",
+    "codice": "BRCL00192C",
+    "serial_number": "202272",
+    "descrizione": "GARANT FRESA D10",
+    "ubicazione": "FRESA METALLI 1",
+    "fornitore": "HOFFMAN",
+    "price": 72.56,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "e8342f6f-4386-4477-9c05-cdfe61356528",
+    "codice": "BRCL01361C",
+    "serial_number": "23074439",
+    "descrizione": "GUHRING MASCHIO AMERICANO",
+    "ubicazione": "MASCHI A",
+    "fornitore": "FIMU",
+    "price": 177.46,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "e9dc2d96-fa6a-4807-8a4b-df8657ea4885",
+    "codice": "BRCL00729C",
+    "serial_number": "BSF-M-B-1D-8.0",
+    "descrizione": "LAMA BSF-M-B-1D-8.0 IN MD RIVESTITO",
+    "ubicazione": "CASS.IR27",
+    "fornitore": "F.I.M.U S.R.L",
+    "price": 160.0,
+    "source": "Ordine 2026 (Inserimento ordini 2026)"
+  },
+  {
+    "id": "e9ea1195-4798-40b5-af3f-a356761adcbf",
+    "codice": null,
+    "serial_number": "1170208500",
+    "descrizione": "WNT PUNTA D8.5",
+    "ubicazione": "PUNTE2",
+    "fornitore": "CERATIZIT",
+    "price": 33.68,
+    "source": "Ordine 2025 (Match SN '1170208500')"
+  },
+  {
+    "id": "ec54de59-27bb-49ea-a70f-e838df7cb90f",
+    "codice": "BRCL000400000069",
+    "serial_number": null,
+    "descrizione": "GARANT FRESA PIATTA MDI D8",
+    "ubicazione": "EXTREMA4",
+    "fornitore": "HOFFMAN",
+    "price": 24.35,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "ec5c4a7c-9ad7-4fe4-9137-3896b4f01db0",
+    "codice": "BRCL00995C",
+    "serial_number": "52 870 10010",
+    "descrizione": "FRESA METALLO DURO D10 R1",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "CERATIZIT",
+    "price": 69.83,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "eec8b0ef-b8de-4912-87bc-39de22c51a13",
+    "codice": "BRCL01062C",
+    "serial_number": "KC410M",
+    "descrizione": "INSERTO FRESA EDCT140431",
+    "ubicazione": "INSERTI FRESA",
+    "fornitore": "FIMU",
+    "price": 18.3,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "efd467d6-1cf9-4390-bc0b-075ad38f13b9",
+    "codice": "BRCL01358C",
+    "serial_number": "6230210",
+    "descrizione": "SECO ALESATORE D 9.533",
+    "ubicazione": "ALESATORI",
+    "fornitore": "FIMU",
+    "price": 180.0,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "f2d242db-9f3d-43ac-8d58-6eb3adc27582",
+    "codice": null,
+    "serial_number": "1170303000",
+    "descrizione": "WNT PUNTA D 3",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 43.66,
+    "source": "Ordine 2024 (Match SN '1170303000')"
+  },
+  {
+    "id": "f719f799-e6ee-47e6-ab9e-5beda0202ae3",
+    "codice": "BRCL01655C",
+    "serial_number": "11 702 04200",
+    "descrizione": "PUNTA AD ELEVATE PRESTAZIONI D4.2 5XD",
+    "ubicazione": "CASS.IR27",
+    "fornitore": "CERATIZIT",
+    "price": 30.56,
+    "source": "Ordine 2023 (Match SN '11 702 04200')"
+  },
+  {
+    "id": "f90e1f7f-817b-4360-8339-6934f5e24aa7",
+    "codice": null,
+    "serial_number": "54 070 12400",
+    "descrizione": "WNT FRESA PIATTA D12",
+    "ubicazione": "EXTREMA4",
+    "fornitore": "CERATIZIT",
+    "price": 72.35,
+    "source": "Ordine 2024 (Match SN '54 070 12400')"
+  },
+  {
+    "id": "fa7a3578-049f-474e-bbd2-8ac49827413f",
+    "codice": null,
+    "serial_number": "52784034",
+    "descrizione": "FRESA METALLO DURO D3 40°",
+    "ubicazione": "FRESA METALLI1",
+    "fornitore": "CERATIZIT",
+    "price": 62.7,
+    "source": "Ordine 2025 (Match SN '52784034')"
+  },
+  {
+    "id": "faaae42c-3031-41f7-947d-be2ea2361ca0",
+    "codice": null,
+    "serial_number": "8684430",
+    "descrizione": "OSG PUNTA METALLO DURO D4.3  8D",
+    "ubicazione": "PUNTE1",
+    "fornitore": "RAFF",
+    "price": 134.0,
+    "source": "Ordine 2025 (Match SN '8684430')"
+  },
+  {
+    "id": "faad1e31-8ece-41a2-8d9d-588f42e55ce2",
+    "codice": "BRCL01227C",
+    "serial_number": "205275 10",
+    "descrizione": "GARANT FRESA DA SGROSSATURA RIVESTITA D10",
+    "ubicazione": "CASS.DUCATI 27",
+    "fornitore": "HOFFMAN",
+    "price": 20.3,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "fae1b8c1-1903-43e2-9c20-2025b1f06530",
+    "codice": "BRCL000400000177",
+    "serial_number": null,
+    "descrizione": "WNT PUNTA D6",
+    "ubicazione": "PUNTE1",
+    "fornitore": "CERATIZIT",
+    "price": 30.56,
+    "source": "Ordine 2023 (Inserimento ordini 2023 (2))"
+  },
+  {
+    "id": "fb767e25-c7a0-437a-bcef-19bc999be784",
+    "codice": "BRCL01528C",
+    "serial_number": "207072 4",
+    "descrizione": "GARANT FRESA SFERICA RIVESTITA D4",
+    "ubicazione": "CASS.DUCATI 27",
+    "fornitore": "HOFFMAN",
+    "price": 106.84,
+    "source": "Report Ducati 28/09"
+  },
+  {
+    "id": "fd1f094e-4605-4b44-a30f-58802f70c599",
+    "codice": "BRCL01417C",
+    "serial_number": "2921-10,006DIN371",
+    "descrizione": "GUHRING MASCHIO M10X1.25",
+    "ubicazione": "CASS.DUCATI",
+    "fornitore": "FIMU",
+    "price": 185.19,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "fd85dffc-3e9d-484a-aed3-4fd65d261fd9",
+    "codice": "BRCL000400000052",
+    "serial_number": "2909 12,000 DIN 376",
+    "descrizione": "GHURING MASCHIO M12 6HX",
+    "ubicazione": "MASCHI",
+    "fornitore": "FIMU",
+    "price": 140.62,
+    "source": "Ordine 2024 (Inserimento ordini 2024 (2))"
+  },
+  {
+    "id": "feae94a5-1fef-4b80-bc54-e4def4188714",
+    "codice": "BRCL01242C",
+    "serial_number": "1170205000",
+    "descrizione": "PUNTA AD ELEVATE PRESTAZIONI D5  CARBONIO",
+    "ubicazione": "CASS.IR27",
+    "fornitore": "CERATIZIT",
+    "price": 31.48,
+    "source": "Ordine 2025 (Inserimento ordini 2025)"
+  },
+  {
+    "id": "ffad659d-ebde-4f6b-a3f3-4df627aa504d",
+    "codice": "BRCL01170C",
+    "serial_number": "209548 8M",
+    "descrizione": "GARANT FRESA DIAMANTATA SGROSSATURA D8M",
+    "ubicazione": "CASS.OPERCOLI",
+    "fornitore": "HOFFMAN",
+    "price": 151.76,
+    "source": "Ordine 2026 (Inserimento ordini 2026)"
+  },
+  {
+    "id": "ffe83688-2864-4a13-8b3c-8503c9acee7e",
+    "codice": "BRCL01170C",
+    "serial_number": "209548 8M",
+    "descrizione": "GARANT FRESA DIAMANTATA SGROSSATURA D8M",
+    "ubicazione": "DIAMANTATE 1",
+    "fornitore": "HOFFMAN",
+    "price": 151.76,
+    "source": "Ordine 2026 (Inserimento ordini 2026)"
+  }
+]

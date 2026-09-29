@@ -21,6 +21,7 @@ export const VirtualizedTable = memo(({
   className = "",
   bottomSpacerClassName = "h-20 md:h-10",
   parentRef: externalParentRef,
+  showDividers = false,
 }) => {
   const EmptyIcon = emptyIcon || AlertTriangle;
   const defaultParentRef = useRef(null);
@@ -49,7 +50,7 @@ export const VirtualizedTable = memo(({
           {table.getHeaderGroups().map((headerGroup) => (
             <div
               key={headerGroup.id}
-              className="flex flex-1 w-full text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[11px] select-none"
+              className="flex flex-1 w-full text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[11px] select-none items-stretch"
             >
               {headerGroup.headers.map((header) => {
                 const meta = header.column.columnDef.meta;
@@ -71,10 +72,12 @@ export const VirtualizedTable = memo(({
                 return (
                   <div
                     key={header.id}
-                    className={`flex items-center gap-1.5 ${density === 'compact' ? 'py-2.5 px-3' : 'py-3.5 px-4'} transition-colors group relative overflow-hidden ${
+                    className={`flex items-center gap-1.5 ${density === 'compact' ? 'py-2 px-3' : 'py-3 px-3 sm:px-4'} transition-colors group relative overflow-hidden self-stretch ${
                       canSort ? 'cursor-pointer hover:text-slate-950 dark:hover:text-white' : ''
                     } ${meta?.className || ''} ${
                       isFlex ? 'min-w-0' : 'flex-shrink-0 justify-center'
+                    } ${
+                      showDividers ? (renderRowTrailing ? 'border-r border-slate-200 dark:border-slate-700/60' : 'border-r border-slate-200 dark:border-slate-700/60 last:border-r-0') : ''
                     }`}
                     style={{
                       flex: flexStyle,
@@ -162,7 +165,7 @@ export const VirtualizedTable = memo(({
                   role={onRowClick ? "button" : undefined}
                   tabIndex={onRowClick ? 0 : undefined}
                   aria-selected={selectionMode !== 'none' ? Boolean(isSelected) : undefined}
-                  className={`flex items-center w-full border-b border-slate-100 dark:border-slate-800/60 group select-none text-xs text-slate-700 dark:text-slate-300 ${
+                  className={`flex items-stretch w-full border-b border-slate-100 dark:border-slate-800/60 group select-none text-xs text-slate-700 dark:text-slate-300 ${
                     onRowClick ? 'cursor-pointer' : ''
                   } data-[pointer-focus=true]:outline-none transform-gpu transition-all duration-150 ease-out origin-center hover:scale-[1.008] md:hover:scale-[1.01] hover:bg-sky-50/80 dark:hover:bg-sky-900/35 hover:border-transparent ${
                     isSelected ? 'bg-sky-50 dark:bg-sky-950/40 shadow-[inset_3px_0_0_#0284c7]' : ''
@@ -186,9 +189,11 @@ export const VirtualizedTable = memo(({
                     return (
                       <div
                         key={cell.id}
-                        className={`flex items-center ${density === 'compact' ? 'py-2' : 'py-3.5'} overflow-hidden ${
+                        className={`flex items-center ${density === 'compact' ? 'py-1.5' : 'py-2.5'} overflow-hidden self-stretch ${
                           meta?.className || ''
-                        } ${isFlex ? 'min-w-0' : 'flex-shrink-0 justify-center'}`}
+                        } ${isFlex ? 'min-w-0' : 'flex-shrink-0 justify-center'} ${
+                          showDividers ? (renderRowTrailing ? 'border-r border-slate-200/50 dark:border-slate-800/60 group-hover:border-sky-100 dark:group-hover:border-sky-900/40' : 'border-r border-slate-200/50 dark:border-slate-800/60 group-hover:border-sky-100 dark:group-hover:border-sky-900/40 last:border-r-0') : ''
+                        }`}
                         style={{
                           flex: flexStyle,
                           width: width,
@@ -201,7 +206,7 @@ export const VirtualizedTable = memo(({
                     );
                   })}
                   {renderRowTrailing && (
-                    <div className="w-6 flex-shrink-0 flex items-center justify-center mx-3 sm:mx-4 md:mx-6">
+                    <div className="w-6 flex-shrink-0 flex items-center justify-center mx-3 sm:mx-4 md:mx-6 self-center">
                       {renderRowTrailing(row.original, row)}
                     </div>
                   )}

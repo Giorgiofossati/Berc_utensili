@@ -1,0 +1,874 @@
+-- ==================================================================
+-- AGGIORNAMENTO PREZZI EFFETTIVI DA STORICO ORDINI ACQUISTO BERCELLA
+-- Totale utensili aggiornati: 217
+-- Prezzi al netto di IVA (imponibile d'acquisto unitario)
+-- ==================================================================
+
+-- [ALESATORI] BRCL01359C | SN: K10 23603347 | GUHRING ALESATORE D10  H7
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 131.51 WHERE id = '00b1d4ac-0720-4b7a-8f0d-34f5d94980c3';
+
+-- [CASS.IR27] BRCL00054C | SN: JMB16 85R03 KD16 | INSERTI RIVESTITI - JMB16-85R03-KD16
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 46.35 WHERE id = '01b5d6f9-6473-445e-816f-1915c51404a9';
+
+-- [CASS.DUCATI] BRCL01163C | SN: RAFF-SDT90-D.10 | SMUSSATORE D10 90°
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 62.50 WHERE id = '048dcda4-9da8-4466-ab8d-15333d786294';
+
+-- [DIAMANTATE 1] BRCL01429C | SN: 2097556 | GARANT FRESA DIAMANTATA D6X1
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 98.58 WHERE id = '04b53b2f-e828-45dc-8093-0fc64f6b5fc0';
+
+-- [INSERTI FRESA] BRCL00217C | SN: 50477508 | INSERTO FRESA XDHT 11T308FR-27PH216T
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 24.35 WHERE id = '08724525-1374-4a17-afea-126f85dd094b';
+
+-- [DIAMANTATE 1] BRCL01376C | SN: 1149-6.000 | GUHRING PUNTA ALLUMINIO NUDA D5
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 85.00 WHERE id = '08d9a692-3eee-4f40-99f4-ea36bf5da1d1';
+
+-- [PUNTE1] SENZA-CODICE | SN: 8577150 | OSG PUNTA D1.5
+-- Fonte: Ordine 2025 (Match SN '8577150')
+UPDATE "Utensili_B1" SET "Prezzo" = 38.80 WHERE id = '09830d43-a749-414d-a2af-bf837edce2fc';
+
+-- [BELOTTIC1] BRCL000400000137 | SN: 202272 | FRESA METALLO DURO D8
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 33.80 WHERE id = '0afd3ec6-0507-42cb-825c-618bdd148a60';
+
+-- [DIAMANTATE 1] BRCL00976C | SN: 6240535 538 | SECO FRESA DIAMANTATA D8 R0.2
+-- Fonte: Ordine 2026 (Inserimento ordini 2026)
+UPDATE "Utensili_B1" SET "Prezzo" = 160.00 WHERE id = '0b2ffe6b-66ec-4064-9b24-e66399ecf71e';
+
+-- [FRESA METALLI1] BRCL000400000033 | SN: N/A | WNT FRESA METALLO DURO D9.65
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 33.61 WHERE id = '0de4714c-affd-4803-aeb2-482cdcd815af';
+
+-- [PUNTE2] BRCL01569C | SN: 1171508800 | PUNTA AD ELEVATE PRESTAZIONI D8.8
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 85.00 WHERE id = '1097a093-0a0c-433e-a6d2-7d7a3b637bef';
+
+-- [PUNTE1] BRCL01242C | SN: N/A | PUNTA D5
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 31.48 WHERE id = '10aae6ee-d117-4374-97d1-c787a4a51ced';
+
+-- [DIAMANTATE 1] SENZA-CODICE | SN: VHM 19406 KD14 | FRESA DIAMANTATA D8
+-- Fonte: Ordine 2025 (Match SN 'VHM 19406 KD14')
+UPDATE "Utensili_B1" SET "Prezzo" = 165.54 WHERE id = '11a7444f-ecfb-40f3-b3f6-1686552e9cf4';
+
+-- [SMUSSATORI] BRCL01352C | SN: 02985 | SMUSATORE D20 100°
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 127.50 WHERE id = '12d3a19f-d3e6-40a9-b4c5-a45e6ccbeca8';
+
+-- [CASS.DUCATI] BRCL00463C | SN: 1170206800 | PUNTA AD ELEVATE PRESTAZIONI D6.8 5XD
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 30.37 WHERE id = '13268ac5-1f18-4fb2-8432-cdaa9fb0f883';
+
+-- [CASS.DUCATI] BRCL01430C | SN: 205275 8 | GARANT FRESA SGROSSATURA SLOTMACHINE D8
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 99.92 WHERE id = '14c70643-4b33-4400-9f2d-18cade5b336b';
+
+-- [MASCHI] BRCL00705C | SN: 23152916 | GUHRING MASCHIO M12
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 64.00 WHERE id = '156d7828-72cd-4bc0-9cac-30bf170feb54';
+
+-- [CASS.DUCATI] BRCL01292C | SN: 206071 10/1.5 | GARANT FRESA TOROIDALE HMI D10 R1.5
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 112.63 WHERE id = '1601712b-209b-4c7e-b250-3a802e77ee0a';
+
+-- [PUNTE1] BRCL000400000344 | SN: 11 703 03300 | WNT PUNTA D3.3 R5
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 30.56 WHERE id = '18b1040b-8fba-4fc2-9f72-38232da8abdf';
+
+-- [RIAFFILATE1] BRCL01044C | SN: VHM 19210 KD14 D12 | FRESA LUNGA D12
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 449.90 WHERE id = '19fbf433-0ad8-4b16-984a-f68f533c9c1a';
+
+-- [INSERTI FRESA] SENZA-CODICE | SN: 2823843 | INSERTO XOEX10T308FR
+-- Fonte: Ordine 2024 (Match SN '2823843')
+UPDATE "Utensili_B1" SET "Prezzo" = 19.70 WHERE id = '1a1a1d29-243f-4ec7-b54c-b3e9db14c350';
+
+-- [PUNTE1] BRCL000400000407 | SN: 10 787 032 | WNT PUNTA D3.2
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 88.70 WHERE id = '1c681e7d-12d2-4a35-961a-87ebf82105c4';
+
+-- [FRESA METALLI2] SENZA-CODICE | SN: 20978110 | GARANT FRESA SFERICA METALLO DURO D9.75
+-- Fonte: Ordine 2025 (Match SN '20978110')
+UPDATE "Utensili_B1" SET "Prezzo" = 200.72 WHERE id = '1cf15575-07e6-4f38-b11f-64a96644f98a';
+
+-- [CASS. NIMBUS] BRCL00985C | SN: 5768-5.100 | GUHRING PUNTA MD D5.1
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 86.20 WHERE id = '1d535799-cb6a-4ec5-b33b-9b507fb927fd';
+
+-- [FRESA METALLI1] BRCL01291C | SN: 217252 | GARANT FRESA A INTERPOLAZIONE 18L
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 224.64 WHERE id = '1d8899dd-8610-434b-af8a-8c9e25f2e0a8';
+
+-- [BELOTTIC4] BRCL000402343601 | SN: 32105 | ALESATORE D6 X85
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 18.00 WHERE id = '1dc2ce3b-735b-4bca-aa31-d86fe14023ef';
+
+-- [CASS.IR27] BRCL01437C | SN: DH408141 | YG PUNTA D14.1X16X83Z133
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 150.00 WHERE id = '1ea021ea-8adf-47f4-a217-3883a6b92050';
+
+-- [PUNTE1] SENZA-CODICE | SN: 1170403000 | PUNTA D3XD
+-- Fonte: Ordine 2024 (Match SN '1170403000')
+UPDATE "Utensili_B1" SET "Prezzo" = 86.86 WHERE id = '1fe0de0a-8c16-45a2-abea-271500dd2d66';
+
+-- [ALESATORI] BRCL01372C | SN: K10 23575490 | GUHRING ALESATORE D16 H7
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 196.52 WHERE id = '203fa10b-da1c-42b9-a00b-9c36a64fcaaa';
+
+-- [CASS.DUCATI] BRCL00576C | SN: 880080R020Z4.0 | SECO FRESA DA SGROSSO D8 DIAMANTATA
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 155.00 WHERE id = '209fb464-5c2f-45d5-852f-1f5b7f3ef9fc';
+
+-- [PUNTE1] SENZA-CODICE | SN: 10 787 050 | WNT PUNTA D5
+-- Fonte: Ordine 2023 (Match SN '10 787 050')
+UPDATE "Utensili_B1" SET "Prezzo" = 88.70 WHERE id = '23d7ae19-9aab-468a-b1e6-b22ef5ec4c97';
+
+-- [MASCHI A] BRCL01049C | SN: HSSE 22919707 | GUHRING MASCHIO AMERICANO 5/16
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 127.05 WHERE id = '241a6b1e-881e-4fc0-8761-c8a5273f457c';
+
+-- [DIAMANTATE 1] BRCL000400000219 | SN: HM84/15.8 | FRESA DIAMANTATA D1.5X8
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 40.28 WHERE id = '24d12db4-847c-4c00-a62d-f186099152e8';
+
+-- [EXTREMA1] SENZA-CODICE | SN: TD850 GP 0600 | PUNTA  MDI D6
+-- Fonte: Ordine 2023 (Match SN 'TD850 GP 0600')
+UPDATE "Utensili_B1" SET "Prezzo" = 30.56 WHERE id = '252fe986-8f87-4c0f-a4c9-6688694e6c3c';
+
+-- [INSERTI FRESA] BRCL01366 | SN: 00015861 | SECO INSERTI FRESA TCGT32.51 F-AL
+-- Fonte: Ordine 2025 (Match SN '00015861')
+UPDATE "Utensili_B1" SET "Prezzo" = 18.50 WHERE id = '2660bc40-e7aa-4059-a4a7-a31b773f301b';
+
+-- [EXTREMA3] SENZA-CODICE | SN: 48139192 | OSG MASCHIO M14X1.5 6HX HSSE
+-- Fonte: Ordine 2023 (Match SN '48139192')
+UPDATE "Utensili_B1" SET "Prezzo" = 60.96 WHERE id = '2706c011-6b1e-4cba-aada-9ca10cc1a326';
+
+-- [CASS.DUCATI] BRCL01059C | SN: HM63/05 D8 R4 | RIME FRESA SFERICA D8
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 218.70 WHERE id = '28a93e57-ad14-4310-8643-05f91f52ca41';
+
+-- [DIAMANTATE1] BRCL00086C | SN: 209548 8 | GARANT FRESA DIAMANTATA D8
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 138.71 WHERE id = '297e33a6-03f7-4ccf-83b4-aa2419c71840';
+
+-- [PUNTE1] SENZA-CODICE | SN: 11 702 06400 | PUNTA D6.4
+-- Fonte: Ordine 2024 (Match SN '11 702 06400')
+UPDATE "Utensili_B1" SET "Prezzo" = 30.37 WHERE id = '2b1dc593-eebc-4d61-922c-f216e4424845';
+
+-- [CASS.SPARKWING] BRCL00981C | SN: 2720258 | FRESA DIAMANTATA D6
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 108.00 WHERE id = '2b321ec5-9810-466c-bf0e-a7745d03437b';
+
+-- [RIAFFILATE1] SENZA-CODICE | SN: FW-R4060 | FRESA SFERICA LUNGA D6
+-- Fonte: Ordine 2025 (Match SN 'FW-R4060')
+UPDATE "Utensili_B1" SET "Prezzo" = 142.03 WHERE id = '2e37a077-aac3-49a1-a319-afaefb184b4e';
+
+-- [DUCATI] BRCL00944C | SN: XOEX10T331FR-E05 | SECO INSERTI FRESA XOEX10T331FR-E05 H15
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 14.80 WHERE id = '2f53a51e-4b04-41e6-8424-1b2309683655';
+
+-- [BELOTTIC3] SENZA-CODICE | SN: 10 787 130 | WNT PUNTA DIAMANTATA D13
+-- Fonte: Ordine 2024 (Match SN '10 787 130')
+UPDATE "Utensili_B1" SET "Prezzo" = 226.26 WHERE id = '305d65ad-31a8-4ec6-bf2f-5d29350424a9';
+
+-- [DIAMANTATE 1] BRCL00261C | SN: 291761.1600.36 | KARNASH FRESA DIAMANTATA D16L2
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 226.54 WHERE id = '3067d328-d894-4d05-83a6-f711a3d29df5';
+
+-- [NIMBUS] BRCL00976C | SN: JC885080D2R020.0Z4 | SECO FRESA DIAMANTATA SPINGI D8
+-- Fonte: Ordine 2026 (Inserimento ordini 2026)
+UPDATE "Utensili_B1" SET "Prezzo" = 160.00 WHERE id = '31f38b46-cf1a-45aa-a25b-21245d5db73a';
+
+-- [CASS.SPARKWING] SENZA-CODICE | SN: 290120 | KARNASH PUNTA DIAMANTATA D2.2  L14
+-- Fonte: Ordine 2025 (Match SN '290120')
+UPDATE "Utensili_B1" SET "Prezzo" = 334.42 WHERE id = '320893db-517b-4dd0-a4a3-a58a36463f33';
+
+-- [EXTREMA1] SENZA-CODICE | SN: 11 702 04200 | WNT PUNTA MDI D4.2
+-- Fonte: Ordine 2023 (Match SN '11 702 04200')
+UPDATE "Utensili_B1" SET "Prezzo" = 30.56 WHERE id = '33cf8675-9cd2-4721-91b0-7e671f85c0c6';
+
+-- [CASS.OPERCOLI] BRCL01170C | SN: 209548 8M | GARANT FRESA DIAMANTATA SGROSSATURA D8M
+-- Fonte: Ordine 2026 (Inserimento ordini 2026)
+UPDATE "Utensili_B1" SET "Prezzo" = 151.76 WHERE id = '36a38c70-604a-447f-aa5f-c1c22884da9f';
+
+-- [FRESA METALLI1] BRCL00029C | SN: 5358612010 | FRESA METALLO DURO D12 R1
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 132.90 WHERE id = '3774648a-02ae-4a82-9027-6815ddb3f64f';
+
+-- [INSERTI FRESA] BRCL01141C | SN: JMS02-98RR04-XC35 | INSERTI FRESA JMS02
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 12.51 WHERE id = '38e61839-d6b6-4be4-b8d8-2e57733a509a';
+
+-- [DIAMANTATE 1] BRCL01418C | SN: 29517 8 | FRESA GARANT (SPINGI-TIRA) DIAMANTATA D8
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 151.16 WHERE id = '39039a0a-0d0c-4f36-85a9-a35460ec242a';
+
+-- [PUNTE3] BRCL01402C | SN: 7631 180 0550HC | SPPW PUNTA D5.5 CRESTA DI GALLO
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 32.80 WHERE id = '3b7bc1c1-22a2-4b0c-a352-7e57437346ab';
+
+-- [BELOTTIC3] SENZA-CODICE | SN: 11 702 10200 | PUNTA METALLO DURO D10.2 5XD
+-- Fonte: Ordine 2026 (Match SN '11 702 10200')
+UPDATE "Utensili_B1" SET "Prezzo" = 61.51 WHERE id = '3f602670-9450-44fe-8964-f45b2b09ec24';
+
+-- [CASS.SPARKWING] SENZA-CODICE | SN: VHB 3395 MK10 | PUNTA D2 CARBONIO
+-- Fonte: Ordine 2024 (Match SN 'VHB 3395 MK10')
+UPDATE "Utensili_B1" SET "Prezzo" = 116.00 WHERE id = '3fa2c84e-178a-4a8a-9c22-3bfc45903fa5';
+
+-- [DIAMANTATE 1] SENZA-CODICE | SN: 02720262 | FRESA DIAMANTATA D16 R0.2
+-- Fonte: Ordine 2025 (Match SN '02720262')
+UPDATE "Utensili_B1" SET "Prezzo" = 360.00 WHERE id = '40387098-074a-4a6c-ac76-5add81596a88';
+
+-- [PUNTE1] SENZA-CODICE | SN: 11 702 05000 | PUNTA D5.5
+-- Fonte: Ordine 2025 (Match SN '11 702 05000')
+UPDATE "Utensili_B1" SET "Prezzo" = 31.48 WHERE id = '4071e73f-6c32-4935-8306-c56c39a9f8a0';
+
+-- [NIMBUS] BRCL00981C | SN: 880060R020Z4.0 | SECO FRESA DIAMANTATA TIRA D6
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 108.00 WHERE id = '43490095-9ac8-4890-b1e7-b7ec22fcdb0b';
+
+-- [CASS.IR27] BRCL00191C | SN: 202272 | GARANT FRESA DIAMANTATA D4 ANELLO GIALLO
+-- Fonte: Hoffmann Group B2B (https://www.hoffmann-group.com/IT/it/hoi/p/202272)
+UPDATE "Utensili_B1" SET "Prezzo" = 66.37 WHERE id = '43821d9b-db9a-49a0-9c8d-80c4701aa4ca';
+
+-- [BELOTTIC3] SENZA-CODICE | SN: 290120.0510.035 | KARNASCH PUNTA DIAMANTATA D5
+-- Fonte: Ordine 2025 (Match SN '290120.0510.035')
+UPDATE "Utensili_B1" SET "Prezzo" = 191.07 WHERE id = '43dc9436-4ec3-4ad3-8d8f-b3ce3c3c5c01';
+
+-- [FRESE METALLI 1] SENZA-CODICE | SN: 53 711 05410 | WNT FRESA METALLO DURO D5 LUNGA
+-- Fonte: Ordine 2024 (Match SN '53 711 05410')
+UPDATE "Utensili_B1" SET "Prezzo" = 60.27 WHERE id = '447adc1c-ad08-49eb-8fc3-eedb6c34c3fa';
+
+-- [CASS.SPARKWING] BRCL01534C | SN: 02985-FAT-12SP13 | FRESA SPECIALE SU MISURA IN MDI
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 78.00 WHERE id = '48816e4f-4a51-4fc9-9026-de45444bba5e';
+
+-- [CASS.DUCATI] BRCL0152C | SN: 731 180 0850 HC | SPPW PUNTA CRESTA DI GALLO SPECIALE D8.5
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 58.40 WHERE id = '48afa61d-ec0e-4bfc-910b-694984bba89c';
+
+-- [PUNTE3] BRCL00365C | SN: N/A | KARNASCH PUNTA D7.1  X43
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 334.42 WHERE id = '4905f374-b69e-410f-87bc-5af4c7d25a8e';
+
+-- [MASCHI A] BRCL01361C | SN: 23442133 | GUHRING MASCHIO AMERICANO
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 177.46 WHERE id = '4cade305-ca37-4179-b60b-03e5a65a72c0';
+
+-- [EXTREMA3] SENZA-CODICE | SN: 48139179 | OSG MASCHIO M12 6HX HSSE
+-- Fonte: Ordine 2023 (Match SN '48139179')
+UPDATE "Utensili_B1" SET "Prezzo" = 45.92 WHERE id = '4d7cb65e-0a84-4655-b401-49c9c4e541fc';
+
+-- [FRESA METALLI1] BRCL000400000105 | SN: 5407012400 | FRESA METALLO DURO D12
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 70.24 WHERE id = '4db45656-bb61-4a31-9c69-d45ccf1db70a';
+
+-- [CASS.OPERCOLI] BRCL01170C | SN: 409548 | GARANT FRESA DIAMANTATA SGROSSATURA D8M
+-- Fonte: Ordine 2026 (Inserimento ordini 2026)
+UPDATE "Utensili_B1" SET "Prezzo" = 151.76 WHERE id = '4eebb686-9de1-4933-9bae-d50dc579dc5d';
+
+-- [CASS.OPERCOLI (CHIAVI)] BRCL00084C | SN: 209548 4 | GARANT FRESA DIAMANTATA CARBONIO D4
+-- Fonte: Hoffmann Group B2B (https://www.hoffmann-group.com/IT/it/hoi/p/209548-4)
+UPDATE "Utensili_B1" SET "Prezzo" = 180.06 WHERE id = '51aa15e8-3907-44a8-8c00-17b962ecc218';
+
+-- [CASS.OPERCOLI] BRCL01485 | SN: 209781 | GARANT FRESA SFERICA DIAMANTATA D3
+-- Fonte: Hoffmann Group B2B (https://www.hoffmann-group.com/IT/it/hoi/p/209781)
+UPDATE "Utensili_B1" SET "Prezzo" = 103.70 WHERE id = '51fc5a26-9fb0-4004-bf61-bea3072ca59b';
+
+-- [EXTREMA4] SENZA-CODICE | SN: 53 710 08210 | WNT FRESA D8 R1
+-- Fonte: Ordine 2025 (Match SN '53 710 08210')
+UPDATE "Utensili_B1" SET "Prezzo" = 51.68 WHERE id = '54897c37-b891-4744-83a4-f89fc059f3df';
+
+-- [INSERTI FRESA] BRCL01230C | SN: 217297 | INSERTI FRESA A DISCO 1.5MM
+-- Fonte: Ordine 2025 (Match SN '217297')
+UPDATE "Utensili_B1" SET "Prezzo" = 78.37 WHERE id = '57cb8012-9d63-491d-bea1-c377cb659066';
+
+-- [CASS.SPARKWING] BRCL01265C | SN: 7311800850HC | SPPW PUNTA CRESTA DI GALLO D8.5
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 58.29 WHERE id = '57eb854a-ae18-456a-826d-99e4f8215db8';
+
+-- [ALESATORI] BRCL01071C | SN: 1429-2.000 | GUHRING ALESATORE D2 H7
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 112.77 WHERE id = '5858a4d6-d536-44be-9610-cc170d36a9bc';
+
+-- [FRESA METALLI1] SENZA-CODICE | SN: HM84/20 | FESA METALLO DURO D2X15
+-- Fonte: Ordine 2024 (Match SN 'HM84/20')
+UPDATE "Utensili_B1" SET "Prezzo" = 49.31 WHERE id = '585ef182-b59b-4d73-bb63-de836f587f5c';
+
+-- [RIAFFILATE1] SENZA-CODICE | SN: 1170304200 | PUNTA D4.5 RIAFFILATA
+-- Fonte: Ordine 2024 (Match SN '1170304200')
+UPDATE "Utensili_B1" SET "Prezzo" = 31.48 WHERE id = '58bac67c-771b-430c-a4c5-0a0c38873d2e';
+
+-- [DIAMANTATE 1] BRCL00976C | SN: 624053 538 | SECO FRESA DIAMANTA D8 R0.2
+-- Fonte: Ordine 2026 (Inserimento ordini 2026)
+UPDATE "Utensili_B1" SET "Prezzo" = 160.00 WHERE id = '592e1263-e970-4c4d-9dbf-33c391f28836';
+
+-- [FRESA METALLI1] BRCL01292C | SN: 206071 10/1,5 | GARANT FRESA TOROIDALE HMI DLC D10X1.5
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 112.63 WHERE id = '5b6b28c7-84bd-4877-a60b-51b486773a0c';
+
+-- [DIAMANTATE 1] BRCL00976C | SN: 6240535 538 | SECO FRESA DIAMANTATA D8 R0.2
+-- Fonte: Ordine 2026 (Inserimento ordini 2026)
+UPDATE "Utensili_B1" SET "Prezzo" = 160.00 WHERE id = '5dc0e2c7-c950-454e-bb27-b0ed42693099';
+
+-- [FRESA METALLI1] SENZA-CODICE | SN: 5407003200 | WNT FRESA METALLO DURO D3
+-- Fonte: Ordine 2025 (Match SN '5407003200')
+UPDATE "Utensili_B1" SET "Prezzo" = 17.39 WHERE id = '5f27b60a-a601-4eaf-961d-6b0ee18cbceb';
+
+-- [EXTREMA1] SENZA-CODICE | SN: 11 702 08500 | WNT PUNTA MDI D8.5
+-- Fonte: Ordine 2025 (Match SN '11 702 08500')
+UPDATE "Utensili_B1" SET "Prezzo" = 33.68 WHERE id = '5f4e0a2f-5a7c-4d11-a264-cebe944125c4';
+
+-- [INSERTI FRESA] BRCL01375C | SN: 007VTX/007TMVBX | NOVATEA INSERTO FRESA PETTINE
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 89.10 WHERE id = '617a401e-6134-4521-a8a1-deddba9c9249';
+
+-- [CASS.DUCATI] BRCL01504C | SN: 53 595 12020 | WNT FRESA TOROIDALE MDI D12 X 2
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 148.50 WHERE id = '61ef819e-b340-4b88-b01b-ba60b1c224b0';
+
+-- [MASCHI] BRCL00687C | SN: 2232117 | GUHRING MASCHIO M8
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 101.13 WHERE id = '646109fb-a19b-4043-a8b5-4a6e4213a661';
+
+-- [PUNTE2] SENZA-CODICE | SN: 11 702 10000 | PUNTA D10  5XD
+-- Fonte: Ordine 2025 (Match SN '11 702 10000')
+UPDATE "Utensili_B1" SET "Prezzo" = 33.68 WHERE id = '649c7ccd-0c9e-4190-a8ec-568672078b2d';
+
+-- [FRESA METALLI1] SENZA-CODICE | SN: 5407003200 | FRESA METALLO DURO D3
+-- Fonte: Ordine 2025 (Match SN '5407003200')
+UPDATE "Utensili_B1" SET "Prezzo" = 17.39 WHERE id = '65141306-5594-4bc8-97a7-dfdc34b83c02';
+
+-- [TASTATORI] BRCL01198C | SN: N/A | PUNTA TASTATORE
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 68.00 WHERE id = '65f13f7a-bea8-4463-a463-4b84ec1cfd9d';
+
+-- [DIAMANTATE 1] SENZA-CODICE | SN: 291761 | KARNASH FRESA DIAMANTATA D12X32
+-- Fonte: Ordine 2025 (Match SN '291761')
+UPDATE "Utensili_B1" SET "Prezzo" = 235.98 WHERE id = '677419ab-8002-43bb-b749-96a6edc626ab';
+
+-- [INSERTI FRESA] BRCL01111C | SN: JMS02-98LR04-XC35 | INSERTI FRESA JMS02
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 12.51 WHERE id = '67a15392-3157-4a2d-a483-b652e43f2504';
+
+-- [MASCHI] SENZA-CODICE | SN: 48139179 | MASCHIO M12
+-- Fonte: Ordine 2023 (Match SN '48139179')
+UPDATE "Utensili_B1" SET "Prezzo" = 45.92 WHERE id = '689e3622-d4c7-48e2-80d0-12b1ec3c31b5';
+
+-- [PUNTE1] SENZA-CODICE | SN: 8684320 | OSG PUNTA METALLO DURO D3.2 8D
+-- Fonte: Ordine 2025 (Match SN '8684320')
+UPDATE "Utensili_B1" SET "Prezzo" = 123.00 WHERE id = '68df2ae0-3f95-4bf1-9479-6bf318b6939e';
+
+-- [BELOTTIC3] SENZA-CODICE | SN: 11 703 10000 | WMT PUNTA METALLO DURO D10
+-- Fonte: Ordine 2025 (Match SN '11 703 10000')
+UPDATE "Utensili_B1" SET "Prezzo" = 41.36 WHERE id = '69f6768c-b4e6-4bee-858c-2caa2a436b30';
+
+-- [CASS.DUCATI] BRCL01589C | SN: CVD DP20230-0002 | INSERTO PER TORNITURA IN DIAMANTE  RCGW 0803
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 95.00 WHERE id = '6b4f0fb2-00bc-4bed-a1c3-05042ad1bdfa';
+
+-- [CASS.DUCATI] BRCL01501C | SN: 731 180 0810HC | SPPW PUNTA CRESTA DI GALLO D8.1
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 56.20 WHERE id = '6bef1791-aa17-4919-a945-5600932bc834';
+
+-- [BELOTTIC1] SENZA-CODICE | SN: 53 618 06200 | WNTFRESA METALLO DURO D6
+-- Fonte: Ordine 2025 (Match SN '53 618 06200')
+UPDATE "Utensili_B1" SET "Prezzo" = 44.62 WHERE id = '6cb58acf-f240-4378-904f-a12889f2abb3';
+
+-- [FRESA METALLI2] BRCL01504C | SN: 5359512020 | FRESA TORICA METALLO DURO D12
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 148.50 WHERE id = '6db603a0-43ab-483b-94b7-fdf8d109b394';
+
+-- [EXTREMA2] BRCL000400000441 | SN: COD. 90.02.180 | FRESA A INSERTI D18
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 216.50 WHERE id = '6dccbacb-da2f-4061-8a99-c7ceb26e96f2';
+
+-- [DIAMANTATE 1] BRCL0260C | SN: 209535 | GARANT FRESA DIAMANTATA D4
+-- Fonte: Ordine 2025 (Match SN '209535')
+UPDATE "Utensili_B1" SET "Prezzo" = 108.00 WHERE id = '6e342bb4-a2b3-4396-967a-c45f7761f6ef';
+
+-- [DIAMANTATE 1] BRCL00187C | SN: 291763.0400.16 | KARNASCH FRESA DIAMANTATA D4
+-- Fonte: Ordine 2024 (Match SN '291763.0400.16')
+UPDATE "Utensili_B1" SET "Prezzo" = 180.32 WHERE id = '6e598cb6-34cd-435c-8274-e1a862a86c54';
+
+-- [CASS.OPERCOLI] BRCL00231C | SN: 5407003200 | FRESA DIAMANTATA A CANDELA D3
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 17.39 WHERE id = '6e628425-d31d-4141-b27e-1cf9dcf39082';
+
+-- [EXTREMA4] SENZA-CODICE | SN: 53 710 08210 | WNT FRESA D8 R1
+-- Fonte: Ordine 2025 (Match SN '53 710 08210')
+UPDATE "Utensili_B1" SET "Prezzo" = 51.68 WHERE id = '6f358e38-60f2-4989-bf94-e26a40a34b9c';
+
+-- [CASS.IR27] BRCL01356C | SN: 206255 10/0.5 | FRESA TOROIDALE D10 106225 10/05
+-- Fonte: Hoffmann Group B2B (https://www.hoffmann-group.com/IT/it/hoi/p/206255)
+UPDATE "Utensili_B1" SET "Prezzo" = 65.26 WHERE id = '6ff41a7d-5e77-4d5d-b1a4-3344c4c6fc00';
+
+-- [PUNTE3] BRCL01048C | SN: N/A | KARNASCH PUNTA D8.8  L103
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 255.24 WHERE id = '707bbe53-f496-4d74-8979-8ded233bfe19';
+
+-- [CASS.DUCATI] BRCL01645C | SN: 53711 10130 10R3 | FRESA METALLI D10 R3
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 115.00 WHERE id = '70a43eef-bec2-4c8d-ba17-181afc36c7bb';
+
+-- [CASS.SPARKWING] BRCL01185C | SN: 114550 1.6 | PUNTE GARANT D1.6 SPARK
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 10.80 WHERE id = '714e03ec-908a-4619-b7a2-bde69592f9e8';
+
+-- [PUNTE1] SENZA-CODICE | SN: 10787030 | PUNTA D 3XD
+-- Fonte: Ordine 2024 (Match SN '10787030')
+UPDATE "Utensili_B1" SET "Prezzo" = 68.45 WHERE id = '7177bcd6-8fb3-412d-9933-06994a92ebb4';
+
+-- [FRESA METALLI1] SENZA-CODICE | SN: 5407006200 | FRESA METALLO DURO D6
+-- Fonte: Ordine 2025 (Match SN '5407006200')
+UPDATE "Utensili_B1" SET "Prezzo" = 20.33 WHERE id = '72e03482-7df8-4238-a191-ff8a8b6058c4';
+
+-- [FRESA METALLI1] SENZA-CODICE | SN: 5405905200 | FRESA METALLO DURO D5  K0,1
+-- Fonte: Ordine 2024 (Match SN '5405905200')
+UPDATE "Utensili_B1" SET "Prezzo" = 15.02 WHERE id = '730f7fe5-9355-4520-bd91-5c183566aced';
+
+-- [FRESA METALLI1] BRCL0000400000500 | SN: 5407212205 | FRESA METALLO DURO D12 R0.5
+-- Fonte: Ordine 2024 (Match SN '5407212205')
+UPDATE "Utensili_B1" SET "Prezzo" = 67.31 WHERE id = '74a722b3-9f34-42d5-afab-dfe6a7cef857';
+
+-- [PUNTE1] SENZA-CODICE | SN: 1170204000 | PUNTA D4.5
+-- Fonte: Ordine 2025 (Match SN '1170204000')
+UPDATE "Utensili_B1" SET "Prezzo" = 31.48 WHERE id = '74aeb2f1-9c6f-4e0b-8811-4bb2c469809a';
+
+-- [PUNTE3] BRCL01436C | SN: N/A | PUNTA CRESTA DI GALLO D10
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 64.00 WHERE id = '752869ee-fe82-4267-b7af-c9d0500a4cce';
+
+-- [CASS.IR27] BRCL01043C | SN: 02985-FWT3120 R1 F | FRESA IN HMI INT D12 Z3
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 147.00 WHERE id = '76bc37fe-4eef-434b-a2a7-6f5f39803cac';
+
+-- [CASS.IR27] BRCL00576C | SN: 6185274 523 | SECO FRESA DA SGROSSO D8 DIAMANTATA
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 155.00 WHERE id = '76ffbc9a-6227-4d73-9ca0-f133f862dcc1';
+
+-- [BELOTTIC1] SENZA-CODICE | SN: 54 070 20200 | WNT FRESA METALLO DURO D20
+-- Fonte: Ordine 2024 (Match SN '54 070 20200')
+UPDATE "Utensili_B1" SET "Prezzo" = 125.59 WHERE id = '780704ea-359c-4829-8ca4-73ba5433b9da';
+
+-- [CASS.DUCATI] BRCL01534C | SN: 0285 FAT 12SP13 | FRESA A T D12 Z3
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 78.00 WHERE id = '7833dc2b-93ad-4b60-b524-d56655d28f25';
+
+-- [CASS.SPARKWING] BRCL01239C | SN: 7311800511HC | SPPW PUNTA CRESTA DI GALLO D5.1
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 34.62 WHERE id = '785ccf00-777a-49a2-917a-891a042f4a79';
+
+-- [CASS.DUCATI] BRCL01569C | SN: 11 715 08800 | Punta · D8.8 · CERATIZIT
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 85.00 WHERE id = '7983a1af-36c4-456c-96b5-4001cbe99211';
+
+-- [CASS.DUCATI] BRCL00687C | SN: 2909 8000 DIN371 | GUHRING MASCHI M8 TITANIO
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 101.13 WHERE id = '7b5718ca-a7ba-4821-9150-9147fa2cfb28';
+
+-- [EXTREMA2] BRCL000400000469 | SN: 701012 | ALESATORE D12.5 H7 HSS
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 40.41 WHERE id = '7c460c3a-eb3b-4258-bfeb-07f856e9f6b0';
+
+-- [NIMBUS] BRCL01075C | SN: 8684320 | OSG PUNTE METALLO DURO D3.2
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 123.00 WHERE id = '7ddb883c-9bd3-4326-8a2d-2e60e31f7e22';
+
+-- [BELOTTIC5] SENZA-CODICE | SN: 48139192 | OSG MASCHIO M14X1.5 6HX HSSE
+-- Fonte: Ordine 2023 (Match SN '48139192')
+UPDATE "Utensili_B1" SET "Prezzo" = 60.96 WHERE id = '7f62cee8-195f-44c9-91b4-e4b9369b0a69';
+
+-- [MARCO] BRCL00729C | SN: BSF-M-B-1D-8.0 | INSERTO LAMATORE IN TIRO
+-- Fonte: Ordine 2026 (Inserimento ordini 2026)
+UPDATE "Utensili_B1" SET "Prezzo" = 160.00 WHERE id = '8118e1e9-58aa-4986-933c-dae525df0c37';
+
+-- [BELOTTIC5] SENZA-CODICE | SN: 48139192 | OSG MASCHIO M14X1.5 6HX HSSE
+-- Fonte: Ordine 2023 (Match SN '48139192')
+UPDATE "Utensili_B1" SET "Prezzo" = 60.96 WHERE id = '824d79a6-16fc-4254-912c-adc9bfd65bc2';
+
+-- [MASCHI] BRCL00234C | SN: 23543176 | GUHRING MASCHIO M10
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 131.97 WHERE id = '85769ec8-0b91-43d4-a608-7d76a29ef9c4';
+
+-- [DIAMANTATE 1] SENZA-CODICE | SN: HM63/05 | FRESA SFERICA DIAMANTATA D8 R4
+-- Fonte: Ordine 2025 (Match SN 'HM63/05')
+UPDATE "Utensili_B1" SET "Prezzo" = 218.70 WHERE id = '861b2b01-78a6-4aa4-9e83-50493dd59423';
+
+-- [CASS.DUCATI] BRCL01163C | SN: STD90 D10 | SMUSSATORE HM D10 LT80
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 62.50 WHERE id = '869aba23-f092-44c2-96cc-bafe4a098732';
+
+-- [EXTREMA2] BRCL000400000468 | SN: 701010 | ALESATORE D10.5 H7 HSS
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 28.77 WHERE id = '873168bb-433a-4641-bbb0-a5ac0a244f1e';
+
+-- [CASS.IR27] BRCL00191C | SN: 202272 4 | GARANT FRESE COLLARINO GIALLO D4
+-- Fonte: Hoffmann Group B2B (https://www.hoffmann-group.com/IT/it/hoi/p/202272-4)
+UPDATE "Utensili_B1" SET "Prezzo" = 61.12 WHERE id = '87b1a069-21b6-48fb-ba16-ed5c85bb6ad8';
+
+-- [DIAMANTATE 1] BRCL01418C | SN: 209517 8 | GARANT FRESA SPINGI TIRA D8
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 151.16 WHERE id = '88ef6b49-ac15-4151-b983-72e7f62f95d4';
+
+-- [PUNTE1] BRCL000400000347 | SN: N/A | PUNTA D5
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 30.56 WHERE id = '89e736fa-a8a6-4a0e-95fa-7597fa7c7fde';
+
+-- [CASS.DUCATI] BRCL00184C | SN: 5360808200 | FRESA SFERICA METALLI D8
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 67.10 WHERE id = '8a70dae8-0857-4925-b828-a72a372b6a40';
+
+-- [DIAMANTATE 1] BRCL000400000398 | SN: 291.763.000.050 | KARNASH FRESA DIAMANTATA D6 X50
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 227.93 WHERE id = '8b7d3e09-8e37-4a2b-9c9f-195ca6e721bd';
+
+-- [CASS.OPERCOLI] BRCL01347C | SN: 209781 | GARANT FRESA DIAMANTATA SFERICA D10
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 200.72 WHERE id = '8e15c47d-525e-4070-906a-309622de8756';
+
+-- [FRESA METALLI1] BRCL00195C | SN: 202272 6 | GARANT FRESA LUCIDA MDI D6
+-- Fonte: Ordine 2023 (Match SN '202272 6')
+UPDATE "Utensili_B1" SET "Prezzo" = 37.62 WHERE id = '8f35a7b8-fbe9-4c75-addc-140e08d24bbb';
+
+-- [DIAMANTATE 1] BRCL00981C | SN: 6274832549 | SECO FRESA DIAMANTATA D6 R0.2
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 108.00 WHERE id = '91871a32-62ff-4ab6-ac1b-4ae4e5d0fd04';
+
+-- [TASTATORI] BRCL00056C | SN: N/A | PUNTA TASTATORE
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 80.65 WHERE id = '9278040e-fe9b-4042-a8a4-47a8e7076e98';
+
+-- [PUNTE1] SENZA-CODICE | SN: 1170403000 | PUNTA D3.8
+-- Fonte: Ordine 2024 (Match SN '1170403000')
+UPDATE "Utensili_B1" SET "Prezzo" = 86.86 WHERE id = '935d7a74-31af-4949-b00f-2893923f56d5';
+
+-- [PUNTE2] BRCL00467C | SN: 11 702 10200 | PUNTA D10.2
+-- Fonte: Ordine 2026 (Inserimento ordini 2026)
+UPDATE "Utensili_B1" SET "Prezzo" = 61.51 WHERE id = '9375b832-bc80-4dd2-89a6-41d5730cbcdd';
+
+-- [FRESA METALLI2] BRCL01295C | SN: 2985 | FRESA SFERICA D6 Z4 MAYURA
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 142.03 WHERE id = '95399147-a8d6-449e-8427-fc78525342c3';
+
+-- [MASCHI] BRCL01416C | SN: 22804685 | GUHRING MASCHIO M6
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 118.35 WHERE id = '99541c7f-9c89-4214-9d66-f9e483125b2f';
+
+-- [EXTREMA2] BRCL000400000442 | SN: COD. 90.02.240 | FRESA A INSERTI D24
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 222.45 WHERE id = '99a2d008-b8b4-4145-9227-a9a0bafe8f6f';
+
+-- [FRESA METALLI2] SENZA-CODICE | SN: 209760 12/05 | GARANT FRESA CARBONIO D12/05
+-- Fonte: Ordine 2026 (Match SN '209760 12/05')
+UPDATE "Utensili_B1" SET "Prezzo" = 376.48 WHERE id = '9bb93cfb-d9e5-4ad6-9bf3-a397095f890a';
+
+-- [INSERTI FRESA] BRCL00248C | SN: 48D06 | D'ANDREA INSERTO TPGX
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 14.88 WHERE id = '9c033c78-7fcc-4b3a-b858-fa82184d5708';
+
+-- [CASS.SPARKWING] BRCL01535C | SN: 209548 16 | GARANT FRESA DIAMANTATA D16
+-- Fonte: Hoffmann Group B2B (https://www.hoffmann-group.com/IT/it/hoi/p/209548-16)
+UPDATE "Utensili_B1" SET "Prezzo" = 528.49 WHERE id = '9c20f26d-9775-480e-b5a5-dc72205c7459';
+
+-- [CASS.IR27] BRCL01170C | SN: 209548 8M | GARANT FRESA DIAMANTATA SGROSSATURA D8M
+-- Fonte: Ordine 2026 (Inserimento ordini 2026)
+UPDATE "Utensili_B1" SET "Prezzo" = 151.76 WHERE id = '9cf8ed26-82db-4cda-a3fa-bf872d5a0930';
+
+-- [PUNTE2] SENZA-CODICE | SN: 11 702 09000 | PUNTA D9.5
+-- Fonte: Ordine 2025 (Match SN '11 702 09000')
+UPDATE "Utensili_B1" SET "Prezzo" = 40.53 WHERE id = '9e2e6695-ec8e-4769-bdec-571cf2f9dce1';
+
+-- [EXTREMA1] BRCL000400000408 | SN: 10734076 | WNT PUNTA MDI D7
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 87.88 WHERE id = '9e82240f-b595-45ca-8253-23037c2609e3';
+
+-- [FRESA METALLI1] BRCL000400000473 | SN: F11330800 | FRESA METALLO DURO D8
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 155.00 WHERE id = '9f663879-237e-4fc5-9bd9-2a82c130c22f';
+
+-- [CASS.SPARKWING] BRCL01418C | SN: 209517 8 | GARANT FRESA SPINGI TIRA D8
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 151.16 WHERE id = 'a03b920a-1e88-4560-8481-fc97c5c7d5f3';
+
+-- [PUNTE1] SENZA-CODICE | SN: 8577160 | OSG PUNTA METALLO DURO D1.6 X12
+-- Fonte: Ordine 2025 (Match SN '8577160')
+UPDATE "Utensili_B1" SET "Prezzo" = 38.80 WHERE id = 'a1f822cc-e130-4cfc-8125-f2be278cfd49';
+
+-- [PUNTE2] BRCL000400000408 | SN: 10734076 | WNT PUNTA D7.6
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 87.88 WHERE id = 'a79fe74d-4fdc-422f-bdab-05ad69ab168d';
+
+-- [TASTATORI] BRCL01201C | SN: N/A | PUNTA TASTATORE
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 29.00 WHERE id = 'a82e94a0-3702-4c22-b16a-55462b6b46bd';
+
+-- [FRESA METALLI2] SENZA-CODICE | SN: HM84/15.08 | FRESA MDI D1.5X8
+-- Fonte: Ordine 2023 (Match SN 'HM84/15.08')
+UPDATE "Utensili_B1" SET "Prezzo" = 40.28 WHERE id = 'a9766e68-91a0-4b84-89ec-68409efd0e7f';
+
+-- [FRESA METALLI1] SENZA-CODICE | SN: 202272 | GARANT FRESA METALLO DURO D12
+-- Fonte: Ordine 2025 (Match SN '202272')
+UPDATE "Utensili_B1" SET "Prezzo" = 72.56 WHERE id = 'a98d9420-2394-47d3-a2de-5777aecb7b8b';
+
+-- [None] BRCL00985C | SN: 5768 5,100 | GUHRING PUNTA MD D5.1
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 86.20 WHERE id = 'a99f61bf-38d6-4970-90ab-1105d0d9c205';
+
+-- [CASS.DUCATI] BRCL00384C | SN: 10787050 | PUNTA AD ALTE PRESTAZIONI DD5
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 80.78 WHERE id = 'a9dd63a9-2a2e-45c1-98df-084825a66432';
+
+-- [INSERTI FRESA] BRCL000400000335 | SN: N/A | INSERTI NFLB
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 43.68 WHERE id = 'acec55ad-bd28-4332-9b94-86e24c264486';
+
+-- [CASS.DUCATI] BRCL01569C | SN: 11 715 08800 | PUNTA SPECIALE CARBONIO D8.8
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 85.00 WHERE id = 'ae7db690-27fc-4fac-a649-0031a678d69c';
+
+-- [DIAMANTATE 1] BRCL0260C | SN: 209535 4 | GARANT FRESA DIAMANTATA D4
+-- Fonte: Ordine 2025 (Match SN '209535 4')
+UPDATE "Utensili_B1" SET "Prezzo" = 108.00 WHERE id = 'af5b2390-2626-40c7-9ee6-443f6ff2dd79';
+
+-- [INSERTI FRESA] BRCL000400000258 | SN: N/A | INSERTO TPGX TPGX090204
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 8.95 WHERE id = 'afe02bcf-3e2a-40a8-8eb5-b4426cb2babc';
+
+-- [INSERTI FRESA] BRCL01288C | SN: 260052 HU7315 1 | GARANT INSERTO PER TORNITURA CGT
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 11.96 WHERE id = 'b0442180-5138-45c9-b9a6-875bdc065675';
+
+-- [CASS.DUCATI] BRCL01572C | SN: RCGX 0803 M0 AL H10 | INSERTO PER TORNITURA COROMANT
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 22.50 WHERE id = 'b06ef7cb-16b4-4af9-bc98-89887d694d86';
+
+-- [FRESA METALLI1] BRCL000400000059 | SN: 360/22 | GARANT FRESA METALLO DURO D10 R05
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 49.00 WHERE id = 'b06fffeb-a7dd-40b5-88b7-1f28068a95a5';
+
+-- [FRESE METALLI 1] SENZA-CODICE | SN: 50 946 060 | WNT FRESA PER POLIMERI D6
+-- Fonte: Ordine 2024 (Match SN '50 946 060')
+UPDATE "Utensili_B1" SET "Prezzo" = 52.29 WHERE id = 'b1afb35c-23a0-45fb-b896-ff5820b29e91';
+
+-- [INSERTI FRESA] SENZA-CODICE | SN: 5614736800 | INSERTI FRESA SFERICA D25
+-- Fonte: Ordine 2025 (Match SN '5614736800')
+UPDATE "Utensili_B1" SET "Prezzo" = 70.94 WHERE id = 'b48530de-efa8-4331-bcec-5d75c8cde6bb';
+
+-- [FRESA METALLI1] BRCL000400000066 | SN: 94199384 | WNT FRESA METALLO DURO D20
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 133.76 WHERE id = 'b7accd03-07ce-413a-b23e-3531ec477a45';
+
+-- [CASS.OPERCOLI] BRCL0260C | SN: 209548 4 | GARANT FRESA DIAMANTATA SGROSSATURA D4
+-- Fonte: Hoffmann Group B2B (https://www.hoffmann-group.com/IT/it/hoi/p/209548-4)
+UPDATE "Utensili_B1" SET "Prezzo" = 180.06 WHERE id = 'b875de96-9dc6-482f-b66d-987340713121';
+
+-- [INSERTI FRESA] SENZA-CODICE | SN: 50477508 | INSERTO DXHT 11T308FR-27P
+-- Fonte: Ordine 2024 (Match SN '50477508')
+UPDATE "Utensili_B1" SET "Prezzo" = 24.35 WHERE id = 'bb5c7ad7-6551-4e2e-99c6-d91152ff5fc7';
+
+-- [EXTREMA3] BRCL000400000256 | SN: 23 172 031 | WNT MASCHIO AMERICANO UNC 5/16
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 52.69 WHERE id = 'bca7c428-2118-41b5-a168-25fb753eae01';
+
+-- [FRESA METALLI1] BRCL4008727 | SN: 5371105410 | FRESA METALLO DURO D5  R1
+-- Fonte: Ordine 2024 (Match SN '5371105410')
+UPDATE "Utensili_B1" SET "Prezzo" = 60.27 WHERE id = 'beca457e-f53a-4dd6-8140-793113054fe6';
+
+-- [DIAMANTATE 1] BRCL01418C | SN: 209517 8 | GARANT FRESA SPINGI TIRA D8
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 151.16 WHERE id = 'c0305f33-d8e7-461b-8de1-4b6f0965e3db';
+
+-- [PUNTE1] BRCL00197C | SN: 11 703 06800 | PUNTA D6.8
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 36.16 WHERE id = 'c19aa2f5-5797-4b49-ba75-bdc64269531c';
+
+-- [CASS.DUCATI] BRCL00200C | SN: 2909 6.000 DIN 371 | MASCHIO GUHRING M6 6HX
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 91.26 WHERE id = 'c272f558-6beb-4f78-9d7f-175710079834';
+
+-- [EXTREMA1] SENZA-CODICE | SN: TD850 GP 0850 | PUNTA MDI D8.5
+-- Fonte: Ordine 2023 (Match SN 'TD850 GP 0850')
+UPDATE "Utensili_B1" SET "Prezzo" = 55.20 WHERE id = 'c3455e5b-cc49-4024-9952-92b25393c4fc';
+
+-- [PUNTE2] SENZA-CODICE | SN: 1170310000 | WNT PUNTA D10
+-- Fonte: Ordine 2025 (Match SN '1170310000')
+UPDATE "Utensili_B1" SET "Prezzo" = 41.36 WHERE id = 'c3d5c38e-2d46-48d3-b687-a4aa93481dd5';
+
+-- [EXTREMA1] SENZA-CODICE | SN: 11 702 08500 | WNT PUNTA MDI D8.5
+-- Fonte: Ordine 2025 (Match SN '11 702 08500')
+UPDATE "Utensili_B1" SET "Prezzo" = 33.68 WHERE id = 'c590c9b4-a38a-4e84-ac92-5cce8bf440e0';
+
+-- [CASS.DUCATI 27] BRCL01528C | SN: 207 106-1 | GARANT FRESA SFERICA HMI D1
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 41.18 WHERE id = 'c70f1aa1-f79e-4ebe-8b1a-2d728648e6a2';
+
+-- [PUNTE1] SENZA-CODICE | SN: 11 703 05200 | PUNTA D5.2
+-- Fonte: Ordine 2023 (Match SN '11 703 05200')
+UPDATE "Utensili_B1" SET "Prezzo" = 43.66 WHERE id = 'c968b4df-f996-4c02-adc9-5c3b05adbf97';
+
+-- [PUNTE1] SENZA-CODICE | SN: 11 702 10000 | PUNTA D10.5 FORATA ALTE PRESTAZIONI
+-- Fonte: Ordine 2025 (Match SN '11 702 10000')
+UPDATE "Utensili_B1" SET "Prezzo" = 33.68 WHERE id = 'cb6e3221-dd4d-4dc2-81e6-c438f734c750';
+
+-- [PUNTE2] SENZA-CODICE | SN: 11 704  09800 | PUNTA D9.8  8XD
+-- Fonte: Ordine 2025 (Match SN '11 704  09800')
+UPDATE "Utensili_B1" SET "Prezzo" = 95.13 WHERE id = 'ce25e51c-48b3-4703-96a8-aaa8c9b74b56';
+
+-- [FRESA METALLI1] BRCL000400000137 | SN: 202272 8 | GARANT FRESA METALLO DURO D8
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 33.80 WHERE id = 'd8efa623-0eed-40b7-97a8-a5accf57805b';
+
+-- [CASS.IR27] BRCL00564C | SN: 880160R020Z4 | SECO FRESA DIAMANTATA JARBO D16
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 360.00 WHERE id = 'd95a75bf-37c4-40dd-b217-a5668e73d29f';
+
+-- [CASS.DUCATI] BRCL01288C | SN: 2060052 HU7315-1 | INSERTO PER TORNITURA CCT
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 11.96 WHERE id = 'd9bc18a4-fb25-4027-a387-087540bead35';
+
+-- [PUNTE3] BRCL01239C | SN: 120010 | PUNTA CRESTA DI GALLO D5.1
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 34.62 WHERE id = 'da6f1cf6-21ae-4ad4-9893-c0117dad0591';
+
+-- [DIAMANTATE 1] BRCL000400000398 | SN: N/A | FRESA KARNASCH DIAMANTATA D6 L2
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 227.93 WHERE id = 'dc070eba-0dd3-48e8-b5d6-808088c866bf';
+
+-- [CASS.IR27] BRCL01018C | SN: 11 702 08200 | PUNTA DIAMANTATA D8.2
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 34.74 WHERE id = 'dc58043c-3172-49fc-8294-5b6af3d2789a';
+
+-- [FRESA METALLI1] BRCL01416C | SN: 2910-6.004 DIN371 | GUHRING FRESA METALLO DURO D6
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 118.35 WHERE id = 'dcb5523c-a7c1-47c7-93f0-6b91b11cf7b5';
+
+-- [CASS.IR27] BRCL00969C | SN: 2720261 | SECO FRESA SGROSSATURA D12
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 247.00 WHERE id = 'dd9c2af3-400a-4d67-a0ae-f1e05f84dc80';
+
+-- [INSERTI FRESA] BRCL01290C | SN: 045197707062 | GARANT INSERTI FRESA 1.5 HB7720
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 75.24 WHERE id = 'dee6024a-0b41-41ae-801e-b452ae636525';
+
+-- [INSERTI FRESA] SENZA-CODICE | SN: KC410M | INSERTO FRESA EDCT
+-- Fonte: Ordine 2025 (Match SN 'KC410M')
+UPDATE "Utensili_B1" SET "Prezzo" = 18.30 WHERE id = 'defea4b2-5d14-402c-b3da-8d8edbb526e6';
+
+-- [MASCHI A] BRCL01414C | SN: SA350-3 | DC MASCHIO AMERICANO 5/16
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 99.50 WHERE id = 'e00b6211-88bc-40d4-88d9-7396a015c391';
+
+-- [INSERTI FRESA] BRCL01197C | SN: KDMB20M0ERLD | KENNAMETAL INSERTI FRESA SFERICI D20
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 40.00 WHERE id = 'e010c557-8490-4814-b8b8-accc0214e04c';
+
+-- [FRESA METALLI1] BRCL00214C | SN: 94818038 | WNT FRESA METALLO DURO D20
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 125.59 WHERE id = 'e1f992e2-6992-4361-b38e-d67eeeb8029d';
+
+-- [MASCHI] BRCL01417C | SN: 21146789 | GUHRING MASCHIO M10
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 185.19 WHERE id = 'e28f6847-bea8-4f57-bd02-643b8dfee133';
+
+-- [MASCHI] BRCL000400000592 | SN: 2903 6,004 DIN 371 | GUHRING MASCHIO M6 X0.75
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 114.70 WHERE id = 'e3c60297-8a51-41e5-b77d-8478a2624bdb';
+
+-- [FRESA METALLI2] SENZA-CODICE | SN: 02985-FWT3120 | FRESA D11.33
+-- Fonte: Ordine 2025 (Match SN '02985-FWT3120')
+UPDATE "Utensili_B1" SET "Prezzo" = 147.00 WHERE id = 'e3cd4c67-b5a6-41cf-bdbf-d71bc7a98726';
+
+-- [FRESA METALLI1] BRCL00191C | SN: 202272 | GARANT FRESA DIAMANTATA D4 ANELLO GIALLO
+-- Fonte: Ordine 2025 (Match SN '202272')
+UPDATE "Utensili_B1" SET "Prezzo" = 72.56 WHERE id = 'e5b28141-f5f7-4b18-a40c-db86ccdff972';
+
+-- [FRESA METALLI 1] BRCL00192C | SN: 202272 | GARANT FRESA D10
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 72.56 WHERE id = 'e66ab062-5b56-4fdc-92ba-fe1ca6ec2714';
+
+-- [MASCHI A] BRCL01361C | SN: 23074439 | GUHRING MASCHIO AMERICANO
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 177.46 WHERE id = 'e8342f6f-4386-4477-9c05-cdfe61356528';
+
+-- [CASS.IR27] BRCL00729C | SN: BSF-M-B-1D-8.0 | LAMA BSF-M-B-1D-8.0 IN MD RIVESTITO
+-- Fonte: Ordine 2026 (Inserimento ordini 2026)
+UPDATE "Utensili_B1" SET "Prezzo" = 160.00 WHERE id = 'e9dc2d96-fa6a-4807-8a4b-df8657ea4885';
+
+-- [PUNTE2] SENZA-CODICE | SN: 1170208500 | WNT PUNTA D8.5
+-- Fonte: Ordine 2025 (Match SN '1170208500')
+UPDATE "Utensili_B1" SET "Prezzo" = 33.68 WHERE id = 'e9ea1195-4798-40b5-af3f-a356761adcbf';
+
+-- [EXTREMA4] BRCL000400000069 | SN: N/A | GARANT FRESA PIATTA MDI D8
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 24.35 WHERE id = 'ec54de59-27bb-49ea-a70f-e838df7cb90f';
+
+-- [FRESA METALLI1] BRCL00995C | SN: 52 870 10010 | FRESA METALLO DURO D10 R1
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 69.83 WHERE id = 'ec5c4a7c-9ad7-4fe4-9137-3896b4f01db0';
+
+-- [INSERTI FRESA] BRCL01062C | SN: KC410M | INSERTO FRESA EDCT140431
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 18.30 WHERE id = 'eec8b0ef-b8de-4912-87bc-39de22c51a13';
+
+-- [ALESATORI] BRCL01358C | SN: 6230210 | SECO ALESATORE D 9.533
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 180.00 WHERE id = 'efd467d6-1cf9-4390-bc0b-075ad38f13b9';
+
+-- [PUNTE1] SENZA-CODICE | SN: 1170303000 | WNT PUNTA D 3
+-- Fonte: Ordine 2024 (Match SN '1170303000')
+UPDATE "Utensili_B1" SET "Prezzo" = 43.66 WHERE id = 'f2d242db-9f3d-43ac-8d58-6eb3adc27582';
+
+-- [CASS.IR27] BRCL01655C | SN: 11 702 04200 | PUNTA AD ELEVATE PRESTAZIONI D4.2 5XD
+-- Fonte: Ordine 2023 (Match SN '11 702 04200')
+UPDATE "Utensili_B1" SET "Prezzo" = 30.56 WHERE id = 'f719f799-e6ee-47e6-ab9e-5beda0202ae3';
+
+-- [EXTREMA4] SENZA-CODICE | SN: 54 070 12400 | WNT FRESA PIATTA D12
+-- Fonte: Ordine 2024 (Match SN '54 070 12400')
+UPDATE "Utensili_B1" SET "Prezzo" = 72.35 WHERE id = 'f90e1f7f-817b-4360-8339-6934f5e24aa7';
+
+-- [FRESA METALLI1] SENZA-CODICE | SN: 52784034 | FRESA METALLO DURO D3 40°
+-- Fonte: Ordine 2025 (Match SN '52784034')
+UPDATE "Utensili_B1" SET "Prezzo" = 62.70 WHERE id = 'fa7a3578-049f-474e-bbd2-8ac49827413f';
+
+-- [PUNTE1] SENZA-CODICE | SN: 8684430 | OSG PUNTA METALLO DURO D4.3  8D
+-- Fonte: Ordine 2025 (Match SN '8684430')
+UPDATE "Utensili_B1" SET "Prezzo" = 134.00 WHERE id = 'faaae42c-3031-41f7-947d-be2ea2361ca0';
+
+-- [CASS.DUCATI 27] BRCL01227C | SN: 205275 10 | GARANT FRESA DA SGROSSATURA RIVESTITA D10
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 20.30 WHERE id = 'faad1e31-8ece-41a2-8d9d-588f42e55ce2';
+
+-- [PUNTE1] BRCL000400000177 | SN: N/A | WNT PUNTA D6
+-- Fonte: Ordine 2023 (Inserimento ordini 2023 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 30.56 WHERE id = 'fae1b8c1-1903-43e2-9c20-2025b1f06530';
+
+-- [CASS.DUCATI 27] BRCL01528C | SN: 207072 4 | GARANT FRESA SFERICA RIVESTITA D4
+-- Fonte: Report Ducati 28/09
+UPDATE "Utensili_B1" SET "Prezzo" = 106.84 WHERE id = 'fb767e25-c7a0-437a-bcef-19bc999be784';
+
+-- [CASS.DUCATI] BRCL01417C | SN: 2921-10,006DIN371 | GUHRING MASCHIO M10X1.25
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 185.19 WHERE id = 'fd1f094e-4605-4b44-a30f-58802f70c599';
+
+-- [MASCHI] BRCL000400000052 | SN: 2909 12,000 DIN 376 | GHURING MASCHIO M12 6HX
+-- Fonte: Ordine 2024 (Inserimento ordini 2024 (2))
+UPDATE "Utensili_B1" SET "Prezzo" = 140.62 WHERE id = 'fd85dffc-3e9d-484a-aed3-4fd65d261fd9';
+
+-- [CASS.IR27] BRCL01242C | SN: 1170205000 | PUNTA AD ELEVATE PRESTAZIONI D5  CARBONIO
+-- Fonte: Ordine 2025 (Inserimento ordini 2025)
+UPDATE "Utensili_B1" SET "Prezzo" = 31.48 WHERE id = 'feae94a5-1fef-4b80-bc54-e4def4188714';
+
+-- [CASS.OPERCOLI] BRCL01170C | SN: 209548 8M | GARANT FRESA DIAMANTATA SGROSSATURA D8M
+-- Fonte: Ordine 2026 (Inserimento ordini 2026)
+UPDATE "Utensili_B1" SET "Prezzo" = 151.76 WHERE id = 'ffad659d-ebde-4f6b-a3f3-4df627aa504d';
+
+-- [DIAMANTATE 1] BRCL01170C | SN: 209548 8M | GARANT FRESA DIAMANTATA SGROSSATURA D8M
+-- Fonte: Ordine 2026 (Inserimento ordini 2026)
+UPDATE "Utensili_B1" SET "Prezzo" = 151.76 WHERE id = 'ffe83688-2864-4a13-8b3c-8503c9acee7e';
+

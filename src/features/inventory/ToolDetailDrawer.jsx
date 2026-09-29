@@ -539,6 +539,21 @@ export const ToolDetailDrawer = memo(({
                       {selectedTool?.Stato || 'Integro (0 cicli / Nuovo)'}
                     </span>
                   </div>
+
+                  {/* Prezzo Unitario Netto d'Acquisto (se registrato a sistema) */}
+                  {selectedTool?.Prezzo != null && (
+                    <div className="px-3.5 py-2.5 rounded-xl bg-cyan-500/10 dark:bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-between text-xs shadow-xs">
+                      <div className="flex flex-col">
+                        <span className="app-label text-cyan-700 dark:text-cyan-400 uppercase tracking-wider">
+                          Prezzo Unitario Netto
+                        </span>
+                        <span className="app-caption text-slate-500 dark:text-slate-400">IVA esclusa (da storico ordini)</span>
+                      </div>
+                      <span className="font-black text-slate-900 dark:text-white font-mono text-sm">
+                        € {Number(selectedTool.Prezzo).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Scheda 3: Parametri Aggiuntivi (se disponibili) */}

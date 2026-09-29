@@ -95,7 +95,7 @@ export default function CommessaAnalysisView({ setView }) {
   return (
     <PageTemplate>
       <PageHeader
-        title="Analisi per Commessa & Centri di Lavoro"
+        title="Analisi per commessa e centri di lavoro"
         breadcrumb="Manager"
         showBack={true}
         onBack={() => setView('manager_dashboard')}
@@ -117,33 +117,33 @@ export default function CommessaAnalysisView({ setView }) {
         }
       />
 
-      <PageContent className="flex-1 min-h-0 flex flex-col p-2 sm:p-4 md:p-6 pb-24 overflow-y-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <PageContent className="flex-1 min-h-0 flex flex-col p-4 sm:p-6 pb-24 overflow-y-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredStats.map(({ commessa, prelieviPezzi, depositiPezzi, movimentiCount, utensiliUsati }) => {
             const defaultMacchina = commessa.macchina_id ? macchineMap.get(commessa.macchina_id) : null;
             return (
               <div
                 key={commessa.id}
-                className="glass-panel rounded-2xl p-4 sm:p-5 flex flex-col justify-between border border-slate-200/80 dark:border-slate-800 shadow-sm transition-all hover:shadow-md"
+                className="glass-panel rounded-2xl p-5 flex flex-col justify-between border border-slate-200/80 dark:border-slate-800 shadow-sm transition-all hover:shadow-md"
               >
                 <div>
-                  <div className="flex items-start justify-between gap-2 mb-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
                         <Briefcase size={20} />
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <h3 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-slate-100 truncate">
+                        <h3 className="app-h3 text-slate-900 dark:text-slate-100 truncate">
                           {commessa.codice}
                         </h3>
-                        <span className="text-xs text-slate-400 truncate">
+                        <span className="app-caption text-slate-400 truncate">
                           {commessa.descrizione || 'Lavorazione generica'}
                         </span>
                       </div>
                     </div>
 
                     <span className={cn(
-                      "px-2 py-0.5 rounded-full text-[11px] font-extrabold shrink-0 border",
+                      "px-2 py-0.5 rounded-full text-xs font-extrabold shrink-0 border",
                       commessa.stato === 'Attiva'
                         ? "bg-emerald-500/10 text-accent-emerald border-emerald-500/30"
                         : "bg-slate-200 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700"
@@ -170,7 +170,7 @@ export default function CommessaAnalysisView({ setView }) {
                         <ArrowUp size={11} /> Prelievi
                       </span>
                       <span className="text-base sm:text-lg font-black text-rose-600 dark:text-rose-400 font-mono mt-0.5">
-                        {prelieviPezzi} PZ
+                        {prelieviPezzi} pz
                       </span>
                     </div>
 
@@ -179,7 +179,7 @@ export default function CommessaAnalysisView({ setView }) {
                         <ArrowDown size={11} /> Depositi
                       </span>
                       <span className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 font-mono mt-0.5">
-                        {depositiPezzi} PZ
+                        {depositiPezzi} pz
                       </span>
                     </div>
                   </div>

@@ -11,7 +11,18 @@ export const usePwaStore = create((set, get) => ({
   updateFunction: null,
   registration: null,
 
+  // Installazione PWA (Desktop & Mobile)
+  deferredInstallPrompt: null,
+  canInstall: false,
+  isStandalone: false,
+  isIOS: false,
+  showIOSInstallGuide: false,
+  installDismissed: typeof window !== 'undefined' ? Boolean(localStorage.getItem('berc_pwa_install_dismissed')) : false,
+
   initPwa: () => {
+    // Inizializza rilevamento installazione PWA (Desktop & Mobile)
+    get().initInstallPrompt();
+
     // Evita doppie registrazioni se già inizializzato
     if (get().updateFunction) return;
 
@@ -120,5 +131,81 @@ export const usePwaStore = create((set, get) => ({
 
   reopenPrompt: () => {
     set({ promptDismissed: false });
+  },
+
+  initInstallPrompt: () => {
+    if (typeof window === 'undefined') return;
+
+    // Rileva se l'app è già installata / in esecuzione standalone (PWA)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    set({ isStandalone });
+
+    if (isStandalone) {
+      set({ canInstall: false });
+      return;
+    }
+
+    // Rilevamento ambiente iOS (Safari non usa beforeinstallprompt ma richiede la guida manuale)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+      set({ canInstall: true, isIOS: true });
+    }
+
+    // Listener standard per Chromium (Desktop Chrome/Edge, Android, Samsung Internet)
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      console.log('[PWA] beforeinstallprompt intercettato con successo');
+      set({ deferredInstallPrompt: e, canInstall: true });
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+
+    // Quando l'utente completa l'installazione
+    window.addEventListener('appinstalled', () => {
+      console.log('[PWA] Applicazione installata con successo');
+      set({ canInstall: false, isStandalone: true, deferredInstallPrompt: null });
+    });
+  },
+
+  triggerInstall: async () => {
+    const { deferredInstallPrompt, isIOS } = get();
+
+    if (isIOS) {
+      set({ showIOSInstallGuide: true });
+      return { isIOS: true };
+    }
+
+    if (!deferredInstallPrompt) {
+      // Fallback informativo per browser desktop/mobile non Chromium
+      return { fallback: true };
+    }
+
+    try {
+      deferredInstallPrompt.prompt();
+      const choiceResult = await deferredInstallPrompt.userChoice;
+      if (choiceResult.outcome === 'accepted') {
+        console.log('[PWA] Installazione accettata dall\'utente');
+        set({ canInstall: false, deferredInstallPrompt: null });
+        return { success: true };
+      }
+      console.log('[PWA] Installazione rifiutata dall\'utente');
+      return { success: false, dismissed: true };
+    } catch (err) {
+      console.error('[PWA] Errore durante triggerInstall:', err);
+      return { error: err };
+    }
+  },
+
+  dismissInstall: () => {
+    try {
+      localStorage.setItem('berc_pwa_install_dismissed', 'true');
+    } catch {
+      // ignore storage access errors
+    }
+    set({ installDismissed: true });
+  },
+
+  setShowIOSInstallGuide: (show) => {
+    set({ showIOSInstallGuide: show });
   },
 }));

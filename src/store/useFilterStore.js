@@ -9,10 +9,9 @@ export const useFilterStore = create((set) => ({
         const user = JSON.parse(userStr);
         const savedView = localStorage.getItem(`berc_viewMode_${user.id}`);
         if (savedView) return savedView;
-        if (user.ruolo === 'Admin') return 'dropdown';
       }
     } catch { /* ignore */ }
-    return 'grid';
+    return 'dropdown';
   })(),
   isSelectionMode: false,
   selectedToolsIds: [],

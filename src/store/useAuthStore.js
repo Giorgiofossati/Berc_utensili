@@ -38,10 +38,8 @@ export const useAuthStore = create((set) => ({
       const savedView = localStorage.getItem(`berc_viewMode_${safeUser.id}`);
       if (savedView) {
         useFilterStore.getState().setViewMode(savedView);
-      } else if (safeUser.ruolo === 'Admin') {
-        useFilterStore.getState().setViewMode('dropdown');
       } else {
-        useFilterStore.getState().setViewMode('grid');
+        useFilterStore.getState().setViewMode('dropdown');
       }
     }
     return { currentUser: safeUser };
@@ -71,10 +69,8 @@ export const useAuthStore = create((set) => ({
       const savedView = localStorage.getItem(`berc_viewMode_${safeUser.id}`);
       if (savedView) {
         useFilterStore.getState().setViewMode(savedView);
-      } else if (safeUser.ruolo === 'Admin') {
-        useFilterStore.getState().setViewMode('dropdown');
       } else {
-        useFilterStore.getState().setViewMode('grid');
+        useFilterStore.getState().setViewMode('dropdown');
       }
     } else {
       try {

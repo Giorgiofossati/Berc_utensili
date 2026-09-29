@@ -123,13 +123,13 @@ const ToolsGrid = memo(({
       columnHelper.accessor(row => buildDesc(row), {
         id: 'Descrizione',
         header: () => (
-          <div className="flex items-center gap-2 sm:gap-3 h-full pl-3 sm:pl-4 md:pl-6 min-w-0 overflow-hidden">
+          <div className="flex items-center gap-2 sm:gap-3 h-full pl-2 sm:pl-3 min-w-0 overflow-hidden">
             {isSelectionActive && <div className="w-5 sm:w-6 flex-shrink-0" />}
-            <div className="w-8 sm:w-9 md:w-10 flex-shrink-0" />
-            <span className="ml-1 truncate">Descrizione</span>
+            <div className="w-8 flex-shrink-0" />
+            <span className="truncate">Descrizione</span>
           </div>
         ),
-        meta: { isFlex: true, flex: '2.5 1 0%', minWidth: 160 },
+        meta: { isFlex: true, flex: '3.5 1 0%', minWidth: 200 },
         size: 0,
         sortingFn: (rowA, rowB, columnId) => {
           return String(rowA.getValue(columnId) || '').localeCompare(
@@ -146,8 +146,9 @@ const ToolsGrid = memo(({
             tool['Ubicazione'].toLowerCase().includes('extrema') || 
             tool['Ubicazione'].toLowerCase().includes('cnc')
           );
+          const desc = info.getValue();
           return (
-            <div className="flex items-center gap-3 flex-1 min-w-0 h-full pl-3 sm:pl-4 md:pl-6 overflow-hidden">
+            <div className="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0 h-full pl-2 sm:pl-3 overflow-hidden" title={desc}>
               {isSelectionActive && (
                 <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center shrink-0 w-5">
                   <Checkbox
@@ -164,15 +165,15 @@ const ToolsGrid = memo(({
                   ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-300/80 dark:border-amber-800 text-amber-900 dark:text-amber-300' 
                   : 'bg-sky-50 dark:bg-sky-950/50 border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300'
               }`}>
-                <ToolIcon type={tool['Tipologia']} size={22} className={`opacity-95 group-hover:scale-105 transition-transform ${isRowSelectedInDrawer ? 'text-white' : ''}`} />
+                <ToolIcon type={tool['Tipologia']} size={20} className={`opacity-95 group-hover:scale-105 transition-transform ${isRowSelectedInDrawer ? 'text-white' : ''}`} />
               </div>
-              <div className="min-w-0 flex-1 ml-1 flex items-center">
+              <div className="min-w-0 flex-1 ml-0.5 flex items-center">
                 <span className={`app-h3 transition-colors truncate ${
                   isRowSelectedInDrawer
                     ? 'text-sky-950 dark:text-sky-100 font-black'
                     : 'text-slate-900 dark:text-slate-100 group-hover:text-sky-600 dark:group-hover:text-sky-400'
                 }`}>
-                  {info.getValue()}
+                  {desc}
                 </span>
               </div>
             </div>
@@ -191,8 +192,9 @@ const ToolsGrid = memo(({
         meta: { 
           className: 'hidden xl:flex justify-center', 
           isFlex: true, 
-          flex: '1 1 0%', 
-          minWidth: 110 
+          flex: '0.9 1 0%', 
+          minWidth: 120,
+          maxWidth: 155
         },
         cell: info => renderCodeBadge(info.getValue())
       }),
@@ -213,7 +215,8 @@ const ToolsGrid = memo(({
           className: 'hidden xl:flex justify-center', 
           isFlex: true, 
           flex: '1 1 0%', 
-          minWidth: 110 
+          minWidth: 135,
+          maxWidth: 185
         },
         cell: info => {
           const val = info.getValue();
@@ -235,8 +238,8 @@ const ToolsGrid = memo(({
           className: 'hidden md:flex justify-center', 
           isFlex: true, 
           flex: '0.8 1 0%', 
-          minWidth: 90, 
-          maxWidth: 150 
+          minWidth: 105, 
+          maxWidth: 145 
         },
         cell: info => {
           const val = info.getValue();
@@ -260,7 +263,7 @@ const ToolsGrid = memo(({
       }),
       columnHelper.accessor('Stato', {
         header: 'Stato',
-        size: 90,
+        size: 95,
         sortingFn: (rowA, rowB, columnId) => {
           return String(rowA.getValue(columnId) || '').localeCompare(
             String(rowB.getValue(columnId) || '')
@@ -268,7 +271,8 @@ const ToolsGrid = memo(({
         },
         meta: { 
           className: 'hidden lg:flex justify-center', 
-          minWidth: 80 
+          minWidth: 85,
+          maxWidth: 105 
         },
         cell: info => {
           const val = info.getValue();
@@ -287,15 +291,49 @@ const ToolsGrid = memo(({
           );
         }
       }),
-      columnHelper.accessor('Quantità', {
-        header: 'Giacenza',
-        size: 70,
+      columnHelper.accessor('Prezzo', {
+        id: 'Prezzo',
+        header: 'Prezzo Unit.',
+        size: 95,
         sortingFn: (rowA, rowB, columnId) => {
           const a = Number(rowA.getValue(columnId)) || 0;
           const b = Number(rowB.getValue(columnId)) || 0;
           return a - b;
         },
-        meta: { className: 'shrink-0 justify-center', minWidth: 56 },
+        meta: { 
+          className: 'hidden lg:flex justify-center', 
+          isFlex: true, 
+          flex: '0.6 1 0%', 
+          minWidth: 90,
+          maxWidth: 115 
+        },
+        cell: info => {
+          const val = info.getValue();
+          if (val == null || Number(val) <= 0) {
+            return (
+              <div className="w-full flex items-center justify-center">
+                <span className="text-slate-400 dark:text-slate-500 font-mono text-xs">—</span>
+              </div>
+            );
+          }
+          return (
+            <div className="w-full flex items-center justify-center px-1">
+              <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-cyan-50 dark:bg-cyan-950/60 text-cyan-800 dark:text-cyan-300 border border-cyan-200/80 dark:border-cyan-800 tracking-tight whitespace-nowrap shadow-2xs">
+                € {Number(val).toFixed(2)}
+              </span>
+            </div>
+          );
+        }
+      }),
+      columnHelper.accessor('Quantità', {
+        header: 'Giacenza',
+        size: 85,
+        sortingFn: (rowA, rowB, columnId) => {
+          const a = Number(rowA.getValue(columnId)) || 0;
+          const b = Number(rowB.getValue(columnId)) || 0;
+          return a - b;
+        },
+        meta: { className: 'shrink-0 justify-center', minWidth: 75, maxWidth: 90 },
         cell: info => {
           const qty = Number(info.getValue()) || 0;
           return (
@@ -389,6 +427,7 @@ const ToolsGrid = memo(({
           <VirtualizedTable
             table={table}
             density={density}
+            showDividers={true}
             selectionMode={normalizedSelectionMode}
             estimateRowSize={density === 'compact' ? 44 : 56}
             onRowClick={(tool) => {

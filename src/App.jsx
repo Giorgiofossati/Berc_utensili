@@ -194,7 +194,7 @@ function App() {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const showSidebarMobile = useNavigationStore(state => state.isMobileSidebarOpen);
   const setShowSidebarMobile = useNavigationStore(state => state.setMobileSidebarOpen);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
 
   const handleRequireSidebar = useCallback((needed) => {
     setShowSidebarMobile(needed);
@@ -695,14 +695,14 @@ function App() {
 
         {/* Notifica di aggiornamento PWA */}
         <PwaUpdatePrompt />
-
-        {/* Tutorial interattivo guidato */}
-        <AppTutorial 
-          onRequireSidebar={handleRequireSidebar}
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-        />
       </div>
+
+      {/* Tutorial interattivo guidato: al livello radice per sovrastare drawer e layout mobile */}
+      <AppTutorial 
+        onRequireSidebar={handleRequireSidebar}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      />
     </div>
   );
 }

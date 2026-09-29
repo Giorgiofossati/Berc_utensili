@@ -716,13 +716,15 @@ export default function Sidebar(props) {
       <AnimatePresence>
         {isOpen && (
           <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={onClose}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[var(--z-drawer)]"
-            />
+            {!isTutorialOpen && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={onClose}
+                className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[var(--z-drawer)]"
+              />
+            )}
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}

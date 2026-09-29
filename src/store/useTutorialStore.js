@@ -105,6 +105,9 @@ export const useTutorialStore = create((set, get) => ({
       }
     }
 
+    // Assicura che la sidebar mobile parta chiusa per lo step iniziale
+    useNavigationStore.getState().setMobileSidebarOpen(false);
+
     set({
       isOpen: true,
       currentStep: 0,
@@ -114,6 +117,7 @@ export const useTutorialStore = create((set, get) => ({
   
   closeTutorial: () => {
     const { savedState } = get();
+    useNavigationStore.getState().setMobileSidebarOpen(false);
     set({ isOpen: false });
     if (savedState?.currentView) {
       useNavigationStore.getState().setCurrentView(savedState.currentView);
@@ -144,6 +148,7 @@ export const useTutorialStore = create((set, get) => ({
   },
 
   completeTutorial: async (currentUser) => {
+    useNavigationStore.getState().setMobileSidebarOpen(false);
     set({ isOpen: false });
     if (!currentUser) return;
 

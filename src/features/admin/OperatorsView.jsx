@@ -173,8 +173,8 @@ const OperatorsView = memo(({ setView }) => {
       errors.codice_id = "Questo ID codice è già assegnato a un altro operatore";
     }
 
-    if (formData.ruolo === 'Admin' && !editingUser && !formData.password.trim()) {
-      errors.password = 'La password è obbligatoria per il ruolo Admin';
+    if ((formData.ruolo === 'Admin' || formData.ruolo === 'Manager') && !editingUser && !formData.password.trim()) {
+      errors.password = `La password è obbligatoria per il ruolo ${formData.ruolo}`;
     }
 
     setFormErrors(errors);
@@ -194,11 +194,11 @@ const OperatorsView = memo(({ setView }) => {
         ruolo: formData.ruolo
       };
 
-      if (formData.ruolo === 'Admin') {
+      if (formData.ruolo === 'Admin' || formData.ruolo === 'Manager') {
         if (formData.password.trim()) {
           payload.password = formData.password.trim();
         } else if (!editingUser) {
-          throw new Error('La password è obbligatoria per il ruolo Admin');
+          throw new Error(`La password è obbligatoria per il ruolo ${formData.ruolo}`);
         }
       } else {
         payload.password = null;
@@ -575,14 +575,14 @@ const OperatorsView = memo(({ setView }) => {
               </div>
 
               <AnimatePresence>
-                {formData.ruolo === 'Admin' && (
+                {(formData.ruolo === 'Admin' || formData.ruolo === 'Manager') && (
                   <motion.div 
                     initial={{ opacity: 0, height: 0 }} 
                     animate={{ opacity: 1, height: 'auto' }} 
                     exit={{ opacity: 0, height: 0 }}
                     className="flex flex-col gap-1.5 overflow-hidden"
                   >
-                    <label className="app-label text-foreground mt-2">Password Admin *</label>
+                    <label className="app-label text-foreground mt-2">Password {formData.ruolo} *</label>
                     <div className="relative">
                       <input 
                         type={showPassword ? "text" : "password"} 
