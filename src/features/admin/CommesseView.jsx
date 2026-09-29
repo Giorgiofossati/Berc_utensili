@@ -369,7 +369,7 @@ export default function CommesseView({ setView, showToastNotification }) {
                     <span className="truncate">{commessa.ubicazione || 'Nessuna ubicazione'}</span>
                   </div>
                   <span className={cn(
-                    "text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shrink-0",
+                    "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shrink-0",
                     commessa.stato === 'Attiva' 
                       ? "bg-accent-emerald/10 text-accent-emerald" 
                       : "bg-slate-200 dark:bg-slate-800 text-slate-500"
@@ -416,7 +416,7 @@ export default function CommesseView({ setView, showToastNotification }) {
                   <div className="flex items-center gap-2">
                     <h2 className="app-h2 font-mono text-xl">{selectedCommessaStats.codice}</h2>
                     <span className={cn(
-                      "text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shrink-0",
+                      "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shrink-0",
                       selectedCommessaStats.stato === 'Attiva' ? "bg-accent-emerald/10 text-accent-emerald" : "bg-slate-200 dark:bg-slate-800 text-slate-500"
                     )}>
                       {selectedCommessaStats.stato}
@@ -478,7 +478,7 @@ export default function CommesseView({ setView, showToastNotification }) {
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0">
                           <span className="app-qty-sm">{tool.quantita}</span>
-                          <span className={cn("badge text-[10px]", BADGE_STATO[tool.stato] || 'badge-slate')}>
+                          <span className={cn("badge text-xs", BADGE_STATO[tool.stato] || 'badge-slate')}>
                             {ETICHETTE_STATO[tool.stato] || tool.stato}
                           </span>
                         </div>

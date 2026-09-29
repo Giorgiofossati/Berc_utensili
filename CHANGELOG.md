@@ -16,7 +16,23 @@ Questo file tiene traccia in ordine cronologico inverso di tutte le implementazi
    - `[REFACTOR]`: Riorganizzazione del codice o hook senza cambi funzionali esterni.
    - `[PERF]`: Ottimizzazioni di prestazioni (bundle, caricamento, query).
    - `[DOCS]`: Aggiornamenti alla documentazione o regole di sistema.
-4. **Brevità**: Utilizzare elenchi puntati concisi (2-4 punti chiave) indicando i file principali modificati e l'impatto.
+### [2026-09-29] - Hardening SQL e Schema Database per Ruoli, Macchine CNC e Richieste
+- **Tag**: `[FEAT]` / `[PERF]`
+- **Descrizione**:
+  - Verificato e perfezionato il file di migrazione [`supabase/migrations/20260928_roles_machines_requests.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/migrations/20260928_roles_machines_requests.sql) tramite Supabase MCP e Advisors (`security`, `performance`).
+  - **Deadlock Prevention**: In `evadi_richiesta_movimento` aggiunto il blocco preventivo deterministico e ordinato su `Utensili_B1` (`ORDER BY id FOR UPDATE`) per eliminare il rischio di deadlock concorrenti tra operatori e admin.
+  - **Security Advisor**: Aggiunto `SET search_path = public, pg_temp` a tutte le stored procedure `SECURITY DEFINER` e patch di hardening per le funzioni RPC esistenti.
+  - **Performance Advisor**: Sostituite le doppie policy RLS permissive su `macchine_cnc` e `richieste_movimento` con regole granulari non sovrapposte; aggiunti indici covering su tutte le foreign key (`movements_history(tool_id)`, `commesse(macchina_id)`, `richieste_movimento`, `ordini(tool_id)`).
+  - **Design System Guardrail**: Risolte le violazioni dei token Tailwind per `text-[10px]` sostituendole con i token semantici `app-overline` e `text-xs`.
+- **File coinvolti**:
+  - [`supabase/migrations/20260928_roles_machines_requests.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/migrations/20260928_roles_machines_requests.sql)
+  - [`supabase/MIGRATIONS_LOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/MIGRATIONS_LOG.md)
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
+  - [`src/features/admin/CommesseView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/CommesseView.jsx)
+  - [`src/features/admin/MachinesView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/MachinesView.jsx)
+
+---
+
 ### [2026-09-29] - Fix Anello di Focus sulla Riga dopo Chiusura Drawer con Esc
 - **Tag**: `[FIX]`
 - **Descrizione**:

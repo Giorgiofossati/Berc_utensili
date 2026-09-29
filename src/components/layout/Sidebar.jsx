@@ -123,7 +123,7 @@ const SidebarContent = ({
           <div className={`flex flex-col min-w-0 transition-all duration-[350ms] ease-out whitespace-nowrap ${
             isCollapsed ? 'opacity-0 max-w-0 pointer-events-none -translate-x-2' : 'opacity-100 max-w-[160px] translate-x-0'
           }`}>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 leading-none">
+            <span className="app-overline text-slate-400 leading-none">
               Magazzino
             </span>
             <h1 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 leading-tight mt-0.5 truncate">
@@ -168,7 +168,7 @@ const SidebarContent = ({
           isCollapsed ? 'items-center' : ''
         }`}
       >
-        <span className={`text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1 transition-all duration-200 whitespace-nowrap overflow-hidden ${
+        <span className={`app-overline text-slate-400 px-1 transition-all duration-200 whitespace-nowrap overflow-hidden ${
           isCollapsed ? 'opacity-0 h-0 my-0 py-0' : 'opacity-100 h-4'
         }`}>
           {isAdmin ? 'Operazioni Rapide' : isOperatore ? 'Richieste Rapide' : 'Panoramica'}
@@ -294,7 +294,7 @@ const SidebarContent = ({
 
       {/* Navigation Menu (Preset Specifici per Ruolo) */}
       <div className="flex-1 overflow-y-auto custom-scrollbar px-2 py-3 flex flex-col gap-1 overflow-x-hidden">
-        <span className={`text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2 transition-all duration-200 whitespace-nowrap overflow-hidden ${
+        <span className={`app-overline text-slate-400 px-2 transition-all duration-200 whitespace-nowrap overflow-hidden ${
           isCollapsed ? 'opacity-0 h-0 my-0 py-0' : 'opacity-100 h-4 mb-1'
         }`}>
           Menu Navigazione
@@ -584,7 +584,7 @@ const SidebarContent = ({
             <div data-fit-ignore className={`flex flex-col min-w-0 transition-all duration-[350ms] ease-out whitespace-nowrap ${
               isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[95px]'
             }`}>
-              <span className="text-[10px] font-bold text-slate-400 leading-none">
+              <span className="text-xs font-bold text-slate-400 leading-none">
                 {currentUser?.ruolo || 'Guest'}
               </span>
               <span className="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight mt-0.5 truncate">
