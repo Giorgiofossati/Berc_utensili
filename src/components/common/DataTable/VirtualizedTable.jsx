@@ -167,7 +167,7 @@ export const VirtualizedTable = memo(({
                   aria-selected={selectionMode !== 'none' ? Boolean(isSelected) : undefined}
                   className={`flex items-stretch w-full border-b border-slate-100 dark:border-slate-800/60 group select-none text-xs text-slate-700 dark:text-slate-300 ${
                     onRowClick ? 'cursor-pointer' : ''
-                  } data-[pointer-focus=true]:outline-none transform-gpu transition-all duration-150 ease-out origin-center hover:scale-[1.008] md:hover:scale-[1.01] hover:bg-sky-50/80 dark:hover:bg-sky-900/35 hover:border-transparent ${
+                  } data-[pointer-focus=true]:outline-none transition-colors duration-100 hover:bg-sky-50/70 dark:hover:bg-sky-950/40 ${
                     isSelected ? 'bg-sky-50 dark:bg-sky-950/40 shadow-[inset_3px_0_0_#0284c7]' : ''
                   } ${customClassName}`}
                 >

@@ -16,6 +16,15 @@ Questo file tiene traccia in ordine cronologico inverso di tutte le implementazi
    - `[REFACTOR]`: Riorganizzazione del codice o hook senza cambi funzionali esterni.
    - `[PERF]`: Ottimizzazioni di prestazioni (bundle, caricamento, query).
    - `[DOCS]`: Aggiornamenti alla documentazione o regole di sistema.
+### [2026-09-30] - Tabella Inventario: Rimozione Ingrandimento Riga su Hover per Allineamento Divisori Verticali
+- **Tag**: `[UX/UI]` / `[FIX]`
+- **Descrizione**:
+  - **Eliminazione Shift Visivo Divisori di Colonna**: Rimosso il `hover:scale-[1.008]` in `VirtualizedTable.jsx` che, ingrandendo l'intera riga al passaggio del cursore, provocava lo slittamento orizzontale delle linee verticali divisorie rispetto all'header e alle righe adiacenti.
+  - **Evidenziazione Fluida e Statica**: L'effetto hover è ora gestito con una delicata transizione di colore dello sfondo (`transition-colors duration-100 hover:bg-sky-50/70 dark:hover:bg-sky-950/40`), mantenendo la griglia stile Excel perfettamente ferma, allineata e priva di vibrazioni o salti di layout.
+- **File coinvolti**:
+  - [`src/components/common/DataTable/VirtualizedTable.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/DataTable/VirtualizedTable.jsx)
+  - [`CHANGELOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/CHANGELOG.md)
+
 ### [2026-09-30] - Diagramma Sankey: Ripartizione Costi e Valore per Tipologie Utensili nell'Area Manager
 - **Tag**: `[FEAT]` / `[UX/UI]`
 - **Descrizione**:
