@@ -1,11 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { 
-  GitFork, Layers, ShieldAlert, Tag, Filter,
-  ArrowRight, Info, CheckCircle2, AlertTriangle, AlertCircle
+  GitFork, Layers, ShieldAlert, Tag,
+  Maximize2, Minimize2, Info, X
 } from 'lucide-react';
 import SankeyChart from '@/components/charts/SankeyChart';
 import { SegmentedControl } from '@/components/ui/segmented-control';
-import { cn } from '@/lib/utils';
+import { cn, formatItalianNumber, formatItalianCurrency } from '@/lib/utils';
 
 // Palette semantica ufficiale Bercella (DIVIETO ASSOLUTO DI INDIGO)
 const TIPOLOGIA_COLORS = {
@@ -17,7 +17,7 @@ const TIPOLOGIA_COLORS = {
   'inserto': '#8b5cf6',       // purple
   'svasatore': '#eab308',     // yellow
   'alesatore': '#14b8a6',     // teal
-  'lama': '#6366f1',          // replaced with slate/teal
+  'lama': '#0284c7',          // deep sky
   'altro': '#64748b'          // slate
 };
 
@@ -45,17 +45,27 @@ export default function CostSankeyCard({
   className
 }) {
   const [splitMode, setSplitMode] = useState('forma'); // 'forma' | 'stato' | 'fascia'
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [windowHeight, setWindowHeight] = useState(() => typeof window !== 'undefined' ? window.innerHeight : 800);
 
-  // Formattatore valuta
-  const formatCurrency = (val) => {
-    return new Intl.NumberFormat('it-IT', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-      useGrouping: true
-    }).format(val);
-  };
+  // Gestione ridimensionamento e tasto Esc per uscire da schermo intero
+  useEffect(() => {
+    const handleResize = () => setWindowHeight(window.innerHeight);
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFullscreen]);
+
+  // Formattatore valuta ufficiale Bercella (spazio per migliaia, virgola per decimali)
+  const formatCurrency = (val) => formatItalianCurrency(val, 2);
 
   // Costruzione della struttura Dati per il diagramma Sankey
   const { sankeyData, summaryStats } = useMemo(() => {
@@ -122,15 +132,15 @@ export default function CostSankeyCard({
         }
       } else if (splitMode === 'fascia') {
         if (unitPrice < 30) {
-          destLabel = 'Base (< €30)';
+          destLabel = 'Base (< 30,00 €)';
           destKey = 'economico';
           destColor = FASCIA_COLORS.economico;
         } else if (unitPrice <= 70) {
-          destLabel = 'Media (€30 - €70)';
+          destLabel = 'Media (30,00 - 70,00 €)';
           destKey = 'medio';
           destColor = FASCIA_COLORS.medio;
         } else {
-          destLabel = 'Premium (> €70)';
+          destLabel = 'Premium (> 70,00 €)';
           destKey = 'alto';
           destColor = FASCIA_COLORS.alto;
         }
@@ -163,7 +173,7 @@ export default function CostSankeyCard({
       column: 0,
       value: totalVal,
       color: '#0ea5e9',
-      subtext: `${totalPieces} pz totali a magazzino`
+      subtext: `${formatItalianNumber(totalPieces)} pz totali a magazzino`
     });
 
     // Colonna 1: Macro Tipologie
@@ -187,7 +197,7 @@ export default function CostSankeyCard({
         column: 1,
         value: val,
         color,
-        subtext: `${pieces} pezzi • ${count} referenze`
+        subtext: `${formatItalianNumber(pieces)} pz • ${count} referenze`
       });
     });
 
@@ -208,7 +218,7 @@ export default function CostSankeyCard({
         column: 2,
         value: val,
         color: nodeColor,
-        subtext: `${pieces} pezzi fisici`
+        subtext: `${formatItalianNumber(pieces)} pezzi fisici`
       });
     });
 
@@ -217,11 +227,12 @@ export default function CostSankeyCard({
 
     // Links Col 0 -> Col 1 (Radice -> Tipologie)
     sortedTipologie.forEach(({ tipo, val, pieces }) => {
+      const pctOfTotal = totalVal > 0 ? (val / totalVal) * 100 : 0;
       links.push({
         source: rootNodeId,
         target: `tipo_${tipo}`,
         value: val,
-        subtext: `${pieces} pz • ${totalVal > 0 ? ((val / totalVal) * 100).toFixed(1) : 0}% dell'asset`
+        subtext: `${formatItalianNumber(pieces)} pz • ${formatItalianNumber(pctOfTotal, 1)}% dell'asset`
       });
     });
 
@@ -230,12 +241,13 @@ export default function CostSankeyCard({
       if (val <= 0) return;
       const [tipo, destLabel] = linkKey.split('___');
       const tipoVal = tipologiaMap.get(tipo)?.val || 1;
+      const pctOfTipo = (val / tipoVal) * 100;
 
       links.push({
         source: `tipo_${tipo}`,
         target: `dest_${destLabel}`,
         value: val,
-        subtext: `${pieces} pz • ${((val / tipoVal) * 100).toFixed(1)}% di ${tipo}`
+        subtext: `${formatItalianNumber(pieces)} pz • ${formatItalianNumber(pctOfTipo, 1)}% di ${tipo}`
       });
     });
 
@@ -265,17 +277,25 @@ export default function CostSankeyCard({
     { value: 'fascia', label: 'Fascia di Prezzo', icon: <Layers size={14} /> }
   ];
 
-  return (
-    <div className={cn("glass-panel p-5 sm:p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col gap-4", className)}>
-      {/* HEADER CARD CON CONTROLLI */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/80 pb-4">
-        <div className="flex items-start gap-3">
+  // Calcolo altezza dinamica per la massima visibilità (standard vs fullscreen)
+  const chartHeight = isFullscreen ? Math.max(520, windowHeight - 220) : 480;
+
+  const cardContent = (
+    <div className={cn(
+      "flex flex-col gap-4",
+      isFullscreen 
+        ? "fixed inset-0 z-50 bg-slate-50/98 dark:bg-slate-950/98 backdrop-blur-2xl p-4 sm:p-6 md:p-8 overflow-hidden h-screen w-screen justify-between"
+        : cn("glass-panel p-5 sm:p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm", className)
+    )}>
+      {/* HEADER CARD CON CONTROLLI E PULSANTE SCHERMO INTERO */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/80 pb-4">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-2xl bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
             <GitFork size={20} />
           </div>
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="app-h3 text-slate-900 dark:text-slate-100">
+              <h3 className="app-h3 text-slate-900 dark:text-slate-100 truncate">
                 Flusso del valore per tipologia utensile
               </h3>
               <span className="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-xs font-mono font-bold text-sky-600 dark:text-sky-400">
@@ -287,14 +307,14 @@ export default function CostSankeyCard({
                 </span>
               )}
             </div>
-            <p className="app-caption text-slate-400 mt-0.5">
+            <p className="app-caption text-slate-400 mt-0.5 truncate">
               Ripartizione dal capitale totale alle famiglie utensili e alle relative specifiche
             </p>
           </div>
         </div>
 
-        {/* CONTROLLO MODALITÀ SUDDIVISIONE */}
-        <div className="flex items-center gap-2 shrink-0">
+        {/* CONTROLLI SULLA DESTRA (SEGMENTED + FULLSCREEN BUTTON) */}
+        <div className="flex items-center gap-2.5 shrink-0 flex-wrap justify-between sm:justify-end">
           <SegmentedControl
             value={splitMode}
             onValueChange={setSplitMode}
@@ -302,14 +322,36 @@ export default function CostSankeyCard({
             ariaLabel="Raggruppamento Sankey"
             className="text-xs"
           />
+
+          {isFullscreen ? (
+            <button
+              type="button"
+              onClick={() => setIsFullscreen(false)}
+              className="px-3.5 py-2 rounded-xl bg-accent-blue text-slate-950 text-xs font-black tracking-wide hover:brightness-110 flex items-center gap-2 cursor-pointer shadow-md transition-all shrink-0"
+              title="Esci da tutto schermo (Esc)"
+            >
+              <Minimize2 size={15} />
+              <span>Esci da tutto schermo (Esc)</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsFullscreen(true)}
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:text-sky-600 dark:hover:text-sky-400 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700/80 flex items-center gap-1.5 cursor-pointer shadow-xs transition-all shrink-0"
+              title="Visualizza diagramma a schermo intero"
+            >
+              <Maximize2 size={15} className="text-sky-500" />
+              <span>Schermo intero</span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* DIAGRAMMA SANKEY */}
-      <div className="w-full relative min-h-[380px] flex flex-col justify-center">
+      {/* DIAGRAMMA SANKEY (SPAZIO MASSIMIZZATO) */}
+      <div className={cn("w-full relative flex flex-col justify-center", isFullscreen ? "flex-1 min-h-0" : "")}>
         <SankeyChart
           data={sankeyData}
-          height={380}
+          height={chartHeight}
           formatValue={formatCurrency}
           onNodeClick={handleNodeClick}
         />
@@ -317,17 +359,17 @@ export default function CostSankeyCard({
 
       {/* FOOTER STATISTICHE E GUIDA INTERATTIVA */}
       <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
+        <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400 flex-wrap">
           {summaryStats.topCategory && (
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-slate-700 dark:text-slate-300">Prima categoria:</span>
-              <span className="font-extrabold text-sky-600 dark:text-sky-400">
+              <span className="font-extrabold text-sky-600 dark:text-sky-400 font-mono">
                 {summaryStats.topCategory.tipo} ({formatCurrency(summaryStats.topCategory.val)})
               </span>
             </div>
           )}
 
-          <div className="flex items-center gap-1.5 hidden md:flex">
+          <div className="flex items-center gap-1.5">
             <span className="font-bold text-slate-700 dark:text-slate-300">Capitale a rischio scorta:</span>
             <span className={cn(
               "font-mono font-extrabold",
@@ -339,10 +381,12 @@ export default function CostSankeyCard({
         </div>
 
         <div className="flex items-center gap-2 text-slate-400">
-          <Info size={14} className="text-accent-blue" />
+          <Info size={14} className="text-accent-blue shrink-0" />
           <span>Passa sopra a nodi e flussi per dettagli o clicca su una tipologia per filtrare.</span>
         </div>
       </div>
     </div>
   );
+
+  return cardContent;
 }

@@ -16,6 +16,20 @@ Questo file tiene traccia in ordine cronologico inverso di tutte le implementazi
    - `[REFACTOR]`: Riorganizzazione del codice o hook senza cambi funzionali esterni.
    - `[PERF]`: Ottimizzazioni di prestazioni (bundle, caricamento, query).
    - `[DOCS]`: Aggiornamenti alla documentazione o regole di sistema.
+### [2026-09-30] - Diagramma Sankey: Schermo Intero, Spazio Massimizzato e Standard Numerico Industriale (Virgola e Spazio Migliaia)
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Modalità a Schermo Intero con Tasto Esc (`CostSankeyCard.jsx`)**: Aggiunto pulsante `Schermo intero` (`Maximize2`) nell'header della card che espande il diagramma di flusso a tutto schermo con viewport dinamico (`h-screen w-screen`) e backdrop ad alta trasparenza. Aggiunto pulsante di uscita `Esci da tutto schermo (Esc)` (`Minimize2`) e ascoltatore tastiera `Esc` per uscita rapida.
+  - **Riorganizzazione Layout e Massimizzazione Spazio**: Espanso il Sankey a piena larghezza (`w-full`) sia in `CostAnalysisView` che in `ManagerDashboardView`, raddoppiando lo spazio orizzontale per i nastri di flusso. Nella dashboard direzionale, le schede "Top 6 Categorie" e "Navigazione Analitica" sono state riposizionate ordinatamente in una griglia sottostante a 2 colonne bilanciate. Aumentata l'altezza standard del diagramma a 480px (con margini laterali ottimizzati a 115px) per eliminare qualsiasi sovrapposizione testuale.
+  - **Standard Numerico Industriale Bercella (`src/lib/utils.js`)**: Create le funzioni di formattazione `formatItalianCurrency` e `formatItalianNumber` che rispettano rigorosamente la convenzione industriale richiesta: virgola per i decimali (es. `14 520,00 €`), spazio come separatore delle migliaia (es. `1 250 pz`), e nessun punto per le migliaia. Applicato a tutti i valori monetari, percentuali (`24,5%`) e quantità fisiche nei nodi, nei nastri, nei tooltip e nelle statistiche di sintesi.
+- **File coinvolti**:
+  - [`src/lib/utils.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/lib/utils.js)
+  - [`src/components/charts/SankeyChart.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/charts/SankeyChart.jsx)
+  - [`src/features/manager/components/CostSankeyCard.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/manager/components/CostSankeyCard.jsx)
+  - [`src/features/manager/CostAnalysisView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/manager/CostAnalysisView.jsx)
+  - [`src/features/manager/ManagerDashboardView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/manager/ManagerDashboardView.jsx)
+  - [`CHANGELOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/CHANGELOG.md)
+
 ### [2026-09-30] - Tabella Inventario: Rimozione Ingrandimento Riga su Hover per Allineamento Divisori Verticali
 - **Tag**: `[UX/UI]` / `[FIX]`
 - **Descrizione**:

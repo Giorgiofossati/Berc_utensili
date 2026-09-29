@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { cn } from '@/lib/utils';
+import { cn, formatItalianNumber } from '@/lib/utils';
 
 /**
  * SankeyChart — Componente SVG puro reattivo per diagrammi di flusso Sankey.
@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
  */
 export default function SankeyChart({
   data,
-  height = 420,
+  height = 460,
   nodeWidth = 20,
   nodeGap = 10,
   minNodeHeight = 10,
@@ -37,10 +37,10 @@ export default function SankeyChart({
   }, []);
 
   const margin = useMemo(() => ({
-    top: 24,
-    right: 140, // Spazio per le label a destra
-    bottom: 24,
-    left: 140   // Spazio per le label a sinistra
+    top: 20,
+    right: 115, // Spazio calibrato per le label a destra
+    bottom: 20,
+    left: 115   // Spazio calibrato per le label a sinistra
   }), []);
 
   // Calcolo del layout del diagramma Sankey
@@ -391,7 +391,7 @@ export default function SankeyChart({
                 </span>
                 {tooltip.percentOfTotal !== undefined && (
                   <span className="px-1.5 py-0.5 rounded-md bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-xs font-mono font-bold text-sky-600 dark:text-sky-400 shrink-0">
-                    {tooltip.percentOfTotal.toFixed(1)}%
+                    {formatItalianNumber(tooltip.percentOfTotal, 1)}%
                   </span>
                 )}
               </div>
@@ -409,7 +409,7 @@ export default function SankeyChart({
                 <div className="flex items-center justify-between text-xs text-slate-400">
                   <span>Quota su origine:</span>
                   <span className="font-mono font-bold text-slate-600 dark:text-slate-300">
-                    {tooltip.percentOfSource.toFixed(1)}%
+                    {formatItalianNumber(tooltip.percentOfSource, 1)}%
                   </span>
                 </div>
               )}

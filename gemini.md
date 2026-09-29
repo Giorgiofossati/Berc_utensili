@@ -97,6 +97,7 @@ Offre tracciamento in tempo reale, prelievo guidato, carico/scarico rapido e pre
     - Mai troncare titoli operativi dei modali con `truncate` (es. mai generare "MODIFICA COMME..."). Separare l'azione dal codice e mostrare il codice in un badge mono dedicato.
     - I pulsanti di azione primaria non devono mai andare a capo su due righe (`whitespace-nowrap font-black tracking-wider`). In `DialogContent`, consentire alle classi `max-w-*` personalizzate di applicarsi senza essere scavalcate da default rigidi.
 
+25. **Formattazione Valuta e Numeri**: Utilizzare rigorosamente il formato italiano con la virgola per i decimali e lo spazio per le migliaia (es. `1 234,56 €`). Vietato usare il punto per le migliaia. (Implementabile tramite `Intl.NumberFormat('it-IT')` con un `.replace(/\./g, ' ')` per sostituire i punti delle migliaia).
 ---
 
 ## 💾 Regole di Sviluppo, Architettura e Backend

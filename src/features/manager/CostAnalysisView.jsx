@@ -8,7 +8,7 @@ import { StatTile, CollapsibleStatGrid } from '@/components/ui/stat-tile';
 import { IconButton } from '@/components/ui/icon-button';
 import { useInventoryStore } from '../../store/useInventoryStore';
 import { buildDesc, ToolIcon } from '../../lib/toolUtils';
-import { cn } from '@/lib/utils';
+import { cn, formatItalianCurrency, formatItalianNumber } from '@/lib/utils';
 import CostSankeyCard from './components/CostSankeyCard';
 
 export default function CostAnalysisView({ setView }) {
@@ -64,16 +64,8 @@ export default function CostAnalysisView({ setView }) {
     }).sort((a, b) => b.rowValue - a.rowValue);
   }, [toolsWithCosts, categoryFilter, searchQuery]);
 
-  // Funzione per formattare la valuta in italiano
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('it-IT', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-      useGrouping: false
-    }).format(value);
-  };
+  // Formattazione valuta standard Bercella (spazio migliaia, virgola decimali)
+  const formatCurrency = (value) => formatItalianCurrency(value, 2);
 
   return (
     <PageTemplate>
@@ -122,8 +114,8 @@ export default function CostAnalysisView({ setView }) {
             icon={<TrendingUp size={16} />}
           />
           <StatTile
-            label="Articoli ad alto valore (>€200)"
-            value={toolsWithCosts.filter(t => t.rowValue > 200).length}
+            label="Articoli ad alto valore (> 200,00 €)"
+            value={formatItalianNumber(toolsWithCosts.filter(t => t.rowValue > 200).length)}
             subtext="Asset ad alto impatto"
             tone="orange"
             icon={<Layers size={16} />}
@@ -223,7 +215,7 @@ export default function CostAnalysisView({ setView }) {
                     <div>
                       <span className="text-xs font-bold text-slate-400 block mb-0.5">Giacenza</span>
                       <span className={`text-sm font-extrabold ${qty > 0 ? 'text-slate-800 dark:text-slate-200' : 'text-rose-500'}`}>
-                        {qty} pz
+                        {formatItalianNumber(qty)} pz
                       </span>
                     </div>
 

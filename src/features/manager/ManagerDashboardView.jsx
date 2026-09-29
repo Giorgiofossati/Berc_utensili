@@ -1,8 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { 
-  TrendingUp, Euro, Package, AlertTriangle, ArrowUpRight, 
-  ArrowDownRight, Layers, BarChart3, PieChart, Activity, Briefcase, 
-  Cpu, Calendar, ShieldCheck, RefreshCw, GitFork
+  Euro, Package, AlertTriangle, ArrowUpRight, 
+  BarChart3, Activity, Briefcase, 
+  Cpu, Calendar, ShieldCheck, RefreshCw
 } from 'lucide-react';
 import { PageTemplate, PageHeader, PageToolbar, PageContent } from '@/components/layout/PageTemplate';
 import { StatTile, CollapsibleStatGrid } from '@/components/ui/stat-tile';
@@ -10,10 +10,10 @@ import { IconButton } from '@/components/ui/icon-button';
 import { useInventoryStore } from '../../store/useInventoryStore';
 import { useCommesseStore } from '../../store/useCommesseStore';
 import { useMacchineStore } from '../../store/useMacchineStore';
+import { formatItalianCurrency, formatItalianNumber } from '@/lib/utils';
 import CostSankeyCard from './components/CostSankeyCard';
 
 export default function ManagerDashboardView({ setView }) {
-  const [chartMode, setChartMode] = useState('sankey'); // 'sankey' | 'bars'
   const tools = useInventoryStore(state => state.tools);
   const fetchTools = useInventoryStore(state => state.fetchTools);
   const commesse = useCommesseStore(state => state.commesse);
@@ -74,16 +74,8 @@ export default function ManagerDashboardView({ setView }) {
     };
   }, [tools, commesse, macchine]);
 
-  // Funzione per formattare la valuta in italiano
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('it-IT', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-      useGrouping: false
-    }).format(value);
-  };
+  // Formattazione valuta standard Bercella (spazio migliaia, virgola decimali)
+  const formatCurrency = (value) => formatItalianCurrency(value, 2);
 
   return (
     <PageTemplate>
@@ -121,13 +113,13 @@ export default function ManagerDashboardView({ setView }) {
           <StatTile
             label="Valore magazzino"
             value={formatCurrency(kpi.estimatedTotalValue)}
-            subtext={`Asset giacente totale (${kpi.totalStockPieces} pz)`}
+            subtext={`Asset giacente totale (${formatItalianNumber(kpi.totalStockPieces)} pz)`}
             accent="emerald"
             icon={<Euro size={16} />}
           />
           <StatTile
             label="Referenze totali"
-            value={kpi.totalToolsCount}
+            value={formatItalianNumber(kpi.totalToolsCount)}
             subtext="Catalogo utensili CNC"
             accent="blue"
             delta={{ direction: 'flat', text: "SKU" }}
@@ -135,108 +127,86 @@ export default function ManagerDashboardView({ setView }) {
           />
           <StatTile
             label="Criticità sottoscorta"
-            value={kpi.zeroStockCount}
-            subtext={`${kpi.lowStockCount} critici sotto scorta`}
+            value={formatItalianNumber(kpi.zeroStockCount)}
+            subtext={`${formatItalianNumber(kpi.lowStockCount)} critici sotto scorta`}
             accent="rose"
             delta={{ direction: 'down', text: "a 0 pz" }}
             icon={<AlertTriangle size={16} />}
           />
           <StatTile
             label="Produzione attiva"
-            value={kpi.activeCommesseCount}
-            subtext={`${kpi.activeMachinesCount} CNC operativi`}
+            value={formatItalianNumber(kpi.activeCommesseCount)}
+            subtext={`${formatItalianNumber(kpi.activeMachinesCount)} CNC operativi`}
             accent="orange"
             delta={{ direction: 'up', text: "commesse" }}
             icon={<Cpu size={16} />}
           />
         </CollapsibleStatGrid>
 
-        {/* ROW 2: ANALISI PER CATEGORIA UTENSILE (SANKEY / BARRE) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 flex flex-col">
-            {chartMode === 'sankey' ? (
-              <div className="flex flex-col gap-2">
-                <CostSankeyCard
-                  tools={tools}
-                  onSelectCategory={() => setView('manager_costs')}
-                />
-                <div className="flex justify-end px-1">
-                  <button
-                    type="button"
-                    onClick={() => setChartMode('bars')}
-                    className="text-xs font-bold text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 transition-colors cursor-pointer flex items-center gap-1.5 py-1"
-                  >
-                    <BarChart3 size={13} />
-                    Passa a visualizzazione classica a barre
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="glass-panel p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 flex flex-col h-full justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <BarChart3 size={18} className="text-sky-600 dark:text-sky-400" />
-                      <h3 className="app-h3 text-slate-900 dark:text-slate-100">
-                        Ripartizione valore economico per tipologia
-                      </h3>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setChartMode('sankey')}
-                      className="px-2.5 py-1 rounded-xl text-xs font-bold bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-600 dark:text-sky-400 hover:bg-sky-100 dark:hover:bg-sky-900/60 transition-colors cursor-pointer flex items-center gap-1"
-                    >
-                      <GitFork size={13} />
-                      Diagramma Sankey
-                    </button>
-                  </div>
+        {/* ROW 2: DIAGRAMMA SANKEY DEI FLUSSI (SPAZIO MASSIMIZZATO A PIENA LARGHEZZA) */}
+        <CostSankeyCard
+          tools={tools}
+          onSelectCategory={() => setView('manager_costs')}
+        />
 
-                  <div className="flex flex-col gap-4 flex-1 justify-around">
-                    {kpi.topCategories.map((cat, idx) => {
-                      const percent = kpi.estimatedTotalValue > 0 ? (cat.val / kpi.estimatedTotalValue) * 100 : 0;
-                      return (
-                        <div key={cat.name} className="flex flex-col gap-1.5">
-                          <div className="flex items-center justify-between text-xs">
-                            <div className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-200">
-                              <span className="w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs flex items-center justify-center font-mono">
-                                {idx + 1}
-                              </span>
-                              <span>{cat.name}</span>
-                              <span className="text-slate-400 font-normal">({cat.pieces} pz)</span>
-                            </div>
-                            <div className="flex items-center gap-2 font-mono">
-                              <span className="font-bold text-slate-900 dark:text-white">
-                                {formatCurrency(cat.val)}
-                              </span>
-                              <span className="text-slate-400 text-xs">
-                                ({percent.toFixed(1)}%)
-                              </span>
-                            </div>
-                          </div>
-                          <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                            <div
-                              className="h-full bg-sky-500 rounded-full transition-all duration-500"
-                              style={{ width: `${Math.min(100, Math.max(2, percent))}%` }}
-                            />
-                          </div>
+        {/* ROW 3: DETTAGLIO CLASSIFICA CATEGORIE & NAVIGAZIONE ANALITICA */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="glass-panel p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <BarChart3 size={18} className="text-sky-600 dark:text-sky-400" />
+                  <h3 className="app-h3 text-slate-900 dark:text-slate-100">
+                    Ripartizione valore economico per tipologia
+                  </h3>
+                </div>
+                <span className="app-caption text-slate-400">Top 6 categorie</span>
+              </div>
+
+              <div className="flex flex-col gap-4 flex-1 justify-around">
+                {kpi.topCategories.map((cat, idx) => {
+                  const percent = kpi.estimatedTotalValue > 0 ? (cat.val / kpi.estimatedTotalValue) * 100 : 0;
+                  return (
+                    <div key={cat.name} className="flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-200">
+                          <span className="w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs flex items-center justify-center font-mono">
+                            {idx + 1}
+                          </span>
+                          <span>{cat.name}</span>
+                          <span className="text-slate-400 font-normal">({formatItalianNumber(cat.pieces)} pz)</span>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex justify-between items-center text-xs text-slate-400">
-                  <span>Classifica top 6 categorie per valore totale</span>
-                  <button
-                    type="button"
-                    onClick={() => setChartMode('sankey')}
-                    className="font-bold text-sky-600 dark:text-sky-400 hover:underline cursor-pointer"
-                  >
-                    Vedi mappa flussi completa →
-                  </button>
-                </div>
+                        <div className="flex items-center gap-2 font-mono">
+                          <span className="font-bold text-slate-900 dark:text-white">
+                            {formatCurrency(cat.val)}
+                          </span>
+                          <span className="text-slate-400 text-xs">
+                            ({formatItalianNumber(percent, 1)}%)
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                        <div
+                          className="h-full bg-sky-500 rounded-full transition-all duration-500"
+                          style={{ width: `${Math.min(100, Math.max(2, percent))}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            )}
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex justify-between items-center text-xs text-slate-400">
+              <span>Totale catalogato: {formatItalianNumber(kpi.totalStockPieces)} pz</span>
+              <button
+                type="button"
+                onClick={() => setView('manager_costs')}
+                className="font-bold text-sky-600 dark:text-sky-400 hover:underline cursor-pointer"
+              >
+                Dettaglio completo costi →
+              </button>
+            </div>
           </div>
 
           {/* Quick Actions & Links Manager */}
