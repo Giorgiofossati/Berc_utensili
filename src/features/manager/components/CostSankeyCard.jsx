@@ -38,6 +38,41 @@ const FORMA_PALETTE = [
   '#ec4899', '#8b5cf6', '#14b8a6', '#eab308', '#64748b'
 ];
 
+const GROUP_COLOR = '#64748b'; // slate: nodo aggregato "Altre ..."
+
+// Oltre questa soglia i nodi diventano troppo sottili per essere letti:
+// le voci minori confluiscono in un nodo aggregato (dettaglio nel tooltip).
+const GROUP_MIN_SHARE = 0.025;
+const GROUP_MAX_ITEMS = 7;
+
+// Importi in tooltip e footer con decimali; etichette del grafico arrotondate all'euro
+const formatCurrency = (val) => formatItalianCurrency(val, 2);
+const formatCurrencyRounded = (val) => formatItalianCurrency(val, 0);
+
+/**
+ * Divide voci ordinate per valore decrescente in voci visibili + coda aggregata.
+ * Restituisce { kept, rest } dove rest è [] se non serve aggregare.
+ */
+function splitTail(sortedItems, totalVal) {
+  if (sortedItems.length <= 2) return { kept: sortedItems, rest: [] };
+  const kept = [];
+  const rest = [];
+  sortedItems.forEach((item) => {
+    const share = totalVal > 0 ? item.val / totalVal : 0;
+    if (kept.length < GROUP_MAX_ITEMS && share >= GROUP_MIN_SHARE) kept.push(item);
+    else rest.push(item);
+  });
+  // Aggregare una sola voce non ha senso: la si mostra così com'è
+  if (rest.length === 1) return { kept: [...kept, rest[0]], rest: [] };
+  return { kept, rest };
+}
+
+function describeGroup(items, nameKey, noun) {
+  const names = items.map(i => i[nameKey]);
+  const shown = names.slice(0, 4).join(', ');
+  return `${items.length} ${noun}: ${shown}${names.length > 4 ? ', …' : ''}`;
+}
+
 export default function CostSankeyCard({
   tools = [],
   onSelectCategory,
@@ -63,9 +98,6 @@ export default function CostSankeyCard({
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isFullscreen]);
-
-  // Formattatore valuta ufficiale Bercella (spazio per migliaia, virgola per decimali)
-  const formatCurrency = (val) => formatItalianCurrency(val, 2);
 
   // Costruzione della struttura Dati per il diagramma Sankey
   const { sankeyData, summaryStats } = useMemo(() => {
@@ -169,19 +201,24 @@ export default function CostSankeyCard({
     const rootNodeId = 'root_total';
     nodes.push({
       id: rootNodeId,
-      label: 'Asset Magazzino',
+      label: 'Asset magazzino',
       column: 0,
       value: totalVal,
       color: '#0ea5e9',
       subtext: `${formatItalianNumber(totalPieces)} pz totali a magazzino`
     });
 
-    // Colonna 1: Macro Tipologie
+    // Colonna 1: Macro tipologie (le minori confluiscono in "Altre tipologie")
     const sortedTipologie = Array.from(tipologiaMap.entries())
       .map(([tipo, data]) => ({ tipo, ...data }))
+      .filter(t => t.val > 0)
       .sort((a, b) => b.val - a.val);
 
-    sortedTipologie.forEach(({ tipo, val, pieces, count }) => {
+    const tipoSplit = splitTail(sortedTipologie, totalVal);
+    const tipoNodeId = new Map(); // tipo -> id nodo (proprio o aggregato)
+    const TIPO_GROUP_ID = 'tipo__group';
+
+    tipoSplit.kept.forEach(({ tipo, val, pieces, count }) => {
       const tipoLower = tipo.toLowerCase();
       let color = TIPOLOGIA_COLORS.altro;
       for (const [key, c] of Object.entries(TIPOLOGIA_COLORS)) {
@@ -191,63 +228,110 @@ export default function CostSankeyCard({
         }
       }
 
+      const id = `tipo_${tipo}`;
+      tipoNodeId.set(tipo, id);
       nodes.push({
-        id: `tipo_${tipo}`,
+        id,
         label: tipo,
         column: 1,
         value: val,
         color,
-        subtext: `${formatItalianNumber(pieces)} pz • ${count} referenze`
+        subtext: `${formatItalianNumber(pieces)} pz • ${formatItalianNumber(count)} referenze`
       });
     });
+
+    if (tipoSplit.rest.length > 0) {
+      tipoSplit.rest.forEach(({ tipo }) => tipoNodeId.set(tipo, TIPO_GROUP_ID));
+      nodes.push({
+        id: TIPO_GROUP_ID,
+        label: `Altre tipologie (${tipoSplit.rest.length})`,
+        column: 1,
+        value: tipoSplit.rest.reduce((sum, t) => sum + t.val, 0),
+        color: GROUP_COLOR,
+        isGroup: true,
+        subtext: describeGroup(tipoSplit.rest, 'tipo', 'tipologie')
+      });
+    }
 
     // Colonna 2: Destinazioni (Forma / Stato / Fascia)
     const sortedDestinations = Array.from(destinationMap.entries())
       .map(([label, data]) => ({ label, ...data }))
+      .filter(d => d.val > 0)
       .sort((a, b) => b.val - a.val);
 
-    sortedDestinations.forEach(({ label, val, pieces, color }, idx) => {
-      let nodeColor = color;
-      if (splitMode === 'forma') {
-        nodeColor = FORMA_PALETTE[idx % FORMA_PALETTE.length];
-      }
+    const destSplit = splitMode === 'forma'
+      ? splitTail(sortedDestinations, totalVal)
+      : { kept: sortedDestinations, rest: [] };
+    const destNodeId = new Map();
+    const DEST_GROUP_ID = 'dest__group';
 
+    destSplit.kept.forEach(({ label, val, pieces, color }, idx) => {
+      const id = `dest_${label}`;
+      destNodeId.set(label, id);
       nodes.push({
-        id: `dest_${label}`,
+        id,
         label,
         column: 2,
         value: val,
-        color: nodeColor,
+        color: splitMode === 'forma' ? FORMA_PALETTE[idx % FORMA_PALETTE.length] : color,
         subtext: `${formatItalianNumber(pieces)} pezzi fisici`
       });
     });
 
-    // 3. Costruzione dei link
+    if (destSplit.rest.length > 0) {
+      destSplit.rest.forEach(({ label }) => destNodeId.set(label, DEST_GROUP_ID));
+      nodes.push({
+        id: DEST_GROUP_ID,
+        label: `Altre forme (${destSplit.rest.length})`,
+        column: 2,
+        value: destSplit.rest.reduce((sum, d) => sum + d.val, 0),
+        color: GROUP_COLOR,
+        isGroup: true,
+        subtext: describeGroup(destSplit.rest, 'label', 'forme')
+      });
+    }
+
+    // 3. Costruzione dei link (accorpati sui nodi aggregati)
     const links = [];
+    const nodeLabel = new Map(nodes.map(n => [n.id, n.label]));
+    const nodeValue = new Map(nodes.map(n => [n.id, n.value]));
 
     // Links Col 0 -> Col 1 (Radice -> Tipologie)
+    const rootLinks = new Map();
     sortedTipologie.forEach(({ tipo, val, pieces }) => {
+      const target = tipoNodeId.get(tipo);
+      const prev = rootLinks.get(target) || { val: 0, pieces: 0 };
+      rootLinks.set(target, { val: prev.val + val, pieces: prev.pieces + pieces });
+    });
+    rootLinks.forEach(({ val, pieces }, target) => {
       const pctOfTotal = totalVal > 0 ? (val / totalVal) * 100 : 0;
       links.push({
         source: rootNodeId,
-        target: `tipo_${tipo}`,
+        target,
         value: val,
         subtext: `${formatItalianNumber(pieces)} pz • ${formatItalianNumber(pctOfTotal, 1)}% dell'asset`
       });
     });
 
     // Links Col 1 -> Col 2 (Tipologia -> Destinazione)
+    const midLinks = new Map();
     linksMap.forEach(({ val, pieces }, linkKey) => {
       if (val <= 0) return;
       const [tipo, destLabel] = linkKey.split('___');
-      const tipoVal = tipologiaMap.get(tipo)?.val || 1;
-      const pctOfTipo = (val / tipoVal) * 100;
-
+      const source = tipoNodeId.get(tipo);
+      const target = destNodeId.get(destLabel);
+      if (!source || !target) return;
+      const key = `${source}___${target}`;
+      const prev = midLinks.get(key) || { source, target, val: 0, pieces: 0 };
+      midLinks.set(key, { ...prev, val: prev.val + val, pieces: prev.pieces + pieces });
+    });
+    midLinks.forEach(({ source, target, val, pieces }) => {
+      const pctOfSource = (val / (nodeValue.get(source) || 1)) * 100;
       links.push({
-        source: `tipo_${tipo}`,
-        target: `dest_${destLabel}`,
+        source,
+        target,
         value: val,
-        subtext: `${formatItalianNumber(pieces)} pz • ${formatItalianNumber(pctOfTipo, 1)}% di ${tipo}`
+        subtext: `${formatItalianNumber(pieces)} pz • ${formatItalianNumber(pctOfSource, 1)}% di ${nodeLabel.get(source)}`
       });
     });
 
@@ -265,7 +349,7 @@ export default function CostSankeyCard({
   }, [tools, splitMode]);
 
   const handleNodeClick = (node) => {
-    if (node.column === 1 && onSelectCategory) {
+    if (node.column === 1 && !node.isGroup && onSelectCategory) {
       const catName = node.label;
       onSelectCategory(catName);
     }
@@ -298,7 +382,7 @@ export default function CostSankeyCard({
               <h3 className="app-h3 text-slate-900 dark:text-slate-100 truncate">
                 Flusso del valore per tipologia utensile
               </h3>
-              <span className="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-xs font-mono font-bold text-sky-600 dark:text-sky-400">
+              <span className="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-xs font-bold text-sky-600 dark:text-sky-400">
                 Sankey
               </span>
               {selectedCategory && selectedCategory !== 'TUTTE' && (
@@ -307,7 +391,7 @@ export default function CostSankeyCard({
                 </span>
               )}
             </div>
-            <p className="app-caption text-slate-400 mt-0.5 truncate">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
               Ripartizione dal capitale totale alle famiglie utensili e alle relative specifiche
             </p>
           </div>
@@ -353,6 +437,7 @@ export default function CostSankeyCard({
           data={sankeyData}
           height={chartHeight}
           formatValue={formatCurrency}
+          formatLabelValue={formatCurrencyRounded}
           onNodeClick={handleNodeClick}
         />
       </div>
@@ -363,8 +448,9 @@ export default function CostSankeyCard({
           {summaryStats.topCategory && (
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-slate-700 dark:text-slate-300">Prima categoria:</span>
-              <span className="font-extrabold text-sky-600 dark:text-sky-400 font-mono">
-                {summaryStats.topCategory.tipo} ({formatCurrency(summaryStats.topCategory.val)})
+              <span className="font-extrabold text-sky-600 dark:text-sky-400">
+                {summaryStats.topCategory.tipo}{' '}
+                <span className="font-mono tabular-nums">({formatCurrency(summaryStats.topCategory.val)})</span>
               </span>
             </div>
           )}

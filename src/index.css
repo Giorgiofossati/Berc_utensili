@@ -225,6 +225,12 @@
   @apply text-xs sm:text-sm md:text-base font-black tabular-nums font-mono;
 }
 
+/* Valore KPI delle StatTile (importi, conteggi): mono tabellare, senza tracking negativo
+   che nel monospace comprime le celle in modo irregolare. whitespace-nowrap evita l'a capo. */
+@utility app-kpi {
+  @apply text-xl sm:text-2xl font-black tabular-nums font-mono leading-none whitespace-nowrap;
+}
+
 @utility app-qty-lg {
   @apply text-2xl sm:text-3xl md:text-4xl font-black tabular-nums font-mono leading-none;
 }

@@ -227,7 +227,9 @@ Ogni volta che analizzi, crei o modifichi una schermata, un componente o una fun
     - `.app-caption` (`font-mono`): **solo per codici brevi, SKU, serial number e timestamp**. MAI per frasi o descrizioni operative.
     - `.app-body`: per tutti i testi di spiegazione, istruzioni, etichette e sottotitoli.
     - `.app-h1` / `.app-h2` / `.app-h3`: per i titoli gerarchici.
-    - `.app-qty-sm` / `.app-qty-lg`: per quantità e numeri tabulari.
+    - `.app-qty-sm` / `.app-qty-lg` / `.app-kpi`: per quantità, importi e numeri tabulari.
+  - Numeri e importi solo tramite `formatItalianNumber` / `formatItalianCurrency` (thin space per le migliaia, mai spazio normale o `toLocaleString`).
+  - Ogni peso font usato deve essere caricato (Geist e Geist Mono 400–900), altrimenti compare un grassetto sintetico.
   - Verifica i contrasti: nessun testo chiaro grigio su sfondo bianco, né testo scuro su fondo scuro. Tutti i colori devono superare il rapporto 4.5:1.
 
 ---

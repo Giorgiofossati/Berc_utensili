@@ -74,7 +74,7 @@ export const VirtualizedTable = memo(({
                     key={header.id}
                     className={`flex items-center gap-1.5 ${density === 'compact' ? 'py-2 px-3' : 'py-3 px-3 sm:px-4'} transition-colors group relative overflow-hidden self-stretch ${
                       canSort ? 'cursor-pointer hover:text-slate-950 dark:hover:text-white' : ''
-                    } ${meta?.className || ''} ${
+                    } ${header.column.getIsSorted() ? 'text-sky-700 dark:text-sky-300' : ''} ${meta?.className || ''} ${
                       isFlex ? 'min-w-0' : 'flex-shrink-0 justify-center'
                     } ${
                       showDividers ? (renderRowTrailing ? 'border-r border-slate-200 dark:border-slate-700/60' : 'border-r border-slate-200 dark:border-slate-700/60 last:border-r-0') : ''
@@ -89,7 +89,7 @@ export const VirtualizedTable = memo(({
                   >
                     {flexRender(header.column.columnDef.header, header.getContext())}
                     {canSort && !customSortIcon && (
-                      <div className={`flex items-center shrink-0 ${isFlex ? 'ml-1.5' : 'absolute right-1 sm:right-2'}`}>
+                      <div className={`flex items-center shrink-0 ${isFlex ? 'ml-1.5' : ''}`}>
                         <SortIcon column={header.column} />
                       </div>
                     )}
@@ -98,7 +98,7 @@ export const VirtualizedTable = memo(({
               })}
               {/* Spacer per allineare l'header con l'icona/elemento trailing delle righe */}
               {renderRowTrailing ? (
-                <div className="w-6 flex-shrink-0 mx-3 sm:mx-4 md:mx-6" />
+                <div className="w-6 flex-shrink-0 mx-2 md:mx-3" />
               ) : headerTrailing ? (
                 headerTrailing
               ) : null}
@@ -206,7 +206,7 @@ export const VirtualizedTable = memo(({
                     );
                   })}
                   {renderRowTrailing && (
-                    <div className="w-6 flex-shrink-0 flex items-center justify-center mx-3 sm:mx-4 md:mx-6 self-center">
+                    <div className="w-6 flex-shrink-0 flex items-center justify-center mx-2 md:mx-3 self-center">
                       {renderRowTrailing(row.original, row)}
                     </div>
                   )}

@@ -1,6 +1,14 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { cn, formatItalianNumber } from '@/lib/utils';
 
+// Geometria etichette: due righe (nome + valore) se il nodo è alto abbastanza,
+// altrimenti una riga sola; se collide con l'etichetta precedente viene nascosta
+// (i dati restano consultabili nel tooltip al passaggio del mouse).
+const LABEL_OFFSET = 10;
+const LABEL_LINE_H = 14;
+const LABEL_TWO_LINES_MIN_NODE_H = 30;
+const LABEL_GAP = 3;
+
 /**
  * SankeyChart — Componente SVG puro reattivo per diagrammi di flusso Sankey.
  * Conforme al 100% al Design System Bercella (zero dipendenze esterne, divieto di indigo, dark mode, responsive).
@@ -12,6 +20,7 @@ export default function SankeyChart({
   nodeGap = 10,
   minNodeHeight = 10,
   formatValue = (v) => `${v}`,
+  formatLabelValue,
   onNodeClick,
   onLinkClick,
   className
@@ -36,12 +45,28 @@ export default function SankeyChart({
     return () => ro.disconnect();
   }, []);
 
-  const margin = useMemo(() => ({
-    top: 20,
-    right: 115, // Spazio calibrato per le label a destra
-    bottom: 20,
-    left: 115   // Spazio calibrato per le label a sinistra
-  }), []);
+  const labelValue = formatLabelValue || formatValue;
+
+  // Margini laterali calcolati sulla label più lunga della prima/ultima colonna
+  // (stima ~7px per carattere a 12px), così i testi esterni non vengono mai tagliati.
+  const margin = useMemo(() => {
+    const nodes = data?.nodes || [];
+    const cols = nodes.map(n => Number(n.column) || 0);
+    const minCol = Math.min(...cols);
+    const maxCol = Math.max(...cols);
+    const estimate = (col) => {
+      const longest = nodes
+        .filter(n => (Number(n.column) || 0) === col)
+        .reduce((max, n) => Math.max(max, String(n.label).length, `${labelValue(n.value)} · 100,0%`.length), 0);
+      return Math.min(220, Math.max(110, longest * 7 + LABEL_OFFSET + 8));
+    };
+    return {
+      top: 12,
+      right: nodes.length ? estimate(maxCol) : 110,
+      bottom: 12,
+      left: nodes.length ? estimate(minCol) : 110
+    };
+  }, [data, labelValue]);
 
   // Calcolo del layout del diagramma Sankey
   const layout = useMemo(() => {
@@ -207,6 +232,30 @@ export default function SankeyChart({
       });
     });
 
+    // 6. Posizionamento etichette con prevenzione delle sovrapposizioni per colonna
+    const firstCol = columns[0];
+    columns.forEach(col => {
+      const colNodes = Array.from(positionedNodesMap.values())
+        .filter(n => (Number(n.column) || 0) === col)
+        .sort((a, b) => a.y - b.y);
+      let lastBottom = -Infinity;
+      colNodes.forEach(n => {
+        const isFirst = col === firstCol;
+        const cy = n.y + n.height / 2;
+        const mode = n.height >= LABEL_TWO_LINES_MIN_NODE_H ? 'full' : 'compact';
+        const blockH = mode === 'full' ? LABEL_LINE_H * 2 : LABEL_LINE_H;
+        const top = cy - blockH / 2;
+        const visible = top >= lastBottom + LABEL_GAP;
+        if (visible) lastBottom = top + blockH;
+        n.label_ = {
+          x: isFirst ? n.x - LABEL_OFFSET : n.x + nodeWidth + LABEL_OFFSET,
+          anchor: isFirst ? 'end' : 'start',
+          cy,
+          mode: visible ? mode : 'hidden'
+        };
+      });
+    });
+
     return {
       nodes: Array.from(positionedNodesMap.values()),
       links: computedLinks,
@@ -263,8 +312,8 @@ export default function SankeyChart({
           <defs>
             {layout.gradients.map(g => (
               <linearGradient key={g.id} id={g.id} x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor={g.fromColor} stopOpacity={0.65} />
-                <stop offset="100%" stopColor={g.toColor} stopOpacity={0.65} />
+                <stop offset="0%" stopColor={g.fromColor} stopOpacity={0.55} />
+                <stop offset="100%" stopColor={g.toColor} stopOpacity={0.55} />
               </linearGradient>
             ))}
           </defs>
@@ -282,8 +331,8 @@ export default function SankeyChart({
                   fill={`url(#${link.gradId})`}
                   className={cn(
                     "transition-all duration-200 cursor-pointer",
-                    active ? "opacity-75" : "opacity-15",
-                    isHovered && "opacity-95 filter drop-shadow-md brightness-110"
+                    active ? "opacity-70" : "opacity-10",
+                    isHovered && "opacity-100 brightness-110"
                   )}
                   onMouseEnter={() => setHoveredLinkId(link.id)}
                   onMouseMove={(e) => handleMouseMove(e, {
@@ -310,9 +359,6 @@ export default function SankeyChart({
             {layout.nodes.map(node => {
               const active = isElementHighlighted('node', node);
               const isHovered = hoveredNodeId === node.id;
-              const isFirstCol = node.column === 0;
-              const isLastCol = node.column === Math.max(...layout.nodes.map(n => n.column));
-
               return (
                 <g key={node.id} className="cursor-pointer group">
                   {/* Rettangolo nodo */}
@@ -343,32 +389,44 @@ export default function SankeyChart({
                     onClick={() => onNodeClick && onNodeClick(node)}
                   />
 
-                  {/* Etichetta testuale */}
-                  <text
-                    x={isFirstCol ? node.x - 10 : isLastCol ? node.x + node.width + 10 : node.x + node.width + 8}
-                    y={node.y + Math.min(14, node.height / 2 + 4)}
-                    textAnchor={isFirstCol ? 'end' : 'start'}
-                    className={cn(
-                      "text-xs font-bold fill-slate-800 dark:fill-slate-200 pointer-events-none transition-opacity duration-200",
-                      active ? "opacity-100" : "opacity-40",
-                      isHovered && "fill-sky-600 dark:fill-sky-400 font-extrabold"
-                    )}
-                  >
-                    {node.label}
-                  </text>
-
-                  {/* Valore economico o quantità */}
-                  <text
-                    x={isFirstCol ? node.x - 10 : isLastCol ? node.x + node.width + 10 : node.x + node.width + 8}
-                    y={node.y + Math.min(26, node.height / 2 + 16)}
-                    textAnchor={isFirstCol ? 'end' : 'start'}
-                    className={cn(
-                      "text-xs font-mono font-bold fill-slate-500 dark:fill-slate-400 pointer-events-none transition-opacity duration-200",
-                      active ? "opacity-100" : "opacity-30"
-                    )}
-                  >
-                    {formatValue(node.value)}
-                  </text>
+                  {/* Etichetta: nome + valore · quota, con alone per restare leggibile sopra i nastri */}
+                  {node.label_.mode !== 'hidden' && (
+                    <text
+                      x={node.label_.x}
+                      y={node.label_.cy}
+                      textAnchor={node.label_.anchor}
+                      dominantBaseline="central"
+                      paintOrder="stroke"
+                      strokeWidth={4}
+                      strokeLinejoin="round"
+                      className={cn(
+                        "text-xs pointer-events-none transition-opacity duration-200 stroke-white dark:stroke-slate-900",
+                        active ? "opacity-100" : "opacity-30"
+                      )}
+                    >
+                      <tspan
+                        x={node.label_.x}
+                        dy={node.label_.mode === 'full' ? -LABEL_LINE_H / 2 : 0}
+                        className={cn(
+                          "font-bold fill-slate-900 dark:fill-slate-100",
+                          isHovered && "fill-sky-600 dark:fill-sky-400"
+                        )}
+                      >
+                        {node.label}
+                      </tspan>
+                      <tspan
+                        x={node.label_.mode === 'full' ? node.label_.x : undefined}
+                        dx={node.label_.mode === 'full' ? undefined : 6}
+                        dy={node.label_.mode === 'full' ? LABEL_LINE_H : 0}
+                        className="font-mono font-semibold tabular-nums fill-slate-500 dark:fill-slate-400"
+                      >
+                        {labelValue(node.value)}
+                        {node.label_.mode === 'full' && node.column !== 0 && node.totalValue > 0 && (
+                          ` · ${formatItalianNumber((node.value / node.totalValue) * 100, 1)}%`
+                        )}
+                      </tspan>
+                    </text>
+                  )}
                 </g>
               );
             })}

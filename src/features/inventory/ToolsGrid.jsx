@@ -8,6 +8,8 @@ import {
 import { motion } from 'framer-motion';
 import { X, AlertTriangle, ChevronRight, AlignJustify, Plus, MapPin, Factory } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
+import { CopyableCode } from '../../components/common/CopyableCode';
+import { formatItalianNumber, formatItalianCurrency } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useFilterStore } from '../../store/useFilterStore';
@@ -109,12 +111,7 @@ const ToolsGrid = memo(({
       }
       return (
         <div className="w-full truncate text-center px-1">
-          <span 
-            className="font-mono text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800/90 text-slate-800 dark:text-slate-200 border border-slate-200/90 dark:border-slate-700 tracking-tight whitespace-nowrap inline-block shadow-2xs"
-            title={tooltip || clean}
-          >
-            {clean}
-          </span>
+          <CopyableCode value={clean} title={tooltip} />
         </div>
       );
     };
@@ -319,7 +316,7 @@ const ToolsGrid = memo(({
           return (
             <div className="w-full flex items-center justify-center px-1">
               <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-cyan-50 dark:bg-cyan-950/60 text-cyan-800 dark:text-cyan-300 border border-cyan-200/80 dark:border-cyan-800 tracking-tight whitespace-nowrap shadow-2xs">
-                € {Number(val).toFixed(2)}
+                {formatItalianCurrency(Number(val), 2)}
               </span>
             </div>
           );
@@ -327,17 +324,17 @@ const ToolsGrid = memo(({
       }),
       columnHelper.accessor('Quantità', {
         header: 'Giacenza',
-        size: 85,
+        size: 104,
         sortingFn: (rowA, rowB, columnId) => {
           const a = Number(rowA.getValue(columnId)) || 0;
           const b = Number(rowB.getValue(columnId)) || 0;
           return a - b;
         },
-        meta: { className: 'shrink-0 justify-center', minWidth: 75, maxWidth: 90 },
+        meta: { className: 'shrink-0 justify-center', minWidth: 96, maxWidth: 110 },
         cell: info => {
           const qty = Number(info.getValue()) || 0;
           return (
-            <div className="w-full truncate text-center pr-1 sm:pr-2">
+            <div className="w-full truncate text-center">
               <span className={`app-qty-sm font-mono font-black ${
                 qty > 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-500'
               }`}>
@@ -479,7 +476,7 @@ const ToolsGrid = memo(({
           <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium">
             <span className="w-2 h-2 rounded-full bg-sky-500" />
             <span className="font-bold text-slate-900 dark:text-white font-mono">
-              {rows.length.toLocaleString('it-IT')}
+              {formatItalianNumber(rows.length)}
             </span>
             <span>utensili a catalogo</span>
           </div>

@@ -74,11 +74,11 @@ export function StatTile({
   return (
     <div
       className={cn(
-        "flex flex-col justify-between p-2.5 sm:p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 select-none shadow-xs transition-colors",
+        "flex flex-col justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 select-none shadow-xs transition-colors",
         className
       )}
     >
-      <div className="flex items-center gap-2 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0">
         <div
           className={cn(
             "w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-lg border",
@@ -96,32 +96,34 @@ export function StatTile({
         </div>
       </div>
 
-      <div className="flex items-baseline gap-1.5 mt-1 sm:mt-1.5 flex-wrap">
-        <span className="text-lg sm:text-xl font-black font-mono tracking-tight leading-tight text-foreground">
-          {value}
-        </span>
-        {delta && delta.text && (
-          <span
-            className={cn(
-              "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-bold tracking-tight border",
-              deltaStyle.badge
-            )}
-          >
-            {deltaStyle.symbol && (
-              <span className="text-xs leading-none" aria-hidden="true">
-                {deltaStyle.symbol}
-              </span>
-            )}
-            <span>{delta.text}</span>
+      <div className="flex flex-col gap-1 min-w-0">
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <span className="app-kpi text-foreground">
+            {value}
           </span>
+          {delta && delta.text && (
+            <span
+              className={cn(
+                "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-bold tracking-tight border",
+                deltaStyle.badge
+              )}
+            >
+              {deltaStyle.symbol && (
+                <span className="text-xs leading-none" aria-hidden="true">
+                  {deltaStyle.symbol}
+                </span>
+              )}
+              <span>{delta.text}</span>
+            </span>
+          )}
+        </div>
+
+        {subtext && (
+          <p className="text-xs text-muted-foreground truncate font-medium tabular-nums" title={typeof subtext === 'string' ? subtext : undefined}>
+            {subtext}
+          </p>
         )}
       </div>
-
-      {subtext && (
-        <p className="text-xs text-muted-foreground truncate mt-0.5 font-normal" title={typeof subtext === 'string' ? subtext : undefined}>
-          {subtext}
-        </p>
-      )}
     </div>
   );
 }

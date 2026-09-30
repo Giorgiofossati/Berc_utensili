@@ -97,7 +97,9 @@ Offre tracciamento in tempo reale, prelievo guidato, carico/scarico rapido e pre
     - Mai troncare titoli operativi dei modali con `truncate` (es. mai generare "MODIFICA COMME..."). Separare l'azione dal codice e mostrare il codice in un badge mono dedicato.
     - I pulsanti di azione primaria non devono mai andare a capo su due righe (`whitespace-nowrap font-black tracking-wider`). In `DialogContent`, consentire alle classi `max-w-*` personalizzate di applicarsi senza essere scavalcate da default rigidi.
 
-25. **Formattazione Valuta e Numeri**: Utilizzare rigorosamente il formato italiano con la virgola per i decimali e lo spazio per le migliaia (es. `1 234,56 €`). Vietato usare il punto per le migliaia. (Implementabile tramite `Intl.NumberFormat('it-IT')` con un `.replace(/\./g, ' ')` per sostituire i punti delle migliaia).
+25. **Formattazione Valuta e Numeri**: Formato italiano con virgola decimale e **thin space** per le migliaia (es. `1 234,56 €`). Usare SOLO `formatItalianNumber` / `formatItalianCurrency` di `@/lib/utils` (separatore `THOUSANDS_SEPARATOR` = U+2009 + U+2060). Vietati il punto per le migliaia, `toLocaleString`, `Intl.NumberFormat` e lo spazio normale: in Geist Mono lo spazio è largo quanto una cifra e spezza visivamente il numero.
+26. **Pesi Font Caricati**: Ogni peso usato (es. `font-black` = 900) deve essere caricato in `index.html` per Geist e Geist Mono (400–900), altrimenti il browser simula un grassetto finto. Valori KPI delle `StatTile` con `.app-kpi`.
+27. **Etichette Grafici SVG (Sankey ecc.)**: Alone (`paint-order: stroke`) per leggere sopra i nastri, niente sovrapposizioni (etichetta nascosta se collide, dato nel tooltip), voci sotto ~2,5% aggregate in un nodo "Altre …", valori in etichetta arrotondati all'euro.
 ---
 
 ## 💾 Regole di Sviluppo, Architettura e Backend

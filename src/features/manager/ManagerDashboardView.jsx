@@ -233,10 +233,10 @@ export default function ManagerDashboardView({ setView }) {
                       <Euro size={18} />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 transition-colors">
+                      <h4 className="app-h3 text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 transition-colors">
                         Analisi economica / costi
                       </h4>
-                      <p className="app-caption text-slate-400">Spesa stimata, usura e scorte</p>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">Spesa stimata, usura e scorte</p>
                     </div>
                   </div>
                   <ArrowUpRight size={18} className="text-slate-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -252,10 +252,10 @@ export default function ManagerDashboardView({ setView }) {
                       <Briefcase size={18} />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-sky-600 transition-colors">
+                      <h4 className="app-h3 text-slate-800 dark:text-slate-200 group-hover:text-sky-600 transition-colors">
                         Analisi per commessa
                       </h4>
-                      <p className="app-caption text-slate-400">Consumi utensili per centro CNC</p>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">Consumi utensili per centro CNC</p>
                     </div>
                   </div>
                   <ArrowUpRight size={18} className="text-slate-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -271,10 +271,10 @@ export default function ManagerDashboardView({ setView }) {
                       <Calendar size={18} />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-amber-600 transition-colors">
+                      <h4 className="app-h3 text-slate-800 dark:text-slate-200 group-hover:text-amber-600 transition-colors">
                         Storico movimentazioni
                       </h4>
-                      <p className="app-caption text-slate-400">Registro audit transazioni</p>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">Registro audit transazioni</p>
                     </div>
                   </div>
                   <ArrowUpRight size={18} className="text-slate-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />

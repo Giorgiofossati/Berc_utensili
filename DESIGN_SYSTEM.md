@@ -91,6 +91,12 @@ typography:
     fontWeight: '900'
     lineHeight: 32px
     fontVariantNumeric: tabular-nums
+  kpi:
+    fontFamily: monospace
+    fontSize: 24px
+    fontWeight: '900'
+    lineHeight: 24px
+    fontVariantNumeric: tabular-nums
 rounded:
   tag: 6px
   control: 12px
@@ -154,6 +160,15 @@ Arbitrary font classes (`text-5xl`, `text-[13px]`) are prohibited. Use only the 
 - `.app-label`: `text-[11px] sm:text-xs font-bold uppercase tracking-wider` — Form field labels (minimum 11px).
 - `.app-qty-sm`: `text-xs sm:text-sm md:text-base font-black tabular-nums` — Table row quantity indicator.
 - `.app-qty-lg`: `text-2xl sm:text-3xl md:text-4xl font-black tabular-nums` — Prominent stock readout / hero metric.
+- `.app-kpi`: `text-xl sm:text-2xl font-black tabular-nums font-mono leading-none whitespace-nowrap` — Value of a `StatTile` (amounts, counts). No negative tracking on mono.
+
+*Font Loading Rule:* Every weight used with a family must be loaded in `index.html` (Geist and Geist Mono: 400–900). A missing weight makes the browser synthesize a fake bold (smeared, wider glyphs) — e.g. `font-black font-mono` without Geist Mono 900.
+
+### Number & Currency Formatting
+- Always use `formatItalianNumber` / `formatItalianCurrency` from `@/lib/utils`. Never `toLocaleString`, `Intl.NumberFormat` or hand-built strings.
+- Thousands separator = `THOUSANDS_SEPARATOR` (thin space U+2009 + word joiner U+2060), decimals = comma, currency suffix `€` after the same thin space: `398 910,42 €`.
+- Why not a normal space: in Geist Mono every space is as wide as a digit, so `398 910` looks like two separate numbers. The thin space is 0.2em in both Geist and Geist Mono; the word joiner prevents line breaks inside a number.
+- Charts: labels round to the euro (`formatItalianCurrency(v, 0)`); tooltips and tables keep 2 decimals.
 
 *Casing Rule:* UPPERCASE is reserved strictly for short fixed labels (`.app-overline`, `.badge`, `.action-btn-*`, `.app-label`). Dynamic data (tool descriptions, job codes, operator names) MUST remain in sentence case to prevent truncation and visual fatigue.
 
@@ -245,4 +260,6 @@ All components must adhere strictly to design tokens, density requirements, and 
 - ❌ **NO Arbitrary Typography:** Do not use `text-5xl` or `text-[13px]`; use semantic `.app-*` classes only.
 - ❌ **NO Horizontal Page Scroll:** Mobile viewports must stay locked within `100dvh` single-column bounds.
 - ❌ **NO Fabricated Metrics:** Never invent uptime or mock statistics; use clear `[metric]` placeholders.
+- ❌ **NO Normal Space as Thousands Separator:** Use the shared formatters (thin space); never `toLocaleString('it-IT')` (dot separator) or `' '`.
+- ❌ **NO Unreadable Chart Labels:** SVG chart labels need a halo (`paint-order: stroke`, stroke = surface color), must not overlap (hide on collision, keep data in tooltip) and flows under ~2.5% of total are aggregated into an "Altre …" node.
 - ❌ **NO Blind Lint Faith:** Always verify component imports manually (ESLint does not catch JSX `ReferenceError`).

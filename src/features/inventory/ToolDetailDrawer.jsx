@@ -19,6 +19,7 @@ import {
   User,
   ClipboardList
 } from 'lucide-react';
+import { formatItalianCurrency } from '@/lib/utils';
 import { buildDesc } from '../../lib/toolUtils';
 import { useCommesseStore } from '../../store/useCommesseStore';
 import { useMacchineStore } from '../../store/useMacchineStore';
@@ -550,7 +551,7 @@ export const ToolDetailDrawer = memo(({
                         <span className="app-caption text-slate-500 dark:text-slate-400">IVA esclusa (da storico ordini)</span>
                       </div>
                       <span className="font-black text-slate-900 dark:text-white font-mono text-sm">
-                        € {Number(selectedTool.Prezzo).toFixed(2)}
+                        {formatItalianCurrency(Number(selectedTool.Prezzo), 2)}
                       </span>
                     </div>
                   )}
