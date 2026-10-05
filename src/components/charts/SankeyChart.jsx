@@ -8,6 +8,10 @@ const LABEL_OFFSET = 10;
 const LABEL_LINE_H = 14;
 const LABEL_TWO_LINES_MIN_NODE_H = 30;
 const LABEL_GAP = 3;
+// Sotto questa larghezza (mobile) il grafico entra nello schermo senza scroll orizzontale:
+// si toglie la colonna radice (un solo nodo, nessuna informazione in più) e le etichette
+// vanno all'interno dell'area del grafico invece che nei margini laterali.
+const COMPACT_BREAKPOINT = 640;
 
 /**
  * SankeyChart — Componente SVG puro reattivo per diagrammi di flusso Sankey.
@@ -30,6 +34,8 @@ export default function SankeyChart({
   const [hoveredNodeId, setHoveredNodeId] = useState(null);
   const [hoveredLinkId, setHoveredLinkId] = useState(null);
   const [tooltip, setTooltip] = useState(null);
+  // Al tocco il primo tap su un nodo mostra il dettaglio, il secondo esegue l'azione
+  const [armedNodeId, setArmedNodeId] = useState(null);
 
   // Monitora la larghezza del contenitore tramite ResizeObserver
   useEffect(() => {
@@ -46,11 +52,25 @@ export default function SankeyChart({
   }, []);
 
   const labelValue = formatLabelValue || formatValue;
+  const compact = containerWidth < COMPACT_BREAKPOINT;
+  const nodeW = compact ? Math.min(nodeWidth, 14) : nodeWidth;
+
+  const chartData = useMemo(() => {
+    if (!compact || !data?.nodes?.length) return data;
+    const cols = [...new Set(data.nodes.map(n => Number(n.column) || 0))].sort((a, b) => a - b);
+    if (cols.length <= 2) return data;
+    const dropped = new Set(data.nodes.filter(n => (Number(n.column) || 0) === cols[0]).map(n => n.id));
+    return {
+      nodes: data.nodes.filter(n => !dropped.has(n.id)),
+      links: (data.links || []).filter(l => !dropped.has(l.source) && !dropped.has(l.target))
+    };
+  }, [data, compact]);
 
   // Margini laterali calcolati sulla label più lunga della prima/ultima colonna
   // (stima ~7px per carattere a 12px), così i testi esterni non vengono mai tagliati.
   const margin = useMemo(() => {
-    const nodes = data?.nodes || [];
+    if (compact) return { top: 8, right: 0, bottom: 8, left: 0 };
+    const nodes = chartData?.nodes || [];
     const cols = nodes.map(n => Number(n.column) || 0);
     const minCol = Math.min(...cols);
     const maxCol = Math.max(...cols);
@@ -66,15 +86,17 @@ export default function SankeyChart({
       bottom: 12,
       left: nodes.length ? estimate(minCol) : 110
     };
-  }, [data, labelValue]);
+  }, [chartData, labelValue, compact]);
 
   // Calcolo del layout del diagramma Sankey
   const layout = useMemo(() => {
+    const data = chartData;
+    const nodeWidth = nodeW;
     if (!data || !data.nodes || data.nodes.length === 0) {
       return { nodes: [], links: [], gradients: [], width: containerWidth, height };
     }
 
-    const effectiveWidth = Math.max(containerWidth, 680);
+    const effectiveWidth = compact ? containerWidth : Math.max(containerWidth, 680);
     const innerW = effectiveWidth - margin.left - margin.right;
     const innerH = height - margin.top - margin.bottom;
 
@@ -234,6 +256,7 @@ export default function SankeyChart({
 
     // 6. Posizionamento etichette con prevenzione delle sovrapposizioni per colonna
     const firstCol = columns[0];
+    const lastCol = columns[columns.length - 1];
     columns.forEach(col => {
       const colNodes = Array.from(positionedNodesMap.values())
         .filter(n => (Number(n.column) || 0) === col)
@@ -241,15 +264,19 @@ export default function SankeyChart({
       let lastBottom = -Infinity;
       colNodes.forEach(n => {
         const isFirst = col === firstCol;
+        const isLast = col === lastCol;
         const cy = n.y + n.height / 2;
         const mode = n.height >= LABEL_TWO_LINES_MIN_NODE_H ? 'full' : 'compact';
         const blockH = mode === 'full' ? LABEL_LINE_H * 2 : LABEL_LINE_H;
         const top = cy - blockH / 2;
         const visible = top >= lastBottom + LABEL_GAP;
         if (visible) lastBottom = top + blockH;
+        // Desktop: prima colonna a sinistra del nodo, le altre a destra (nei margini).
+        // Compatto: tutte dentro l'area, l'ultima colonna a sinistra del proprio nodo.
+        const labelLeft = compact ? isLast : isFirst;
         n.label_ = {
-          x: isFirst ? n.x - LABEL_OFFSET : n.x + nodeWidth + LABEL_OFFSET,
-          anchor: isFirst ? 'end' : 'start',
+          x: labelLeft ? n.x - LABEL_OFFSET + (compact ? 4 : 0) : n.x + nodeWidth + LABEL_OFFSET - (compact ? 4 : 0),
+          anchor: labelLeft ? 'end' : 'start',
           cy,
           mode: visible ? mode : 'hidden'
         };
@@ -263,7 +290,7 @@ export default function SankeyChart({
       width: effectiveWidth,
       height
     };
-  }, [data, containerWidth, height, margin, nodeWidth, nodeGap, minNodeHeight]);
+  }, [chartData, compact, containerWidth, height, margin, nodeW, nodeGap, minNodeHeight]);
 
   // Gestione dell'interazione hover per evidenziare percorsi correlati
   const isElementHighlighted = (type, elem) => {
@@ -299,7 +326,7 @@ export default function SankeyChart({
   return (
     <div
       ref={containerRef}
-      className={cn("relative w-full overflow-x-auto custom-scrollbar select-none", className)}
+      className={cn("relative w-full select-none", compact ? "overflow-hidden" : "overflow-x-auto custom-scrollbar", className)}
       onMouseLeave={handleMouseLeave}
     >
       <div style={{ minWidth: layout.width, height: layout.height }} className="relative">
@@ -386,7 +413,15 @@ export default function SankeyChart({
                       setHoveredNodeId(null);
                       setTooltip(null);
                     }}
-                    onClick={() => onNodeClick && onNodeClick(node)}
+                    onClick={(e) => {
+                      if (!onNodeClick) return;
+                      if (e.nativeEvent?.pointerType === 'touch' && armedNodeId !== node.id) {
+                        setArmedNodeId(node.id);
+                        return;
+                      }
+                      setArmedNodeId(null);
+                      onNodeClick(node);
+                    }}
                   />
 
                   {/* Etichetta: nome + valore · quota, con alone per restare leggibile sopra i nastri */}
@@ -414,17 +449,20 @@ export default function SankeyChart({
                       >
                         {node.label}
                       </tspan>
-                      <tspan
-                        x={node.label_.mode === 'full' ? node.label_.x : undefined}
-                        dx={node.label_.mode === 'full' ? undefined : 6}
-                        dy={node.label_.mode === 'full' ? LABEL_LINE_H : 0}
-                        className="font-mono font-semibold tabular-nums fill-slate-500 dark:fill-slate-400"
-                      >
-                        {labelValue(node.value)}
-                        {node.label_.mode === 'full' && node.column !== 0 && node.totalValue > 0 && (
-                          ` · ${formatItalianNumber((node.value / node.totalValue) * 100, 1)}%`
-                        )}
-                      </tspan>
+                      {/* In compatto, su una riga sola, solo il nome: il valore è nel tooltip */}
+                      {(node.label_.mode === 'full' || !compact) && (
+                        <tspan
+                          x={node.label_.mode === 'full' ? node.label_.x : undefined}
+                          dx={node.label_.mode === 'full' ? undefined : 6}
+                          dy={node.label_.mode === 'full' ? LABEL_LINE_H : 0}
+                          className="font-mono font-semibold tabular-nums fill-slate-500 dark:fill-slate-400"
+                        >
+                          {labelValue(node.value)}
+                          {!compact && node.label_.mode === 'full' && node.column !== 0 && node.totalValue > 0 && (
+                            ` · ${formatItalianNumber((node.value / node.totalValue) * 100, 1)}%`
+                          )}
+                        </tspan>
+                      )}
                     </text>
                   )}
                 </g>
@@ -438,11 +476,11 @@ export default function SankeyChart({
           <div
             className="absolute z-50 pointer-events-none transition-all duration-75"
             style={{
-              left: `${Math.min(layout.width - 240, Math.max(10, tooltip.x + 12))}px`,
+              left: `${Math.max(0, Math.min(layout.width - 220, tooltip.x + 12))}px`,
               top: `${Math.min(layout.height - 110, Math.max(10, tooltip.y - 45))}px`
             }}
           >
-            <div className="glass-panel p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl flex flex-col gap-1 min-w-[200px]">
+            <div className="glass-panel p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl flex flex-col gap-1 w-[220px] max-w-full">
               <div className="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-1.5">
                 <span className="text-xs font-black tracking-wide text-slate-900 dark:text-white truncate">
                   {tooltip.title}

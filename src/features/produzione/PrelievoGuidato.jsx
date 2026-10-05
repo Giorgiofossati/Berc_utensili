@@ -11,6 +11,7 @@ import { CommessaPicker } from './CommessaPicker';
 import { DirectionStrip } from './DirectionStrip';
 import { GuidedFooter } from './GuidedFooter';
 import { StatoPicker } from './StatoPicker';
+import { SmontaDialog } from './SmontaDialog';
 import {
   ETICHETTE_STATO, commessaPreselezionata, contaPerStato, etaBreve, etichettaSorgente,
   haCassetto, macchinaPreselezionata, sorgentePredefinita, statoConsigliato
@@ -31,6 +32,9 @@ export function PrelievoGuidato({ tool, onBack, onDone, onOpenOrder, notify }) {
   const setContestoPrelievo = useProduzioneStore(s => s.setContestoPrelievo);
   const ctx = contesto?.idUtensile === tool.id ? contesto : null;
 
+  const inProduzioneRighe = useProduzioneStore(s => s.inProduzione.righe);
+  const fetchInProduzione = useProduzioneStore(s => s.fetchInProduzione);
+
   // undefined = l'operatore non ha ancora toccato la scelta: vale la preselezione calcolata dalle opzioni.
   const [macchinaScelta, setIdMacchina] = useState();
   const [commessaToccata, setCommessa] = useState();
@@ -42,10 +46,12 @@ export function PrelievoGuidato({ tool, onBack, onDone, onOpenOrder, notify }) {
   const [quantita, setQuantita] = useState(1);
   const [erroreInvio, setErroreInvio] = useState(null);
   const [idOperazione, setIdOperazione] = useState(null);
+  const [rigaDaSmontare, setRigaDaSmontare] = useState(null);
 
   useEffect(() => {
     loadOpzioniPrelievo(tool.id);
-  }, [tool.id, loadOpzioniPrelievo]);
+    fetchInProduzione();
+  }, [tool.id, loadOpzioniPrelievo, fetchInProduzione]);
 
   // Preselezioni: macchina = ultima usata dall'operatore, commessa = più recente su quella macchina se "fresca".
   const pronto = opzioni?.utensile?.id === tool.id;
@@ -189,6 +195,9 @@ export function PrelievoGuidato({ tool, onBack, onDone, onOpenOrder, notify }) {
   const macchineVisibili = macchina && !inEvidenza.some(m => m.id === macchina.id) ? [...inEvidenza, macchina] : inEvidenza;
   const suggerimento = !daMacchina && opzioni.altrove_in_macchina?.find(a => a.id_macchina !== idMacchina);
   const commessaVecchia = idMacchina && !commessaScelta && recentiSuMacchina.length > 0;
+  const giaSuMacchina = idMacchina
+    ? inProduzioneRighe?.find(r => r.id_utensile === tool.id && r.id_macchina === idMacchina && r.luogo === 'macchina')
+    : null;
 
   return (
     <>
@@ -225,6 +234,34 @@ export function PrelievoGuidato({ tool, onBack, onDone, onOpenOrder, notify }) {
                 </ChoiceChip>
               )}
             </ChoiceChipGroup>
+          )}
+
+          {giaSuMacchina && (
+            <div className="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-[var(--radius-card,16px)] border border-accent-orange/30 bg-accent-orange/[0.08]">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <AlertTriangle size={18} className="text-accent-orange shrink-0" />
+                <div className="app-body text-sm min-w-0">
+                  <span className="font-semibold text-foreground">
+                    C&apos;è già {giaSuMacchina.quantita > 1 ? `${giaSuMacchina.quantita} pz montati` : '1 pz montato'} su {macchina.nome}
+                  </span>
+                  {giaSuMacchina.pezzi_lavorati > 0 && (
+                    <span className="text-muted-foreground ml-1">
+                      ({giaSuMacchina.pezzi_lavorati} pz eseguiti)
+                    </span>
+                  )}
+                  <p className="text-muted-foreground text-xs mt-0.5">
+                    Devi sostituire la fresa consumata o montarne una supplementare?
+                  </p>
+                </div>
+              </div>
+              <ChoiceChip
+                variant="action"
+                onClick={() => setRigaDaSmontare(giaSuMacchina)}
+                className="shrink-0 border-solid border-accent-orange/50 text-accent-orange hover:bg-accent-orange/15 font-semibold text-xs py-1.5 px-3"
+              >
+                Sostituisci quella a bordo →
+              </ChoiceChip>
+            </div>
           )}
         </GuidedStep>
 
@@ -330,6 +367,18 @@ export function PrelievoGuidato({ tool, onBack, onDone, onOpenOrder, notify }) {
           </button>
         )}
       </GuidedFooter>
+
+      {rigaDaSmontare && (
+        <SmontaDialog
+          riga={rigaDaSmontare}
+          onClose={() => {
+            setRigaDaSmontare(null);
+            loadOpzioniPrelievo(tool.id);
+            fetchInProduzione();
+          }}
+          notify={notify}
+        />
+      )}
     </>
   );
 }

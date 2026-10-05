@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 // Doppia punta stile Excel: a riposo entrambe tenui, la direzione attiva
 // si accende in blu e scivola verso l'esterno, l'altra si spegne.
-export const SortIcon = memo(({ column, size = 14, className = "" }) => {
+export const SortIcon = memo(({ column, size = 12, className = "" }) => {
   if (!column || !column.getCanSort()) return null;
   const sort = column.getIsSorted();
 

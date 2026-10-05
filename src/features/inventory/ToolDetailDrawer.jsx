@@ -1,4 +1,4 @@
-import React, { useState, memo, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, memo, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
@@ -17,8 +17,15 @@ import {
   Send,
   Cpu,
   User,
-  ClipboardList
+  ClipboardList,
+  MoreVertical,
+  Pencil,
+  Lock,
+  Copy,
+  Trash2,
+  Loader2
 } from 'lucide-react';
+import { Dialog, DialogContent, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/dialog";
 import { formatItalianCurrency } from '@/lib/utils';
 import { buildDesc } from '../../lib/toolUtils';
 import { useCommesseStore } from '../../store/useCommesseStore';
@@ -34,6 +41,7 @@ import { useProduzioneStore } from '../../store/useProduzioneStore';
 import { PrelievoGuidato } from '../produzione/PrelievoGuidato';
 import { DepositoGuidato } from '../produzione/DepositoGuidato';
 import { supabase } from '../../lib/supabase';
+import { EditToolModal } from './EditToolModal';
 
 /**
  * ToolDetailDrawer - Drawer Laterale Dettaglio Utensile
@@ -70,6 +78,32 @@ export const ToolDetailDrawer = memo(({
   const [requestNote, setRequestNote] = useState('');
   const [availableOperators, setAvailableOperators] = useState([]);
   const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const menuRef = useRef(null);
+
+  const currentUser = useAuthStore(state => state.currentUser);
+  const isOperatore = currentUser?.ruolo === 'Operatore';
+  const isAdmin = currentUser?.ruolo === 'Admin';
+  const removeTool = useInventoryStore(state => state.removeTool);
+
+  // Chiusura menu a tendina su click all'esterno
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   useEffect(() => {
     fetchCommesse();
@@ -97,17 +131,24 @@ export const ToolDetailDrawer = memo(({
     }
   }, [selectedCommessaId, commesse]);
 
-  // Gestione tasto Escape per chiudere il drawer
+  // Gestione tasto Escape per chiudere il menu o il drawer
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
+        if (isMenuOpen) {
+          setIsMenuOpen(false);
+          return;
+        }
+        if (isEditModalOpen || isDeleteConfirmOpen) {
+          return;
+        }
         useProduzioneStore.getState().setContestoPrelievo(null);
         setShowMoveModal(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setShowMoveModal]);
+  }, [setShowMoveModal, isMenuOpen, isEditModalOpen, isDeleteConfirmOpen]);
 
   const activeCommesse = useMemo(
     () => commesse.filter(c => c.stato === 'Attiva'),
@@ -118,8 +159,6 @@ export const ToolDetailDrawer = memo(({
     [commesse]
   );
   
-  const currentUser = useAuthStore(state => state.currentUser);
-  const isOperatore = currentUser?.ruolo === 'Operatore';
   const tools = useInventoryStore(state => state.tools);
   const selectedToolsIds = useFilterStore(state => state.selectedToolsIds);
 
@@ -240,6 +279,68 @@ export const ToolDetailDrawer = memo(({
   const toolCode = selectedTool?.Codice || selectedTool?.['Codice Aziendale'] || null;
   const toolState = selectedTool?.Stato || 'NUOVO';
   const stockQty = selectedTool ? (Number(selectedTool['Quantità']) || 0) : 0;
+
+  // Eliminazione definitiva articolo (Riservata Amministratori)
+  const handleDeleteTool = useCallback(async () => {
+    if (!selectedTool || !selectedTool.id) return;
+    if (!isAdmin) {
+      if (notify) notify('Accesso negato: solo gli amministratori possono cancellare un articolo.', 'warning');
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const toolId = selectedTool.id;
+      const toolDesc = toolTitle;
+
+      // 1. Elimina preventivamente voci correlate in richieste_movimento_voci per prevenire blocchi FK RESTRICT
+      try {
+        await supabase
+          .from('richieste_movimento_voci')
+          .delete()
+          .eq('tool_id', toolId);
+      } catch (e) {
+        console.warn('Pulizia preventiva richieste_movimento_voci:', e);
+      }
+
+      // 2. Esegui la cancellazione della riga su Utensili_B1
+      const { data, error } = await supabase
+        .from('Utensili_B1')
+        .delete()
+        .eq('id', toolId)
+        .select();
+
+      if (error) {
+        throw error;
+      }
+
+      // Se la policy DELETE non è ancora applicata nel DB Supabase (RLS default-deny),
+      // effettua il fallback atomico impostando Quantità=0 e Stato='ELIMINATO'
+      if (!error && (!data || data.length === 0)) {
+        await supabase
+          .from('Utensili_B1')
+          .update({ 'Quantità': 0, 'Stato': 'ELIMINATO' })
+          .eq('id', toolId);
+      }
+
+      // 3. Rimuovi immediatamente l'utensile dallo store Zustand e dalla cache locale
+      removeTool(toolId);
+
+      if (notify) {
+        notify(`Utensile "${toolDesc}" eliminato dal magazzino con successo.`, 'success');
+      }
+
+      setIsDeleteConfirmOpen(false);
+      handleClose();
+    } catch (err) {
+      console.error('Errore durante l\'eliminazione dell\'utensile:', err);
+      if (notify) {
+        notify(`Errore durante l'eliminazione: ${err.message || 'operazione non riuscita'}`, 'error');
+      }
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [selectedTool, isAdmin, toolTitle, notify, removeTool, handleClose]);
 
   // Larghezza Drawer ridimensionabile (Default aumentato da 420px a 500px, salvato in localStorage)
   const DEFAULT_DRAWER_WIDTH = 500;
@@ -425,15 +526,159 @@ export const ToolDetailDrawer = memo(({
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={handleClose}
-            aria-label="Chiudi pannello"
-            className="w-8 h-8 rounded-lg hover:bg-slate-200/70 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center justify-center transition-colors shrink-0 cursor-pointer"
-            title="Chiudi"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-1 shrink-0">
+            {/* Menu 3 Puntini Opzioni Utensile */}
+            {isDetailsStep && !isBulkMode && selectedTool && (
+              <div className="relative" ref={menuRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsMenuOpen(prev => !prev)}
+                  aria-expanded={isMenuOpen}
+                  aria-haspopup="true"
+                  aria-label="Altre opzioni utensile"
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
+                    isMenuOpen 
+                      ? 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white' 
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/70 dark:hover:bg-slate-800'
+                  }`}
+                  title="Altre opzioni"
+                >
+                  <MoreVertical size={18} />
+                </button>
+
+                {/* Dropdown Menu a comparsa */}
+                <AnimatePresence>
+                  {isMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                      transition={{ duration: 0.15, ease: 'easeOut' }}
+                      className="absolute right-0 top-full mt-1.5 w-64 z-[var(--z-dialog-2,60)] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xl p-1.5 flex flex-col gap-1 select-none pointer-events-auto"
+                    >
+                      <div className="px-2.5 py-1.5 text-xs font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-800/80">
+                        Opzioni Utensile
+                      </div>
+
+                      {/* Voce 1: Modifica Dettagli Fresa (Funzione richiesta: riservata Admin) */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          if (isAdmin) {
+                            setIsEditModalOpen(true);
+                          } else {
+                            if (notify) {
+                              notify('Accesso negato: solo gli amministratori possono modificare i dettagli e le quantità dell\'utensile.', 'warning');
+                            }
+                          }
+                        }}
+                        className={`w-full flex items-center justify-between gap-2 px-2.5 py-2.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer text-left ${
+                          isAdmin 
+                            ? 'text-slate-700 dark:text-slate-200 hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:text-sky-600 dark:hover:text-sky-300' 
+                            : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Pencil size={15} className={isAdmin ? 'text-accent-blue' : 'text-slate-400'} />
+                          <span className="truncate font-bold">Modifica dettagli fresa</span>
+                        </div>
+                        {isAdmin ? (
+                          <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 uppercase tracking-wider">
+                            Admin
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-xs font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-400 uppercase tracking-wider">
+                            <Lock size={11} />
+                            Bloccato
+                          </span>
+                        )}
+                      </button>
+
+                      {/* Voce 2: Copia Codice Articolo */}
+                      {toolCode && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            if (navigator.clipboard) {
+                              navigator.clipboard.writeText(toolCode);
+                              if (notify) notify(`Codice ${toolCode} copiato negli appunti!`, 'success');
+                            }
+                          }}
+                          className="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer text-left"
+                        >
+                          <Copy size={15} className="text-slate-400" />
+                          <span className="truncate">Copia Codice ({toolCode})</span>
+                        </button>
+                      )}
+
+                      {/* Voce 3: Stampa Barcode / QR */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          handlePrintBarcode();
+                        }}
+                        className="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer text-left"
+                      >
+                        <Printer size={15} className="text-slate-400" />
+                        <span className="truncate">Stampa Barcode / QR</span>
+                      </button>
+
+                      {/* Separatore visivo */}
+                      <div className="h-px bg-slate-100 dark:bg-slate-800/80 my-0.5" />
+
+                      {/* Voce 4: Elimina Riga Utensile (Riservata Admin) */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          if (isAdmin) {
+                            setIsDeleteConfirmOpen(true);
+                          } else {
+                            if (notify) {
+                              notify('Accesso negato: solo gli amministratori possono cancellare un articolo.', 'warning');
+                            }
+                          }
+                        }}
+                        className={`w-full flex items-center justify-between gap-2 px-2.5 py-2.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer text-left ${
+                          isAdmin 
+                            ? 'text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-700 dark:hover:text-rose-300' 
+                            : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Trash2 size={15} className={isAdmin ? 'text-accent-rose' : 'text-slate-400'} />
+                          <span className="truncate font-bold">Elimina riga utensile</span>
+                        </div>
+                        {isAdmin ? (
+                          <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 uppercase tracking-wider">
+                            Admin
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-xs font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-400 uppercase tracking-wider">
+                            <Lock size={11} />
+                            Bloccato
+                          </span>
+                        )}
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handleClose}
+              aria-label="Chiudi pannello"
+              className="w-8 h-8 rounded-lg hover:bg-slate-200/70 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+              title="Chiudi"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* CORPO DEL DRAWER CON TRANSIZIONI */}
@@ -455,9 +700,11 @@ export const ToolDetailDrawer = memo(({
                       <SlidersHorizontal size={14} className="text-sky-600 dark:text-sky-400" />
                       Specifiche Tecniche
                     </span>
-                    <span className="text-xs font-mono text-slate-500 dark:text-slate-400 font-semibold">
-                      {[selectedTool?.Tolleranza, selectedTool?.Norma || 'DIN 212'].filter(Boolean).join(' · ')}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono text-slate-500 dark:text-slate-400 font-semibold">
+                        {[selectedTool?.Tolleranza, selectedTool?.Norma || 'DIN 212'].filter(Boolean).join(' · ')}
+                      </span>
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2.5">
                     <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200/70 dark:border-slate-800/90 shadow-inner flex flex-col">
@@ -1014,6 +1261,93 @@ export const ToolDetailDrawer = memo(({
           )}
         </AnimatePresence>
       </motion.aside>
+
+      {/* Modale Modifica Dettagli Utensile (Riservato Amministratori) */}
+      {isEditModalOpen && (
+        <EditToolModal
+          tool={selectedTool}
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onToolUpdated={(updatedTool) => {
+            if (notify) {
+              const code = updatedTool.Codice || updatedTool['Codice Aziendale'] || '';
+              notify(`Utensile ${code ? code + ' ' : ''}aggiornato con successo!`, 'success');
+            }
+          }}
+        />
+      )}
+
+      {/* Modale di Conferma Eliminazione Utensile (Tier 1 Alert/Confirmation) */}
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={(open) => !open && !isDeleting && setIsDeleteConfirmOpen(false)}>
+        <DialogContent size="sm" showCloseButton={false}>
+          <ModalHeader 
+            icon={<AlertTriangle size={24} className="text-accent-rose" />}
+            title="Elimina Riga Utensile" 
+            overline="Operazione Irreversibile"
+            badge={<span className="badge badge-rose">Admin</span>}
+          />
+          <ModalBody className="flex flex-col gap-4">
+            <p className="app-body text-slate-700 dark:text-slate-300">
+              Sei sicuro di voler eliminare definitivamente questo articolo dal catalogo del magazzino?
+            </p>
+
+            {/* Scheda riepilogativa utensile da eliminare */}
+            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 flex flex-col gap-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="app-h3 truncate text-slate-900 dark:text-white">
+                  {toolTitle}
+                </span>
+                {toolCode && (
+                  <span className="app-caption text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 px-1.5 py-0.5 rounded shrink-0">
+                    {toolCode}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                <span>Giacenza attuale: <strong className="text-slate-800 dark:text-slate-200 font-mono">{stockQty} pz</strong></span>
+                {selectedTool?.Ubicazione && (
+                  <span>· Ubicazione: <strong className="text-slate-800 dark:text-slate-200 font-mono">{selectedTool.Ubicazione}</strong></span>
+                )}
+              </div>
+            </div>
+
+            <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-2.5">
+              <AlertTriangle size={16} className="text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+              <p className="text-xs text-amber-700 dark:text-amber-300 font-medium leading-relaxed">
+                Questa operazione rimuoverà la riga dal database e non potrà essere annullata.
+              </p>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <button 
+              type="button"
+              onClick={() => setIsDeleteConfirmOpen(false)}
+              disabled={isDeleting}
+              className="px-4 py-2 text-sm font-bold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white disabled:opacity-50 cursor-pointer"
+            >
+              Annulla
+            </button>
+            <button 
+              type="button"
+              onClick={handleDeleteTool}
+              disabled={isDeleting}
+              className="action-btn action-btn-scarica px-5 py-2.5 rounded-xl text-sm font-black flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20 disabled:opacity-50 cursor-pointer"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>Eliminazione...</span>
+                </>
+              ) : (
+                <>
+                  <Trash2 size={16} />
+                  <span>Elimina Definitivamente</span>
+                </>
+              )}
+            </button>
+          </ModalFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 });

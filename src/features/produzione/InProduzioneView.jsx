@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Archive, Cpu, FolderKanban, RefreshCw } from 'lucide-react';
+import { Archive, Cpu, FolderKanban, RefreshCw, PlusCircle, ArrowRightLeft } from 'lucide-react';
 import { PageTemplate, PageHeader, PageContent } from '@/components/layout/PageTemplate';
 import { IconButton } from '@/components/ui/icon-button';
 import { SegmentedControl } from '@/components/ui/segmented-control';
@@ -10,7 +10,8 @@ import { useProduzioneStore } from '@/store/useProduzioneStore';
 import { useInventoryStore } from '@/store/useInventoryStore';
 import { useMovementStore } from '@/store/useMovementStore';
 import { SmontaDialog } from './SmontaDialog';
-import { ETICHETTE_STATO, etaBreve, etichettaCiclo, raggruppaInProduzione } from './lifecycleSelectors';
+import { AvanzamentoPezziDialog } from './AvanzamentoPezziDialog';
+import { ETICHETTE_STATO, etaBreve, etichettaCiclo, raggruppaInProduzione, calcolaUsuraFresa } from './lifecycleSelectors';
 
 const BADGE_STATO = { nuovo: 'badge-emerald', usato: 'badge-slate', riaffilato: 'badge-blue' };
 
@@ -24,11 +25,14 @@ export default function InProduzioneView({ setView, showToastNotification }) {
   const openToolDetail = useMovementStore(s => s.openToolDetail);
   const setOpType = useMovementStore(s => s.setOpType);
   const setContestoPrelievo = useProduzioneStore(s => s.setContestoPrelievo);
+  const ereditaUtensileBordo = useProduzioneStore(s => s.ereditaUtensileBordo);
 
   const [modo, setModo] = useState('macchina');
   const [gruppoScelto, setGruppoScelto] = useState(null);
   const [query, setQuery] = useState('');
   const [daSmontare, setDaSmontare] = useState(null);
+  const [avanzamentoTarget, setAvanzamentoTarget] = useState(null);
+  const [ereditandoId, setEreditandoId] = useState(null);
 
   useEffect(() => {
     fetchInProduzione();
@@ -157,15 +161,40 @@ export default function InProduzioneView({ setView, showToastNotification }) {
                   </header>
                   {gruppo.sezioni.map(sezione => (
                     <div key={sezione.chiave}>
-                      <div className="px-4 sm:px-6 pt-4 pb-1.5 flex items-center gap-2 flex-wrap">
-                        {sezione.isCassetto && <Archive size={14} className="text-muted-foreground" />}
-                        <span className="app-label text-foreground">{sezione.titolo}</span>
-                        {sezione.dettaglio && <span className="app-body text-muted-foreground">{sezione.dettaglio}</span>}
+                      <div className="px-4 sm:px-6 pt-4 pb-2 flex items-center justify-between gap-3 flex-wrap border-b border-border/40">
+                        <div className="flex items-center gap-2 flex-wrap min-w-0">
+                          {sezione.isCassetto && <Archive size={14} className="text-muted-foreground" />}
+                          <span className="app-label text-foreground font-bold">{sezione.titolo}</span>
+                          {sezione.dettaglio && <span className="app-body text-muted-foreground text-xs">{sezione.dettaglio}</span>}
+                        </div>
+
+                        {sezione.tracciaCicloVita && (
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="badge badge-blue text-[11px] py-1 px-2.5 flex items-center gap-1 font-bold">
+                              🎯 {sezione.pezziCompletati} / {sezione.targetPezziLotto || '—'} pz
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setAvanzamentoTarget(sezione)}
+                              className="action-btn action-btn-primary px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
+                              title="Registra avanzamento pezzi fine turno per questa lavorazione"
+                            >
+                              <PlusCircle size={14} />
+                              <span>+ Pezzi Oggi</span>
+                            </button>
+                          </div>
+                        )}
                       </div>
                       <ul>
                         {sezione.righe.map(r => {
                           const ciclo = etichettaCiclo(r);
                           const inCassetto = r.luogo === 'cassetto';
+                          const usura = calcolaUsuraFresa(r);
+                          const attivaLavorazioneSuMacchina = modo === 'macchina'
+                            ? gruppo.sezioni.find(s => s.idCommessa && !s.isCassetto)
+                            : null;
+                          const puoEreditare = !inCassetto && attivaLavorazioneSuMacchina && (!r.id_commessa || r.id_commessa !== attivaLavorazioneSuMacchina.idCommessa);
+
                           return (
                             <li key={r.id_posizione} className="px-4 sm:px-6 py-3 border-t border-border/60 flex items-center gap-3 sm:gap-4">
                               <div className="flex-1 min-w-0 flex flex-col gap-0.5">
@@ -173,28 +202,91 @@ export default function InProduzioneView({ setView, showToastNotification }) {
                                 <span className="app-caption text-muted-foreground truncate">
                                   {r.codice} · {inCassetto ? 'nel cassetto' : 'montato'} {etaBreve(r.entrata_il)}
                                 </span>
-                                <span className="flex items-center gap-2 sm:hidden mt-1">
+                                <span className="flex items-center gap-2 sm:hidden mt-1 flex-wrap">
                                   <span className={cn('badge', BADGE_STATO[r.stato])}>{ETICHETTE_STATO[r.stato]}</span>
                                   {ciclo && <span className={cn('text-xs font-bold', ciclo.ultima ? 'text-accent-orange' : 'text-muted-foreground')}>{ciclo.testo}</span>}
+                                  {usura && (
+                                    <span 
+                                      className={cn(
+                                        "badge py-0.5 px-2 flex items-center gap-1 font-bold",
+                                        usura.colore === 'emerald' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' :
+                                        usura.colore === 'amber' ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30' :
+                                        'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30 animate-pulse'
+                                      )}
+                                    >
+                                      <span className={cn(
+                                        "w-1.5 h-1.5 rounded-full",
+                                        usura.colore === 'emerald' ? 'bg-emerald-500' :
+                                        usura.colore === 'amber' ? 'bg-amber-500' : 'bg-rose-500'
+                                      )} />
+                                      <span>{usura.testo}</span>
+                                    </span>
+                                  )}
                                 </span>
                               </div>
                               <span className="max-sm:hidden flex items-center gap-2 shrink-0">
+                                {usura && (
+                                  <span 
+                                    className={cn(
+                                      "badge py-0.5 px-2 flex items-center gap-1 font-bold",
+                                      usura.colore === 'emerald' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' :
+                                      usura.colore === 'amber' ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30' :
+                                      'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30 animate-pulse'
+                                    )}
+                                    title={usura.livello === 'critico' ? 'Usura elevata (>90%): consigliata sostituzione' : `Pezzi: ${usura.testo}`}
+                                  >
+                                    <span className={cn(
+                                      "w-1.5 h-1.5 rounded-full",
+                                      usura.colore === 'emerald' ? 'bg-emerald-500' :
+                                      usura.colore === 'amber' ? 'bg-amber-500' : 'bg-rose-500'
+                                    )} />
+                                    <span>{usura.testo}</span>
+                                  </span>
+                                )}
                                 {ciclo && <span className={cn('text-xs font-bold', ciclo.ultima ? 'text-accent-orange' : 'text-muted-foreground')}>{ciclo.testo}</span>}
                                 <span className={cn('badge', BADGE_STATO[r.stato])}>{ETICHETTE_STATO[r.stato]}</span>
                               </span>
                               <span className="w-8 text-right app-qty-sm shrink-0">{r.quantita}</span>
-                              <button
-                                type="button"
-                                onClick={() => (inCassetto ? prelevaDalCassetto(r) : setDaSmontare(r))}
-                                className={cn(
-                                  'min-h-11 min-w-24 px-4 rounded-[var(--radius-control,12px)] border text-xs font-black tracking-wider shrink-0 cursor-pointer transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50',
-                                  inCassetto
-                                    ? 'border-accent-rose/50 bg-accent-rose/[0.07] text-accent-rose hover:bg-accent-rose/[0.13]'
-                                    : 'border-accent-blue/45 bg-accent-blue/[0.08] text-accent-blue hover:bg-accent-blue/[0.14]'
+                              
+                              <div className="flex items-center gap-2 shrink-0">
+                                {puoEreditare && (
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      setEreditandoId(r.id_posizione);
+                                      const res = await ereditaUtensileBordo({
+                                        idPosizione: r.id_posizione,
+                                        nuovaCommessaId: attivaLavorazioneSuMacchina.idCommessa
+                                      });
+                                      setEreditandoId(null);
+                                      if (res.success) {
+                                        showToastNotification?.(`Utensile collegato a ${attivaLavorazioneSuMacchina.titolo}`, 'success');
+                                      } else {
+                                        showToastNotification?.(res.error?.message || 'Errore assegnazione', 'error');
+                                      }
+                                    }}
+                                    disabled={ereditandoId === r.id_posizione}
+                                    className="min-h-11 px-3 rounded-[var(--radius-control,12px)] border border-accent-blue/40 bg-accent-blue/10 hover:bg-accent-blue/20 text-accent-blue text-xs font-bold tracking-wide shrink-0 transition-colors flex items-center gap-1 cursor-pointer"
+                                    title={`Assegna questo utensile a ${attivaLavorazioneSuMacchina.titolo}`}
+                                  >
+                                    <ArrowRightLeft size={13} />
+                                    <span className="hidden sm:inline">Eredita</span>
+                                  </button>
                                 )}
-                              >
-                                {inCassetto ? 'Preleva' : 'Smonta'}
-                              </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => (inCassetto ? prelevaDalCassetto(r) : setDaSmontare(r))}
+                                  className={cn(
+                                    'min-h-11 min-w-24 px-4 rounded-[var(--radius-control,12px)] border text-xs font-black tracking-wider shrink-0 cursor-pointer transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50',
+                                    inCassetto
+                                      ? 'border-accent-rose/50 bg-accent-rose/[0.07] text-accent-rose hover:bg-accent-rose/[0.13]'
+                                      : 'border-accent-blue/45 bg-accent-blue/[0.08] text-accent-blue hover:bg-accent-blue/[0.14]'
+                                  )}
+                                >
+                                  {inCassetto ? 'Preleva' : 'Smonta'}
+                                </button>
+                              </div>
                             </li>
                           );
                         })}
@@ -209,6 +301,14 @@ export default function InProduzioneView({ setView, showToastNotification }) {
       </PageContent>
 
       {daSmontare && <SmontaDialog riga={daSmontare} onClose={() => setDaSmontare(null)} notify={showToastNotification} />}
+
+      {avanzamentoTarget && (
+        <AvanzamentoPezziDialog
+          lavorazione={avanzamentoTarget}
+          onClose={() => setAvanzamentoTarget(null)}
+          notify={showToastNotification}
+        />
+      )}
     </PageTemplate>
   );
 }

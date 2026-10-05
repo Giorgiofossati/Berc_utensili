@@ -1,8 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { buildDesc } from '../lib/toolUtils';
+import { useInventoryStore } from '../store/useInventoryStore';
+import { useMovementStore } from '../store/useMovementStore';
+import { useAuthStore } from '../store/useAuthStore';
 
-export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
+/**
+ * Hook dedicato alla gestione e validazione della modifica di un utensile esistente.
+ * Riservato agli amministratori per consentire la modifica di tutti i dati tecnici,
+ * anagrafici e della giacenza di magazzino.
+ */
+export const useEditToolForm = ({ tool, onClose, onToolUpdated }) => {
+  const currentUser = useAuthStore(state => state.currentUser);
+  const isAdmin = currentUser?.ruolo === 'Admin';
+  const tools = useInventoryStore(state => state.tools);
+  const updateToolInStore = useInventoryStore(state => state.updateTool);
+
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState(null);
@@ -20,7 +33,8 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
     Passo: [],
     Tolleranza: [],
     Raggio: [],
-    Angolo: []
+    Angolo: [],
+    Stato: []
   });
 
   const [customInputFields, setCustomInputFields] = useState({
@@ -35,32 +49,66 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
     Passo: false,
     Tolleranza: false,
     Raggio: false,
-    Angolo: false
+    Angolo: false,
+    Stato: false
   });
 
   const [formData, setFormData] = useState({
-    Tipologia: '',
-    Forma: '',
-    Diametro: '',
-    Raggio: '',
     Codice: '',
-    Ubicazione: '',
-    'Quantità': 1,
-    Materiale: '',
-    Stato: 'Disponibile',
-    Lunghezza: '',
+    'Serial Number': '',
+    Tipologia: '',
+    Diametro: '',
+    'Diametro Nominale': '',
+    Forma: '',
+    Raggio: '',
     Passo: '',
     Tolleranza: '',
+    Lunghezza: '',
     Angolo: '',
-    Rivestimento: '',
+    Rotazione: '',
+    'Quantità': 0,
+    Ubicazione: '',
+    Stato: 'NUOVO',
     Fornitore: '',
-    Lavorazione: '',
-    'Serial Number': ''
+    Prezzo: '',
+    Materiale: '',
+    Rivestimento: '',
+    Lavorazione: ''
   });
 
+  // Re-inizializzazione del form quando cambia l'utensile selezionato
   useEffect(() => {
-    const keys = ['Tipologia', 'Forma', 'Diametro', 'Ubicazione', 'Materiale', 'Rivestimento', 'Fornitore', 'Lavorazione', 'Passo', 'Tolleranza', 'Raggio', 'Angolo'];
+    if (tool && typeof tool === 'object') {
+      setFormData({
+        Codice: tool.Codice || tool['Codice Aziendale'] || '',
+        'Serial Number': tool['Serial Number'] || tool.SerialNumber || tool['Codice Fornitore'] || '',
+        Tipologia: tool.Tipologia || '',
+        Diametro: tool.Diametro || '',
+        'Diametro Nominale': tool['Diametro Nominale'] != null ? tool['Diametro Nominale'] : '',
+        Forma: tool.Forma || '',
+        Raggio: tool.Raggio != null ? tool.Raggio : '',
+        Passo: tool.Passo != null ? tool.Passo : '',
+        Tolleranza: tool.Tolleranza || '',
+        Lunghezza: tool.Lunghezza != null ? tool.Lunghezza : '',
+        Angolo: tool.Angolo || '',
+        Rotazione: tool.Rotazione || '',
+        'Quantità': tool['Quantità'] != null ? Number(tool['Quantità']) : 0,
+        Ubicazione: tool.Ubicazione || '',
+        Stato: tool.Stato || 'NUOVO',
+        Fornitore: tool.Fornitore || '',
+        Prezzo: tool.Prezzo != null ? tool.Prezzo : '',
+        Materiale: tool.Materiale || '',
+        Rivestimento: tool.Rivestimento || '',
+        Lavorazione: tool.Lavorazione || ''
+      });
+      setFieldErrors({});
+      setError(null);
+      setShowSuccess(false);
+    }
+  }, [tool]);
 
+  // Caricamento opzioni categorie esistenti per suggerimenti dropdown
+  useEffect(() => {
     const mergeCustomOptions = (optionsObj) => {
       try {
         const cached = JSON.parse(localStorage.getItem('berc_custom_tool_options') || '{}');
@@ -77,6 +125,7 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
       return optionsObj;
     };
 
+    const keys = ['Tipologia', 'Forma', 'Diametro', 'Ubicazione', 'Materiale', 'Rivestimento', 'Fornitore', 'Lavorazione', 'Passo', 'Tolleranza', 'Raggio', 'Angolo', 'Stato'];
     if (tools && tools.length > 0) {
       const processed = {};
       keys.forEach(key => {
@@ -88,36 +137,8 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
         );
       });
       setDbOptions(mergeCustomOptions(processed));
-    } else {
-        const fetchExistingOptions = async () => {
-          try {
-            const { data, error: fetchErr } = await supabase
-              .from('Utensili_B1')
-              .select('"Tipologia", "Forma", "Diametro", "Ubicazione", "Materiale", "Rivestimento", "Fornitore", "Lavorazione", "Passo", "Tolleranza", "Raggio", "Angolo"');
-            
-            if (fetchErr) throw fetchErr;
-            
-            if (data) {
-              const processed = {};
-              const keys = ['Tipologia', 'Forma', 'Diametro', 'Ubicazione', 'Materiale', 'Rivestimento', 'Fornitore', 'Lavorazione', 'Passo', 'Tolleranza', 'Raggio', 'Angolo'];
-              keys.forEach(key => {
-                const values = data
-                  .map(row => row[key])
-                  .filter(val => val !== null && val !== undefined && val !== '');
-                processed[key] = [...new Set(values)].sort((a, b) => 
-                  a.toString().localeCompare(b.toString(), undefined, { numeric: true, sensitivity: 'base' })
-                );
-              });
-              setDbOptions(mergeCustomOptions(processed));
-            }
-          } catch (err) {
-            console.error('Error fetching database categories:', err);
-          }
-        };
-
-        fetchExistingOptions();
-      }
-    }, [tools]);
+    }
+  }, [tools]);
 
   const isFieldVisible = useCallback((fieldName) => {
     const type = (formData.Tipologia || '').toUpperCase();
@@ -173,7 +194,6 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
 
   const toggleCustomField = (fieldName) => {
     setCustomInputFields(prev => ({ ...prev, [fieldName]: !prev[fieldName] }));
-    setFormData(prev => ({ ...prev, [fieldName]: '' }));
     if (fieldErrors[fieldName]) {
       setFieldErrors(prev => ({ ...prev, [fieldName]: null }));
     }
@@ -227,16 +247,10 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
   const validateForm = () => {
     const errors = {};
 
-    if (!formData.Codice || !formData.Codice.trim()) {
-      errors.Codice = "Il codice aziendale è obbligatorio.";
-    }
-
-    if (!formData['Serial Number'] || !formData['Serial Number'].trim()) {
-      errors['Serial Number'] = "Il codice produttore è obbligatorio.";
-    }
-
-    if (!formData.Fornitore || !formData.Fornitore.trim()) {
-      errors.Fornitore = "Il fornitore è obbligatorio.";
+    if (!isAdmin) {
+      errors._general = "Accesso negato: solo gli amministratori possono modificare i dettagli degli utensili.";
+      setFieldErrors(errors);
+      return false;
     }
 
     if (!formData.Tipologia || !formData.Tipologia.trim()) {
@@ -252,36 +266,16 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
     }
 
     if (formData['Quantità'] === '' || formData['Quantità'] === undefined || Number(formData['Quantità']) < 0) {
-      errors['Quantità'] = "La quantità iniziale deve essere maggiore o uguale a zero.";
+      errors['Quantità'] = "La quantità a magazzino deve essere un numero valido maggiore o uguale a zero.";
     }
 
-    // Validazione attributi indispensabili reattivi
+    // Validazione attributi reattivi: per gli utensili esistenti validiamo solo se il campo specifico è parziale
     const t = (formData.Tipologia || '').toUpperCase();
     const forma = (formData.Forma || '').toUpperCase();
 
-    if (t.includes('FRESA')) {
-      if (!formData.Forma || !formData.Forma.trim()) {
-        errors.Forma = "La forma è obbligatoria per le frese (es. Candela, Torica, Sferica).";
-      } else if ((forma.includes('TORICA') || forma.includes('SFERICA')) && (!formData.Raggio || !String(formData.Raggio).trim())) {
-        errors.Raggio = "Il raggio di punta è obbligatorio per frese toriche o sferiche.";
-      }
-    }
-
-    if (t.includes('MASCHIO') || t.includes('SPACCAMASCHIO')) {
-      if (!formData.Passo || !String(formData.Passo).trim()) {
-        errors.Passo = "Il passo di filettatura è obbligatorio per i maschi.";
-      }
-    }
-
-    if (t.includes('SVASATORE') || t.includes('SMUSSATORE')) {
-      if (!formData.Angolo || !String(formData.Angolo).trim()) {
-        errors.Angolo = "L'angolo di svasatura è obbligatorio (es. 90°, 60°).";
-      }
-    }
-
-    if (t.includes('ALESATORE')) {
-      if (!formData.Tolleranza || !formData.Tolleranza.trim()) {
-        errors.Tolleranza = "La tolleranza è obbligatoria per gli alesatori (es. H7).";
+    if (t.includes('FRESA') && (forma.includes('TORICA') || forma.includes('SFERICA'))) {
+      if (formData.Raggio && isNaN(parseFloat(String(formData.Raggio).replace(',', '.')))) {
+        errors.Raggio = "Inserire un raggio numerico valido (es. 0.5 o 1.0).";
       }
     }
 
@@ -289,9 +283,20 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
     return Object.keys(errors).length === 0;
   };
 
+  const sanitizeDouble = (val) => {
+    if (val === '' || val === null || val === undefined) return null;
+    const num = typeof val === 'number' ? val : parseFloat(String(val).replace(',', '.'));
+    return isNaN(num) ? null : num;
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setError(null);
+
+    if (!tool || !tool.id) {
+      setError("Utensile non valido o non selezionato.");
+      return;
+    }
 
     if (!validateForm()) {
       return;
@@ -299,48 +304,78 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
 
     setIsLoading(true);
     try {
-      const dataToInsert = { ...formData };
-      
-      Object.keys(dataToInsert).forEach(key => {
-        if (dataToInsert[key] === '') {
-          dataToInsert[key] = null;
-        }
-      });
-      
-      const fieldsToCheck = ['Forma', 'Raggio', 'Passo', 'Tolleranza', 'Angolo'];
-      fieldsToCheck.forEach(field => {
-        if (!isFieldVisible(field)) {
-          dataToInsert[field] = null;
-        }
-      });
+      const dataToUpdate = {
+        Codice: formData.Codice?.trim() || null,
+        'Serial Number': formData['Serial Number']?.trim() || null,
+        Tipologia: formData.Tipologia?.trim() || null,
+        Diametro: formData.Diametro ? String(formData.Diametro).trim() : null,
+        Forma: formData.Forma?.trim() || null,
+        Raggio: isFieldVisible('Raggio') ? sanitizeDouble(formData.Raggio) : null,
+        Passo: isFieldVisible('Passo') ? sanitizeDouble(formData.Passo) : null,
+        Tolleranza: isFieldVisible('Tolleranza') ? (formData.Tolleranza?.trim() || null) : null,
+        Lunghezza: sanitizeDouble(formData.Lunghezza),
+        Angolo: isFieldVisible('Angolo') ? (formData.Angolo?.trim() || null) : null,
+        Rotazione: formData.Rotazione?.trim() || null,
+        'Quantità': Math.max(0, parseInt(formData['Quantità'], 10) || 0),
+        Ubicazione: formData.Ubicazione?.trim() || null,
+        Stato: formData.Stato?.trim() || 'NUOVO',
+        Fornitore: formData.Fornitore?.trim() || null,
+        Prezzo: sanitizeDouble(formData.Prezzo),
+        Materiale: formData.Materiale?.trim() || null,
+        Rivestimento: formData.Rivestimento?.trim() || null,
+        Lavorazione: formData.Lavorazione?.trim() || null
+      };
 
-      dataToInsert['Quantità'] = Number(formData['Quantità']) || 0;
-      dataToInsert['Descrizione Originale'] = buildDesc(dataToInsert);
+      // Aggiorna Diametro Nominale se parsabile
+      if (dataToUpdate.Diametro) {
+        const cleanD = String(dataToUpdate.Diametro).replace(/^[ØøDd]/, '').trim();
+        const numD = sanitizeDouble(cleanD);
+        if (numD !== null) {
+          dataToUpdate['Diametro Nominale'] = numD;
+        }
+      }
 
-      const { error: insertErr } = await supabase
+      // Ricalcola la descrizione originale canonica
+      dataToUpdate['Descrizione Originale'] = buildDesc(dataToUpdate) || tool['Descrizione Originale'] || 'Utensile';
+
+      const { data: updatedRecord, error: updateErr } = await supabase
         .from('Utensili_B1')
-        .insert([dataToInsert]);
+        .update(dataToUpdate)
+        .eq('id', tool.id)
+        .select()
+        .single();
 
-      if (insertErr) throw insertErr;
+      if (updateErr) throw updateErr;
+
+      const finalRecord = updatedRecord || { ...tool, ...dataToUpdate };
+
+      // 1. Aggiorna immediatamente lo store inventario e la cache locale
+      if (updateToolInStore) {
+        updateToolInStore(finalRecord);
+      }
+
+      // 2. Aggiorna lo stato selectedTool in useMovementStore per sincronizzare la vista corrente
+      useMovementStore.getState().setSelectedTool(finalRecord);
 
       setShowSuccess(true);
       setTimeout(() => {
-        if (onToolAdded) {
-          onToolAdded();
+        if (onToolUpdated) {
+          onToolUpdated(finalRecord);
         }
         if (onClose) {
           onClose();
         }
-      }, 1500);
+      }, 1200);
     } catch (err) {
-      console.error(err);
-      setError("Errore durante l'inserimento: " + (err.message || err));
+      console.error('Errore aggiornamento utensile:', err);
+      setError("Errore durante l'aggiornamento: " + (err.message || err));
     } finally {
       setIsLoading(false);
     }
   };
 
   return {
+    isAdmin,
     isLoading,
     showSuccess,
     error,
@@ -356,3 +391,5 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
     handleSubmit
   };
 };
+
+export default useEditToolForm;

@@ -120,13 +120,15 @@ const ToolsGrid = memo(({
       columnHelper.accessor(row => buildDesc(row), {
         id: 'Descrizione',
         header: () => (
-          <div className="flex items-center gap-2 sm:gap-3 h-full pl-2 sm:pl-3 min-w-0 overflow-hidden">
-            {isSelectionActive && <div className="w-5 sm:w-6 flex-shrink-0" />}
+          <div className="flex items-center gap-2.5 sm:gap-3 h-full pl-2 sm:pl-3 min-w-0 overflow-hidden">
+            {isSelectionActive && <div className="w-5 flex-shrink-0" />}
             <div className="w-8 flex-shrink-0" />
-            <span className="truncate">Descrizione</span>
+            <div className="min-w-0 flex items-center ml-0.5">
+              <span className="truncate whitespace-nowrap">Descrizione</span>
+            </div>
           </div>
         ),
-        meta: { isFlex: true, flex: '3.5 1 0%', minWidth: 200 },
+        meta: { isFlex: true, flex: '3.5 1 0%', minWidth: 200, headerPadding: 'px-0' },
         size: 0,
         sortingFn: (rowA, rowB, columnId) => {
           return String(rowA.getValue(columnId) || '').localeCompare(
@@ -178,7 +180,7 @@ const ToolsGrid = memo(({
         },
       }),
       columnHelper.accessor('Codice', {
-        header: 'Codice Aziendale',
+        header: 'Cod. Aziendale',
         sortingFn: (rowA, rowB, columnId) => {
           return String(rowA.getValue(columnId) || '').localeCompare(
             String(rowB.getValue(columnId) || ''),
@@ -187,11 +189,12 @@ const ToolsGrid = memo(({
           );
         },
         meta: { 
+          title: 'Codice Aziendale',
           className: 'hidden xl:flex justify-center', 
           isFlex: true, 
-          flex: '0.9 1 0%', 
-          minWidth: 120,
-          maxWidth: 155
+          flex: '0.95 1 0%', 
+          minWidth: 125,
+          maxWidth: 160
         },
         cell: info => renderCodeBadge(info.getValue())
       }),
@@ -200,7 +203,7 @@ const ToolsGrid = memo(({
         return (raw && raw !== '-') ? String(raw).trim() : '';
       }, {
         id: 'Codice Fornitore',
-        header: 'Codice Fornitore',
+        header: 'Cod. Fornitore',
         sortingFn: (rowA, rowB, columnId) => {
           return String(rowA.getValue(columnId) || '').localeCompare(
             String(rowB.getValue(columnId) || ''),
@@ -209,11 +212,12 @@ const ToolsGrid = memo(({
           );
         },
         meta: { 
+          title: 'Codice Fornitore / Serial Number',
           className: 'hidden xl:flex justify-center', 
           isFlex: true, 
           flex: '1 1 0%', 
           minWidth: 135,
-          maxWidth: 185
+          maxWidth: 180
         },
         cell: info => {
           const val = info.getValue();
@@ -232,6 +236,7 @@ const ToolsGrid = memo(({
           );
         },
         meta: { 
+          title: 'Ubicazione di Magazzino',
           className: 'hidden md:flex justify-center', 
           isFlex: true, 
           flex: '0.8 1 0%', 
@@ -267,6 +272,7 @@ const ToolsGrid = memo(({
           );
         },
         meta: { 
+          title: 'Stato Utensile',
           className: 'hidden lg:flex justify-center', 
           minWidth: 85,
           maxWidth: 105 
@@ -290,7 +296,7 @@ const ToolsGrid = memo(({
       }),
       columnHelper.accessor('Prezzo', {
         id: 'Prezzo',
-        header: 'Prezzo Unit.',
+        header: 'Prezzo',
         size: 95,
         sortingFn: (rowA, rowB, columnId) => {
           const a = Number(rowA.getValue(columnId)) || 0;
@@ -298,6 +304,7 @@ const ToolsGrid = memo(({
           return a - b;
         },
         meta: { 
+          title: 'Prezzo Unitario (€)',
           className: 'hidden lg:flex justify-center', 
           isFlex: true, 
           flex: '0.6 1 0%', 
@@ -330,7 +337,12 @@ const ToolsGrid = memo(({
           const b = Number(rowB.getValue(columnId)) || 0;
           return a - b;
         },
-        meta: { className: 'shrink-0 justify-center', minWidth: 96, maxWidth: 110 },
+        meta: { 
+          title: 'Giacenza a Magazzino',
+          className: 'shrink-0 justify-center', 
+          minWidth: 96, 
+          maxWidth: 110 
+        },
         cell: info => {
           const qty = Number(info.getValue()) || 0;
           return (

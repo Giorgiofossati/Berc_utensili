@@ -16,6 +16,131 @@ Questo file tiene traccia in ordine cronologico inverso di tutte le implementazi
    - `[REFACTOR]`: Riorganizzazione del codice o hook senza cambi funzionali esterni.
    - `[PERF]`: Ottimizzazioni di prestazioni (bundle, caricamento, query).
    - `[DOCS]`: Aggiornamenti alla documentazione o regole di sistema.
+
+### [2026-10-05] - Correzione Allineamento Subpixel Divisori e Larghezza Colonne Tabella
+- **Tag**: `[FIX]` / `[UX/UI]` / `[PERF]`
+- **Descrizione**:
+  - **Isolamento del Padding Orizzontale nel Contenitore Interno**: Risolto lo sfasamento tra le larghezze delle colonne dell'header e quelle del corpo tabella (dovuto al calcolo di flex-basis/free-space alterato dal padding orizzontale applicato direttamente sugli elementi flex esterni dell'header). Rimosso qualsiasi padding orizzontale dal contenitore flex esterno dell'header, delegando la spaziatura a un wrapper interno (`w-full flex min-w-0`). In questo modo i box esterni di header e body condividono una geometria CSS identica al 100% (`flex`, `minWidth`, `maxWidth`, `width`, `px-0`).
+  - **Allineamento 0.00px delle Linee Verticali Divisorie**: I bordi di separazione colonna (`border-r`) dell'header combaciano perfettamente a livello subpixel con quelli di tutte le righe virtualizzate, mantenendo intatta la spaziatura ergonomica del testo e l'integrità tipografica delle etichette e delle icone di ordinamento.
+- **File coinvolti**:
+  - [`src/components/common/DataTable/VirtualizedTable.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/DataTable/VirtualizedTable.jsx)
+
+### [2026-10-05] - Eliminazione Riga Utensile da Menu 3 Puntini e Rimozione Tasto Modifica Inline
+- **Tag**: `[FEAT]` / `[UX/UI]`
+- **Descrizione**:
+  - **Azione "Elimina riga utensile" nel Menu 3 Puntini**: Integrata nel menu a comparsa delle opzioni utensile (`ToolDetailDrawer`) la voce distruttiva per cancellare l'articolo dal catalogo, evidenziata con icona `Trash2` e palette semantica rose/red. La funzionalità è riservata esclusivamente agli amministratori (`Admin`); per i ruoli privi di autorizzazione, la voce mostra l'indicatore di blocco con lucchetto e notifica con toast informativo.
+  - **Modale di Conferma Sicurezza (Tier 1 Alert Dialog)**: Implementato modale di conferma dedicato conforme al Design System (`size="sm"`) con riepilogo articolo (descrizione, codice aziendale, giacenza residua, ubicazione) e avviso di irreversibilità dell'operazione, prevenendo tocchi accidentali in ambiente d'officina.
+  - **Rimozione Tasto Modifica Inline dalla UI**: Rimosso il pulsante "Modifica" precedentemente posizionato nell'intestazione della scheda "Specifiche Tecniche", rendendo l'editing dell'utensile accessibile esclusivamente all'interno del menu a tre puntini.
+  - **Cancellazione Backend Resiliente e Sincronizzazione Cache**: Aggiunto metodo `removeTool(toolId)` in `useInventoryStore` per l'evizione istantanea dell'articolo da memoria e cache IndexedDB. Gestita la cancellazione su PostgreSQL Supabase con pulizia preventiva delle voci dipendenti in `richieste_movimento_voci`, cancellazione diretta da `Utensili_B1` con fallback atomico di salvaguardia (`Stato = 'ELIMINATO'`, `Quantità = 0`) e predisposizione del file di migrazione SQL `supabase/migrations/20261005_allow_tool_deletion.sql`.
+- **File coinvolti**:
+  - [`src/features/inventory/ToolDetailDrawer.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolDetailDrawer.jsx)
+  - [`src/store/useInventoryStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useInventoryStore.js)
+  - [`supabase/migrations/20261005_allow_tool_deletion.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/migrations/20261005_allow_tool_deletion.sql)
+  - [`supabase/MIGRATIONS_LOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/MIGRATIONS_LOG.md)
+
+### [2026-10-05] - Ottimizzazione UI/UX Intestazione Tabella Utensili (Spaziature, Centratura e Tipografia)
+- **Tag**: `[UX/UI]` / `[PERF]`
+- **Descrizione**:
+  - **Centratura Atomica e Protezione Bordi Colonne**: Risolto il problema delle etichette e delle icone di ordinamento compresse contro i divisori verticali di colonna. Inserito safe padding (`px-2 sm:px-2.5`) e raggruppato titolo e `SortIcon` in un contenitore inline-flex atomico centrato (`justify-center mx-auto`) direttamente allineato sopra i badge delle righe sottostanti.
+  - **Calibrazione Etichette e Prevenzione A Capi Multi-Riga**: Sostituite etichette eccessivamente lunghe che andavano a capo su due righe sbilanciando l'altezza della barra con diciture industriali standard e concise (`Cod. Aziendale`, `Cod. Fornitore`, `Prezzo`), corredate da tooltip espliciti (`title="Codice Aziendale"`, ecc.) e protezione `whitespace-nowrap truncate`.
+  - **Allineamento Subpixel Colonna Descrizione**: Uniformati spaziatore icona (`w-8`) e offset (`ml-0.5`) tra header e riga dati, portando il disallineamento della colonna Descrizione a **0.00px** esatti sia in modalità standard sia con selezione multipla attiva.
+  - **Rifinitura Tipografica e SortIcon Calibrato**: Ottimizzato il tracking tipografico a `tracking-wide` (0.025em) per una resa nitida e ordinata del font Geist 11px uppercase in dark e light mode. Ricalibrata l'icona a doppia punta `SortIcon` a 12px con spaziatura coerente (`gap-1.5`) eliminando i margini duplicati su colonne flex.
+- **File coinvolti**:
+  - [`src/components/common/DataTable/VirtualizedTable.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/DataTable/VirtualizedTable.jsx)
+  - [`src/components/common/DataTable/SortIcon.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/DataTable/SortIcon.jsx)
+  - [`src/features/inventory/ToolsGrid.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolsGrid.jsx)
+  - [`src/features/admin/HistoryView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/HistoryView.jsx)
+
+### [2026-10-05] - Menu Opzioni Utensile (3 Puntini) e Modale Modifica Scheda Utensile per Amministratori
+- **Tag**: `[FEAT]` / `[UX/UI]`
+- **Descrizione**:
+  - **Menu a Tendina Opzioni (3 Puntini)**: Aggiunto pulsante ergonomico con icona a tre puntini (`MoreVertical`) nell'header del cassetto laterale dettagli (`ToolDetailDrawer`), allineato a fianco del pulsante di chiusura. Il menu a comparsa include:
+    - Funzione *"Modifica dettagli fresa"*: evidenziata con badge "Admin", riservata agli amministratori per l'editing completo. Se cliccata da un operatore senza privilegi, la voce mostra lo stato bloccato con lucchetto e notifica con toast preventivo.
+    - Funzione *"Copia Codice"*: copia rapida del codice aziendale/barcode negli appunti di sistema con feedback toast.
+    - Funzione *"Stampa Barcode / QR"*: generazione e stampa termica immediata dell'etichetta identificativa.
+  - **Modale Completo di Modifica per Amministratori (`EditToolModal`)**: Implementato modale Radix/shadcn conforme al Design System Bercella riservato al ruolo `Admin`. Consente la modifica di tutti i dati della fresa:
+    - *Giacenza & Magazzino*: modifica diretta e immediata della quantità a magazzino (con stepper rapido `+`/`-` e input numerico calibrato) e dell'ubicazione fisica.
+    - *Identificazione*: codice aziendale (barcode) e matricola produttore (serial number).
+    - *Parametri geometrici*: tipologia, diametro nominale, forma, raggio, passo, tolleranza, angolo e lunghezza con campi reattivi condizionali.
+    - *Dati commerciali e caratteristiche costruttive*: fornitore, prezzo unitario netto d'acquisto (€), materiale, rivestimento, lavorazione e senso di rotazione.
+  - **Hook Dedicato e Sincronizzazione Reattiva Store (`useEditToolForm` & `useInventoryStore`)**: Creata logica di validazione e sanitizzazione dati tipizzati, persistenza su tabella PostgreSQL `Utensili_B1` in Supabase, ricalcolo automatico della denominazione canonica via `buildDesc()` e aggiornamento atomico di `useMovementStore`, catalogo `useInventoryStore` e cache locale IndexedDB con sincronizzazione reattiva immediata della vista aperta.
+- **File coinvolti**:
+  - [`src/features/inventory/ToolDetailDrawer.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolDetailDrawer.jsx)
+  - [`src/features/inventory/EditToolModal.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/EditToolModal.jsx)
+  - [`src/hooks/useEditToolForm.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/hooks/useEditToolForm.js)
+  - [`src/store/useInventoryStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useInventoryStore.js)
+
+### [2026-10-05] - Miglioramento UI/UX Creazione Nuove Voci e Categorie nei Menu a Tendina (CreatableSelectField)
+- **Tag**: `[UX/UI]` / `[FEAT]`
+- **Descrizione**:
+  - **Componente Unificato `CreatableSelectField`**: Risolta l'anomalia di usabilità nei menu a tendina dell'app in cui cliccando sul tasto `+` il menu principale spariva venendo sostituito da un input isolato con una confusa icona a 3 linee orizzontali (`List` simile a un hamburger). Il nuovo componente mantiene il menu a tendina principale sempre visibile e visivamente ancorato, affiancato da un tasto `+` touch-friendly (`min-w-[44px] min-h-[44px]`) e dall'opzione integrata "+ Crea nuova voce..." nella tendina.
+  - **Finestrella Dedicata Sotto al Campo Principale**: All'apertura viene mostrata una card/finestrella dedicata posizionata appena sotto al campo principale, con animazione fluida Framer Motion, titolo del campo contestualizzato, campo testo ad auto-focus, feedback di validazione inline, scorciatoia da tastiera (`Invio` per salvare, `Esc` per annullare), pulsante "Annulla" e pulsante primario "Salva" (`.action-btn-carica`).
+  - **Registrazione e Auto-Selezione Immediata nel Database**: L'aggiunta di una nuova voce la seleziona istantaneamente nel campo, la registra nello stato del form e nella persistenza locale dell'operatore (`berc_custom_tool_options`), rendendola immediatamente disponibile in tutti i menu a tendina correlati dell'applicazione e persistente alla creazione/salvataggio dell'utensile.
+  - **Adozione nei Flussi di Creazione e Modifica Utensili**: Implementato `CreatableSelectField` in tutte le 12 tendine di `AddToolModal` (Tipologia, Diametro, Forma, Raggio, Passo, Angolo, Tolleranza, Fornitore, Ubicazione, Materiale, Rivestimento, Lavorazione) e in `EditToolModal` (dati tecnici), integrato con il nuovo pulsante di modifica rapida dati tecnici in `ToolDetailDrawer`.
+- **File coinvolti**:
+  - [`src/components/common/CreatableSelectField.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/CreatableSelectField.jsx)
+  - [`src/features/inventory/AddToolModal.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/AddToolModal.jsx)
+  - [`src/features/inventory/EditToolModal.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/EditToolModal.jsx)
+  - [`src/features/inventory/ToolDetailDrawer.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/inventory/ToolDetailDrawer.jsx)
+  - [`src/hooks/useAddToolForm.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/hooks/useAddToolForm.js)
+  - [`src/hooks/useEditToolForm.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/hooks/useEditToolForm.js)
+
+### [2026-10-05] - Fix Allineamento Colonne Header/Righe nelle Tabelle Virtualizzate
+- **Tag**: `[FIX]` / `[UX/UI]`
+- **Descrizione**:
+  - **Correzione Asimmetria Padding Flexbox (`VirtualizedTable.jsx`)**: Risolto il disallineamento orizzontale tra l'intestazione sticky e le celle del corpo tabella visualizzato nello screenshot. La classe di padding orizzontale (`px-3` / `px-3 sm:px-4`) applicata sul wrapper di intestazione e assente sul wrapper delle righe alterava la distribuzione delle larghezze calcolate da Flexbox (`flex: '3.5 1 0%'`, ecc.), provocando uno slittamento progressivo di ~35px sulle colonne centrali e destre.
+  - **Uniformazione a Zero-Offset e Verifica Dimensionale**: Rimossa la spaziatura orizzontale dal contenitore flex di colonna dell'header e standardizzata su `py-2` / `py-3` in perfetta simmetria con le righe, delegando il padding interno al contenuto delle singole celle. Verificato via DOM inspect con scostamento azzerato a **0.000px** esatti su tutte le 8 colonne in tutte le viste virtualizzate (`ToolsGrid`, `ScannerView`, `HistoryView`).
+  - **Verifica Cross-View e Prevenzione Regressioni**: Verificata la tenuta del layout in densità compatta e normale, con sidebar aperta o chiusa e in modalità Light e Dark. Risolto in modo chirurgico e mirato senza alterare la struttura dei componenti né introdurre modifiche estreme.
+- **File coinvolti**:
+  - [`src/components/common/DataTable/VirtualizedTable.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/DataTable/VirtualizedTable.jsx)
+  - [`src/components/common/CreatableSelectField.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/CreatableSelectField.jsx)
+
+### [2026-10-01] - Fix Reattività Hover Voci di Menu (Sidebar Nav)
+- **Tag**: `[FIX]` / `[UX/UI]`
+- **Descrizione**:
+  - **Eliminazione Buffer di Tolleranza Parassita**: Rimosso il `div` perimetrale fasullo posizionato a `-right-6 w-6` con `z-40 pointer-events-auto` all'interno del wrapper della Sidebar; a causa della larghezza base di 68px, creava una fascia cieca di 24px (da x=68 a x=92) che intercettava i pointer events e disattivava l'hover non appena il mouse si muoveva sulle etichette delle voci di menu.
+  - **Hover Immediato sui NavItem e Quick Actions**: Sostituita la classe generica `transition-all duration-200` con `transition-colors duration-100` su tutti i `NavItem` e i pulsanti delle operazioni rapide, rendendo il feedback cromatico all'hover istantaneo e azzerando la latenza percepita.
+  - **Hardening Stacking Context Sidebar Desktop**: Assegnato `z-50` al wrapper desktop e `z-10` all'aside per garantire che il menu a comparsa flotti sempre con priorità assoluta sopra gli header e le righe della tabella.
+- **File coinvolti**:
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
+
+### [2026-10-01] - Implementazione Completa: Ciclo di Vita Utensili, Lavorazioni CNC e Avanzamento Pezzi Fine Turno
+- **Tag**: `[FEAT]` / `[UX/UI]`
+- **Descrizione**:
+  - **Modellazione Lavorazioni CNC (`CommesseView.jsx` & `useCommesseStore.js`)**: Estesa la gestione commesse a lavorazioni CNC strutturate (Codice Commessa Padre, Nome Lavorazione/Fase, Macchina CNC, Ubicazione Cassetto). Aggiunto switch `traccia_ciclo_vita` per abilitare il monitoraggio pezzo per pezzo e il target pezzi lotto solo su serie ripetitive. Implementato prompt guidato di chiusura lavorazione con opzione di rientro automatico degli utensili dal cassetto al magazzino centrale.
+  - **Avanzamento Rapido Pezzi & Dialog Fine Turno (`AvanzamentoPezziDialog.jsx` & `InProduzioneView.jsx`)**: Introdotto dialogo rapido per la registrazione dei pezzi a fine giornata (+1, +2, +4, +8, +10 o stepper personalizzato) che incrementa atomicamente i pezzi su tutti gli utensili montati su quella lavorazione/macchina. Aggiunti badge semaforici per usura tagliente (🟢 0-70%, 🟡 70-90%, 🔴 >90% con avviso di sostituzione).
+  - **Eredità Utensili a Bordo Macchina & Sostituzione 1-Tap (`PrelievoGuidato.jsx`)**: Aggiunto supporto a utensili generici rimasti montati a bordo macchina dopo la chiusura di una lavorazione, con pulsante "Eredita" a 1 tap per collegarli alla nuova commessa senza prelievi fittizi. Nel prelievo guidato, se l'utensile è già montato sulla macchina selezionata, viene proposto un chip a 1 tap per smontare/sostituire la fresa consumata aprendo `SmontaDialog`.
+  - **Modulo Promemoria e Notifiche Fine Turno (`notifications.js` & `ShiftReminderBanner.jsx`)**: Sviluppato sistema di notifiche Web/Push e banner visivo in-app in testa all'applicazione attivo nelle finestre di fine turno (>15:30 e >20:30) per ricordare agli operatori l'inserimento dei pezzi prodotti.
+  - **Hardening Transazionale & Pulizia Fallback (`useMovementStore.js`, `useMultiMovementStore.js`, SQL Migration)**: Consolidata la migrazione completa `20261001_lifecycle_e_lavorazioni_completo.sql` con stored procedure atomiche (`registra_avanzamento_lavorazione`, `eredita_utensile_bordo`, `chiudi_lavorazione`, `handle_multi_movement`). Rimossi i vecchi fallback lato client che aggiornavano direttamente `Utensili_B1."Quantità"`, garantendo sincronizzazione bidirezionale rigorosa con `posizioni_utensile`.
+- **File coinvolti**:
+  - [`src/features/admin/CommesseView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/CommesseView.jsx)
+  - [`src/features/produzione/InProduzioneView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/produzione/InProduzioneView.jsx)
+  - [`src/features/produzione/AvanzamentoPezziDialog.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/produzione/AvanzamentoPezziDialog.jsx)
+  - [`src/features/produzione/PrelievoGuidato.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/produzione/PrelievoGuidato.jsx)
+  - [`src/features/produzione/lifecycleSelectors.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/produzione/lifecycleSelectors.js)
+  - [`src/components/common/ShiftReminderBanner.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/common/ShiftReminderBanner.jsx)
+  - [`src/lib/notifications.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/lib/notifications.js)
+  - [`src/store/useCommesseStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useCommesseStore.js)
+  - [`src/store/useMovementStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useMovementStore.js)
+  - [`src/store/useMultiMovementStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useMultiMovementStore.js)
+  - [`src/store/useProduzioneStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useProduzioneStore.js)
+  - [`src/mocks/lifecycle/mockDb.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/mocks/lifecycle/mockDb.js)
+  - [`src/App.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/App.jsx)
+  - [`supabase/migrations/20261001_lifecycle_e_lavorazioni_completo.sql`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/migrations/20261001_lifecycle_e_lavorazioni_completo.sql)
+  - [`supabase/MIGRATIONS_LOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/supabase/MIGRATIONS_LOG.md)
+  - [`CHANGELOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/CHANGELOG.md)
+
+### [2026-10-01] - Handoff e Piano Operativo: Ciclo di Vita Utensili e Lavorazioni CNC
+- **Tag**: `[DOCS]` / `[FEAT]`
+- **Descrizione**:
+  - **Definizione Architetturale Lavorazioni CNC**: Strutturata l'entità operativa a due livelli (*Commessa Padre* ➔ *Lavorazione/Fase su Macchina CNC*), risolvendo la specificità di officina per commesse con materiali e macchine molteplici (es. telaio con inserti su CNC 01 e rifilatura carbonio su CNC 03).
+  - **Toggle Ciclo Vita & Conteggio Pezzi a Fine Turno**: Introdotto switch per-lavorazione (`traccia_ciclo_vita`) per attivare il monitoraggio pezzo per pezzo solo sulle produzioni di serie ripetitive (evitando burocrazia su prototipi e attrezzeria), con avanzamento cumulativo a 1-tap (`+ pezzi oggi`) e notifiche push di promemoria fine turno (16:45 / 21:45).
+  - **Persistenza Utensili a Bordo e Valorizzazione Asset**: Formalizzata la persistenza delle frese nel mandrino/giostra alla chiusura della lavorazione ("Generico / Disponibili a bordo") con funzione di eredità/adozione sulla nuova lavorazione. Distinto il capitale circolante in produzione dai veri costi contabili (scarti e fatture riaffilatura).
+  - **Redazione Handoff & Piano Operativo**: Redatto documento completo [`docs/HANDOFF_CICLO_VITA_LAVORAZIONI.md`](docs/HANDOFF_CICLO_VITA_LAVORAZIONI.md) con schema DB, nuove RPC, modifiche frontend e checklist passo-passo per il rilascio.
+- **File coinvolti**:
+  - [`docs/HANDOFF_CICLO_VITA_LAVORAZIONI.md`](file:///Users/gio/Documents/CODING/Berc_utensili/docs/HANDOFF_CICLO_VITA_LAVORAZIONI.md)
+  - [`CHANGELOG.md`](file:///Users/gio/Documents/CODING/Berc_utensili/CHANGELOG.md)
+
 ### [2026-09-30] - Diagramma Sankey: Schermo Intero, Spazio Massimizzato e Standard Numerico Industriale (Virgola e Spazio Migliaia)
 - **Tag**: `[UX/UI]` / `[FEAT]`
 - **Descrizione**:

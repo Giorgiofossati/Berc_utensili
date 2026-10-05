@@ -99,7 +99,7 @@ Offre tracciamento in tempo reale, prelievo guidato, carico/scarico rapido e pre
 
 25. **Formattazione Valuta e Numeri**: Formato italiano con virgola decimale e **thin space** per le migliaia (es. `1 234,56 €`). Usare SOLO `formatItalianNumber` / `formatItalianCurrency` di `@/lib/utils` (separatore `THOUSANDS_SEPARATOR` = U+2009 + U+2060). Vietati il punto per le migliaia, `toLocaleString`, `Intl.NumberFormat` e lo spazio normale: in Geist Mono lo spazio è largo quanto una cifra e spezza visivamente il numero.
 26. **Pesi Font Caricati**: Ogni peso usato (es. `font-black` = 900) deve essere caricato in `index.html` per Geist e Geist Mono (400–900), altrimenti il browser simula un grassetto finto. Valori KPI delle `StatTile` con `.app-kpi`.
-27. **Etichette Grafici SVG (Sankey ecc.)**: Alone (`paint-order: stroke`) per leggere sopra i nastri, niente sovrapposizioni (etichetta nascosta se collide, dato nel tooltip), voci sotto ~2,5% aggregate in un nodo "Altre …", valori in etichetta arrotondati all'euro.
+27. **Etichette Grafici SVG (Sankey ecc.)**: Alone (`paint-order: stroke`) per leggere sopra i nastri, niente sovrapposizioni (etichetta nascosta se collide, dato nel tooltip), voci sotto ~2,5% aggregate in un nodo "Altre …", valori in etichetta arrotondati all'euro. Su mobile (< 640px) niente scroll orizzontale: si toglie la colonna radice (totale nel footer della card), etichette dentro l'area del grafico, primo tap = dettaglio, secondo tap = navigazione.
 ---
 
 ## 💾 Regole di Sviluppo, Architettura e Backend

@@ -47,6 +47,7 @@ import HelpFloatingButton from './components/common/HelpFloatingButton';
 import PwaUpdatePrompt from './components/common/PwaUpdatePrompt';
 import { useTutorialStore } from './store/useTutorialStore';
 import { preloadToolImages } from './lib/toolUtils';
+import { ShiftReminderBanner } from './components/common/ShiftReminderBanner';
 import { PageTemplate, PageHeader, ResetFiltersButton } from './components/layout/PageTemplate';
 import { IconMenu } from './components/ui/icon-button';
 import { EXTRA_FILTER_KEYS } from './features/inventory/constants';
@@ -439,6 +440,7 @@ function App() {
       />
 
       <div className="flex-1 flex flex-col relative overflow-hidden min-w-0 h-full isolate">
+        <ShiftReminderBanner setView={setView} />
 
         <main className="flex-1 w-full flex flex-col items-center justify-start relative min-h-0 overflow-hidden">
             <AnimatePresence mode="wait">

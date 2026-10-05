@@ -216,52 +216,9 @@ export const useMultiMovementStore = create((set, get) => ({
         p_commessa_id: targetCommessaId || null
       });
 
-      const targetMacchinaId = state.selectedMacchinaId;
-      const targetOperatoreDestinatario = state.selectedOperatoreDestinatario;
-
       if (rpcErr) {
-        console.warn('handle_multi_movement RPC error, executing resilient client-side fallback:', rpcErr);
-        for (const item of items) {
-          const liveTool = tools.find(t => t.id === item.tool.id) || item.tool;
-          const cur = liveTool['Quantità'] || 0;
-          if (batchOpType === 'scarico' && cur < item.quantity) {
-            throw new Error(`Giacenza insufficiente per ${liveTool.Tipologia || 'articolo'}`);
-          }
-          const newQty = batchOpType === 'carico' ? cur + item.quantity : Math.max(0, cur - item.quantity);
-
-          const { error: updateErr } = await supabase
-            .from('Utensili_B1')
-            .update({ 'Quantità': newQty })
-            .eq('id', item.tool.id);
-
-          if (updateErr) throw updateErr;
-
-          const { error: insertErr } = await supabase
-            .from('movements_history')
-            .insert({
-              tool_id: item.tool.id,
-              tipo_operazione: item.opType || batchOpType,
-              quantita: item.quantity,
-              operatore: operatorName,
-              operatore_destinatario: targetOperatoreDestinatario || null,
-              commessa_id: item.commessa_id || targetCommessaId || null,
-              macchina_id: targetMacchinaId || null,
-              created_at: new Date().toISOString()
-            });
-
-          if (insertErr) {
-            await supabase
-              .from('movements_history')
-              .insert({
-                tool_id: item.tool.id,
-                tipo_operazione: item.opType || batchOpType,
-                quantita: item.quantity,
-                operatore: operatorName,
-                commessa_id: item.commessa_id || targetCommessaId || null,
-                created_at: new Date().toISOString()
-              });
-          }
-        }
+        console.error('handle_multi_movement RPC error:', rpcErr);
+        throw new Error(rpcErr.message || 'Errore durante la registrazione del movimento multiplo');
       }
 
       const actionLabel = batchOpType === 'carico' ? 'DEPOSITO' : 'PRELIEVO';

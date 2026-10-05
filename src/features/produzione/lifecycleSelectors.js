@@ -95,7 +95,13 @@ export function raggruppaInProduzione(righe = [], modo = 'macchina') {
       if (!gruppi.has(chiaveGruppo)) {
         gruppi.set(chiaveGruppo, {
           chiave: chiaveGruppo,
-          titolo: perMacchina ? r.nome_macchina : (r.id_commessa ? `${r.codice_commessa} ${r.descrizione_commessa ?? ''}`.trim() : 'Generico macchina'),
+          titolo: perMacchina ? r.nome_macchina : (r.id_commessa ? (r.nome_lavorazione ? `${r.nome_lavorazione} [${r.codice_commessa}]` : `${r.codice_commessa} ${r.descrizione_commessa ?? ''}`.trim()) : 'Generico macchina'),
+          idCommessa: perMacchina ? null : r.id_commessa,
+          idMacchina: perMacchina ? r.id_macchina : null,
+          nomeLavorazione: perMacchina ? null : r.nome_lavorazione,
+          tracciaCicloVita: perMacchina ? false : Boolean(r.traccia_ciclo_vita),
+          targetPezziLotto: perMacchina ? null : r.target_pezzi_lotto,
+          pezziCompletati: perMacchina ? null : (r.pezzi_completati || 0),
           codiceCommessa: perMacchina ? null : r.codice_commessa,
           ubicazioneCassetto: perMacchina ? null : r.ubicazione_cassetto,
           totale: 0,
@@ -111,12 +117,20 @@ export function raggruppaInProduzione(righe = [], modo = 'macchina') {
         g.sezioni.set(chiaveSezione, {
           chiave: chiaveSezione,
           isCassetto,
+          idCommessa: r.id_commessa,
+          idMacchina: r.id_macchina,
+          nomeMacchina: r.nome_macchina,
+          codiceCommessa: r.codice_commessa,
+          nomeLavorazione: r.nome_lavorazione,
+          tracciaCicloVita: Boolean(r.traccia_ciclo_vita),
+          targetPezziLotto: r.target_pezzi_lotto,
+          pezziCompletati: r.pezzi_completati || 0,
           titolo: isCassetto
             ? 'Nel cassetto della commessa'
             : perMacchina
-              ? (r.id_commessa ? `${r.codice_commessa} ${r.descrizione_commessa ?? ''}`.trim() : 'Generico macchina')
+              ? (r.id_commessa ? (r.nome_lavorazione ? `${r.nome_lavorazione} [${r.codice_commessa}]` : `${r.codice_commessa} ${r.descrizione_commessa ?? ''}`.trim()) : 'Generico a bordo macchina')
               : r.nome_macchina,
-          dettaglio: isCassetto ? `${r.ubicazione_cassetto ? r.ubicazione_cassetto + ' · ' : ''}riservati, non ancora in macchina` : (perMacchina ? null : 'in macchina'),
+          dettaglio: isCassetto ? `${r.ubicazione_cassetto ? r.ubicazione_cassetto + ' · ' : ''}riservati, non ancora in macchina` : (perMacchina ? (r.id_commessa ? `Commessa ${r.codice_commessa}` : 'Utensili non assegnati a commessa') : 'in macchina'),
           righe: []
         });
       }
@@ -130,6 +144,38 @@ export function raggruppaInProduzione(righe = [], modo = 'macchina') {
       sezioni: [...g.sezioni.values()].sort((a, b) => Number(a.isCassetto) - Number(b.isCassetto))
     }))
     .sort((a, b) => (a.titolo || '').localeCompare(b.titolo || '', 'it', { numeric: true }));
+}
+
+/**
+ * Calcola l'usura del tagliente e il semaforo (HCI / Euristiche Don Norman):
+ * 🟢 0-70% vita
+ * 🟡 70-90% vita
+ * 🔴 >90% vita (Consigliato cambio)
+ */
+export function calcolaUsuraFresa(riga) {
+  const target = riga.target_pezzi_fresa || (riga.traccia_ciclo_vita ? 50 : null);
+  const pezzi = riga.pezzi_lavorati || 0;
+  if (!target && pezzi === 0) return null;
+  const pct = target ? Math.min(100, Math.round((pezzi / target) * 100)) : null;
+  
+  let colore = 'emerald'; // 🟢 0-70%
+  let livello = 'ottimale';
+  if (pct != null && pct >= 90) {
+    colore = 'rose'; // 🔴 >90%
+    livello = 'critico';
+  } else if (pct != null && pct >= 70) {
+    colore = 'amber'; // 🟡 70-90%
+    livello = 'attenzione';
+  }
+
+  return {
+    pezzi,
+    target,
+    pct,
+    colore,
+    livello,
+    testo: target ? `${pezzi}/${target} pz` : `${pezzi} pz`
+  };
 }
 
 // Cosa succede se l'operatore sceglie "Consumato" su questa riga.

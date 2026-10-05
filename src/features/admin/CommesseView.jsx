@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FolderKanban, Plus, RefreshCw, MapPin, CheckCircle2, AlertCircle, AlertTriangle, Pencil, Trash2, Cpu, Wrench, X } from 'lucide-react';
+import { FolderKanban, Plus, RefreshCw, MapPin, CheckCircle2, AlertCircle, AlertTriangle, Pencil, Trash2, Cpu, Wrench, X, Archive } from 'lucide-react';
 import { Dialog, DialogContent, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/dialog";
 import { PageTemplate, PageHeader, PageToolbar, PageContent, ResetFiltersButton } from '@/components/layout/PageTemplate';
 import { StateBlock } from '@/components/common/StateBlock';
@@ -32,6 +32,7 @@ export default function CommesseView({ setView, showToastNotification }) {
   
   const inProduzione = useProduzioneStore(s => s.inProduzione);
   const fetchInProduzione = useProduzioneStore(s => s.fetchInProduzione);
+  const chiudiLavorazione = useProduzioneStore(s => s.chiudiLavorazione);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('TUTTE'); 
@@ -46,11 +47,19 @@ export default function CommesseView({ setView, showToastNotification }) {
   const [editingCommessa, setEditingCommessa] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    codice: '', descrizione: '', ubicazione: '', macchina_id: '', stato: 'Attiva'
+    codice: '',
+    nome_lavorazione: '',
+    descrizione: '',
+    ubicazione: '',
+    macchina_id: '',
+    traccia_ciclo_vita: false,
+    target_pezzi_lotto: '',
+    stato: 'Attiva'
   });
   const [formErrors, setFormErrors] = useState({});
   const [togglingId, setTogglingId] = useState(null);
   const [deletingCommessa, setDeletingCommessa] = useState(null);
+  const [closingPromptCommessa, setClosingPromptCommessa] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [localToast, setLocalToast] = useState(null);
 
@@ -97,14 +106,26 @@ export default function CommesseView({ setView, showToastNotification }) {
   }, []);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: name === 'codice' ? value.toUpperCase() : value }));
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : (name === 'codice' ? value.toUpperCase() : value)
+    }));
     if (formErrors[name]) setFormErrors(prev => ({ ...prev, [name]: null }));
   };
 
   const handleOpenCreate = () => {
     setEditingCommessa(null);
-    setFormData({ codice: '', descrizione: '', ubicazione: '', macchina_id: '', stato: 'Attiva' });
+    setFormData({
+      codice: '',
+      nome_lavorazione: '',
+      descrizione: '',
+      ubicazione: '',
+      macchina_id: '',
+      traccia_ciclo_vita: false,
+      target_pezzi_lotto: '',
+      stato: 'Attiva'
+    });
     setFormErrors({});
     setIsDialogOpen(true);
   };
@@ -113,9 +134,12 @@ export default function CommesseView({ setView, showToastNotification }) {
     setEditingCommessa(commessa);
     setFormData({
       codice: commessa.codice || '',
+      nome_lavorazione: commessa.nome_lavorazione || '',
       descrizione: commessa.descrizione || '',
       ubicazione: commessa.ubicazione || '',
       macchina_id: commessa.macchina_id || '',
+      traccia_ciclo_vita: Boolean(commessa.traccia_ciclo_vita),
+      target_pezzi_lotto: commessa.target_pezzi_lotto ?? '',
       stato: commessa.stato || 'Attiva'
     });
     setFormErrors({});
@@ -130,7 +154,10 @@ export default function CommesseView({ setView, showToastNotification }) {
 
   const validateForm = () => {
     const errors = {};
-    if (!formData.codice.trim()) errors.codice = "Codice obbligatorio";
+    if (!formData.codice.trim()) errors.codice = "Codice commessa obbligatorio";
+    if (formData.traccia_ciclo_vita && formData.target_pezzi_lotto && Number(formData.target_pezzi_lotto) <= 0) {
+      errors.target_pezzi_lotto = "Il target deve essere maggiore di zero";
+    }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -138,6 +165,7 @@ export default function CommesseView({ setView, showToastNotification }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+
     setIsSubmitting(true);
     let result;
     if (editingCommessa) {
@@ -146,19 +174,55 @@ export default function CommesseView({ setView, showToastNotification }) {
       result = await createCommessa(formData);
     }
     setIsSubmitting(false);
+
     if (result.success) {
-      notify(`Commessa ${editingCommessa ? 'aggiornata' : 'creata'} con successo`);
+      notify(`Lavorazione ${editingCommessa ? 'aggiornata' : 'creata'} con successo`);
       handleCloseDialog();
     } else {
       setFormErrors({ submit: result.error.message || "Errore durante il salvataggio" });
     }
   };
 
+  const executeCloseLavorazione = async (commessaId, svuotaCassetto) => {
+    setTogglingId(commessaId);
+    setClosingPromptCommessa(null);
+    try {
+      const res = await chiudiLavorazione({ idCommessa: commessaId, svuotaCassetto });
+      if (res.success) {
+        notify(`Lavorazione chiusa. Gli utensili a bordo macchina rimangono disponibili.`);
+        await fetchCommesse();
+        await fetchInProduzione();
+        if (selectedCommessa && selectedCommessa.id === commessaId) {
+          setSelectedCommessa(prev => ({ ...prev, stato: 'Chiusa' }));
+        }
+      } else {
+        await toggleStatoCommessa(commessaId, 'Attiva');
+        notify('Lavorazione chiusa.');
+      }
+    } catch (err) {
+      notify(err.message || 'Errore durante la chiusura', 'error');
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
   const handleToggleStato = async (commessa) => {
+    if (commessa.stato === 'Attiva') {
+      const cassettoTools = (inProduzione.righe || []).filter(r => r.id_commessa === commessa.id && r.luogo === 'cassetto');
+      const count = cassettoTools.reduce((s, r) => s + r.quantita, 0);
+      if (count > 0) {
+        setClosingPromptCommessa({ commessa, count });
+        return;
+      }
+      await executeCloseLavorazione(commessa.id, false);
+      return;
+    }
+
+    // Riapertura
     setTogglingId(commessa.id);
     const result = await toggleStatoCommessa(commessa.id, commessa.stato);
     if (result.success) {
-      notify(`Stato modificato in "${result.data.stato}"`);
+      notify(`Lavorazione riaperta.`);
       if (selectedCommessa && selectedCommessa.id === commessa.id) {
         setSelectedCommessa(result.data);
       }
@@ -196,6 +260,7 @@ export default function CommesseView({ setView, showToastNotification }) {
   const filteredCommesse = useMemo(() => {
     return commesseWithStats.filter(c => {
       const matchQuery = (c.codice?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+                         (c.nome_lavorazione?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
                          (c.descrizione?.toLowerCase() || '').includes(searchQuery.toLowerCase());
       const matchStatus = statusFilter === 'TUTTE' || 
                          (statusFilter === 'ATTIVE' && c.stato === 'Attiva') ||
@@ -212,15 +277,15 @@ export default function CommesseView({ setView, showToastNotification }) {
   return (
     <PageTemplate>
       <PageHeader
-        title="Gestione Commesse"
-        breadcrumb="Magazzino"
+        title="Lavorazioni CNC"
+        breadcrumb="Officina"
         showBack={true}
         onBack={() => setView('home')}
         search={{
           value: searchQuery,
           onChange: setSearchQuery,
-          label: 'Cerca nelle commesse',
-          placeholder: 'Codice o descrizione...'
+          label: 'Cerca nelle lavorazioni',
+          placeholder: 'Commessa, fase, note...'
         }}
         action={
           <div className="flex items-center gap-2">
@@ -229,7 +294,7 @@ export default function CommesseView({ setView, showToastNotification }) {
               onClick={() => fetchCommesse()}
               disabled={isLoading}
               variant="outline"
-              title="Aggiorna commesse"
+              title="Aggiorna lavorazioni"
               className="glass-button border-slate-900/10 dark:border-white/10"
             />
             {isAdmin && (
@@ -239,7 +304,7 @@ export default function CommesseView({ setView, showToastNotification }) {
                 className="action-btn action-btn-primary px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-wider shrink-0 cursor-pointer shadow-sm"
               >
                 <Plus size={16} />
-                <span className="hidden sm:inline">Nuova Commessa</span>
+                <span className="hidden sm:inline">Nuova Lavorazione</span>
                 <span className="sm:hidden">Nuova</span>
               </button>
             )}
@@ -278,8 +343,8 @@ export default function CommesseView({ setView, showToastNotification }) {
           loadingMode="skeleton"
           skeletonShape="card"
           skeletonCount={6}
-          title={error ? 'Impossibile caricare le commesse' : 'Nessuna commessa trovata'}
-          description={error || (searchQuery ? 'Modifica i filtri di ricerca' : 'Crea la tua prima commessa per iniziare.')}
+          title={error ? 'Impossibile caricare le lavorazioni' : 'Nessuna lavorazione trovata'}
+          description={error || (searchQuery ? 'Modifica i filtri di ricerca' : 'Crea la prima lavorazione CNC per iniziare.')}
           error={error}
           onRetry={fetchCommesse}
           emptyAction={
@@ -291,94 +356,129 @@ export default function CommesseView({ setView, showToastNotification }) {
                 onClick={handleOpenCreate}
                 className="action-btn action-btn-primary px-6 py-2.5 rounded-xl font-bold text-sm uppercase tracking-wider mt-2"
               >
-                Crea Commessa
+                Crea Lavorazione
               </button>
             ) : null
           }
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredCommesse.map((commessa) => (
-              <div
-                key={commessa.id}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedCommessa(commessa); }}
-                onClick={() => setSelectedCommessa(commessa)}
-                className={cn(
-                  "text-left glass-panel rounded-2xl p-4 sm:p-5 flex flex-col justify-between border transition-all hover:shadow-md cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-accent-blue",
-                  commessa.stato === 'Attiva'
-                    ? "border-slate-200/80 dark:border-slate-800"
-                    : "border-slate-200/40 dark:border-slate-800/40 opacity-70 bg-slate-50/50 dark:bg-slate-900/40",
-                  selectedCommessa?.id === commessa.id ? "ring-2 ring-accent-blue border-transparent" : ""
-                )}
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-colors",
-                        commessa.stato === 'Attiva'
-                          ? "bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400"
-                          : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400"
-                      )}>
-                        <FolderKanban size={20} />
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <h3 className="font-mono text-sm font-black text-slate-900 dark:text-slate-100 truncate tracking-wide">
-                          {commessa.codice}
-                        </h3>
-                        {commessa.descrizione && (
-                          <span className="text-xs text-slate-500 truncate" title={commessa.descrizione}>
-                            {commessa.descrizione}
+            {filteredCommesse.map((commessa) => {
+              const macch = macchine.find(m => m.id === commessa.macchina_id);
+              const progressPct = commessa.target_pezzi_lotto
+                ? Math.min(100, Math.round(((commessa.pezzi_completati || 0) / commessa.target_pezzi_lotto) * 100))
+                : 0;
+
+              return (
+                <div
+                  key={commessa.id}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedCommessa(commessa); }}
+                  onClick={() => setSelectedCommessa(commessa)}
+                  className={cn(
+                    "text-left glass-panel rounded-2xl p-4 sm:p-5 flex flex-col justify-between border transition-all hover:shadow-md cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-accent-blue",
+                    commessa.stato === 'Attiva'
+                      ? "border-slate-200/80 dark:border-slate-800"
+                      : "border-slate-200/40 dark:border-slate-800/40 opacity-70 bg-slate-50/50 dark:bg-slate-900/40",
+                    selectedCommessa?.id === commessa.id ? "ring-2 ring-accent-blue border-transparent" : ""
+                  )}
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-3 mb-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-colors",
+                          commessa.stato === 'Attiva'
+                            ? "bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400"
+                            : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400"
+                        )}>
+                          <FolderKanban size={20} />
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="app-caption text-slate-500 truncate" title={commessa.codice}>
+                            {commessa.codice}
                           </span>
-                        )}
+                          <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate tracking-wide">
+                            {commessa.nome_lavorazione || commessa.descrizione || 'Lavorazione senza titolo'}
+                          </h3>
+                        </div>
                       </div>
+                      {isAdmin && (
+                        <div className="shrink-0 -mr-2" onClick={(e) => e.stopPropagation()}>
+                          <IconMenu
+                            icon={<Pencil size={15} />}
+                            label="Azioni lavorazione"
+                            items={[
+                              { label: 'Modifica', icon: <Pencil size={14} />, onClick: () => handleOpenEdit(commessa) },
+                              { label: commessa.stato === 'Attiva' ? 'Chiudi Lavorazione' : 'Riapri Lavorazione', icon: <CheckCircle2 size={14} className={commessa.stato === 'Attiva' ? 'text-slate-500' : 'text-accent-emerald'} />, onClick: () => handleToggleStato(commessa), disabled: togglingId === commessa.id },
+                              { divider: true },
+                              { label: 'Elimina', icon: <Trash2 size={14} />, onClick: () => setDeletingCommessa(commessa), danger: true }
+                            ]}
+                            variant="ghost"
+                          />
+                        </div>
+                      )}
                     </div>
-                    {isAdmin && (
-                      <div className="shrink-0 -mr-2" onClick={(e) => e.stopPropagation()}>
-                        <IconMenu
-                          icon={<Pencil size={15} />}
-                          label="Azioni commessa"
-                          items={[
-                            { label: 'Modifica', icon: <Pencil size={14} />, onClick: () => handleOpenEdit(commessa) },
-                            { label: commessa.stato === 'Attiva' ? 'Chiudi Commessa' : 'Riapri Commessa', icon: <CheckCircle2 size={14} className={commessa.stato === 'Attiva' ? 'text-slate-500' : 'text-accent-emerald'} />, onClick: () => handleToggleStato(commessa), disabled: togglingId === commessa.id },
-                            { divider: true },
-                            { label: 'Elimina', icon: <Trash2 size={14} />, onClick: () => setDeletingCommessa(commessa), danger: true }
-                          ]}
-                          variant="ghost"
+
+                    {/* Badge Macchina e Ciclo Vita */}
+                    <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                      {macch && (
+                        <span className="badge badge-slate text-[11px] py-0.5 px-2 flex items-center gap-1">
+                          <Cpu size={11} className="text-accent-blue" />
+                          <span>{macch.nome}</span>
+                        </span>
+                      )}
+                      {commessa.traccia_ciclo_vita ? (
+                        <span className="badge badge-blue text-[11px] py-0.5 px-2">
+                          🎯 {commessa.pezzi_completati || 0} / {commessa.target_pezzi_lotto || '—'} pz
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-muted-foreground px-1">
+                          Ciclo vita libero
+                        </span>
+                      )}
+                    </div>
+
+                    {commessa.traccia_ciclo_vita && commessa.target_pezzi_lotto && (
+                      <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mb-3 overflow-hidden">
+                        <div 
+                          className="bg-accent-blue h-full rounded-full transition-all duration-300"
+                          style={{ width: `${progressPct}%` }}
                         />
                       </div>
                     )}
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-2 mt-4 mb-2">
-                    <div className="flex flex-col p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-border/50">
-                      <span className="app-caption text-muted-foreground">Utensili Impegnati</span>
-                      <span className="app-qty-sm text-foreground mt-0.5">{commessa.totalTools}</span>
+                    
+                    <div className="grid grid-cols-2 gap-2 mt-2 mb-2">
+                      <div className="flex flex-col p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-border/50">
+                        <span className="app-caption text-muted-foreground">Utensili Impegnati</span>
+                        <span className="app-qty-sm text-foreground mt-0.5">{commessa.totalTools}</span>
+                      </div>
+                      <div className="flex flex-col p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-border/50">
+                        <span className="app-caption text-muted-foreground">Pezzi Prodotti</span>
+                        <span className="app-qty-sm text-foreground mt-0.5">
+                          {commessa.traccia_ciclo_vita ? (commessa.pezzi_completati || 0) : '—'}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex flex-col p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-border/50">
-                      <span className="app-caption text-muted-foreground">Macchine Attive</span>
-                      <span className="app-qty-sm text-foreground mt-0.5">{commessa.uniqueMachines}</span>
-                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/60">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 min-w-0">
-                    <MapPin size={13} className="shrink-0" />
-                    <span className="truncate">{commessa.ubicazione || 'Nessuna ubicazione'}</span>
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/60">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 min-w-0">
+                      <MapPin size={13} className="shrink-0" />
+                      <span className="truncate">{commessa.ubicazione || 'Nessun cassetto'}</span>
+                    </div>
+                    <span className={cn(
+                      "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shrink-0",
+                      commessa.stato === 'Attiva' 
+                        ? "bg-accent-emerald/10 text-accent-emerald" 
+                        : "bg-slate-200 dark:bg-slate-800 text-slate-500"
+                    )}>
+                      {commessa.stato}
+                    </span>
                   </div>
-                  <span className={cn(
-                    "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shrink-0",
-                    commessa.stato === 'Attiva' 
-                      ? "bg-accent-emerald/10 text-accent-emerald" 
-                      : "bg-slate-200 dark:bg-slate-800 text-slate-500"
-                  )}>
-                    {commessa.stato}
-                  </span>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </StateBlock>
       </PageContent>
@@ -496,8 +596,8 @@ export default function CommesseView({ setView, showToastNotification }) {
         <DialogContent size="md">
           <ModalHeader 
             icon={<FolderKanban size={24} className="text-accent-blue" />}
-            title={editingCommessa ? 'Modifica Commessa' : 'Nuova Commessa'}
-            overline={editingCommessa ? 'Aggiorna Dati' : 'Creazione'}
+            title={editingCommessa ? 'Modifica Lavorazione' : 'Nuova Lavorazione'}
+            overline={editingCommessa ? 'Aggiorna Dati Lavorazione' : 'Creazione Lavorazione'}
           />
           <ModalBody>
             <form id="commessa-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -511,13 +611,13 @@ export default function CommesseView({ setView, showToastNotification }) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
                   <label className="app-label text-foreground">
-                    Codice Commessa <span className="text-accent-rose">*</span>
+                    Commessa Padre (Codice) <span className="text-accent-rose">*</span>
                   </label>
                   <input
                     type="text"
                     name="codice"
                     required
-                    placeholder="Es: C-2024-001"
+                    placeholder="Es: 24-118 (Ducati)"
                     value={formData.codice}
                     onChange={handleInputChange}
                     className={`glass-input w-full border rounded-xl py-2.5 px-3 font-mono text-sm ${formErrors.codice ? 'border-accent-rose' : 'dark:border-white/10 border-slate-900/10'}`}
@@ -526,12 +626,12 @@ export default function CommesseView({ setView, showToastNotification }) {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="app-label text-foreground">Ubicazione / Cassetto</label>
+                  <label className="app-label text-foreground">Ubicazione Cassetto / Carrello</label>
                   <div className="relative">
                     <input
                       type="text"
                       name="ubicazione"
-                      placeholder="Es: Scaffale A2"
+                      placeholder="Es: Cassettiera C · cassetto 4"
                       value={formData.ubicazione}
                       onChange={handleInputChange}
                       className="glass-input w-full border dark:border-white/10 border-slate-900/10 rounded-xl py-2.5 pl-9 pr-3 text-sm"
@@ -541,9 +641,23 @@ export default function CommesseView({ setView, showToastNotification }) {
                 </div>
 
                 <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <label className="app-label text-foreground">
+                    Nome / Fase Lavorazione
+                  </label>
+                  <input
+                    type="text"
+                    name="nome_lavorazione"
+                    placeholder="Es: Foratura Guscio Carbonio, Sgrossatura Alluminio DX..."
+                    value={formData.nome_lavorazione}
+                    onChange={handleInputChange}
+                    className="glass-input w-full border dark:border-white/10 border-slate-900/10 rounded-xl py-2.5 px-3 text-sm"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5 sm:col-span-2">
                   <label className="app-label text-foreground flex items-center gap-1.5">
                     <Cpu size={14} className="text-accent-blue" />
-                    <span>Macchina CNC Predefinita</span>
+                    <span>Macchina CNC Assegnata</span>
                   </label>
                   <select
                     name="macchina_id"
@@ -561,12 +675,51 @@ export default function CommesseView({ setView, showToastNotification }) {
                 </div>
               </div>
 
+              {/* Tracciamento Ciclo Vita & Pezzi */}
+              <div className="p-3.5 rounded-xl border border-border/70 bg-slate-50/70 dark:bg-slate-900/40 flex flex-col gap-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex flex-col min-w-0">
+                    <span className="app-label text-foreground flex items-center gap-1.5 font-bold">
+                      🎯 Tracciamento Ciclo Vita & Pezzi
+                    </span>
+                    <span className="app-caption text-muted-foreground mt-0.5">
+                      Abilita avanzamento pezzi giornaliero, semaforo usura frese e notifiche di fine turno
+                    </span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      name="traccia_ciclo_vita"
+                      checked={formData.traccia_ciclo_vita}
+                      onChange={handleInputChange}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-blue" />
+                  </label>
+                </div>
+
+                {formData.traccia_ciclo_vita && (
+                  <div className="pt-2 border-t border-border/50 flex flex-col gap-1.5">
+                    <label className="app-label text-foreground">Target Pezzi Totali Lotto (Commessa)</label>
+                    <input
+                      type="number"
+                      name="target_pezzi_lotto"
+                      min="1"
+                      placeholder="Es: 400"
+                      value={formData.target_pezzi_lotto}
+                      onChange={handleInputChange}
+                      className="glass-input w-full border dark:border-white/10 border-slate-900/10 rounded-xl py-2 px-3 text-sm"
+                    />
+                  </div>
+                )}
+              </div>
+
               <div className="flex flex-col gap-1.5">
-                <label className="app-label text-foreground">Descrizione Lavorazione</label>
+                <label className="app-label text-foreground">Note Tecniche / Descrizione</label>
                 <textarea
                   name="descrizione"
-                  rows={3}
-                  placeholder="Dettagli della lavorazione..."
+                  rows={2}
+                  placeholder="Dettagli operativi, materiali, parametri o note commessa..."
                   value={formData.descrizione}
                   onChange={handleInputChange}
                   className="glass-input w-full border dark:border-white/10 border-slate-900/10 rounded-xl p-3 text-sm resize-none"
@@ -574,7 +727,7 @@ export default function CommesseView({ setView, showToastNotification }) {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="app-label text-foreground">Stato Commessa</label>
+                <label className="app-label text-foreground">Stato Lavorazione</label>
                 <div className="flex items-center bg-muted/30 border border-border/50 rounded-xl p-1 gap-1">
                   <button
                     type="button"
@@ -668,6 +821,52 @@ export default function CommesseView({ setView, showToastNotification }) {
               className="action-btn action-btn-scarica px-6 py-2 rounded-xl text-sm font-black flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20"
             >
               {isDeleting ? "ELIMINAZIONE..." : "ELIMINA"}
+            </button>
+          </ModalFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Assistito Chiusura Lavorazione con Utensili nel Cassetto */}
+      <Dialog open={!!closingPromptCommessa} onOpenChange={(open) => { if (!open) setClosingPromptCommessa(null); }}>
+        <DialogContent size="md">
+          <ModalHeader 
+            icon={<Archive size={24} className="text-accent-orange" />}
+            title="Chiusura Lavorazione"
+            overline="Gestione Cassetto Dedicato"
+          />
+          <ModalBody>
+            <div className="flex flex-col gap-4 text-sm text-muted-foreground">
+              <p className="app-body">
+                Stai chiudendo la lavorazione <strong className="font-mono text-accent-blue font-bold">{closingPromptCommessa?.commessa?.codice}</strong>.
+              </p>
+              <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-slate-800 dark:text-slate-200 flex flex-col gap-2">
+                <div className="flex items-center gap-2 font-bold text-accent-orange text-xs uppercase tracking-wide">
+                  <Archive size={16} />
+                  <span>{closingPromptCommessa?.count} {closingPromptCommessa?.count === 1 ? 'utensile presente' : 'utensili presenti'} nel cassetto</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Gli utensili attualmente montati a bordo macchina rimarranno disponibili come generici.
+                  Cosa desideri fare con gli utensili rimasti nel cassetto dedicato?
+                </p>
+              </div>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <button
+              type="button"
+              onClick={() => executeCloseLavorazione(closingPromptCommessa.commessa.id, false)}
+              disabled={togglingId === closingPromptCommessa?.commessa?.id}
+              className="px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground border border-border rounded-xl transition-colors cursor-pointer"
+            >
+              Lascia nel Cassetto
+            </button>
+            <button
+              type="button"
+              onClick={() => executeCloseLavorazione(closingPromptCommessa.commessa.id, true)}
+              disabled={togglingId === closingPromptCommessa?.commessa?.id}
+              className="action-btn action-btn-primary px-5 py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <span>Riporta a Magazzino</span>
             </button>
           </ModalFooter>
         </DialogContent>

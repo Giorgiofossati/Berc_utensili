@@ -134,7 +134,7 @@ GRANT EXECUTE ON FUNCTION public.get_opzioni_prelievo TO anon, authenticated;
 CREATE OR REPLACE FUNCTION public.get_in_produzione()
 RETURNS json
 LANGUAGE plpgsql STABLE SECURITY DEFINER
-SET search_path = public
+SET search_path = public, pg_temp
 AS $$
 DECLARE
     v_righe json;
@@ -152,11 +152,17 @@ BEGIN
             p.id_commessa,
             c.codice as codice_commessa,
             c.descrizione as descrizione_commessa,
+            c.nome_lavorazione,
+            c.traccia_ciclo_vita,
+            c.target_pezzi_lotto,
+            c.pezzi_completati,
             c.ubicazione as ubicazione_cassetto,
             p.stato,
             p.n_riaffilature,
             u.max_riaffilature,
             p.quantita,
+            p.pezzi_lavorati,
+            p.target_pezzi_fresa,
             p.entrata_il
         FROM posizioni_utensile p
         JOIN "Utensili_B1" u ON u.id = p.id_utensile
@@ -457,8 +463,8 @@ BEGIN
     END IF;
     
     IF v_esito_effettivo = 'rotto' THEN
-        INSERT INTO movements_history (id_operazione, tool_id, operatore, tipo_operazione, quantita, id_macchina, commessa_id, luogo_da, luogo_a, stato, n_riaffilature, causale_scarto, nota, costo_unitario, snapshot_da, snapshot_a)
-        VALUES (p_id_operazione, v_pos.id_utensile, v_nome_operatore, 'smontaggio_scarto', p_quantita, v_pos.id_macchina, v_pos.id_commessa, v_pos.luogo, NULL, v_pos.stato, v_pos.n_riaffilature, v_causale_effettiva, p_nota, v_costo_unitario, v_snapshot_da, NULL);
+        INSERT INTO movements_history (id_operazione, tool_id, operatore, tipo_operazione, quantita, id_macchina, commessa_id, luogo_da, luogo_a, stato, n_riaffilature, causale_scarto, nota, costo_unitario, snapshot_da, snapshot_a, pezzi_lavorati)
+        VALUES (p_id_operazione, v_pos.id_utensile, v_nome_operatore, 'smontaggio_scarto', p_quantita, v_pos.id_macchina, v_pos.id_commessa, v_pos.luogo, NULL, v_pos.stato, v_pos.n_riaffilature, v_causale_effettiva, p_nota, v_costo_unitario, v_snapshot_da, NULL, v_pos.pezzi_lavorati);
         
         v_destinazione := NULL;
     ELSIF v_esito_effettivo = 'consumato' THEN
@@ -471,8 +477,8 @@ BEGIN
         DO UPDATE SET quantita = posizioni_utensile.quantita + EXCLUDED.quantita
         RETURNING jsonb_build_object('id', id, 'luogo', luogo, 'id_commessa', id_commessa, 'id_macchina', id_macchina, 'stato', stato, 'n_riaffilature', n_riaffilature) INTO v_snapshot_a;
         
-        INSERT INTO movements_history (id_operazione, tool_id, operatore, tipo_operazione, quantita, id_macchina, commessa_id, luogo_da, luogo_a, stato, n_riaffilature, nota, costo_unitario, snapshot_da, snapshot_a)
-        VALUES (p_id_operazione, v_pos.id_utensile, v_nome_operatore, 'smontaggio_cestello', p_quantita, v_pos.id_macchina, v_pos.id_commessa, v_pos.luogo, v_luogo_dest, v_pos.stato, v_pos.n_riaffilature, p_nota, v_costo_unitario, v_snapshot_da, v_snapshot_a);
+        INSERT INTO movements_history (id_operazione, tool_id, operatore, tipo_operazione, quantita, id_macchina, commessa_id, luogo_da, luogo_a, stato, n_riaffilature, nota, costo_unitario, snapshot_da, snapshot_a, pezzi_lavorati)
+        VALUES (p_id_operazione, v_pos.id_utensile, v_nome_operatore, 'smontaggio_cestello', p_quantita, v_pos.id_macchina, v_pos.id_commessa, v_pos.luogo, v_luogo_dest, v_pos.stato, v_pos.n_riaffilature, p_nota, v_costo_unitario, v_snapshot_da, v_snapshot_a, v_pos.pezzi_lavorati);
         
         v_destinazione := json_build_object('luogo', 'cestello');
     ELSIF v_esito_effettivo = 'sposta' THEN
@@ -491,8 +497,8 @@ BEGIN
         DO UPDATE SET quantita = posizioni_utensile.quantita + EXCLUDED.quantita
         RETURNING jsonb_build_object('id', id, 'luogo', luogo, 'id_commessa', id_commessa, 'id_macchina', id_macchina, 'stato', stato, 'n_riaffilature', n_riaffilature) INTO v_snapshot_a;
         
-        INSERT INTO movements_history (id_operazione, tool_id, operatore, tipo_operazione, quantita, id_macchina, commessa_id, luogo_da, luogo_a, stato, n_riaffilature, nota, costo_unitario, snapshot_da, snapshot_a)
-        VALUES (p_id_operazione, v_pos.id_utensile, v_nome_operatore, 'spostamento_produzione', p_quantita, p_dest_id_macchina, p_dest_id_commessa, v_pos.luogo, v_luogo_dest, v_pos.stato, v_pos.n_riaffilature, p_nota, v_costo_unitario, v_snapshot_da, v_snapshot_a);
+        INSERT INTO movements_history (id_operazione, tool_id, operatore, tipo_operazione, quantita, id_macchina, commessa_id, luogo_da, luogo_a, stato, n_riaffilature, nota, costo_unitario, snapshot_da, snapshot_a, pezzi_lavorati)
+        VALUES (p_id_operazione, v_pos.id_utensile, v_nome_operatore, 'spostamento_produzione', p_quantita, p_dest_id_macchina, p_dest_id_commessa, v_pos.luogo, v_luogo_dest, v_pos.stato, v_pos.n_riaffilature, p_nota, v_costo_unitario, v_snapshot_da, v_snapshot_a, v_pos.pezzi_lavorati);
         
         v_destinazione := json_build_object(
             'luogo', 'macchina',
@@ -519,8 +525,8 @@ BEGIN
         DO UPDATE SET quantita = posizioni_utensile.quantita + EXCLUDED.quantita
         RETURNING jsonb_build_object('id', id, 'luogo', luogo, 'id_commessa', id_commessa, 'id_macchina', id_macchina, 'stato', stato, 'n_riaffilature', n_riaffilature) INTO v_snapshot_a;
         
-        INSERT INTO movements_history (id_operazione, tool_id, operatore, tipo_operazione, quantita, id_macchina, commessa_id, luogo_da, luogo_a, stato, n_riaffilature, nota, costo_unitario, snapshot_da, snapshot_a)
-        VALUES (p_id_operazione, v_pos.id_utensile, v_nome_operatore, 'smontaggio_rientro', p_quantita, NULL, (CASE WHEN v_luogo_dest = 'cassetto' THEN v_pos.id_commessa ELSE NULL END), v_pos.luogo, v_luogo_dest, v_pos.stato, v_pos.n_riaffilature, p_nota, v_costo_unitario, v_snapshot_da, v_snapshot_a);
+        INSERT INTO movements_history (id_operazione, tool_id, operatore, tipo_operazione, quantita, id_macchina, commessa_id, luogo_da, luogo_a, stato, n_riaffilature, nota, costo_unitario, snapshot_da, snapshot_a, pezzi_lavorati)
+        VALUES (p_id_operazione, v_pos.id_utensile, v_nome_operatore, 'smontaggio_rientro', p_quantita, NULL, (CASE WHEN v_luogo_dest = 'cassetto' THEN v_pos.id_commessa ELSE NULL END), v_pos.luogo, v_luogo_dest, v_pos.stato, v_pos.n_riaffilature, p_nota, v_costo_unitario, v_snapshot_da, v_snapshot_a, v_pos.pezzi_lavorati);
         
         v_destinazione := json_build_object(
             'luogo', v_luogo_dest,
@@ -629,3 +635,254 @@ BEGIN
 END;
 $$;
 GRANT EXECUTE ON FUNCTION public.annulla_operazione TO anon, authenticated;
+
+
+-- ==========================================================
+-- RPC ESTENSIONE: CICLO DI VITA LAVORAZIONI CNC
+-- ==========================================================
+
+-- 4.8 registra_avanzamento_lavorazione
+CREATE OR REPLACE FUNCTION public.registra_avanzamento_lavorazione(
+    p_id_commessa UUID,
+    p_pezzi_aggiunti INT,
+    p_id_operatore UUID
+)
+RETURNS json
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+    v_nome_operatore TEXT;
+    v_commessa RECORD;
+    v_aggiornati INT := 0;
+    v_nuovo_totale INT := 0;
+BEGIN
+    IF p_pezzi_aggiunti <= 0 THEN
+        RAISE EXCEPTION USING ERRCODE = 'P0001', MESSAGE = 'DATI_NON_VALIDI', DETAIL = '{"campo":"p_pezzi_aggiunti"}';
+    END IF;
+
+    SELECT (nome || ' ' || cognome) INTO v_nome_operatore FROM utenti WHERE id = p_id_operatore;
+    IF v_nome_operatore IS NULL THEN v_nome_operatore := 'Operatore Sconosciuto'; END IF;
+
+    SELECT * INTO v_commessa FROM commesse WHERE id = p_id_commessa FOR UPDATE;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION USING ERRCODE = 'P0001', MESSAGE = 'COMMESSA_CHIUSA', DETAIL = '{}';
+    END IF;
+    IF v_commessa.stato = 'Chiusa' THEN
+        RAISE EXCEPTION USING ERRCODE = 'P0001', MESSAGE = 'COMMESSA_CHIUSA', DETAIL = json_build_object('codice', v_commessa.codice)::text;
+    END IF;
+
+    UPDATE commesse 
+    SET pezzi_completati = COALESCE(pezzi_completati, 0) + p_pezzi_aggiunti
+    WHERE id = p_id_commessa
+    RETURNING pezzi_completati INTO v_nuovo_totale;
+
+    -- Incrementa pezzi_lavorati per tutti gli utensili attualmente montati su quella lavorazione e macchina
+    UPDATE posizioni_utensile
+    SET pezzi_lavorati = COALESCE(pezzi_lavorati, 0) + p_pezzi_aggiunti,
+        aggiornato_il = now()
+    WHERE luogo = 'macchina' AND id_commessa = p_id_commessa;
+    GET DIAGNOSTICS v_aggiornati = ROW_COUNT;
+
+    -- Registra nello storico
+    INSERT INTO movements_history (
+        id_operazione, tool_id, operatore, tipo_operazione, quantita, commessa_id, id_macchina, nota, pezzi_lavorati, created_at
+    ) VALUES (
+        gen_random_uuid(), NULL, v_nome_operatore, 'avanzamento_produzione', p_pezzi_aggiunti, p_id_commessa, v_commessa.macchina_id,
+        format('Avanzamento lavorazione %s: +%s pz', COALESCE(v_commessa.nome_lavorazione, v_commessa.codice), p_pezzi_aggiunti),
+        p_pezzi_aggiunti, now()
+    );
+
+    RETURN json_build_object(
+        'ok', true,
+        'id_commessa', p_id_commessa,
+        'pezzi_aggiunti', p_pezzi_aggiunti,
+        'pezzi_completati', v_nuovo_totale,
+        'utensili_aggiornati', v_aggiornati
+    );
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.registra_avanzamento_lavorazione(UUID, INT, UUID) TO anon, authenticated;
+
+
+-- 4.9 eredita_utensile_bordo
+CREATE OR REPLACE FUNCTION public.eredita_utensile_bordo(
+    p_id_posizione UUID,
+    p_nuova_commessa_id UUID,
+    p_id_operatore UUID
+)
+RETURNS json
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+    v_nome_operatore TEXT;
+    v_pos RECORD;
+    v_commessa RECORD;
+    v_pos_esistente RECORD;
+BEGIN
+    v_nome_operatore := check_permesso(p_id_operatore, 'can_pick_tools');
+
+    SELECT * INTO v_pos FROM posizioni_utensile WHERE id = p_id_posizione FOR UPDATE;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION USING ERRCODE = 'P0001', MESSAGE = 'POSIZIONE_NON_TROVATA', DETAIL = '{}';
+    END IF;
+    IF v_pos.luogo != 'macchina' THEN
+        RAISE EXCEPTION USING ERRCODE = 'P0001', MESSAGE = 'DATI_NON_VALIDI', DETAIL = '{"campo":"luogo"}';
+    END IF;
+
+    SELECT * INTO v_commessa FROM commesse WHERE id = p_nuova_commessa_id;
+    IF NOT FOUND OR v_commessa.stato = 'Chiusa' THEN
+        RAISE EXCEPTION USING ERRCODE = 'P0001', MESSAGE = 'COMMESSA_CHIUSA', DETAIL = json_build_object('codice', v_commessa.codice)::text;
+    END IF;
+
+    -- Se già assegnata a questa commessa, è no-op
+    IF v_pos.id_commessa IS NOT DISTINCT FROM p_nuova_commessa_id THEN
+        RETURN json_build_object('ok', true, 'id_posizione', p_id_posizione, 'id_commessa', p_nuova_commessa_id, 'gia_assegnato', true);
+    END IF;
+
+    -- Verifica se esiste già una posizione identica su quella macchina per la nuova commessa
+    SELECT * INTO v_pos_esistente FROM posizioni_utensile 
+    WHERE id_utensile = v_pos.id_utensile 
+      AND luogo = 'macchina' 
+      AND stato = v_pos.stato 
+      AND n_riaffilature = v_pos.n_riaffilature 
+      AND id_commessa = p_nuova_commessa_id 
+      AND id_macchina = v_pos.id_macchina 
+      AND id != v_pos.id
+    FOR UPDATE;
+
+    IF FOUND THEN
+        UPDATE posizioni_utensile
+        SET quantita = quantita + v_pos.quantita,
+            pezzi_lavorati = GREATEST(pezzi_lavorati, v_pos.pezzi_lavorati),
+            aggiornato_il = now()
+        WHERE id = v_pos_esistente.id;
+
+        DELETE FROM posizioni_utensile WHERE id = p_id_posizione;
+    ELSE
+        UPDATE posizioni_utensile
+        SET id_commessa = p_nuova_commessa_id,
+            aggiornato_il = now()
+        WHERE id = p_id_posizione;
+    END IF;
+
+    INSERT INTO movements_history (
+        id_operazione, tool_id, operatore, tipo_operazione, quantita, commessa_id, id_macchina, luogo_da, luogo_a, stato, n_riaffilature, nota, pezzi_lavorati, created_at
+    ) VALUES (
+        gen_random_uuid(), v_pos.id_utensile, v_nome_operatore, 'eredita_bordo_macchina', v_pos.quantita, p_nuova_commessa_id, v_pos.id_macchina, 'macchina', 'macchina', v_pos.stato, v_pos.n_riaffilature,
+        format('Utensile ereditato su lavorazione %s', COALESCE(v_commessa.nome_lavorazione, v_commessa.codice)),
+        v_pos.pezzi_lavorati, now()
+    );
+
+    RETURN json_build_object('ok', true, 'id_posizione', p_id_posizione, 'id_commessa', p_nuova_commessa_id);
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.eredita_utensile_bordo(UUID, UUID, UUID) TO anon, authenticated;
+
+
+-- 4.10 chiudi_lavorazione
+CREATE OR REPLACE FUNCTION public.chiudi_lavorazione(
+    p_id_commessa UUID,
+    p_svuota_cassetto BOOLEAN DEFAULT false,
+    p_id_operatore UUID DEFAULT NULL
+)
+RETURNS json
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+    v_nome_operatore TEXT;
+    v_commessa RECORD;
+    v_pos_rec RECORD;
+    v_svuotati INT := 0;
+    v_lasciati_bordo INT := 0;
+BEGIN
+    SELECT (nome || ' ' || cognome) INTO v_nome_operatore FROM utenti WHERE id = p_id_operatore;
+    IF v_nome_operatore IS NULL THEN v_nome_operatore := 'Operatore Sconosciuto'; END IF;
+
+    SELECT * INTO v_commessa FROM commesse WHERE id = p_id_commessa FOR UPDATE;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION USING ERRCODE = 'P0001', MESSAGE = 'COMMESSA_CHIUSA', DETAIL = '{}';
+    END IF;
+
+    -- Imposta stato = 'Chiusa'
+    UPDATE commesse SET stato = 'Chiusa' WHERE id = p_id_commessa;
+
+    -- 1. Utensili macchina: passano a id_commessa = NULL (Generico a bordo)
+    FOR v_pos_rec IN 
+        SELECT * FROM posizioni_utensile 
+        WHERE luogo = 'macchina' AND id_commessa = p_id_commessa 
+        FOR UPDATE
+    LOOP
+        v_lasciati_bordo := v_lasciati_bordo + v_pos_rec.quantita;
+
+        IF EXISTS (
+            SELECT 1 FROM posizioni_utensile 
+            WHERE id_utensile = v_pos_rec.id_utensile 
+              AND luogo = 'macchina' 
+              AND stato = v_pos_rec.stato 
+              AND n_riaffilature = v_pos_rec.n_riaffilature 
+              AND id_commessa IS NULL 
+              AND id_macchina = v_pos_rec.id_macchina 
+              AND id != v_pos_rec.id
+        ) THEN
+            UPDATE posizioni_utensile
+            SET quantita = quantita + v_pos_rec.quantita,
+                pezzi_lavorati = GREATEST(pezzi_lavorati, v_pos_rec.pezzi_lavorati),
+                aggiornato_il = now()
+            WHERE id_utensile = v_pos_rec.id_utensile 
+              AND luogo = 'macchina' 
+              AND stato = v_pos_rec.stato 
+              AND n_riaffilature = v_pos_rec.n_riaffilature 
+              AND id_commessa IS NULL 
+              AND id_macchina = v_pos_rec.id_macchina 
+              AND id != v_pos_rec.id;
+
+            DELETE FROM posizioni_utensile WHERE id = v_pos_rec.id;
+        ELSE
+            UPDATE posizioni_utensile
+            SET id_commessa = NULL,
+                aggiornato_il = now()
+            WHERE id = v_pos_rec.id;
+        END IF;
+    END LOOP;
+
+    -- 2. Utensili cassetto: se p_svuota_cassetto = true, tornano a magazzino
+    IF COALESCE(p_svuota_cassetto, false) THEN
+        FOR v_pos_rec IN 
+            SELECT * FROM posizioni_utensile 
+            WHERE luogo = 'cassetto' AND id_commessa = p_id_commessa 
+            FOR UPDATE
+        LOOP
+            v_svuotati := v_svuotati + v_pos_rec.quantita;
+
+            -- Upsert in magazzino
+            INSERT INTO posizioni_utensile (id, id_utensile, luogo, stato, n_riaffilature, id_commessa, quantita)
+            VALUES (gen_random_uuid(), v_pos_rec.id_utensile, 'magazzino', v_pos_rec.stato, v_pos_rec.n_riaffilature, NULL, v_pos_rec.quantita)
+            ON CONFLICT (id_utensile, luogo, stato, n_riaffilature, id_commessa, id_macchina, id_spedizione)
+            DO UPDATE SET quantita = posizioni_utensile.quantita + EXCLUDED.quantita, aggiornato_il = now();
+
+            DELETE FROM posizioni_utensile WHERE id = v_pos_rec.id;
+
+            INSERT INTO movements_history (
+                id_operazione, tool_id, operatore, tipo_operazione, quantita, commessa_id, luogo_da, luogo_a, stato, n_riaffilature, nota, created_at
+            ) VALUES (
+                gen_random_uuid(), v_pos_rec.id_utensile, v_nome_operatore, 'rientro_cassetto_chiusura', v_pos_rec.quantita, p_id_commessa, 'cassetto', 'magazzino', v_pos_rec.stato, v_pos_rec.n_riaffilature,
+                format('Chiusura lavorazione %s: svuotamento cassetto a magazzino', COALESCE(v_commessa.nome_lavorazione, v_commessa.codice)),
+                now()
+            );
+        END LOOP;
+    END IF;
+
+    RETURN json_build_object(
+        'ok', true,
+        'id_commessa', p_id_commessa,
+        'stato', 'Chiusa',
+        'utensili_lasciati_bordo', v_lasciati_bordo,
+        'utensili_svuotati_cassetto', v_svuotati
+    );
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.chiudi_lavorazione(UUID, BOOLEAN, UUID) TO anon, authenticated;
+

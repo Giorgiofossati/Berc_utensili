@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { 
   GitFork, Layers, ShieldAlert, Tag,
   Maximize2, Minimize2, Info, X
@@ -82,10 +82,26 @@ export default function CostSankeyCard({
   const [splitMode, setSplitMode] = useState('forma'); // 'forma' | 'stato' | 'fascia'
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [windowHeight, setWindowHeight] = useState(() => typeof window !== 'undefined' ? window.innerHeight : 800);
+  const [windowWidth, setWindowWidth] = useState(() => typeof window !== 'undefined' ? window.innerWidth : 1280);
+  // A schermo intero il grafico prende esattamente lo spazio lasciato da header e footer
+  const chartWrapRef = useRef(null);
+  const [fullscreenChartH, setFullscreenChartH] = useState(0);
+
+  useEffect(() => {
+    if (!isFullscreen || !chartWrapRef.current) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setFullscreenChartH(Math.floor(entry.contentRect.height));
+    });
+    ro.observe(chartWrapRef.current);
+    return () => ro.disconnect();
+  }, [isFullscreen]);
 
   // Gestione ridimensionamento e tasto Esc per uscire da schermo intero
   useEffect(() => {
-    const handleResize = () => setWindowHeight(window.innerHeight);
+    const handleResize = () => {
+      setWindowHeight(window.innerHeight);
+      setWindowWidth(window.innerWidth);
+    };
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isFullscreen) {
         setIsFullscreen(false);
@@ -355,34 +371,46 @@ export default function CostSankeyCard({
     }
   };
 
+  // Su mobile etichette brevi e tre segmenti di pari larghezza: niente a capo né overflow
+  const optionLabel = (short, full) => (
+    <>
+      <span className="sm:hidden">{short}</span>
+      <span className="max-sm:hidden">{full}</span>
+    </>
+  );
+  const optionClassName = "max-sm:flex-1 max-sm:px-2 whitespace-nowrap";
   const splitOptions = [
-    { value: 'forma', label: 'Geometria / Forma', icon: <Tag size={14} /> },
-    { value: 'stato', label: 'Stato Giacenze', icon: <ShieldAlert size={14} /> },
-    { value: 'fascia', label: 'Fascia di Prezzo', icon: <Layers size={14} /> }
+    { value: 'forma', label: optionLabel('Forma', 'Geometria / Forma'), icon: <Tag size={14} />, className: optionClassName },
+    { value: 'stato', label: optionLabel('Stato', 'Stato giacenze'), icon: <ShieldAlert size={14} />, className: optionClassName },
+    { value: 'fascia', label: optionLabel('Prezzo', 'Fascia di prezzo'), icon: <Layers size={14} />, className: optionClassName }
   ];
 
+  const isMobile = windowWidth < 640;
+
   // Calcolo altezza dinamica per la massima visibilità (standard vs fullscreen)
-  const chartHeight = isFullscreen ? Math.max(520, windowHeight - 220) : 480;
+  const chartHeight = isFullscreen
+    ? Math.max(280, fullscreenChartH || windowHeight - 260)
+    : isMobile ? 400 : 480;
 
   const cardContent = (
     <div className={cn(
       "flex flex-col gap-4",
       isFullscreen 
-        ? "fixed inset-0 z-50 bg-slate-50/98 dark:bg-slate-950/98 backdrop-blur-2xl p-4 sm:p-6 md:p-8 overflow-hidden h-screen w-screen justify-between"
-        : cn("glass-panel p-5 sm:p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm", className)
+        ? "fixed inset-0 z-50 bg-slate-50/98 dark:bg-slate-950/98 backdrop-blur-2xl p-3 sm:p-6 md:p-8 overflow-hidden h-dvh w-screen justify-between"
+        : cn("glass-panel p-4 sm:p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm", className)
     )}>
       {/* HEADER CARD CON CONTROLLI E PULSANTE SCHERMO INTERO */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/80 pb-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 border-b border-slate-100 dark:border-slate-800/80 pb-3 sm:pb-4">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-2xl bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
+          <div className="max-sm:hidden w-10 h-10 rounded-2xl bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
             <GitFork size={20} />
           </div>
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="app-h3 text-slate-900 dark:text-slate-100 truncate">
+              <h3 className="app-h3 text-slate-900 dark:text-slate-100">
                 Flusso del valore per tipologia utensile
               </h3>
-              <span className="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-xs font-bold text-sky-600 dark:text-sky-400">
+              <span className="max-sm:hidden px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-xs font-bold text-sky-600 dark:text-sky-400">
                 Sankey
               </span>
               {selectedCategory && selectedCategory !== 'TUTTE' && (
@@ -391,48 +419,50 @@ export default function CostSankeyCard({
                 </span>
               )}
             </div>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="max-sm:hidden text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
               Ripartizione dal capitale totale alle famiglie utensili e alle relative specifiche
             </p>
           </div>
         </div>
 
         {/* CONTROLLI SULLA DESTRA (SEGMENTED + FULLSCREEN BUTTON) */}
-        <div className="flex items-center gap-2.5 shrink-0 flex-wrap justify-between sm:justify-end">
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 sm:justify-end">
           <SegmentedControl
             value={splitMode}
             onValueChange={setSplitMode}
             options={splitOptions}
             ariaLabel="Raggruppamento Sankey"
-            className="text-xs"
+            className="text-xs max-sm:flex-1 max-sm:min-w-0"
           />
 
           {isFullscreen ? (
             <button
               type="button"
               onClick={() => setIsFullscreen(false)}
-              className="px-3.5 py-2 rounded-xl bg-accent-blue text-slate-950 text-xs font-black tracking-wide hover:brightness-110 flex items-center gap-2 cursor-pointer shadow-md transition-all shrink-0"
+              className="min-h-11 min-w-11 justify-center px-3 sm:px-3.5 py-2 rounded-xl bg-accent-blue text-slate-950 text-xs font-black tracking-wide hover:brightness-110 flex items-center gap-2 cursor-pointer shadow-md transition-all shrink-0"
               title="Esci da tutto schermo (Esc)"
+              aria-label="Esci da tutto schermo"
             >
               <Minimize2 size={15} />
-              <span>Esci da tutto schermo (Esc)</span>
+              <span className="max-sm:hidden">Esci da tutto schermo (Esc)</span>
             </button>
           ) : (
             <button
               type="button"
               onClick={() => setIsFullscreen(true)}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:text-sky-600 dark:hover:text-sky-400 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700/80 flex items-center gap-1.5 cursor-pointer shadow-xs transition-all shrink-0"
+              className="min-h-11 min-w-11 justify-center px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:text-sky-600 dark:hover:text-sky-400 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700/80 flex items-center gap-1.5 cursor-pointer shadow-xs transition-all shrink-0"
               title="Visualizza diagramma a schermo intero"
+              aria-label="Schermo intero"
             >
               <Maximize2 size={15} className="text-sky-500" />
-              <span>Schermo intero</span>
+              <span className="max-sm:hidden">Schermo intero</span>
             </button>
           )}
         </div>
       </div>
 
       {/* DIAGRAMMA SANKEY (SPAZIO MASSIMIZZATO) */}
-      <div className={cn("w-full relative flex flex-col justify-center", isFullscreen ? "flex-1 min-h-0" : "")}>
+      <div ref={chartWrapRef} className={cn("w-full relative flex flex-col justify-center", isFullscreen ? "flex-1 min-h-0 overflow-hidden" : "")}>
         <SankeyChart
           data={sankeyData}
           height={chartHeight}
@@ -444,9 +474,17 @@ export default function CostSankeyCard({
 
       {/* FOOTER STATISTICHE E GUIDA INTERATTIVA */}
       <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400 flex-wrap">
+        <div className="flex max-sm:flex-col max-sm:items-stretch max-sm:w-full sm:items-center gap-x-4 gap-y-1.5 text-slate-500 dark:text-slate-400 flex-wrap">
+          {/* Su mobile la colonna radice non è disegnata: il totale va qui */}
+          <div className="sm:hidden flex items-center justify-between gap-1.5">
+            <span className="font-bold text-slate-700 dark:text-slate-300">Asset magazzino:</span>
+            <span className="font-mono tabular-nums font-extrabold text-slate-900 dark:text-white">
+              {formatCurrency(summaryStats.totalVal)}
+            </span>
+          </div>
+
           {summaryStats.topCategory && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center max-sm:justify-between gap-1.5">
               <span className="font-bold text-slate-700 dark:text-slate-300">Prima categoria:</span>
               <span className="font-extrabold text-sky-600 dark:text-sky-400">
                 {summaryStats.topCategory.tipo}{' '}
@@ -455,7 +493,7 @@ export default function CostSankeyCard({
             </div>
           )}
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center max-sm:justify-between gap-1.5">
             <span className="font-bold text-slate-700 dark:text-slate-300">Capitale a rischio scorta:</span>
             <span className={cn(
               "font-mono font-extrabold",
@@ -468,7 +506,8 @@ export default function CostSankeyCard({
 
         <div className="flex items-center gap-2 text-slate-400">
           <Info size={14} className="text-accent-blue shrink-0" />
-          <span>Passa sopra a nodi e flussi per dettagli o clicca su una tipologia per filtrare.</span>
+          <span className="max-sm:hidden">Passa sopra a nodi e flussi per dettagli o clicca su una tipologia per filtrare.</span>
+          <span className="sm:hidden">Tocca un nodo per il dettaglio, di nuovo per aprire la tipologia.</span>
         </div>
       </div>
     </div>

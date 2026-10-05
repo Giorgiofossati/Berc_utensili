@@ -233,7 +233,7 @@ const HistoryView = memo(({
     columnHelper.accessor('created_at', {
       header: 'Data & Ora',
       size: 150,
-      meta: { className: 'shrink-0' },
+      meta: { className: 'shrink-0', headerPadding: 'px-3 sm:px-4' },
       sortingFn: (rowA, rowB, columnId) => {
         const timeA = new Date(rowA.getValue(columnId) || 0).getTime();
         const timeB = new Date(rowB.getValue(columnId) || 0).getTime();
@@ -258,7 +258,7 @@ const HistoryView = memo(({
       id: 'Utensile',
       header: 'Utensile',
       size: 0,
-      meta: { isFlex: true },
+      meta: { isFlex: true, headerPadding: 'px-2 sm:px-3' },
       sortingFn: (rowA, rowB, columnId) => {
         return String(rowA.getValue(columnId) || '').localeCompare(
           String(rowB.getValue(columnId) || ''),
@@ -300,7 +300,7 @@ const HistoryView = memo(({
       id: 'Commessa',
       header: 'Commessa',
       size: 110,
-      meta: { className: 'shrink-0 hidden lg:flex' },
+      meta: { className: 'shrink-0 hidden lg:flex justify-center', title: 'Codice Commessa' },
       sortingFn: (rowA, rowB, columnId) => {
         return String(rowA.getValue(columnId) || '').localeCompare(String(rowB.getValue(columnId) || ''));
       },
@@ -320,7 +320,7 @@ const HistoryView = memo(({
     columnHelper.accessor('tipo_operazione', {
       header: 'Flusso',
       size: 95,
-      meta: { className: 'shrink-0' },
+      meta: { className: 'shrink-0 justify-center', title: 'Tipo Movimento' },
       sortingFn: (rowA, rowB, columnId) => {
         return String(rowA.getValue(columnId) || '').localeCompare(
           String(rowB.getValue(columnId) || '')
@@ -341,7 +341,7 @@ const HistoryView = memo(({
     columnHelper.accessor('quantita', {
       header: 'QTY',
       size: 70,
-      meta: { className: 'shrink-0' },
+      meta: { className: 'shrink-0 justify-center', title: 'Quantità Movimentata' },
       sortingFn: (rowA, rowB, columnId) => {
         const a = Number(rowA.getValue(columnId)) || 0;
         const b = Number(rowB.getValue(columnId)) || 0;
@@ -362,7 +362,7 @@ const HistoryView = memo(({
     columnHelper.accessor('operatore', {
       header: 'Operatore',
       size: 140,
-      meta: { className: 'hidden md:flex' },
+      meta: { className: 'hidden md:flex', headerPadding: 'px-3' },
       sortingFn: (rowA, rowB, columnId) => {
         return String(rowA.getValue(columnId) || '').localeCompare(
           String(rowB.getValue(columnId) || '')

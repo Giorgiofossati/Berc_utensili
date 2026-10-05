@@ -27,7 +27,11 @@ ALTER TABLE public.utenti ADD COLUMN IF NOT EXISTS can_manage_catalog BOOLEAN DE
 ALTER TABLE public.utenti ADD COLUMN IF NOT EXISTS can_manage_riaffilature BOOLEAN DEFAULT false;
 ALTER TABLE public.utenti ADD COLUMN IF NOT EXISTS can_pick_tools BOOLEAN DEFAULT true;
 
--- 2.4 commesse (nessuna colonna nuova)
+-- 2.4 commesse (estensione Lavorazioni CNC)
+ALTER TABLE public.commesse ADD COLUMN IF NOT EXISTS nome_lavorazione TEXT NULL;
+ALTER TABLE public.commesse ADD COLUMN IF NOT EXISTS traccia_ciclo_vita BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE public.commesse ADD COLUMN IF NOT EXISTS target_pezzi_lotto INTEGER NULL;
+ALTER TABLE public.commesse ADD COLUMN IF NOT EXISTS pezzi_completati INTEGER NOT NULL DEFAULT 0;
 
 -- 2.5 ordini (colonna aggiunta)
 ALTER TABLE public.ordini ADD COLUMN IF NOT EXISTS commessa_id UUID REFERENCES public.commesse(id);
@@ -60,6 +64,8 @@ CREATE TABLE IF NOT EXISTS public.posizioni_utensile (
     id_macchina UUID REFERENCES public.macchine_cnc(id),
     id_spedizione UUID REFERENCES public.spedizioni_riaffilatura(id),
     quantita INTEGER NOT NULL CHECK (quantita > 0),
+    pezzi_lavorati INTEGER NOT NULL DEFAULT 0,
+    target_pezzi_fresa INTEGER NULL,
     entrata_il TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     aggiornato_il TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     
@@ -98,10 +104,10 @@ ON public.posizioni_utensile (
     luogo, 
     stato, 
     n_riaffilature, 
-    id_commessa NULLS NOT DISTINCT, 
-    id_macchina NULLS NOT DISTINCT, 
-    id_spedizione NULLS NOT DISTINCT
-);
+    id_commessa, 
+    id_macchina, 
+    id_spedizione
+) NULLS NOT DISTINCT;
 
 CREATE INDEX IF NOT EXISTS idx_posizioni_luogo ON public.posizioni_utensile(luogo);
 CREATE INDEX IF NOT EXISTS idx_posizioni_macchina ON public.posizioni_utensile(id_macchina);
@@ -121,6 +127,7 @@ ALTER TABLE public.movements_history ADD COLUMN IF NOT EXISTS id_spedizione UUID
 ALTER TABLE public.movements_history ADD COLUMN IF NOT EXISTS causale_scarto TEXT NULL CHECK (causale_scarto IN ('usura', 'collisione', 'rottura_lavorazione', 'parametri_programma', 'altro', 'usura_limite_riaffilature', 'scarto_fornitore'));
 ALTER TABLE public.movements_history ADD COLUMN IF NOT EXISTS nota TEXT NULL;
 ALTER TABLE public.movements_history ADD COLUMN IF NOT EXISTS costo_unitario NUMERIC(10,2) NULL;
+ALTER TABLE public.movements_history ADD COLUMN IF NOT EXISTS pezzi_lavorati INTEGER NULL;
 ALTER TABLE public.movements_history ADD COLUMN IF NOT EXISTS snapshot_da JSONB NULL;
 ALTER TABLE public.movements_history ADD COLUMN IF NOT EXISTS snapshot_a JSONB NULL;
 DROP INDEX IF EXISTS public.idx_movements_history_id_operazione_parziale;
@@ -138,13 +145,19 @@ DECLARE
     err_record RECORD;
     err_list TEXT := '';
 BEGIN
-    -- 4. Utenti Admin ⇒ tutti i flag true
+    -- 4. Utenti Admin e Manager ⇒ permessi
     UPDATE public.utenti
     SET can_view_dashboard = true,
         can_manage_catalog = true,
         can_manage_riaffilature = true,
         can_pick_tools = true
     WHERE ruolo = 'Admin';
+
+    UPDATE public.utenti
+    SET can_view_dashboard = true,
+        can_manage_riaffilature = true,
+        can_pick_tools = true
+    WHERE ruolo = 'Manager';
 
     IF EXISTS (
         SELECT FROM information_schema.tables 
@@ -237,7 +250,7 @@ BEGIN
     END IF;
     RETURN NULL;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 DROP TRIGGER IF EXISTS trg_update_utensili_quantita ON public.posizioni_utensile;
 CREATE TRIGGER trg_update_utensili_quantita

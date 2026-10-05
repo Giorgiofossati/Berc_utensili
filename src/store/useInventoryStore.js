@@ -70,6 +70,33 @@ export const useInventoryStore = create((set, get) => ({
   }),
 
   /**
+   * Aggiorna selettivamente un singolo utensile nello store e nella cache locale
+   */
+  updateTool: (updatedTool) => {
+    if (!updatedTool || !updatedTool.id) return;
+    const currentTools = get().tools;
+    const existing = currentTools.find(t => t.id === updatedTool.id);
+    const merged = existing ? { ...existing, ...updatedTool } : updatedTool;
+    const enriched = { ...merged, _searchIndex: generateSearchIndex(merged) };
+    set({
+      tools: currentTools.map(t => t.id === updatedTool.id ? enriched : t)
+    });
+    updateToolInCache(updatedTool.id, enriched);
+  },
+
+  /**
+   * Rimuove selettivamente un singolo utensile dallo store e dalla cache locale
+   */
+  removeTool: (toolId) => {
+    if (!toolId) return;
+    const currentTools = get().tools;
+    set({
+      tools: currentTools.filter(t => t.id !== toolId)
+    });
+    removeToolFromCache(toolId);
+  },
+
+  /**
    * Sincronizzazione Catalogo ad alte prestazioni:
    * 1. Legge all'istante dalla cache IndexedDB locale (render immediato < 5ms).
    * 2. In background prova la chiamata veloce RPC `get_tools_catalog()`.
@@ -111,11 +138,12 @@ export const useInventoryStore = create((set, get) => ({
       }
 
       if (rawTools && Array.isArray(rawTools)) {
-        const enriched = enrichToolsWithIndex(rawTools);
+        const activeTools = rawTools.filter(t => t && t.Stato !== 'ELIMINATO');
+        const enriched = enrichToolsWithIndex(activeTools);
         set({ 
           tools: enriched, 
           isLoading: false, 
-          isSyncing: false,
+          isSyncing: false, 
           lastSyncTime: Date.now() 
         });
 
@@ -147,6 +175,14 @@ export const useInventoryStore = create((set, get) => ({
           const currentTools = get().tools;
 
           if (eventType === 'UPDATE' && newRecord) {
+            if (newRecord.Stato === 'ELIMINATO') {
+              set({
+                tools: currentTools.filter(t => t.id !== newRecord.id)
+              });
+              removeToolFromCache(newRecord.id);
+              return;
+            }
+
             // Aggiorna l'utensile mantenendo le proprietà calcolate
             const existing = currentTools.find(t => t.id === newRecord.id);
             const merged = existing ? { ...existing, ...newRecord } : newRecord;
@@ -157,6 +193,7 @@ export const useInventoryStore = create((set, get) => ({
             });
             updateToolInCache(newRecord.id, enriched);
           } else if (eventType === 'INSERT' && newRecord) {
+            if (newRecord.Stato === 'ELIMINATO') return;
             // Inserisci nuovo articolo
             const enriched = { ...newRecord, _searchIndex: generateSearchIndex(newRecord) };
             if (!currentTools.some(t => t.id === newRecord.id)) {

@@ -50,7 +50,7 @@ export const VirtualizedTable = memo(({
           {table.getHeaderGroups().map((headerGroup) => (
             <div
               key={headerGroup.id}
-              className="flex flex-1 w-full text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[11px] select-none items-stretch"
+              className="flex flex-1 w-full text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wide text-[11px] select-none items-stretch"
             >
               {headerGroup.headers.map((header) => {
                 const meta = header.column.columnDef.meta;
@@ -68,14 +68,16 @@ export const VirtualizedTable = memo(({
                   ? `${meta.maxWidth}px` 
                   : (isFlex ? undefined : `${colSize}px`);
                 const width = isFlex ? undefined : `${colSize}px`;
+                const isCentered = meta?.className?.includes('justify-center');
+                const renderedHeader = flexRender(header.column.columnDef.header, header.getContext());
 
                 return (
                   <div
                     key={header.id}
-                    className={`flex items-center gap-1.5 ${density === 'compact' ? 'py-2 px-3' : 'py-3 px-3 sm:px-4'} transition-colors group relative overflow-hidden self-stretch ${
+                    className={`flex items-center ${density === 'compact' ? 'py-2' : 'py-2.5'} transition-colors group relative overflow-hidden self-stretch ${
                       canSort ? 'cursor-pointer hover:text-slate-950 dark:hover:text-white' : ''
                     } ${header.column.getIsSorted() ? 'text-sky-700 dark:text-sky-300' : ''} ${meta?.className || ''} ${
-                      isFlex ? 'min-w-0' : 'flex-shrink-0 justify-center'
+                      isFlex ? 'min-w-0' : 'flex-shrink-0'
                     } ${
                       showDividers ? (renderRowTrailing ? 'border-r border-slate-200 dark:border-slate-700/60' : 'border-r border-slate-200 dark:border-slate-700/60 last:border-r-0') : ''
                     }`}
@@ -87,12 +89,20 @@ export const VirtualizedTable = memo(({
                     }}
                     onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
                   >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                    {canSort && !customSortIcon && (
-                      <div className={`flex items-center shrink-0 ${isFlex ? 'ml-1.5' : ''}`}>
-                        <SortIcon column={header.column} />
-                      </div>
-                    )}
+                    <div className={`w-full flex items-center min-w-0 gap-1.5 ${meta?.headerPadding ?? 'px-2.5 sm:px-3'} ${isCentered ? 'justify-center mx-auto' : ''}`}>
+                      {typeof renderedHeader === 'string' ? (
+                        <span className="truncate whitespace-nowrap" title={meta?.title || renderedHeader}>
+                          {renderedHeader}
+                        </span>
+                      ) : (
+                        renderedHeader
+                      )}
+                      {canSort && !customSortIcon && (
+                        <div className="flex items-center shrink-0">
+                          <SortIcon column={header.column} size={12} />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })}

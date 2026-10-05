@@ -74,11 +74,11 @@ export function StatTile({
   return (
     <div
       className={cn(
-        "flex flex-col justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 select-none shadow-xs transition-colors",
+        "flex flex-col gap-2.5 sm:gap-3 p-3 sm:p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 select-none shadow-xs transition-colors",
         className
       )}
     >
-      <div className="flex items-center gap-2.5 min-w-0">
+      <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
         <div
           className={cn(
             "w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-lg border",
@@ -89,7 +89,7 @@ export function StatTile({
           {renderIcon()}
         </div>
         <div
-          className="app-overline text-accent-orange truncate min-w-0"
+          className="app-overline text-accent-orange line-clamp-2 leading-snug min-w-0"
           title={typeof label === 'string' ? label : undefined}
         >
           {label}
@@ -119,7 +119,7 @@ export function StatTile({
         </div>
 
         {subtext && (
-          <p className="text-xs text-muted-foreground truncate font-medium tabular-nums" title={typeof subtext === 'string' ? subtext : undefined}>
+          <p className="text-xs text-muted-foreground line-clamp-2 sm:truncate font-medium tabular-nums" title={typeof subtext === 'string' ? subtext : undefined}>
             {subtext}
           </p>
         )}

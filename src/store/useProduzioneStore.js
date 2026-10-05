@@ -166,6 +166,60 @@ export const useProduzioneStore = create((set, get) => ({
     }
   },
 
+  // Avanzamento giornaliero fine turno
+  registraAvanzamentoLavorazione: async ({ idCommessa, pezziAggiunti }) => {
+    set({ isSubmitting: true });
+    try {
+      const data = await callLifecycleRpc('registra_avanzamento_lavorazione', {
+        p_id_commessa: idCommessa,
+        p_pezzi_aggiunti: pezziAggiunti,
+        p_id_operatore: operatoreId()
+      });
+      set({ isSubmitting: false });
+      get().refreshLoaded();
+      return { success: true, data };
+    } catch (error) {
+      set({ isSubmitting: false });
+      return { success: false, error };
+    }
+  },
+
+  // Eredita utensile a bordo per nuova lavorazione
+  ereditaUtensileBordo: async ({ idPosizione, nuovaCommessaId }) => {
+    set({ isSubmitting: true });
+    try {
+      const data = await callLifecycleRpc('eredita_utensile_bordo', {
+        p_id_posizione: idPosizione,
+        p_nuova_commessa_id: nuovaCommessaId,
+        p_id_operatore: operatoreId()
+      });
+      set({ isSubmitting: false });
+      get().refreshLoaded();
+      return { success: true, data };
+    } catch (error) {
+      set({ isSubmitting: false });
+      return { success: false, error };
+    }
+  },
+
+  // Chiusura lavorazione con opzione svuota cassetto
+  chiudiLavorazione: async ({ idCommessa, svuotaCassetto = false }) => {
+    set({ isSubmitting: true });
+    try {
+      const data = await callLifecycleRpc('chiudi_lavorazione', {
+        p_id_commessa: idCommessa,
+        p_svuota_cassetto: svuotaCassetto,
+        p_id_operatore: operatoreId()
+      });
+      set({ isSubmitting: false });
+      get().refreshLoaded();
+      return { success: true, data };
+    } catch (error) {
+      set({ isSubmitting: false });
+      return { success: false, error };
+    }
+  },
+
   annullaOperazione: async (idOperazioneOriginale) => {
     set({ isSubmitting: true });
     try {

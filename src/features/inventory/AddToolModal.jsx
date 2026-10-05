@@ -1,10 +1,11 @@
 import React, { useState, useId } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Database, List, CheckCircle2, ChevronDown } from 'lucide-react';
+import { Save, Database, CheckCircle2, ChevronDown } from 'lucide-react';
 import { Dialog, DialogContent, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useAddToolForm } from '../../hooks/useAddToolForm';
+import { CreatableSelectField } from '@/components/common/CreatableSelectField';
 
 const FormFieldWrapper = ({ label, required = false, error, helperText, children }) => {
   return (
@@ -21,73 +22,6 @@ const FormFieldWrapper = ({ label, required = false, error, helperText, children
   );
 };
 
-const CustomSelectField = ({ 
-  name, 
-  label, 
-  required = false, 
-  isVisible = true, 
-  value, 
-  options = [], 
-  isCustom, 
-  onCustomToggle, 
-  onChange, 
-  placeholder, 
-  customPlaceholder,
-  error 
-}) => {
-  if (!isVisible) return null;
-
-  return (
-    <FormFieldWrapper label={label} required={required} error={error}>
-      {isCustom ? (
-        <div className="flex items-center gap-2">
-          <Input 
-            type="text" 
-            name={name} 
-            value={value || ''} 
-            onChange={onChange} 
-            className={`glass-input flex-1 h-[44px] min-h-[44px] rounded-[var(--radius-control,12px)] px-3.5 text-sm font-medium focus-visible:ring-2 focus-visible:ring-accent-blue/50 ${value ? 'font-bold text-foreground' : 'text-muted-foreground'} ${error ? 'border-accent-rose' : ''}`} 
-            placeholder={customPlaceholder || `Inserisci ${label.toLowerCase()}...`} 
-          />
-          <button 
-            type="button" 
-            onClick={onCustomToggle}
-            className="glass-button w-[44px] h-[44px] shrink-0 rounded-[var(--radius-control,12px)] flex items-center justify-center text-accent-blue hover:text-accent-blue/80 transition-all cursor-pointer"
-            title="Torna alla lista valori"
-          >
-            <List size={18} />
-          </button>
-        </div>
-      ) : (
-        <Select 
-          value={value ? String(value) : undefined} 
-          onValueChange={(val) => {
-            if (val === 'NEW_CUSTOM_VALUE') {
-              onCustomToggle();
-            } else {
-              onChange({ target: { name, value: val } });
-            }
-          }}
-        >
-          <SelectTrigger className={`glass-input w-full h-[44px] min-h-[44px] rounded-[var(--radius-control,12px)] px-3.5 text-sm font-medium focus:ring-2 focus:ring-accent-blue/50 transition-all cursor-pointer ${value ? 'font-bold text-foreground' : 'text-muted-foreground'} ${error ? 'border-accent-rose' : ''}`}>
-            <SelectValue placeholder={placeholder || `Seleziona ${label.toLowerCase()}...`} />
-          </SelectTrigger>
-          <SelectContent className="glass-panel z-[var(--z-dialog-2,60)] border-border bg-popover/95 backdrop-blur-xl max-h-[280px]">
-            {options.map(opt => (
-              <SelectItem key={opt} value={String(opt)} className="cursor-pointer font-bold">
-                {opt}
-              </SelectItem>
-            ))}
-            <SelectItem value="NEW_CUSTOM_VALUE" className="text-accent-blue font-bold cursor-pointer">
-              + Aggiungi nuovo valore...
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      )}
-    </FormFieldWrapper>
-  );
-};
-
 const AddToolModal = ({ onClose, onToolAdded, tools = [] }) => {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const formId = useId();
@@ -98,11 +32,10 @@ const AddToolModal = ({ onClose, onToolAdded, tools = [] }) => {
     error,
     fieldErrors,
     dbOptions,
-    customInputFields,
     formData,
     handleChange,
     handleNumberChange,
-    toggleCustomField,
+    addNewOption,
     handleSubmit
   } = useAddToolForm({ tools, onClose, onToolAdded });
 
@@ -207,28 +140,27 @@ const AddToolModal = ({ onClose, onToolAdded, tools = [] }) => {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <CustomSelectField 
+                    <CreatableSelectField 
                       name="Tipologia" 
                       label="Tipologia" 
                       required={true}
                       value={formData.Tipologia} 
                       options={dbOptions.Tipologia}
-                      isCustom={customInputFields.Tipologia} 
-                      onCustomToggle={() => toggleCustomField('Tipologia')}
                       onChange={handleChange}
+                      onAddNewOption={addNewOption}
                       placeholder="es. FRESA, PUNTA, MASCHIO..."
+                      customPlaceholder="es. FRESA SPECIALE, PUNTA ELICOIDALE..."
                       error={fieldErrors.Tipologia}
                     />
 
-                    <CustomSelectField 
+                    <CreatableSelectField 
                       name="Diametro" 
                       label="Diametro Nominale" 
                       required={true}
                       value={formData.Diametro} 
                       options={dbOptions.Diametro}
-                      isCustom={customInputFields.Diametro} 
-                      onCustomToggle={() => toggleCustomField('Diametro')}
                       onChange={handleChange}
+                      onAddNewOption={addNewOption}
                       placeholder="es. 10, D12, Ø16..."
                       customPlaceholder="es. 10 o D10"
                       error={fieldErrors.Diametro}
@@ -236,31 +168,30 @@ const AddToolModal = ({ onClose, onToolAdded, tools = [] }) => {
 
                     {/* Campi reattivi condizionali per FRESE */}
                     {isFresa && (
-                      <CustomSelectField 
+                      <CreatableSelectField 
                         name="Forma" 
                         label="Forma Fresa" 
                         required={true}
                         value={formData.Forma} 
                         options={dbOptions.Forma}
-                        isCustom={customInputFields.Forma} 
-                        onCustomToggle={() => toggleCustomField('Forma')}
                         onChange={handleChange}
+                        onAddNewOption={addNewOption}
                         placeholder="es. CANDELA, TORICA, SFERICA..."
+                        customPlaceholder="es. TORICA, SFERICA, SAGOMATA..."
                         error={fieldErrors.Forma}
                       />
                     )}
 
                     {isToricaOrSferica && (
-                      <CustomSelectField 
+                      <CreatableSelectField 
                         name="Raggio" 
                         label="Raggio di Punta" 
                         required={true}
                         customPlaceholder="es. R0.5 o 1.0"
                         value={formData.Raggio} 
                         options={dbOptions.Raggio}
-                        isCustom={customInputFields.Raggio} 
-                        onCustomToggle={() => toggleCustomField('Raggio')}
                         onChange={handleChange}
+                        onAddNewOption={addNewOption}
                         placeholder="es. R0.5, R1..."
                         error={fieldErrors.Raggio}
                       />
@@ -268,16 +199,15 @@ const AddToolModal = ({ onClose, onToolAdded, tools = [] }) => {
 
                     {/* Campi reattivi condizionali per MASCHI */}
                     {isMaschio && (
-                      <CustomSelectField 
+                      <CreatableSelectField 
                         name="Passo" 
                         label="Passo Filettatura" 
                         required={true}
                         customPlaceholder="es. 1.5 o 1.75"
                         value={formData.Passo} 
                         options={dbOptions.Passo}
-                        isCustom={customInputFields.Passo} 
-                        onCustomToggle={() => toggleCustomField('Passo')}
                         onChange={handleChange}
+                        onAddNewOption={addNewOption}
                         placeholder="es. 1.0, 1.5..."
                         error={fieldErrors.Passo}
                       />
@@ -285,16 +215,15 @@ const AddToolModal = ({ onClose, onToolAdded, tools = [] }) => {
 
                     {/* Campi reattivi condizionali per SVASATORI / SMUSSATORI */}
                     {isSvasatore && (
-                      <CustomSelectField 
+                      <CreatableSelectField 
                         name="Angolo" 
                         label="Angolo" 
                         required={true}
                         customPlaceholder="es. 90° o 60°"
                         value={formData.Angolo} 
                         options={dbOptions.Angolo}
-                        isCustom={customInputFields.Angolo} 
-                        onCustomToggle={() => toggleCustomField('Angolo')}
                         onChange={handleChange}
+                        onAddNewOption={addNewOption}
                         placeholder="es. 90°, 60°..."
                         error={fieldErrors.Angolo}
                       />
@@ -302,44 +231,43 @@ const AddToolModal = ({ onClose, onToolAdded, tools = [] }) => {
 
                     {/* Campi reattivi condizionali per ALESATORI */}
                     {isAlesatore && (
-                      <CustomSelectField 
+                      <CreatableSelectField 
                         name="Tolleranza" 
                         label="Tolleranza" 
                         required={true}
-                        customPlaceholder="es. H7"
+                        customPlaceholder="es. H7 o H6"
                         value={formData.Tolleranza} 
                         options={dbOptions.Tolleranza}
-                        isCustom={customInputFields.Tolleranza} 
-                        onCustomToggle={() => toggleCustomField('Tolleranza')}
                         onChange={handleChange}
+                        onAddNewOption={addNewOption}
                         placeholder="es. H7, H6..."
                         error={fieldErrors.Tolleranza}
                       />
                     )}
 
-                    <CustomSelectField 
+                    <CreatableSelectField 
                       name="Fornitore" 
                       label="Fornitore" 
                       required={true}
                       value={formData.Fornitore} 
                       options={dbOptions.Fornitore}
-                      isCustom={customInputFields.Fornitore} 
-                      onCustomToggle={() => toggleCustomField('Fornitore')}
                       onChange={handleChange}
+                      onAddNewOption={addNewOption}
                       placeholder="es. Sandvik, Guhring, WNT..."
+                      customPlaceholder="es. Sandvik, Iscar, Walter..."
                       error={fieldErrors.Fornitore}
                     />
 
-                    <CustomSelectField 
+                    <CreatableSelectField 
                       name="Ubicazione" 
                       label="Ubicazione Magazzino" 
                       required={true}
                       value={formData.Ubicazione} 
                       options={dbOptions.Ubicazione}
-                      isCustom={customInputFields.Ubicazione} 
-                      onCustomToggle={() => toggleCustomField('Ubicazione')}
                       onChange={handleChange}
+                      onAddNewOption={addNewOption}
                       placeholder="es. A-01, Cassetto 3..."
+                      customPlaceholder="es. Armadio B, Ripiano 2..."
                       error={fieldErrors.Ubicazione}
                     />
 
@@ -383,40 +311,40 @@ const AddToolModal = ({ onClose, onToolAdded, tools = [] }) => {
                     <div className="p-4 border-t border-border/50 bg-background/40">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-                        <CustomSelectField 
+                        <CreatableSelectField 
                           name="Materiale" 
                           label="Materiale Utensile" 
                           required={false}
                           value={formData.Materiale} 
                           options={dbOptions.Materiale}
-                          isCustom={customInputFields.Materiale} 
-                          onCustomToggle={() => toggleCustomField('Materiale')}
                           onChange={handleChange}
+                          onAddNewOption={addNewOption}
                           placeholder="es. MD, HSS..."
+                          customPlaceholder="es. Metallo Duro, HSS-Co..."
                         />
 
-                        <CustomSelectField 
+                        <CreatableSelectField 
                           name="Rivestimento" 
                           label="Rivestimento" 
                           required={false}
                           value={formData.Rivestimento} 
                           options={dbOptions.Rivestimento}
-                          isCustom={customInputFields.Rivestimento} 
-                          onCustomToggle={() => toggleCustomField('Rivestimento')}
                           onChange={handleChange}
+                          onAddNewOption={addNewOption}
                           placeholder="es. TiAlN, TiN, DLC..."
+                          customPlaceholder="es. AlCrN, TiAlN, Diamante..."
                         />
 
-                        <CustomSelectField 
+                        <CreatableSelectField 
                           name="Lavorazione" 
                           label="Lavorazione Primaria" 
                           required={false}
                           value={formData.Lavorazione} 
                           options={dbOptions.Lavorazione}
-                          isCustom={customInputFields.Lavorazione} 
-                          onCustomToggle={() => toggleCustomField('Lavorazione')}
                           onChange={handleChange}
+                          onAddNewOption={addNewOption}
                           placeholder="es. Fresatura, Foratura..."
+                          customPlaceholder="es. Sbavatura, Filettatura..."
                         />
 
                         <FormFieldWrapper label="Lunghezza Tagliente / Totale">

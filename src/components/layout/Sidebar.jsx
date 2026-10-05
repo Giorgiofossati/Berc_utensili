@@ -38,7 +38,7 @@ const NavItem = ({
       disabled={disabled}
       aria-label={label}
       title={isCollapsed ? label : undefined}
-      className={`w-full h-10 rounded-xl flex items-center transition-all duration-200 group relative cursor-pointer select-none overflow-hidden
+      className={`w-full h-10 rounded-xl flex items-center transition-colors duration-100 group relative cursor-pointer select-none overflow-hidden
         ${isCollapsed ? 'px-0 justify-center' : 'px-2.5 gap-3'}
         ${isActive 
           ? 'bg-sky-50 dark:bg-sky-950/50 border border-sky-200/80 dark:border-sky-800 text-sky-700 dark:text-sky-300 shadow-xs' 
@@ -188,7 +188,7 @@ const SidebarContent = ({
               onClick={() => { setOpType('carico'); setView('scanner'); if(onClose) onClose(); }} 
               title="Deposita utensile (Carico)"
               aria-label="Deposita"
-              className={`w-full h-10 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl flex items-center transition-all duration-150 active:scale-[0.98] group cursor-pointer overflow-hidden shadow-xs ${
+              className={`w-full h-10 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl flex items-center transition-colors duration-100 active:scale-[0.98] group cursor-pointer overflow-hidden shadow-xs ${
                 isCollapsed ? 'justify-center px-0' : 'px-3 gap-2.5'
               }`}
             >
@@ -205,7 +205,7 @@ const SidebarContent = ({
               onClick={() => { setOpType('scarico'); setView('scanner'); if(onClose) onClose(); }} 
               title="Preleva utensile (Scarico)"
               aria-label="Preleva"
-              className={`w-full h-10 bg-rose-600 hover:bg-rose-500 text-white rounded-xl flex items-center transition-all duration-150 active:scale-[0.98] group cursor-pointer overflow-hidden shadow-xs ${
+              className={`w-full h-10 bg-rose-600 hover:bg-rose-500 text-white rounded-xl flex items-center transition-colors duration-100 active:scale-[0.98] group cursor-pointer overflow-hidden shadow-xs ${
                 isCollapsed ? 'justify-center px-0' : 'px-3 gap-2.5'
               }`}
             >
@@ -222,7 +222,7 @@ const SidebarContent = ({
               onClick={() => { setShowAddModal(true); if(onClose) onClose(); }} 
               title="Nuovo Utensile"
               aria-label="Nuovo Utensile"
-              className={`w-full h-10 border border-sky-200 dark:border-sky-800 bg-sky-50/50 dark:bg-sky-950/30 hover:bg-sky-50 dark:hover:bg-sky-900/40 text-sky-700 dark:text-sky-300 rounded-xl flex items-center transition-all duration-150 cursor-pointer overflow-hidden ${
+              className={`w-full h-10 border border-sky-200 dark:border-sky-800 bg-sky-50/50 dark:bg-sky-950/30 hover:bg-sky-50 dark:hover:bg-sky-900/40 text-sky-700 dark:text-sky-300 rounded-xl flex items-center transition-colors duration-100 cursor-pointer overflow-hidden ${
                 isCollapsed ? 'justify-center px-0' : 'px-3 gap-2'
               }`}
             >
@@ -244,7 +244,7 @@ const SidebarContent = ({
               onClick={() => { setView('requests'); if(onClose) onClose(); }} 
               title="Invia Richiesta all'Amministratore"
               aria-label="Richiedi Utensile"
-              className={`w-full h-10 bg-sky-600 hover:bg-sky-500 text-white rounded-xl flex items-center transition-all duration-150 active:scale-[0.98] group cursor-pointer overflow-hidden shadow-xs ${
+              className={`w-full h-10 bg-sky-600 hover:bg-sky-500 text-white rounded-xl flex items-center transition-colors duration-100 active:scale-[0.98] group cursor-pointer overflow-hidden shadow-xs ${
                 isCollapsed ? 'justify-center px-0' : 'px-3 gap-2.5'
               }`}
             >
@@ -261,7 +261,7 @@ const SidebarContent = ({
               onClick={() => { setView('multimovement'); if(onClose) onClose(); }} 
               title="Compila Distinta Multipla"
               aria-label="Distinta Multipla"
-              className={`w-full h-9 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl flex items-center transition-all cursor-pointer overflow-hidden ${
+              className={`w-full h-9 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl flex items-center transition-colors duration-100 cursor-pointer overflow-hidden ${
                 isCollapsed ? 'justify-center px-0' : 'px-3 gap-2'
               }`}
             >
@@ -283,7 +283,7 @@ const SidebarContent = ({
               onClick={() => { setView('manager_dashboard'); if(onClose) onClose(); }} 
               title="Dashboard Direzionale"
               aria-label="Dashboard Direzionale"
-              className={`w-full h-10 bg-sky-600 hover:bg-sky-500 text-white rounded-xl flex items-center transition-all duration-150 active:scale-[0.98] cursor-pointer overflow-hidden shadow-xs ${
+              className={`w-full h-10 bg-sky-600 hover:bg-sky-500 text-white rounded-xl flex items-center transition-colors duration-100 active:scale-[0.98] cursor-pointer overflow-hidden shadow-xs ${
                 isCollapsed ? 'justify-center px-0' : 'px-3 gap-2.5'
               }`}
             >
@@ -408,7 +408,7 @@ const SidebarContent = ({
 
               <NavItem 
                 icon={<FolderKanban size={18} />} 
-                label="Gestione Commesse" 
+                label="Gestione Lavorazioni" 
                 dataTour="commesse-nav"
                 onClick={() => { setView('commesse'); if(onClose) onClose(); }} 
                 isActive={view === 'commesse'}
@@ -531,7 +531,7 @@ const SidebarContent = ({
 
               <NavItem 
                 icon={<FolderKanban size={18} />} 
-                label="Commesse" 
+                label="Lavorazioni" 
                 dataTour="commesse-nav"
                 onClick={() => { setView('commesse'); if(onClose) onClose(); }} 
                 isActive={view === 'commesse'}
@@ -746,21 +746,13 @@ export default function Sidebar(props) {
       onMouseLeave={handleMouseLeave}
       onFocusCapture={handleFocusCapture}
       onBlurCapture={handleBlurCapture}
-      className={`hidden md:block shrink-0 relative h-full select-none transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] z-40 ${
+      className={`hidden md:block shrink-0 relative h-full select-none transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] z-50 ${
         isSidebarPinned ? 'w-60' : 'w-[68px]'
       }`}
     >
-      {/* Buffer di tolleranza perimetrale solo quando espanso, per evitare chiusure accidentali */}
-      {isExpanded && (
-        <div 
-          aria-hidden="true"
-          className="absolute top-0 bottom-0 -right-6 w-6 pointer-events-auto z-40" 
-        />
-      )}
-
       <aside 
         id="sidebar"
-        className={`absolute top-0 left-0 bottom-0 flex flex-col h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${
+        className={`absolute top-0 left-0 bottom-0 z-10 flex flex-col h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${
           isExpanded 
             ? 'w-60 shadow-2xl shadow-slate-900/15 dark:shadow-black/50 ring-1 ring-slate-900/5 dark:ring-white/5' 
             : 'w-[68px] shadow-none'

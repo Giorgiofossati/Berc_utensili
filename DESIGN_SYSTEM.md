@@ -261,5 +261,5 @@ All components must adhere strictly to design tokens, density requirements, and 
 - ❌ **NO Horizontal Page Scroll:** Mobile viewports must stay locked within `100dvh` single-column bounds.
 - ❌ **NO Fabricated Metrics:** Never invent uptime or mock statistics; use clear `[metric]` placeholders.
 - ❌ **NO Normal Space as Thousands Separator:** Use the shared formatters (thin space); never `toLocaleString('it-IT')` (dot separator) or `' '`.
-- ❌ **NO Unreadable Chart Labels:** SVG chart labels need a halo (`paint-order: stroke`, stroke = surface color), must not overlap (hide on collision, keep data in tooltip) and flows under ~2.5% of total are aggregated into an "Altre …" node.
+- ❌ **NO Unreadable Chart Labels:** SVG chart labels need a halo (`paint-order: stroke`, stroke = surface color), must not overlap (hide on collision, keep data in tooltip) and flows under ~2.5% of total are aggregated into an "Altre …" node. On mobile (< 640px) charts fit the width without horizontal scroll: drop redundant columns (e.g. the single root node, its total moves to the card footer), place labels inside the plot area, and require a first tap to show details before a second tap navigates.
 - ❌ **NO Blind Lint Faith:** Always verify component imports manually (ESLint does not catch JSX `ReferenceError`).

@@ -59,10 +59,10 @@ function seedState(now) {
       { id: 'mac-cnc05', nome: 'CNC 05', reparto: 'Fresatura', ordine: 5, is_active: true }
     ],
     commesse: [
-      { id: 'com-24118', codice: '24-118', descrizione: 'Carter Ducati', ubicazione: 'Cassettiera C · cassetto 4', stato: 'Attiva' },
-      { id: 'com-24102', codice: '24-102', descrizione: 'Flange', ubicazione: 'Cassettiera A · cassetto 2', stato: 'Attiva' },
-      { id: 'com-24121', codice: '24-121', descrizione: 'Prototipo', ubicazione: 'Cassettiera C · cassetto 7', stato: 'Attiva' },
-      { id: 'com-24097', codice: '24-097', descrizione: 'Staffe', ubicazione: null, stato: 'Chiusa' }
+      { id: 'com-24118', codice: '24-118', descrizione: 'Carter Ducati', nome_lavorazione: 'Sgrossatura Sede Cuscinetto', traccia_ciclo_vita: true, target_pezzi_lotto: 400, pezzi_completati: 148, ubicazione: 'Cassettiera C · cassetto 4', stato: 'Attiva' },
+      { id: 'com-24102', codice: '24-102', descrizione: 'Flange Monoscocca', nome_lavorazione: 'Foratura Carbonio', traccia_ciclo_vita: true, target_pezzi_lotto: 120, pezzi_completati: 72, ubicazione: 'Cassettiera A · cassetto 2', stato: 'Attiva' },
+      { id: 'com-24121', codice: '24-121', descrizione: 'Prototipo Braccetto', nome_lavorazione: 'Fresatura Staffa 5 Assi', traccia_ciclo_vita: false, target_pezzi_lotto: null, pezzi_completati: 0, ubicazione: 'Cassettiera C · cassetto 7', stato: 'Attiva' },
+      { id: 'com-24097', codice: '24-097', descrizione: 'Staffe', nome_lavorazione: null, traccia_ciclo_vita: false, target_pezzi_lotto: null, pezzi_completati: 0, ubicazione: null, stato: 'Chiusa' }
     ],
     spedizioni: [
       { id: 'sped-1438', ddt: '1438', fornitore: null, stato: 'in_viaggio', data_invio: ago(13 * DAY), data_rientro: null, operatore_invio: 'Operatore demo', operatore_rientro: null },
@@ -74,10 +74,11 @@ function seedState(now) {
     annullate: {}
   };
 
-  const pos = (id_utensile, luogo, stato, quantita, { eta = 2 * DAY, ...extra } = {}) => {
+  const pos = (id_utensile, luogo, stato, quantita, { eta = 2 * DAY, pezzi_lavorati = 0, target_pezzi_fresa = null, ...extra } = {}) => {
     state.posizioni.push({
       id: `pos-${state.seq++}`, id_utensile, luogo, stato, quantita,
       n_riaffilature: 0, id_commessa: null, id_macchina: null, id_spedizione: null,
+      pezzi_lavorati, target_pezzi_fresa,
       entrata_il: ago(eta), aggiornato_il: ago(eta),
       _macchina_origine: null,
       ...extra
@@ -88,15 +89,15 @@ function seedState(now) {
   pos('mock-fr10', 'magazzino', 'riaffilato', 3, { n_riaffilature: 1 });
   pos('mock-fr10', 'cassetto', 'nuovo', 12, { id_commessa: 'com-24118', eta: 8 * DAY });
   pos('mock-fr10', 'cassetto', 'usato', 1, { id_commessa: 'com-24118', eta: 1 * DAY });
-  pos('mock-fr10', 'macchina', 'riaffilato', 1, { n_riaffilature: 2, id_macchina: 'mac-cnc03', id_commessa: 'com-24118', eta: 2 * HOUR });
+  pos('mock-fr10', 'macchina', 'riaffilato', 1, { n_riaffilature: 2, id_macchina: 'mac-cnc03', id_commessa: 'com-24118', eta: 2 * HOUR, pezzi_lavorati: 18, target_pezzi_fresa: 50 });
   pos('mock-fr10', 'macchina', 'riaffilato', 1, { n_riaffilature: 1, id_macchina: 'mac-cnc05', id_commessa: 'com-24121', eta: 12 * DAY });
   pos('mock-pu85', 'magazzino', 'nuovo', 8);
-  pos('mock-pu85', 'macchina', 'nuovo', 2, { id_macchina: 'mac-cnc03', id_commessa: 'com-24118', eta: 2 * DAY });
-  pos('mock-sp50', 'macchina', 'usato', 1, { id_macchina: 'mac-cnc03', eta: 21 * DAY });
-  pos('mock-m8', 'macchina', 'riaffilato', 1, { n_riaffilature: 3, id_macchina: 'mac-cnc03', eta: 6 * DAY });
-  pos('mock-al12', 'macchina', 'nuovo', 1, { id_macchina: 'mac-cnc01', id_commessa: 'com-24102', eta: 5 * DAY });
+  pos('mock-pu85', 'macchina', 'nuovo', 2, { id_macchina: 'mac-cnc03', id_commessa: 'com-24118', eta: 2 * DAY, pezzi_lavorati: 42, target_pezzi_fresa: 50 });
+  pos('mock-sp50', 'macchina', 'usato', 1, { id_macchina: 'mac-cnc03', eta: 21 * DAY }); // Generico a bordo (id_commessa null)
+  pos('mock-m8', 'macchina', 'riaffilato', 1, { n_riaffilature: 3, id_macchina: 'mac-cnc03', eta: 6 * DAY }); // Generico a bordo
+  pos('mock-al12', 'macchina', 'nuovo', 1, { id_macchina: 'mac-cnc01', id_commessa: 'com-24102', eta: 5 * DAY, pezzi_lavorati: 70, target_pezzi_fresa: 80 });
   pos('mock-al12', 'cassetto', 'nuovo', 4, { id_commessa: 'com-24102', eta: 14 * DAY });
-  pos('mock-ft16', 'macchina', 'nuovo', 1, { id_macchina: 'mac-cnc05', id_commessa: 'com-24118', eta: 1 * DAY });
+  pos('mock-ft16', 'macchina', 'nuovo', 1, { id_macchina: 'mac-cnc05', id_commessa: 'com-24118', eta: 1 * DAY, pezzi_lavorati: 48, target_pezzi_fresa: 50 });
   pos('mock-fr10', 'cestello', 'riaffilato', 2, { n_riaffilature: 2, id_commessa: 'com-24118', _macchina_origine: 'mac-cnc03', eta: 3 * HOUR });
   pos('mock-pu85', 'cestello', 'usato', 3, { _macchina_origine: 'mac-cnc01', eta: 1 * DAY });
   pos('mock-ft16', 'cestello', 'usato', 1, { id_commessa: 'com-24118', _macchina_origine: 'mac-cnc05', eta: 3 * DAY });
@@ -316,9 +317,16 @@ const posView = (p) => {
     id_posizione: p.id, id_utensile: p.id_utensile, codice: t.codice ?? null, descrizione: t.descrizione ?? null,
     luogo: p.luogo, id_macchina: p.id_macchina, nome_macchina: m ? m.nome : null,
     id_commessa: p.id_commessa, codice_commessa: c ? c.codice : null, descrizione_commessa: c ? c.descrizione : null,
+    nome_lavorazione: c ? c.nome_lavorazione : null,
+    traccia_ciclo_vita: c ? Boolean(c.traccia_ciclo_vita) : false,
+    target_pezzi_lotto: c ? c.target_pezzi_lotto : null,
+    pezzi_completati: c ? (c.pezzi_completati || 0) : 0,
     ubicazione_cassetto: c ? c.ubicazione : null,
     stato: p.stato, n_riaffilature: p.n_riaffilature, max_riaffilature: t.max_riaffilature ?? DEFAULT_MAX_RIAFFILATURE,
-    quantita: p.quantita, entrata_il: p.entrata_il
+    quantita: p.quantita,
+    pezzi_lavorati: p.pezzi_lavorati || 0,
+    target_pezzi_fresa: p.target_pezzi_fresa ?? (c?.traccia_ciclo_vita ? 50 : null),
+    entrata_il: p.entrata_il
   };
 };
 
@@ -789,7 +797,116 @@ function annulla_operazione({ p_id_operazione_originale, p_id_operatore }) {
 
 // Commesse attive per la ricerca "Cerca…" (in produzione è una lettura diretta della tabella commesse).
 export function mockListCommesseAttive() {
-  return clone(db.commesse.filter(c => c.stato === 'Attiva').map(({ id, codice, descrizione, ubicazione }) => ({ id, codice, descrizione, ubicazione })));
+  return clone(db.commesse.filter(c => c.stato === 'Attiva').map(({ id, codice, descrizione, ubicazione, nome_lavorazione, traccia_ciclo_vita, target_pezzi_lotto, pezzi_completati }) => ({
+    id, codice, descrizione, ubicazione, nome_lavorazione, traccia_ciclo_vita, target_pezzi_lotto, pezzi_completati
+  })));
+}
+
+// ---------------------------------------------------------------------------
+// Estensione Lavorazioni CNC
+// ---------------------------------------------------------------------------
+
+function registra_avanzamento_lavorazione({ p_id_commessa, p_pezzi_aggiunti, p_id_operatore }) {
+  if (!p_pezzi_aggiunti || p_pezzi_aggiunti <= 0) throw new RpcError('DATI_NON_VALIDI', { campo: 'p_pezzi_aggiunti' });
+  const c = requireCommessaAttiva(p_id_commessa);
+  const operatore = operatorOf(p_id_operatore);
+  c.pezzi_completati = (c.pezzi_completati || 0) + p_pezzi_aggiunti;
+  let aggiornati = 0;
+  db.posizioni.forEach(p => {
+    if (p.luogo === 'macchina' && p.id_commessa === p_id_commessa) {
+      p.pezzi_lavorati = (p.pezzi_lavorati || 0) + p_pezzi_aggiunti;
+      p.aggiornato_il = nowIso();
+      aggiornati++;
+    }
+  });
+  log({ id: `avanzamento-${db.seq++}`, operatore, operatoreId: p_id_operatore }, {
+    tipo_operazione: 'avanzamento_produzione',
+    quantita: p_pezzi_aggiunti,
+    commessa_id: p_id_commessa,
+    nota: `Avanzamento lavorazione ${c.nome_lavorazione || c.codice}: +${p_pezzi_aggiunti} pz`,
+    pezzi_lavorati: p_pezzi_aggiunti
+  });
+  return {
+    ok: true,
+    id_commessa: p_id_commessa,
+    pezzi_aggiunti: p_pezzi_aggiunti,
+    pezzi_completati: c.pezzi_completati,
+    utensili_aggiornati: aggiornati
+  };
+}
+
+function eredita_utensile_bordo({ p_id_posizione, p_nuova_commessa_id, p_id_operatore }) {
+  const p = db.posizioni.find(x => x.id === p_id_posizione);
+  if (!p) throw new RpcError('POSIZIONE_NON_TROVATA', {});
+  if (p.luogo !== 'macchina') throw new RpcError('DATI_NON_VALIDI', { campo: 'luogo' });
+  const c = requireCommessaAttiva(p_nuova_commessa_id);
+  const operatore = operatorOf(p_id_operatore);
+  requireFlag(operatore, 'can_pick_tools');
+
+  p.id_commessa = p_nuova_commessa_id;
+  p.aggiornato_il = nowIso();
+
+  log({ id: `eredita-${db.seq++}`, operatore, operatoreId: p_id_operatore }, {
+    tool_id: p.id_utensile,
+    tipo_operazione: 'eredita_bordo_macchina',
+    quantita: p.quantita,
+    commessa_id: p_nuova_commessa_id,
+    id_macchina: p.id_macchina,
+    luogo_da: 'macchina',
+    luogo_a: 'macchina',
+    stato: p.stato,
+    n_riaffilature: p.n_riaffilature,
+    nota: `Utensile ereditato su lavorazione ${c.nome_lavorazione || c.codice}`,
+    pezzi_lavorati: p.pezzi_lavorati || 0
+  });
+
+  return { ok: true, id_posizione: p_id_posizione, id_commessa: p_nuova_commessa_id };
+}
+
+function chiudi_lavorazione({ p_id_commessa, p_svuota_cassetto, p_id_operatore }) {
+  const c = commessaById(p_id_commessa);
+  if (!c) throw new RpcError('DATI_NON_VALIDI', { campo: 'id_commessa' });
+  c.stato = 'Chiusa';
+  const operatore = operatorOf(p_id_operatore);
+
+  let lasciati_bordo = 0;
+  let svuotati_cassetto = 0;
+
+  db.posizioni.forEach(p => {
+    if (p.luogo === 'macchina' && p.id_commessa === p_id_commessa) {
+      p.id_commessa = null;
+      p.aggiornato_il = nowIso();
+      lasciati_bordo += p.quantita;
+    }
+  });
+
+  if (p_svuota_cassetto) {
+    const daSvuotare = db.posizioni.filter(p => p.luogo === 'cassetto' && p.id_commessa === p_id_commessa);
+    daSvuotare.forEach(p => {
+      svuotati_cassetto += p.quantita;
+      removeQty(p, p.quantita);
+      addQty({ id_utensile: p.id_utensile, luogo: 'magazzino', stato: p.stato, n_riaffilature: p.n_riaffilature, id_commessa: null, id_macchina: null, id_spedizione: null }, p.quantita);
+      log({ id: `chiudi-${db.seq++}`, operatore, operatoreId: p_id_operatore }, {
+        tool_id: p.id_utensile,
+        tipo_operazione: 'rientro_cassetto_chiusura',
+        quantita: p.quantita,
+        commessa_id: p_id_commessa,
+        luogo_da: 'cassetto',
+        luogo_a: 'magazzino',
+        stato: p.stato,
+        n_riaffilature: p.n_riaffilature,
+        nota: `Chiusura lavorazione ${c.nome_lavorazione || c.codice}: svuotamento cassetto a magazzino`
+      });
+    });
+  }
+
+  return {
+    ok: true,
+    id_commessa: p_id_commessa,
+    stato: 'Chiusa',
+    utensili_lasciati_bordo: lasciati_bordo,
+    utensili_svuotati_cassetto: svuotati_cassetto
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -798,7 +915,8 @@ export function mockListCommesseAttive() {
 
 const HANDLERS = {
   get_opzioni_prelievo, get_in_produzione, get_riaffilature, get_opzioni_deposito, get_dashboard_stats,
-  preleva, deposita, smonta, spedisci_cestello, aggiorna_ddt, rientra_spedizione, annulla_operazione
+  preleva, deposita, smonta, spedisci_cestello, aggiorna_ddt, rientra_spedizione, annulla_operazione,
+  registra_avanzamento_lavorazione, eredita_utensile_bordo, chiudi_lavorazione
 };
 
 export async function mockRpc(name, params = {}, { latencyMs = 250 } = {}) {

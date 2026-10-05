@@ -89,7 +89,7 @@ export default function ManagerDashboardView({ setView }) {
             <button
               type="button"
               onClick={() => setView('manager_costs')}
-              className="px-3 py-1.5 rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 font-bold text-xs hover:bg-sky-100 transition-colors cursor-pointer"
+              className="max-sm:hidden px-3 py-1.5 rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 font-bold text-xs hover:bg-sky-100 transition-colors cursor-pointer"
             >
               Analisi costi →
             </button>
@@ -103,12 +103,13 @@ export default function ManagerDashboardView({ setView }) {
         }
       />
 
-      <PageContent className="flex-1 min-h-0 flex flex-col p-4 sm:p-6 pb-24 overflow-y-auto gap-6">
+      <PageContent className="flex-1 min-h-0 flex flex-col p-3 sm:p-6 pb-24 overflow-y-auto gap-4 sm:gap-6">
         {/* ROW 1: KPI TILES */}
         <CollapsibleStatGrid
-          title="Indicatori magazzino e produzione"
+          title="Indicatori chiave"
           count={4}
           gridClassName="grid-cols-2 lg:grid-cols-4"
+          defaultOpenMobile
         >
           <StatTile
             label="Valore magazzino"
@@ -150,17 +151,17 @@ export default function ManagerDashboardView({ setView }) {
         />
 
         {/* ROW 3: DETTAGLIO CLASSIFICA CATEGORIE & NAVIGAZIONE ANALITICA */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="glass-panel p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <BarChart3 size={18} className="text-sky-600 dark:text-sky-400" />
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div className="flex items-start gap-2 min-w-0">
+                  <BarChart3 size={18} className="text-sky-600 dark:text-sky-400 shrink-0 mt-px" />
                   <h3 className="app-h3 text-slate-900 dark:text-slate-100">
                     Ripartizione valore economico per tipologia
                   </h3>
                 </div>
-                <span className="app-caption text-slate-400">Top 6 categorie</span>
+                <span className="text-xs font-medium text-slate-400 whitespace-nowrap shrink-0">Top 6</span>
               </div>
 
               <div className="flex flex-col gap-4 flex-1 justify-around">
@@ -168,15 +169,15 @@ export default function ManagerDashboardView({ setView }) {
                   const percent = kpi.estimatedTotalValue > 0 ? (cat.val / kpi.estimatedTotalValue) * 100 : 0;
                   return (
                     <div key={cat.name} className="flex flex-col gap-1.5">
-                      <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-200">
-                          <span className="w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs flex items-center justify-center font-mono">
+                      <div className="flex items-center justify-between gap-2 text-xs">
+                        <div className="flex items-center gap-2 min-w-0 font-bold text-slate-800 dark:text-slate-200">
+                          <span className="w-5 h-5 shrink-0 rounded-full bg-slate-100 dark:bg-slate-800 text-xs flex items-center justify-center font-mono">
                             {idx + 1}
                           </span>
-                          <span>{cat.name}</span>
-                          <span className="text-slate-400 font-normal">({formatItalianNumber(cat.pieces)} pz)</span>
+                          <span className="truncate">{cat.name}</span>
+                          <span className="max-sm:hidden text-slate-400 font-normal whitespace-nowrap">({formatItalianNumber(cat.pieces)} pz)</span>
                         </div>
-                        <div className="flex items-center gap-2 font-mono">
+                        <div className="flex items-center gap-2 font-mono tabular-nums shrink-0 whitespace-nowrap">
                           <span className="font-bold text-slate-900 dark:text-white">
                             {formatCurrency(cat.val)}
                           </span>
@@ -197,12 +198,12 @@ export default function ManagerDashboardView({ setView }) {
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex justify-between items-center text-xs text-slate-400">
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap justify-between items-center gap-x-3 gap-y-2 text-xs text-slate-400">
               <span>Totale catalogato: {formatItalianNumber(kpi.totalStockPieces)} pz</span>
               <button
                 type="button"
                 onClick={() => setView('manager_costs')}
-                className="font-bold text-sky-600 dark:text-sky-400 hover:underline cursor-pointer"
+                className="font-bold text-sky-600 dark:text-sky-400 hover:underline cursor-pointer whitespace-nowrap"
               >
                 Dettaglio completo costi →
               </button>
@@ -210,7 +211,7 @@ export default function ManagerDashboardView({ setView }) {
           </div>
 
           {/* Quick Actions & Links Manager */}
-          <div className="glass-panel p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
+          <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Activity size={18} className="text-emerald-500" />
@@ -218,7 +219,7 @@ export default function ManagerDashboardView({ setView }) {
                   Navigazione analitica
                 </h3>
               </div>
-              <p className="app-body text-slate-500 dark:text-slate-400 mb-6">
+              <p className="app-body text-slate-500 dark:text-slate-400 mb-4 sm:mb-6">
                 Consulta i dettagli analitici dei costi e il consumo di utensili per commessa.
               </p>
 
@@ -226,7 +227,7 @@ export default function ManagerDashboardView({ setView }) {
                 <button
                   type="button"
                   onClick={() => setView('manager_costs')}
-                  className="w-full p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 flex items-center justify-between text-left transition-all cursor-pointer group"
+                  className="w-full p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 flex items-center justify-between text-left transition-all cursor-pointer group"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-accent-emerald flex items-center justify-center">
@@ -245,7 +246,7 @@ export default function ManagerDashboardView({ setView }) {
                 <button
                   type="button"
                   onClick={() => setView('manager_commesse')}
-                  className="w-full p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 flex items-center justify-between text-left transition-all cursor-pointer group"
+                  className="w-full p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 flex items-center justify-between text-left transition-all cursor-pointer group"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-accent-blue flex items-center justify-center">
@@ -264,7 +265,7 @@ export default function ManagerDashboardView({ setView }) {
                 <button
                   type="button"
                   onClick={() => setView('history')}
-                  className="w-full p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 flex items-center justify-between text-left transition-all cursor-pointer group"
+                  className="w-full p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 flex items-center justify-between text-left transition-all cursor-pointer group"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-accent-orange flex items-center justify-center">
@@ -282,7 +283,7 @@ export default function ManagerDashboardView({ setView }) {
               </div>
             </div>
 
-            <div className="mt-6 p-4 rounded-2xl bg-sky-50/60 dark:bg-sky-950/30 border border-sky-200/60 dark:border-sky-800/60 flex items-center gap-3 text-sm text-sky-800 dark:text-sky-300">
+            <div className="mt-4 sm:mt-6 p-3 sm:p-4 rounded-2xl bg-sky-50/60 dark:bg-sky-950/30 border border-sky-200/60 dark:border-sky-800/60 flex items-center gap-3 text-xs sm:text-sm text-sky-800 dark:text-sky-300">
               <ShieldCheck size={20} className="shrink-0" />
               <span>Dati aggiornati in tempo reale dal magazzino centrale CNC.</span>
             </div>

@@ -84,7 +84,7 @@ export const CopyableCode = memo(({ value, title, className = '' }) => {
       {copied && createPortal(
         <div
           role="status"
-          className="fixed z-[200] pointer-events-none -translate-x-1/2 -translate-y-full -mt-1.5 flex items-center gap-1 px-2 py-1 rounded-md bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-semibold shadow-lg animate-in fade-in zoom-in-95 slide-in-from-bottom-1 duration-150"
+          className="fixed z-[var(--z-toast)] pointer-events-none -translate-x-1/2 -translate-y-full -mt-1.5 flex items-center gap-1 px-2 py-1 rounded-md bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold shadow-lg animate-in fade-in zoom-in-95 slide-in-from-bottom-1 duration-150"
           style={{ left: feedback.x, top: feedback.y }}
         >
           <Check size={12} strokeWidth={3} className="text-emerald-400 dark:text-emerald-600" />

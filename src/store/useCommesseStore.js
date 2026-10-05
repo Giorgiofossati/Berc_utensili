@@ -35,7 +35,7 @@ export const useCommesseStore = create((set, get) => ({
     }
   },
 
-  createCommessa: async ({ codice, descrizione, ubicazione, macchina_id, stato = 'Attiva' }) => {
+  createCommessa: async ({ codice, descrizione, ubicazione, macchina_id, nome_lavorazione, traccia_ciclo_vita = false, target_pezzi_lotto = null, stato = 'Attiva' }) => {
     const trimmedCodice = (codice || '').trim().toUpperCase();
     if (!trimmedCodice) {
       return { success: false, error: new Error('Il codice commessa è obbligatorio.') };
@@ -46,6 +46,10 @@ export const useCommesseStore = create((set, get) => ({
       descrizione: (descrizione || '').trim() || null,
       ubicazione: (ubicazione || '').trim() || null,
       macchina_id: macchina_id || null,
+      nome_lavorazione: (nome_lavorazione || '').trim() || null,
+      traccia_ciclo_vita: Boolean(traccia_ciclo_vita),
+      target_pezzi_lotto: target_pezzi_lotto ? parseInt(target_pezzi_lotto, 10) : null,
+      pezzi_completati: 0,
       stato: stato === 'Chiusa' ? 'Chiusa' : 'Attiva'
     };
 
@@ -56,16 +60,21 @@ export const useCommesseStore = create((set, get) => ({
         .select()
         .single();
 
-      if (error && error.message?.includes('macchina_id')) {
-        // Fallback se colonna non ancora migrata su DB remoto
-        delete newRecord.macchina_id;
-        const fallbackRes = await supabase.from('commesse').insert([newRecord]).select().single();
+      if (error && (error.message?.includes('macchina_id') || error.message?.includes('nome_lavorazione') || error.message?.includes('traccia_ciclo_vita'))) {
+        // Fallback progressivo se colonne non ancora presenti
+        const sanitized = {
+          codice: newRecord.codice,
+          descrizione: newRecord.descrizione,
+          ubicazione: newRecord.ubicazione,
+          stato: newRecord.stato
+        };
+        const fallbackRes = await supabase.from('commesse').insert([sanitized]).select().single();
         data = fallbackRes.data;
         error = fallbackRes.error;
       }
 
       if (error) {
-        console.error('Errore durante la creazione della commessa:', error);
+        console.error('Errore durante la creazione della lavorazione:', error);
         return { success: false, error };
       }
 
@@ -77,12 +86,12 @@ export const useCommesseStore = create((set, get) => ({
 
       return { success: true, data };
     } catch (err) {
-      console.error('Eccezione durante la creazione della commessa:', err);
+      console.error('Eccezione durante la creazione della lavorazione:', err);
       return { success: false, error: err };
     }
   },
 
-  updateCommessa: async (id, { codice, descrizione, ubicazione, macchina_id, stato }) => {
+  updateCommessa: async (id, { codice, descrizione, ubicazione, macchina_id, nome_lavorazione, traccia_ciclo_vita, target_pezzi_lotto, stato }) => {
     const trimmedCodice = (codice || '').trim().toUpperCase();
     if (!trimmedCodice) {
       return { success: false, error: new Error('Il codice commessa è obbligatorio.') };
@@ -93,6 +102,9 @@ export const useCommesseStore = create((set, get) => ({
       descrizione: (descrizione || '').trim() || null,
       ubicazione: (ubicazione || '').trim() || null,
       macchina_id: macchina_id || null,
+      nome_lavorazione: (nome_lavorazione || '').trim() || null,
+      traccia_ciclo_vita: Boolean(traccia_ciclo_vita),
+      target_pezzi_lotto: target_pezzi_lotto ? parseInt(target_pezzi_lotto, 10) : null,
       stato: stato === 'Chiusa' ? 'Chiusa' : 'Attiva'
     };
 
@@ -104,9 +116,14 @@ export const useCommesseStore = create((set, get) => ({
         .select()
         .single();
 
-      if (error && error.message?.includes('macchina_id')) {
-        delete updatedRecord.macchina_id;
-        const fallbackRes = await supabase.from('commesse').update(updatedRecord).eq('id', id).select().single();
+      if (error && (error.message?.includes('macchina_id') || error.message?.includes('nome_lavorazione') || error.message?.includes('traccia_ciclo_vita'))) {
+        const sanitized = {
+          codice: updatedRecord.codice,
+          descrizione: updatedRecord.descrizione,
+          ubicazione: updatedRecord.ubicazione,
+          stato: updatedRecord.stato
+        };
+        const fallbackRes = await supabase.from('commesse').update(sanitized).eq('id', id).select().single();
         data = fallbackRes.data;
         error = fallbackRes.error;
       }
