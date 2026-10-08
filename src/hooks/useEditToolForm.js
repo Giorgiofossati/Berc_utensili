@@ -357,6 +357,47 @@ export const useEditToolForm = ({ tool, onClose, onToolUpdated }) => {
       // 2. Aggiorna lo stato selectedTool in useMovementStore per sincronizzare la vista corrente
       useMovementStore.getState().setSelectedTool(finalRecord);
 
+      // 3. Registra il log di modifica nello storico movimenti
+      const changedFields = [];
+      const oldQty = Number(tool?.['Quantità']) || 0;
+      const newQty = Number(finalRecord['Quantità']) || 0;
+
+      if (oldQty !== newQty) {
+        changedFields.push(`Giacenza (${oldQty} → ${newQty})`);
+      }
+
+      const keysToCompare = [
+        'Ubicazione', 'Stato', 'Fornitore', 'Prezzo', 
+        'Diametro', 'Lunghezza', 'Materiale', 'Rivestimento', 
+        'Tipologia', 'Forma', 'Passo', 'Raggio', 'Tolleranza', 'Angolo', 'Rotazione', 'Lavorazione'
+      ];
+
+      for (const k of keysToCompare) {
+        const oldVal = tool?.[k] ?? null;
+        const newVal = finalRecord[k] ?? null;
+        if (String(oldVal ?? '') !== String(newVal ?? '')) {
+          changedFields.push(k);
+        }
+      }
+
+      const noteModifica = changedFields.length > 0
+        ? `Modifica: ${changedFields.join(', ')}`
+        : 'Modifica anagrafica';
+
+      try {
+        const operatorName = currentUser ? `${currentUser.nome} ${currentUser.cognome}`.trim() : 'Admin';
+        await supabase.from('movements_history').insert({
+          tool_id: tool.id,
+          tipo_operazione: 'modifica',
+          quantita: newQty,
+          operatore: operatorName || 'Admin',
+          operatore_destinatario: noteModifica,
+          created_at: new Date().toISOString()
+        });
+      } catch (histErr) {
+        console.warn('Errore registrazione movements_history modifica:', histErr);
+      }
+
       setShowSuccess(true);
       setTimeout(() => {
         if (onToolUpdated) {

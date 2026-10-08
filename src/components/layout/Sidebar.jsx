@@ -593,10 +593,10 @@ const SidebarContent = ({
               isCollapsed ? 'opacity-0 max-w-0 pointer-events-none' : 'opacity-100 max-w-[95px]'
             }`}>
               <span className="text-xs font-bold text-slate-400 leading-none">
-                {currentUser?.ruolo || 'Guest'}
+                {currentUser?.ruolo || 'Operatore'}
               </span>
               <span className="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight mt-0.5 truncate">
-                {currentUser?.nome || 'Mario'}
+                {currentUser?.nome ? `${currentUser.nome} ${currentUser.cognome || ''}`.trim() : 'Utente'}
               </span>
             </div>
           </button>

@@ -210,15 +210,41 @@ export const useMultiMovementStore = create((set, get) => ({
         commessa_id: item.commessa_id || targetCommessaId || null
       }));
 
-      const { error: rpcErr } = await supabase.rpc('handle_multi_movement', {
-        p_items: payload,
-        p_operator: operatorName,
-        p_commessa_id: targetCommessaId || null
-      });
+      let rpcSucceeded = false;
+      try {
+        const { error: rpcErr } = await supabase.rpc('handle_multi_movement', {
+          p_items: payload,
+          p_operator: operatorName,
+          p_commessa_id: targetCommessaId || null
+        });
 
-      if (rpcErr) {
-        console.error('handle_multi_movement RPC error:', rpcErr);
-        throw new Error(rpcErr.message || 'Errore durante la registrazione del movimento multiplo');
+        if (!rpcErr) {
+          rpcSucceeded = true;
+        } else {
+          console.warn('handle_multi_movement RPC error, executing fallback:', rpcErr);
+        }
+      } catch (e) {
+        console.warn('handle_multi_movement exception, executing fallback:', e);
+      }
+
+      if (!rpcSucceeded) {
+        for (const item of items) {
+          const liveTool = tools.find(t => t.id === item.tool.id);
+          const curQty = liveTool ? (Number(liveTool['Quantità']) || 0) : 0;
+          const op = item.opType || batchOpType;
+          const newQty = op === 'carico' ? curQty + item.quantity : Math.max(0, curQty - item.quantity);
+          const cid = item.commessa_id || targetCommessaId || null;
+
+          await supabase.from('Utensili_B1').update({ 'Quantità': newQty }).eq('id', item.tool.id);
+          await supabase.from('movements_history').insert({
+            tool_id: item.tool.id,
+            tipo_operazione: op,
+            quantita: item.quantity,
+            operatore: operatorName,
+            commessa_id: cid,
+            created_at: new Date().toISOString()
+          });
+        }
       }
 
       const actionLabel = batchOpType === 'carico' ? 'DEPOSITO' : 'PRELIEVO';

@@ -141,6 +141,10 @@ function App() {
   // Security Guard: Controllo accessi per ruolo e reindirizzamento preventivo
   useEffect(() => {
     if (!currentUser) return;
+    if (!currentUser.id || !currentUser.nome) {
+      useAuthStore.getState().logout();
+      return;
+    }
     const role = currentUser.ruolo || 'Operatore';
     if (role === 'Operatore') {
       const forbiddenForOperatore = [
@@ -422,7 +426,7 @@ function App() {
     );
   };
 
-  if (!currentUser) {
+  if (!currentUser || !currentUser.id || !currentUser.nome) {
     return <LoginScreen />;
   }
 

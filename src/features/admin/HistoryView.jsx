@@ -11,7 +11,7 @@ import {
   getSortedRowModel, 
   createColumnHelper 
 } from '@tanstack/react-table';
-import { ArrowDown, ArrowUp, X, RefreshCw, User, Calendar, Info, Copy, Check, Layers, AlignJustify } from 'lucide-react';
+import { ArrowDown, ArrowUp, X, RefreshCw, User, Calendar, Info, Copy, Check, Layers, AlignJustify, FileEdit } from 'lucide-react';
 import { ToolIcon, buildDesc } from '../../lib/toolUtils';
 import { VirtualizedTable } from '../../components/common/DataTable';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -163,8 +163,17 @@ const HistoryView = memo(({
 
     return history.filter(item => {
       // 1. Filtro Tipo Operazione (Flusso)
-      if (opTypeFilter !== 'all' && getMovementMeta(item.tipo_operazione).direzione !== opTypeFilter) {
-        return false;
+      if (opTypeFilter !== 'all') {
+        const meta = getMovementMeta(item.tipo_operazione);
+        if (opTypeFilter === 'in') {
+          if (meta.direzione !== 'in' && meta.direzione !== 'creazione') return false;
+        } else if (opTypeFilter === 'out') {
+          if (meta.direzione !== 'out') return false;
+        } else if (opTypeFilter === 'anagrafica') {
+          if (meta.direzione !== 'creazione' && meta.direzione !== 'modifica') return false;
+        } else if (meta.direzione !== opTypeFilter) {
+          return false;
+        }
       }
 
       // 2. Filtro Operatore
@@ -193,20 +202,27 @@ const HistoryView = memo(({
         }
       }
 
-      // 4. Ricerca Testuale (Descrizione, Codice, Fornitore, Operatore)
+      // 4. Ricerca Testuale (Descrizione, Codice, Fornitore, Operatore, Dettagli/Note)
       if (query) {
         const desc = buildDesc(item.Utensili_B1).toLowerCase();
         const code = (item.Utensili_B1?.Codice || '').toLowerCase();
         const operator = (item.operatore || '').toLowerCase();
         const supplier = (item.Utensili_B1?.Fornitore || '').toLowerCase();
         const tipologia = (item.Utensili_B1?.Tipologia || '').toLowerCase();
+        const notes = (item.operatore_destinatario || '').toLowerCase();
+        const opMeta = getMovementMeta(item.tipo_operazione);
+        const opLabel = (opMeta.label || '').toLowerCase();
+        const opDetail = (opMeta.dettaglio || '').toLowerCase();
 
         const matches = 
           desc.includes(query) ||
           code.includes(query) ||
           operator.includes(query) ||
           supplier.includes(query) ||
-          tipologia.includes(query);
+          tipologia.includes(query) ||
+          notes.includes(query) ||
+          opLabel.includes(query) ||
+          opDetail.includes(query);
 
         if (!matches) return false;
       }
@@ -222,7 +238,7 @@ const HistoryView = memo(({
     filteredHistory.forEach(item => {
       const q = Number(item.quantita) || 0;
       const { direzione } = getMovementMeta(item.tipo_operazione);
-      if (direzione === 'in') carichi += q;
+      if (direzione === 'in' || direzione === 'creazione') carichi += q;
       else if (direzione === 'out') scarichi += q;
     });
     return { totalCarichiQty: carichi, totalScarichiQty: scarichi };
@@ -468,7 +484,8 @@ const HistoryView = memo(({
               options={[
                 { value: 'all', label: 'Tutti' },
                 { value: 'in', label: 'Deposita', icon: <ArrowDown size={14} /> },
-                { value: 'out', label: 'Preleva', icon: <ArrowUp size={14} /> }
+                { value: 'out', label: 'Preleva', icon: <ArrowUp size={14} /> },
+                { value: 'anagrafica', label: 'Anagrafica', icon: <FileEdit size={14} /> }
               ]}
             />
           </div>
@@ -637,7 +654,13 @@ const HistoryView = memo(({
               {/* Transaction Metrics Grid */}
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="p-3 rounded-xl glass-panel dark:border-white/5 border-slate-900/10 flex flex-col">
-                  <span className="app-label text-muted-foreground mb-1">Quantità</span>
+                  <span className="app-label text-muted-foreground mb-1">
+                    {selectedLog.tipo_operazione === 'modifica' || selectedLog.tipo_operazione === 'modifica_utensile'
+                      ? 'Giacenza Risultante'
+                      : selectedLog.tipo_operazione === 'creazione' || selectedLog.tipo_operazione === 'creazione_utensile'
+                      ? 'Giacenza Iniziale'
+                      : 'Quantità'}
+                  </span>
                   <span className={`app-qty-lg ${getMovementMeta(selectedLog.tipo_operazione).text}`}>
                     {formatMovementQty(selectedLog.tipo_operazione, selectedLog.quantita)}
                   </span>
@@ -649,6 +672,21 @@ const HistoryView = memo(({
                     {selectedLog.operatore || 'Admin'}
                   </span>
                 </div>
+
+                {selectedLog.operatore_destinatario && (
+                  <div className="p-3 rounded-xl glass-panel dark:border-white/5 border-slate-900/10 flex flex-col col-span-2">
+                    <span className="app-label text-muted-foreground mb-1">
+                      {selectedLog.tipo_operazione === 'modifica' || selectedLog.tipo_operazione === 'modifica_utensile'
+                        ? 'Dettagli Modifica'
+                        : selectedLog.tipo_operazione === 'creazione' || selectedLog.tipo_operazione === 'creazione_utensile'
+                        ? 'Note Creazione'
+                        : 'Destinatario'}
+                    </span>
+                    <span className="app-body font-bold text-accent-blue truncate mt-1">
+                      {selectedLog.operatore_destinatario}
+                    </span>
+                  </div>
+                )}
 
                 {selectedLog.Utensili_B1?.Ubicazione && (
                   <div className="p-3 rounded-xl glass-panel dark:border-white/5 border-slate-900/10 flex flex-col">

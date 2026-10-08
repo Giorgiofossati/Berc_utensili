@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { buildDesc } from '../lib/toolUtils';
+import { useAuthStore } from '../store/useAuthStore';
 
 export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -317,11 +318,32 @@ export const useAddToolForm = ({ tools, onClose, onToolAdded }) => {
       dataToInsert['Quantità'] = Number(formData['Quantità']) || 0;
       dataToInsert['Descrizione Originale'] = buildDesc(dataToInsert);
 
-      const { error: insertErr } = await supabase
+      const { data: insertedData, error: insertErr } = await supabase
         .from('Utensili_B1')
-        .insert([dataToInsert]);
+        .insert([dataToInsert])
+        .select();
 
       if (insertErr) throw insertErr;
+
+      const createdTool = insertedData?.[0];
+      if (createdTool?.id) {
+        const currentUser = useAuthStore.getState().currentUser;
+        const operatorName = currentUser ? `${currentUser.nome} ${currentUser.cognome}`.trim() : 'Admin';
+        const qty = Number(createdTool['Quantità']) || 0;
+
+        try {
+          await supabase.from('movements_history').insert({
+            tool_id: createdTool.id,
+            tipo_operazione: 'creazione',
+            quantita: qty,
+            operatore: operatorName || 'Admin',
+            operatore_destinatario: `Nuovo articolo a catalogo (${qty} pz iniziali)`,
+            created_at: new Date().toISOString()
+          });
+        } catch (histErr) {
+          console.warn('Errore registrazione movements_history creazione:', histErr);
+        }
+      }
 
       setShowSuccess(true);
       setTimeout(() => {

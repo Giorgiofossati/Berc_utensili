@@ -17,6 +17,36 @@ Questo file tiene traccia in ordine cronologico inverso di tutte le implementazi
    - `[PERF]`: Ottimizzazioni di prestazioni (bundle, caricamento, query).
    - `[DOCS]`: Aggiornamenti alla documentazione o regole di sistema.
 
+### [2026-10-07] - Registrazione Creazione e Modifica Utensili nello Storico Movimenti
+- **Tag**: `[FEAT]` / `[UX/UI]`
+- **Descrizione**:
+  - **Tracciamento Completo Creazione Utensile**: Inserito il salvataggio automatico in `movements_history` al momento della creazione di un nuovo articolo (`useAddToolForm`), registrando operatore, quantità iniziale immessa a catalogo e tipo operazione `creazione`.
+  - **Tracciamento Completo Modifica Utensile**: Inserito il salvataggio automatico in `movements_history` al momento dell'aggiornamento anagrafico di un articolo (`useEditToolForm`), annotando la giacenza risultante, l'operatore e il dettaglio puntuale di tutti i campi variati (es. giacenza, ubicazione, fornitore, prezzo, dimensioni).
+  - **Supporto Flussi Anagrafica in `movementTypes` e Filtro Dedicato in `HistoryView`**: Aggiunti i tipi `creazione` e `modifica` con styling semantico dedicato (`badge-emerald` con segno `+` per nuova creazione, `badge-orange` industriale per modifiche). Introdotto nel `SegmentedControl` dello storico movimenti il nuovo filtro rapido `Anagrafica` per isolare istantaneamente le sole operazioni di immissione e variazione anagrafica rispetto a depositi e prelievi.
+  - **Dettaglio Modale Trasparente**: Nel modale "Dettaglio Movimento", arricchita la visualizzazione con etichetta dinamica per la giacenza iniziale o risultante e blocco dedicato "Dettagli Modifica" / "Note Creazione" per la consultazione immediata dei campi modificati.
+  - **Recupero e Ricostruzione Storica Transazioni Pregresse**: Estratti dai log di audit di Supabase tutti i 19 eventi di immissione (`POST`) e variazione anagrafica (`PATCH`) eseguiti dagli operatori dall'interfaccia a partire dal 23 settembre 2026. Le registrazioni storiche sono state ricostruite e inserite con timestamp nativo, operatore, note e quantità originaria in `movements_history`, rendendo l'intera cronologia pregressa consultabile a sistema.
+  - **Resilienza Movimenti Multipli**: Aggiunto fallback client-side in `useMultiMovementStore` per garantire la registrazione puntuale in `movements_history` di ogni riga movimentata anche in caso di eccezione sulla RPC.
+- **File coinvolti**:
+  - [`src/lib/movementTypes.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/lib/movementTypes.js)
+  - [`src/hooks/useAddToolForm.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/hooks/useAddToolForm.js)
+  - [`src/hooks/useEditToolForm.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/hooks/useEditToolForm.js)
+  - [`src/store/useMultiMovementStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useMultiMovementStore.js)
+  - [`src/features/admin/HistoryView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/HistoryView.jsx)
+
+### [2026-10-07] - Correzione Bug Logout su Cambio Credenziali e Prevenzione Utente Fantasma 'Mario'
+- **Tag**: `[FIX]` / `[UX/UI]` / `[REFACTOR]`
+- **Descrizione**:
+  - **Reindirizzamento Obbligatorio al Login su Modifica Credenziali Operatore**: Risolto il problema per cui la modifica della propria password (o ruolo/codice ID badge) in Gestione Operatori manteneva attiva la sessione o corrompeva lo stato. Ora il salvataggio termina correttamente la sessione (`logout()`) e riporta immediatamente l'utente alla schermata di login, mostrando un banner informativo chiaro che invita a rientrare con le nuove credenziali.
+  - **Eliminazione del Fallback Fittizio 'Mario'**: Rimosso il fallback hardcoded `'Mario'` presente nella barra laterale (`Sidebar.jsx`), sostituendolo con `'Utente'` e garantendo che nessun utente fittizio inesistente nel database possa mai apparire a video.
+  - **Supporto Functional Updater e Validazione Rigorosa Utente in `useAuthStore`**: Corretto `setCurrentUser` per supportare updater a funzione (`prev => ...`), evitando che un callback venisse destrutturato producendo un oggetto vuoto `{}`. Aggiornata la funzione `sanitizeUser` per verificare la presenza obbligatoria di `id` e `nome`: se i dati risultano corrotti o vuoti, la sessione viene azzerata e ripulita automaticamente sia in memoria che nel `localStorage`.
+  - **Session Integrity Guard in `App.jsx`**: Aggiunto controllo preventivo a livello radice che rimanda a `LoginScreen` qualora `currentUser` risulti privo di identificativi validi, azzerando gli stati residui.
+- **File coinvolti**:
+  - [`src/features/admin/OperatorsView.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/admin/OperatorsView.jsx)
+  - [`src/store/useAuthStore.js`](file:///Users/gio/Documents/CODING/Berc_utensili/src/store/useAuthStore.js)
+  - [`src/components/layout/Sidebar.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/components/layout/Sidebar.jsx)
+  - [`src/App.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/App.jsx)
+  - [`src/features/auth/LoginScreen.jsx`](file:///Users/gio/Documents/CODING/Berc_utensili/src/features/auth/LoginScreen.jsx)
+
 ### [2026-10-05] - Correzione Allineamento Subpixel Divisori e Larghezza Colonne Tabella
 - **Tag**: `[FIX]` / `[UX/UI]` / `[PERF]`
 - **Descrizione**:

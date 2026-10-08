@@ -15,6 +15,8 @@ import {
   TrendingUp,
   Share,
   PlusSquare,
+  CheckCircle2,
+  X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from "@/components/ui/input";
@@ -55,6 +57,8 @@ const SYSTEM_FEATURES = [
 
 export default function LoginScreen() {
   const setCurrentUser = useAuthStore(state => state.setCurrentUser);
+  const loginNotice = useAuthStore(state => state.loginNotice);
+  const clearLoginNotice = useAuthStore(state => state.clearLoginNotice);
   const [showInfo, setShowInfo] = useState(false);
 
   // PWA install state
@@ -161,6 +165,7 @@ export default function LoginScreen() {
   };
 
   const handleSelectUser = (user) => {
+    if (clearLoginNotice) clearLoginNotice();
     setSelectedUser(user);
     setPassword('');
     setError('');
@@ -279,6 +284,25 @@ export default function LoginScreen() {
             <AnimatePresence mode="wait">
               {!selectedUser ? (
                 <motion.div key="user-grid" className="min-h-0 flex flex-col gap-3 sm:gap-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  {loginNotice && (
+                    <div className="shrink-0 flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-800 dark:text-emerald-300 shadow-xs">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />
+                        <span className="text-xs sm:text-sm font-semibold leading-tight font-sans">
+                          {loginNotice}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={clearLoginNotice}
+                        className="p-1.5 rounded-lg hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 transition-colors shrink-0 cursor-pointer"
+                        aria-label="Chiudi avviso"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  )}
+
                   <div className="shrink-0 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
                     <div>
                       <span className="app-overline text-accent-orange">Accesso Sistema</span>

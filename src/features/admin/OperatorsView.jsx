@@ -33,6 +33,7 @@ const withTimeout = (promise, timeoutMs = 5000) => {
 const OperatorsView = memo(({ setView }) => {
   const currentUser = useAuthStore(state => state.currentUser);
   const setCurrentUser = useAuthStore(state => state.setCurrentUser);
+  const logout = useAuthStore(state => state.logout);
 
   useEffect(() => {
     if (currentUser && currentUser.ruolo !== 'Admin') {
@@ -247,13 +248,28 @@ const OperatorsView = memo(({ setView }) => {
       showToast(editingUser ? `Operatore ${payload.nome} aggiornato con successo!` : `Operatore ${payload.nome} creato con successo!`);
       
       if (editingUser && editingUser.id === currentUser.id) {
-        if (payload.ruolo === 'Operatore') {
-          setCurrentUser(null);
+        const passwordChanged = Boolean(formData.password && formData.password.trim());
+        const roleChanged = payload.ruolo !== currentUser.ruolo;
+        const idCodeChanged = payload.codice_id !== currentUser.codice_id;
+
+        // Se l'utente attivo ha modificato la password, il ruolo o il codice ID badge,
+        // la sessione precedente termina e si reindirizza al login per riautenticarsi.
+        if (passwordChanged || roleChanged || idCodeChanged || payload.ruolo === 'Operatore') {
+          setIsDialogOpen(false);
+          const notice = passwordChanged
+            ? 'Password modificata con successo. Effettua nuovamente il login per accedere.'
+            : roleChanged
+            ? 'Ruolo aggiornato. Effettua nuovamente il login per accedere con i nuovi permessi.'
+            : 'Codice ID aggiornato. Effettua nuovamente il login con le nuove credenziali.';
+          
+          logout(notice);
           return;
         } else {
+          // Ha modificato solo nome o cognome: aggiorna il profilo attivo senza interrompere la sessione
           setCurrentUser(prev => ({
-            ...prev,
-            ...payload
+            ...(prev || currentUser),
+            nome: payload.nome,
+            cognome: payload.cognome
           }));
         }
       }
@@ -295,7 +311,8 @@ const OperatorsView = memo(({ setView }) => {
       showToast(`Operatore ${deletingUser.nome} rimosso dal sistema`);
       
       if (deletingUser.id === currentUser.id) {
-        setCurrentUser(null);
+        setIsDialogOpen(false);
+        logout("Il tuo account è stato rimosso dal sistema.");
         return;
       }
 

@@ -4,7 +4,10 @@ import { useFilterStore } from './useFilterStore';
 import { useTutorialStore } from './useTutorialStore';
 
 const sanitizeUser = (user) => {
-  if (!user) return null;
+  if (!user || typeof user !== 'object' || typeof user === 'function') return null;
+  if (!user.id || !user.nome || typeof user.nome !== 'string' || !user.nome.trim()) {
+    return null;
+  }
   // eslint-disable-next-line no-unused-vars
   const { password, ...safeUser } = user;
   return safeUser;
@@ -16,13 +19,43 @@ export const useAuthStore = create((set) => ({
       const saved = localStorage.getItem('berc_user');
       if (saved) {
         const parsed = JSON.parse(saved);
-        return sanitizeUser(parsed);
+        const validated = sanitizeUser(parsed);
+        if (!validated) {
+          localStorage.removeItem('berc_user');
+        }
+        return validated;
       }
     } catch (e) {
       console.error('Error parsing saved user', e);
+      try {
+        localStorage.removeItem('berc_user');
+      } catch { /* ignore */ }
     }
     return null;
   })(),
+  loginNotice: (() => {
+    try {
+      return sessionStorage.getItem('berc_login_notice') || null;
+    } catch {
+      return null;
+    }
+  })(),
+  setLoginNotice: (notice) => set(() => {
+    try {
+      if (notice) {
+        sessionStorage.setItem('berc_login_notice', notice);
+      } else {
+        sessionStorage.removeItem('berc_login_notice');
+      }
+    } catch { /* ignore */ }
+    return { loginNotice: notice || null };
+  }),
+  clearLoginNotice: () => set(() => {
+    try {
+      sessionStorage.removeItem('berc_login_notice');
+    } catch { /* ignore */ }
+    return { loginNotice: null };
+  }),
   login: (user) => set(() => {
     const safeUser = sanitizeUser(user);
     if (safeUser) {
@@ -42,9 +75,9 @@ export const useAuthStore = create((set) => ({
         useFilterStore.getState().setViewMode('dropdown');
       }
     }
-    return { currentUser: safeUser };
+    return { currentUser: safeUser, loginNotice: null };
   }),
-  logout: () => set(() => {
+  logout: (notice = null) => set(() => {
     try {
       localStorage.removeItem('berc_user');
     } catch { /* ignore */ }
@@ -53,10 +86,24 @@ export const useAuthStore = create((set) => ({
     } catch { /* ignore */ }
     useNavigationStore.getState().resetNavigation();
     useFilterStore.getState().resetFilters();
-    return { currentUser: null };
+
+    if (notice) {
+      try {
+        sessionStorage.setItem('berc_login_notice', notice);
+      } catch { /* ignore */ }
+    } else {
+      try {
+        sessionStorage.removeItem('berc_login_notice');
+      } catch { /* ignore */ }
+    }
+
+    return { currentUser: null, loginNotice: notice || null };
   }),
-  setCurrentUser: (user) => set(() => {
-    const safeUser = sanitizeUser(user);
+  setCurrentUser: (userOrUpdater) => set((state) => {
+    const rawUser = typeof userOrUpdater === 'function' 
+      ? userOrUpdater(state.currentUser) 
+      : userOrUpdater;
+    const safeUser = sanitizeUser(rawUser);
     if (safeUser) {
       try {
         localStorage.setItem('berc_user', JSON.stringify(safeUser));
@@ -72,6 +119,7 @@ export const useAuthStore = create((set) => ({
       } else {
         useFilterStore.getState().setViewMode('dropdown');
       }
+      return { currentUser: safeUser };
     } else {
       try {
         localStorage.removeItem('berc_user');
@@ -81,8 +129,8 @@ export const useAuthStore = create((set) => ({
       } catch { /* ignore */ }
       useNavigationStore.getState().resetNavigation();
       useFilterStore.getState().resetFilters();
+      return { currentUser: null };
     }
-    return { currentUser: safeUser };
   }),
   completeTutorial: () => set((state) => {
     if (!state.currentUser) return state;
